@@ -1,0 +1,646 @@
+.jockey-one-regular {
+    font-family: "Jockey One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+
+:root{
+
+    /* Colors */
+    --primary:#6B3F23;
+    --primary-dark:#4C2915;
+    --background:#F8F3EC;
+    --card:#FFFFFF;
+    --text:#2E2E2E;
+    --text-light:#666666;
+    --border:#D9D9D9;
+
+    /* Radius */
+    --radius-sm:10px;
+    --radius-md:16px;
+    --radius-lg:24px;
+
+    /* Shadow */
+    --shadow:0 20px 50px rgba(0,0,0,.15);
+
+    /* Transition */
+    --transition:.3s ease;
+
+}
+
+
+
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Poppins,sans-serif;
+}
+
+body{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:30px 0;
+
+    background:#f8f1e7;
+
+}
+
+@media (max-height: 900px) {
+
+    body {
+
+        align-items:flex-start;
+
+        padding:20px 0;
+
+    }
+
+}
+
+.login-card{
+
+    width:min(1180px,100%);
+
+    max-width:1180px;
+
+    min-height:820px;
+
+    height:auto;
+
+    background:white;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    box-shadow:0 20px 50px rgba(0,0,0,.15);
+
+}
+
+.left-panel{
+
+    width:38%;
+
+    background:#5B341E;
+
+}
+
+.right-panel{
+
+    flex:1;
+
+    background:white;
+
+}
+
+
+.left-panel{
+    width:38%;
+    background:#5B341E;
+    position:relative;
+    overflow:hidden;
+}
+
+.left-panel img{
+    position:absolute;
+    bottom:0;
+    left:50%;
+    transform:translateX(-40%);
+    width:120%;
+}
+
+.right-panel{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.login-content{
+    width:480px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+}
+
+.logo img{
+    width:100px;
+}
+
+.logo h1{
+    font-size:100px;
+    font-weight:700;
+    color:#5B341E;
+    margin-top:20px;
+    font-family: "Jockey One", sans-serif;
+}
+
+.subtitle{
+    text-align:center;
+    color:#5B341E;
+    font-size:30px;
+    margin:20px 0 50px;
+    line-height:1.5;
+    font-family: "Jockey One", sans-serif;
+}
+
+.subtitle1{
+    text-align:center;
+    color:#5B341E;
+    font-size:30px;
+    font-weight:600;
+    margin:0px 0 20px;
+    line-height:1.5;
+    font-family: "Jockey One", sans-serif;
+}
+
+.login-content h2{
+    text-align:left;
+    font-size:40px;
+    margin: 20px 0 10px;
+    font-family: "Jockey One", sans-serif;
+}
+
+.login-text{
+    text-align:left;
+    color:var(--text-light);
+    margin-bottom:35px;
+    font-family: abhaya-libre, sans-serif;
+}
+
+.input-group{
+    height:60px;
+    border:1px solid #d8d8d8;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    margin-bottom:22px;
+}
+
+.input-group input{
+    flex:1;
+    border:none;
+    outline:none;
+    font-size:18px;
+    margin-left:15px;
+}
+
+/* Hide browser-native password reveal buttons so only the custom eye icon remains. */
+.input-group input::-ms-reveal,
+.input-group input::-ms-clear,
+.input-group input::-webkit-password-reveal-button,
+.input-group input::-webkit-textfield-decoration-container {
+    display: none !important;
+}
+
+.input-group i{
+    color:#6B3F23;
+    font-size:20px;
+}
+
+.eye{
+    cursor:pointer;
+}
+
+.input-error{
+    color:#d0312d;
+    font-size:14px;
+    margin:8px 0 20px;
+}
+
+.options{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:30px;
+    font-size:15px;
+}
+
+.options a{
+    color:var(--primary);
+}
+
+button{
+    width:100%;
+    height:60px;
+    border:none;
+    border-radius:12px;
+    background:var(--primary);
+    color:white;
+    font-size:22px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:var(--primary-dark);
+}
+
+.register{
+    text-align:center;
+    margin: 15px 0 30px 0;
+}
+
+.register a{
+    color:#5B341E;
+    font-weight:600;
+}
+
+
+@media (max-width: 1366px) {
+
+    .login-card{
+        width:95%;
+        height:auto;
+        max-height:calc(100vh - 40px);
+    }
+
+    .login-content{
+        width:430px;
+    }
+
+    .logo h1{
+        font-size:60px;
+        fntfamily: 'Jockey One', sans-serif;
+    }
+
+}
+
+@media (max-height: 820px) {
+
+    .login-card {
+        width:95%;
+        max-height:calc(100vh - 24px);
+    }
+
+    .login-content {
+        width:430px;
+    }
+
+    .login-content h2 {
+        margin-bottom:8px;
+    }
+
+    .login-text {
+        margin-bottom:24px;
+    }
+
+    .input-group {
+        height:52px;
+        margin-bottom:18px;
+    }
+
+    .input-group input {
+        font-size:16px;
+    }
+
+    button {
+        height:52px;
+        font-size:20px;
+    }
+
+    .options {
+        margin-bottom:20px;
+    }
+
+    .register {
+        margin: 0;
+    }
+
+
+
+}
+
+
+@media (max-width: 1024px){
+
+    body{
+        padding:30px;
+    }
+
+    .login-card{
+
+        width:100%;
+        height:auto;
+
+    }
+
+    .left-panel{
+
+        width:40%;
+
+    }
+
+    .left-panel img{
+
+        width:135%;
+
+    }
+
+    .login-content{
+
+        width:85%;
+
+        padding:60px 0;
+
+    }
+
+    .logo img{
+
+        width:80px;
+
+    }
+
+    .logo h1{
+
+        font-size:55px;
+
+    }
+
+    .login-content h2{
+
+        font-size:40px;
+
+    }
+
+    .right-panel {
+
+        align-items:flex-start;
+
+        padding-top:30px;
+
+    }
+
+}
+
+
+@media (max-width:768px){
+
+    body{
+
+        padding:20px;
+
+    }
+
+    .login-card{
+
+        flex-direction:column;
+
+        width:100%;
+
+        height:auto;
+
+    }
+
+    .left-panel{
+
+        width:100%;
+
+        height:260px;
+
+    }
+
+    .left-panel img{
+
+        width:320px;
+
+        left:50%;
+
+        transform:translateX(-50%);
+
+    }
+
+    .right-panel{
+
+        padding:50px 25px;
+
+    }
+
+    .login-content{
+
+        width:100%;
+
+    }
+
+    .logo img{
+
+        width:65px;
+
+    }
+
+    .logo h1{
+
+        font-size:48px;
+
+    }
+
+    .subtitle{
+
+        font-size:18px;
+
+    }
+
+
+    .login-content h2{
+
+        font-size:38px;
+
+        text-align:center;
+
+    }
+
+    .login-text{
+
+        text-align:center;
+
+    }
+
+}
+
+
+@media (max-width:576px){
+
+    body{
+
+        padding:15px;
+
+    }
+
+    .left-panel{
+
+        height:200px;
+
+    }
+
+    .left-panel img{
+
+        width:260px;
+
+    }
+
+    .logo{
+
+        flex-direction:column;
+
+        gap:5px;
+
+    }
+
+    .logo img{
+
+        width:55px;
+
+    }
+
+    .logo h1{
+
+        font-size:42px;
+
+    }
+
+    .subtitle{
+
+        font-size:16px;
+
+        margin-bottom:35px;
+
+    }
+
+    .login-content h2{
+
+        font-size:32px;
+
+    }
+
+    .input-group{
+
+        height:55px;
+
+    }
+
+    .input-group input{
+
+        font-size:16px;
+
+    }
+
+    .options{
+
+        flex-direction:column;
+
+        gap:15px;
+
+        align-items:flex-start;
+
+    }
+
+    button{
+
+        height:55px;
+
+        font-size:20px;
+
+    }
+
+}
+
+
+@media (max-width:390px){
+
+    .logo h1{
+
+        font-size:36px;
+
+    }
+
+    .login-content h2{
+
+        font-size:28px;
+
+    }
+
+    .subtitle{
+
+        font-size:15px;
+
+    }
+
+    .register{
+
+        font-size:14px;
+
+    }
+
+}
+
+
+.remember{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    cursor:pointer;
+
+}
+
+.remember input{
+
+    display:none;
+
+}
+
+.remember span{
+
+    width:18px;
+
+    height:18px;
+
+    border:2px solid var(--primary);
+
+    border-radius:4px;
+
+    position:relative;
+
+}
+
+.remember input:checked + span{
+
+    background:var(--primary);
+
+}
+
+.remember input:checked + span::after{
+
+    content:"✓";
+
+    position:absolute;
+
+    color:white;
+
+    left:3px;
+
+    top:-2px;
+
+    font-size:12px;
+
+}
