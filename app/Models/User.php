@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -45,5 +47,33 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+
+
+
+    public function folders(): HasMany
+    {
+        return $this->hasMany(Folder::class);
+    }
+    
+    public function passwordEntries(): HasMany
+    {
+        return $this->hasMany(PasswordEntry::class);
+    }
+    
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Note::class);
+    }
+    
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+    
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
     }
 }
