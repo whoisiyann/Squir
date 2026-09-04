@@ -20,39 +20,10 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
 </head>
 <body>
 <div class="app-shell" id="appShell">
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-    <aside class="sidebar" id="appSidebar">
-        <div class="brand-row">
-            <button class="sidebar-collapse-btn" id="collapseBtn" type="button" aria-label="Collapse sidebar"><i class="ti ti-menu-2"></i></button>
-            <a class="brand" href="./dashboard.php"><img src="./assets/images/squir.png" alt=""><span>Squir</span></a>
-        </div>
-        <nav class="sidebar-nav" aria-label="Main navigation">
-            <span class="nav-caption">Navigation</span>
-            <a class="nav-link active" href="./dashboard.php"><i class="ti ti-home"></i><span>Dashboard</span></a>
-            <a class="nav-link" href="#credentials"><i class="ti ti-key"></i><span>Vault</span></a>
-            <a class="nav-link" href="#notes"><i class="ti ti-notes"></i><span>Notes</span></a>
-            <a class="nav-link" href="#tasks"><i class="ti ti-edit"></i><span>Tasks</span></a>
-            <a class="nav-link" href="#folders"><i class="ti ti-folder"></i><span>Folders</span></a>
-            <a class="nav-link" href="#favorites"><i class="ti ti-star"></i><span>Favorites</span></a>
-        </nav>
-        <nav class="sidebar-nav sidebar-bottom" aria-label="Account navigation">
-            <span class="nav-caption">Settings</span>
-            <a class="nav-link" href="#settings"><i class="ti ti-settings"></i><span>Settings</span></a>
-            <a class="nav-link" href="./logout.php"><i class="ti ti-logout"></i><span>Log Out</span></a>
-        </nav>
-        <div class="sidebar-illustration"><img src="./assets/images/squirrel.gif" alt="Squir mascot"></div>
-    </aside>
+    <?php require __DIR__ . '/../../../includes/sidebar.php'; ?>
 
     <div class="main-area">
-        <header class="topbar">
-            <button class="mobile-toggle-btn" id="mobileBtn" type="button" aria-label="Open menu"><i class="ti ti-menu-2"></i></button>
-            <div class="search-box"><i class="ti ti-search"></i><input type="search" placeholder="Search anything..." aria-label="Search"></div>
-            <div class="topbar-actions">
-                <button class="icon-btn" type="button" aria-label="Notifications"><i class="ti ti-bell"></i><span class="notification-dot"></span></button>
-                <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><i class="ti ti-moon"></i></button>
-                <div class="profile"><span class="avatar"><?= htmlspecialchars($initials, ENT_QUOTES, 'UTF-8') ?></span><span class="profile-name"><?= htmlspecialchars($user['full_name'], ENT_QUOTES, 'UTF-8') ?></span><i class="ti ti-chevron-down"></i></div>
-            </div>
-        </header>
+        <?php require __DIR__ . '/../../../includes/header.php'; ?>
 
         <main class="content-area">
             <div class="page-heading">
