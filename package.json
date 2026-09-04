@@ -1,0 +1,53 @@
+{
+  "name": "tailwind-admin-template",
+  "version": "1.0.0",
+  "description": "Tailwind Admin Template",
+  "license": "ISC",
+  "author": "Software LLC",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp build-prod",
+    "format": "prettier --write ./src"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "@tailwindcss/vite": "^4.3.3",
+    "animate.css": "^4.1.1",
+    "browser-sync": "^3.0.2",
+    "clipboard": "^2.0.11",
+    "feather-icons": "^4.29.1",
+    "gulp-file-include": "^2.3.0",
+    "gulp-postcss": "^9.0.1",
+    "gulp-sourcemaps": "^2.6.5",
+    "simplebar": "^6.2.5",
+    "tailwindcss": "^3.4.19",
+    "wow.js": "^1.2.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.3",
+    "@babel/helper-environment-visitor": "^7.22.20",
+    "del": "^6.1.1",
+    "gulp": "^5.0.1",
+    "gulp-autoprefixer": "^10.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-cssbeautify": "^3.0.1",
+    "gulp-cssmin": "^0.2.0",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-imagemin": "^7.1.0",
+    "gulp-inject": "^5.0.5",
+    "gulp-minify": "^3.0.0",
+    "gulp-sass": "^5.1.0",
+    "gulp-smushit": "1.2.0",
+    "gulp-uglify": "^3.0.2",
+    "merge-stream": "^2.0.0",
+    "prettier": "3.2.5",
+    "prettier-plugin-tailwindcss": "^0.3.0",
+    "sass": "^1.71.1",
+    "tailwindcss-themer": "^4.0.0"
+  },
+  "overrides": {
+    "graceful-fs": "^4.2.11"
+  }
+}
