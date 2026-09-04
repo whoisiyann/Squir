@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true);
         $_SESSION['user_id'] = (int) $result['values']['user_id'];
         $_SESSION['user_role'] = $result['values']['role'];
-        header('Location: ./app/views/dashboard/index.php');
+        header('Location: ./dashboard.php');
         exit;
     }
 }
