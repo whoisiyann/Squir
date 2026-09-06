@@ -1,3 +1,5 @@
+<!-- models/User.php -->
+
 <?php
 
 class User

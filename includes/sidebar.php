@@ -1,3 +1,9 @@
+<!-- Squir/includes/sidebar.php -->
+
+<?php
+$currentPage = basename($_SERVER['SCRIPT_NAME'] ?? '');
+$isActivePage = static fn (string $page): string => $currentPage === $page ? ' active' : '';
+?>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar" id="appSidebar">
     <div class="brand-row">
@@ -6,8 +12,8 @@
     </div>
     <nav class="sidebar-nav" aria-label="Main navigation">
         <span class="nav-caption">Modules</span>
-        <a class="nav-link active" href="./dashboard.php"><i class="ti ti-home"></i><span>Dashboard</span></a>
-        <a class="nav-link" href="#credentials"><i class="ti ti-key"></i><span>Vault</span></a>
+        <a class="nav-link<?= $isActivePage('dashboard.php') ?>" href="./dashboard.php"<?= $currentPage === 'dashboard.php' ? ' aria-current="page"' : '' ?>><i class="ti ti-home"></i><span>Dashboard</span></a>
+        <a class="nav-link<?= $isActivePage('vault.php') ?>" href="./vault.php"<?= $currentPage === 'vault.php' ? ' aria-current="page"' : '' ?>><i class="ti ti-key"></i><span>Vault</span></a>
         <a class="nav-link" href="#notes"><i class="ti ti-notes"></i><span>Notes</span></a>
         <a class="nav-link" href="#tasks"><i class="ti ti-edit"></i><span>Tasks</span></a>
         <a class="nav-link" href="#folders"><i class="ti ti-folder"></i><span>Folders</span></a>

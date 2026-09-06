@@ -1,3 +1,5 @@
+<!-- Squir/register.php -->
+
 <?php
 session_start();
 

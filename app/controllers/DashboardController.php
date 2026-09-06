@@ -1,3 +1,4 @@
+<!-- DashboardController.php -->
 <?php
 
 class DashboardController

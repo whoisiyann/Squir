@@ -1,3 +1,5 @@
+<!-- view/auth/register.php -->
+
 <?php
 $errors = $errors ?? [];
 $values = $values ?? ['fullName' => '', 'username' => '', 'email' => ''];

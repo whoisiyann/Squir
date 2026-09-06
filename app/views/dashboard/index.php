@@ -1,3 +1,5 @@
+<!-- views/dashboard/index.php -->
+
 <?php
 if (!isset($dashboard) || !is_array($dashboard) || empty($dashboard['user'])) {
     header('Location: ../../../index.php');

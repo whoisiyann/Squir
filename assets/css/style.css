@@ -1,10 +1,4 @@
-/* File path: assets/css/style.css  (papalit dito)
-   Dagdag: (1) hidden scrollbar sa .sidebar - functional pa rin ang scroll
-   (safety net) pero walang visible track/thumb. (2) sa @media max-width:700px,
-   pinaliit ang spacing/padding/gaps ng sidebar (brand, nav-caption, nav-links,
-   sidebar-bottom, illustration) para bumagsak ang kabuuang taas ng laman sa
-   ~530-550px - komportableng kasya sa 360x740 device nang WALANG scroll,
-   kasama na ang illustration. */
+/* assets/css/style.css */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
@@ -290,6 +284,13 @@ button, input {
   position: relative;
   border: 0;
   background: transparent;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+
+.icon-btn:hover {
+  background: var(--soft);
+  color: var(--accent);
 }
 
 .notification-dot {

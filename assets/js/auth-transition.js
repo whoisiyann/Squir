@@ -1,3 +1,5 @@
+// assets/js/auth-transition.js
+
 (function () {
     var leaving = false;
 

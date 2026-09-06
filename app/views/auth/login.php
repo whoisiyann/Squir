@@ -1,3 +1,5 @@
+<!-- view/auth/login.php -->
+
 <?php
 $errors = $errors ?? [];
 $values = $values ?? ['email' => ''];

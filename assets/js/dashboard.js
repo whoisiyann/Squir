@@ -1,3 +1,5 @@
+// assets/js/dasboard.js
+
 (function () {
     var shell = document.getElementById('appShell');
     var collapseButton = document.getElementById('collapseBtn');
@@ -5,6 +7,17 @@
     var backdrop = document.getElementById('sidebarBackdrop');
     var themeButton = document.getElementById('themeToggle');
     var themeStorageKey = 'squir-dashboard-theme';
+
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            document.querySelectorAll('.sidebar-nav .nav-link.active').forEach(function (activeLink) {
+                activeLink.classList.remove('active');
+                activeLink.removeAttribute('aria-current');
+            });
+            link.classList.add('active');
+            link.setAttribute('aria-current', 'page');
+        });
+    });
 
     function applyTheme(isDark) {
         document.body.classList.toggle('dashboard-dark', isDark);

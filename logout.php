@@ -1,3 +1,5 @@
+<!-- Squir/logout.php -->
+
 <?php
 session_start();
 

@@ -1,3 +1,5 @@
+<!-- Squir/dashboard.php -->
+
 <?php
 session_start();
 

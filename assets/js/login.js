@@ -1,3 +1,5 @@
+// assets/js/login.js
+
 document.querySelectorAll('.toggle-password').forEach(function (button) {
     button.addEventListener('click', function () {
         var input = document.getElementById(button.dataset.target);

@@ -1,3 +1,4 @@
+/* assets/css/dashboard.css */
 
 .content-area {
   width: 100%;
@@ -44,6 +45,7 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
+  transition: filter .15s ease, transform .15s ease;
 }
 
 .quick-add i:last-child {
@@ -52,7 +54,7 @@
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(4,1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 14px;
   flex: 0 0 auto;
@@ -102,15 +104,16 @@
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(2,1fr);
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(220px, 1fr));
+  grid-auto-rows: minmax(220px, auto);
   gap: 14px;
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
+  min-height: 454px;
 }
 
 .app-card {
-  min-height: 0;
+  min-height: 220px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -118,7 +121,7 @@
 
 .folder-card {
   grid-column: 1/-1;
-  min-height: 0;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
 }
@@ -181,9 +184,32 @@
   font-size: .75rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .stat-grid {
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .page-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 800px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: minmax(180px, auto);
+    flex: 0 0 auto;
+    min-height: 0;
+  }
+  .app-card, .folder-card {
+    min-height: 180px;
+  }
+  .folder-card {
+    grid-column: auto;
   }
 }
 
@@ -195,7 +221,7 @@
     padding-top: calc(var(--topbar-h) + 14px);
   }
   .dashboard-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
     grid-auto-rows: minmax(180px, auto);
     flex: 0 0 auto;
@@ -205,13 +231,6 @@
   }
   .empty-state {
     min-height: 140px;
-  }
-  .page-heading {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .folder-card {
-    grid-column: auto;
   }
   .small-action {
     gap: 5px;

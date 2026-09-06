@@ -1,3 +1,7 @@
+-- squir_db.sql
+
+
+
 -- =========================================================
 -- SQUIR: Personal Digital Vault and Productivity Companion
 -- Official Database Schema (Optimized for MySQL / XAMPP)
@@ -221,3 +225,24 @@ VALUES (
     'admin',
     'active'
 );
+
+
+
+
+
+
+-- ============================================================
+-- Migration: magdagdag ng "tags" column sa vault table
+-- I-run mo ito sa phpMyAdmin / mysql client (isang beses lang).
+-- ============================================================
+ 
+USE squir_db;
+ 
+ALTER TABLE vault
+    ADD COLUMN tags VARCHAR(255) NULL DEFAULT NULL AFTER website_url;
+ 
+-- Tandaan: comma-separated storage lang ito (hal. "dev,cloud"),
+-- max 5 tags per item, dahil doon din naman naka-design yung
+-- Tags input sa create/edit modal ("dev, finance (max 5)").
+-- Hindi na kailangan ng hiwalay na tags table para dito.
+ 
