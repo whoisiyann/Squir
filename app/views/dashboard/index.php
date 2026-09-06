@@ -1,6 +1,6 @@
 <?php
 if (!isset($dashboard) || !is_array($dashboard) || empty($dashboard['user'])) {
-    header('Location: ../../../dashboard.php');
+    header('Location: ../../../index.php');
     exit;
 }
 
@@ -15,7 +15,17 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Squir - Dashboard</title>
+    <script>
+        (function () {
+            try {
+                if (window.localStorage.getItem('squir-dashboard-theme') === 'dark') {
+                    document.documentElement.classList.add('dashboard-dark-preload');
+                }
+            } catch (error) {}
+        })();
+    </script>
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
 </head>
 <body>
@@ -27,7 +37,7 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
 
         <main class="content-area">
             <div class="page-heading">
-                <div><h1>Good morning, <?= htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') ?>!</h1><p>Here's what's happening with your vault today.</p></div>
+                <div><h1>What’s on your mind today, <?= htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') ?>!</h1><p>Here's what's happening with your vault today.</p></div>
                 <button class="quick-add" type="button"><i class="ti ti-plus"></i> Quick Add <i class="ti ti-chevron-down"></i></button>
             </div>
 
@@ -46,6 +56,6 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
         </main>
     </div>
 </div>
-<script src="./assets/js/dashboard.js"></script>
+<script src="./assets/js/dashboard.js?v=2"></script>
 </body>
 </html>

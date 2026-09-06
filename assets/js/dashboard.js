@@ -4,8 +4,29 @@
     var mobileButton = document.getElementById('mobileBtn');
     var backdrop = document.getElementById('sidebarBackdrop');
     var themeButton = document.getElementById('themeToggle');
+    var themeStorageKey = 'squir-dashboard-theme';
+
+    function applyTheme(isDark) {
+        document.body.classList.toggle('dashboard-dark', isDark);
+        document.documentElement.classList.remove('dashboard-dark-preload');
+        themeButton.querySelector('i').className = isDark ? 'ti ti-sun' : 'ti ti-moon';
+        themeButton.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        themeButton.setAttribute('title', isDark ? 'Light Mode' : 'Dark Mode');
+    }
+
+    var savedTheme = null;
+    try {
+        savedTheme = window.localStorage.getItem(themeStorageKey);
+    } catch (error) {
+        savedTheme = null;
+    }
+    applyTheme(savedTheme === 'dark');
 
     collapseButton.addEventListener('click', function () {
+        if (window.matchMedia('(max-width: 700px)').matches) {
+            shell.classList.remove('mobile-open');
+            return;
+        }
         shell.classList.toggle('sidebar-collapsed');
     });
 
@@ -18,7 +39,12 @@
     });
 
     themeButton.addEventListener('click', function () {
-        document.body.classList.toggle('dashboard-dark');
-        themeButton.querySelector('i').className = document.body.classList.contains('dashboard-dark') ? 'ti ti-sun' : 'ti ti-moon';
+        var isDark = !document.body.classList.contains('dashboard-dark');
+        applyTheme(isDark);
+        try {
+            window.localStorage.setItem(themeStorageKey, isDark ? 'dark' : 'light');
+        } catch (error) {
+            // Theme still works for the current page if storage is unavailable.
+        }
     });
 })();

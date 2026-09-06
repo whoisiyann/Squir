@@ -5,7 +5,7 @@
         <a class="brand" href="./dashboard.php"><img src="./assets/images/squir.png" alt=""><span>Squir</span></a>
     </div>
     <nav class="sidebar-nav" aria-label="Main navigation">
-        <span class="nav-caption">Navigation</span>
+        <span class="nav-caption">Modules</span>
         <a class="nav-link active" href="./dashboard.php"><i class="ti ti-home"></i><span>Dashboard</span></a>
         <a class="nav-link" href="#credentials"><i class="ti ti-key"></i><span>Vault</span></a>
         <a class="nav-link" href="#notes"><i class="ti ti-notes"></i><span>Notes</span></a>
