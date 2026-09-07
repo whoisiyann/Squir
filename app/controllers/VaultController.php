@@ -14,12 +14,15 @@ class VaultController
     public function index(int $userId, array $query): array
     {
         $folderId = isset($query['folder']) && $query['folder'] !== '' ? (int) $query['folder'] : null;
+        if ($folderId !== null && $folderId <= 0) {
+            $folderId = null;
+        }
         $search = trim((string) ($query['q'] ?? ''));
         $tag = trim((string) ($query['tag'] ?? ''));
 
         $items = $this->vaultModel->searchForUser($userId, $folderId, $search, $tag !== '' ? $tag : null);
 
-        // i-mark kung alin sa mga item ang paborito ng user (para sa bituin sa listahan)
+
         $favoriteIds = $this->favoriteVaultIds($userId);
         foreach ($items as &$item) {
             $item['is_favorite'] = in_array((int) $item['vault_id'], $favoriteIds, true);
@@ -30,7 +33,7 @@ class VaultController
             'items' => $items,
             'total' => count($items),
             'folders' => $this->getFolders($userId),
-            'tags' => $this->vaultModel->tagCountsForUser($userId), // ['dev' => 3, 'cloud' => 1, ...]
+            'tags' => $this->vaultModel->tagCountsForUser($userId), 
             'activeFolder' => $folderId,
             'activeTag' => $tag,
             'search' => $search,
@@ -86,12 +89,6 @@ class VaultController
         }
         return $this->vaultModel->decryptSecret($item['account_password']);
     }
-
-    /**
-     * I-toggle ang favorite state ng isang vault item mula sa listahan
-     * (star icon sa tabi ng item / sa Actions column).
-     * Ginagamit ito ng bagong `?ajax=toggle_favorite` branch sa vault.php.
-     */
     public function toggleFavorite(int $vaultId, int $userId): ?bool
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -128,8 +125,7 @@ class VaultController
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /** Lahat ng vault_id na paborito ng user, sa iisang query lang (para hindi N+1 sa listahan). */
-    private function favoriteVaultIds(int $userId): array
+      private function favoriteVaultIds(int $userId): array
     {
         $stmt = $this->dbh->prepare('SELECT vault_id FROM favorites WHERE user_id = :uid AND vault_id IS NOT NULL');
         $stmt->execute(['uid' => $userId]);
@@ -148,7 +144,7 @@ class VaultController
         $check = $this->dbh->prepare('SELECT favorite_id FROM favorites WHERE user_id = :uid AND vault_id = :vid');
         $check->execute(['uid' => $userId, 'vid' => $vaultId]);
         if ($check->fetchColumn()) {
-            return; // existing na, iwas duplicate (per warning sa schema mo)
+            return; 
         }
 
         $stmt = $this->dbh->prepare('INSERT INTO favorites (user_id, vault_id) VALUES (:uid, :vid)');

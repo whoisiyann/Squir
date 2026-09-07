@@ -65,11 +65,12 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 
                 <!-- Search + tags + Add Vault, magkakasama ngayon sa kanang side ng toolbar -->
                 <div class="vault-toolbar-right">
-                    <form method="get" class="vault-search" role="search">
+                    <form method="get" class="vault-search" role="search" id="vaultSearchForm" autocomplete="off">
                         <i class="ti ti-search"></i>
-                        <input type="search" name="q" placeholder="Search vault..." value="<?= $escape($data['search']) ?>">
-                        <input type="hidden" name="folder" value="<?= (int) $data['activeFolder'] ?>">
+                        <input type="search" name="q" id="vaultSearchInput" placeholder="Search vault..." value="<?= $escape($data['search']) ?>">
+                        <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                         <input type="hidden" name="tag" value="<?= $escape($data['activeTag']) ?>">
+                        <div class="vault-search-suggestions" id="vaultSearchSuggestions"></div>
                     </form>
 
                     <form method="get" class="vault-tags-filter">
@@ -83,7 +84,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <?php endforeach; ?>
                         </select>
                         <input type="hidden" name="q" value="<?= $escape($data['search']) ?>">
-                        <input type="hidden" name="folder" value="<?= (int) $data['activeFolder'] ?>">
+                        <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                         <i class="ti ti-chevron-down chevron"></i>
                     </form>
 

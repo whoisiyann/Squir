@@ -208,32 +208,22 @@
     });
 
     /* ---------- 3-dot dropdown menu ---------- */
-    /*
-     * Dati, `.vault-menu-dropdown` ay `position: absolute` relative sa
-     * `.vault-menu` (ang parent nito). Problema: dahil naka-scroll na
-     * ngayon ang #vaultTableWrap (overflow-y: auto) at grid cards naman
-     * ang magkakatabi sa grid view, na-cli-clip / natatakpan ang dropdown
-     * ng ibang laman (kasunod na row/card, o ng scroll boundary mismo).
-     *
-     * Ayos: sa pag-open, kino-compute natin ang exact position ng button
-     * gamit ang getBoundingClientRect(), tapos ilalagay natin ang dropdown
-     * bilang `position: fixed` sa eksaktong lugar na iyon (via inline
-     * style). Dahil `position: fixed` ay relative sa buong viewport (hindi
-     * sa alinmang scrollable na ninuno), hindi na ito ma-c-clip pa ng
-     * #vaultTableWrap o matatakpan ng kahit anong card/row.
-     *
-     * Para hindi "lumutang" sa lugar ang dropdown habang naka-scroll ang
-     * user (dahil naka-fix na ito sa screen samantalang gumagalaw naman
-     * ang button sa ilalim ng scroll), isinasara na lang natin agad ang
-     * bukas na dropdown sa sandaling mag-scroll o mag-resize.
-     */
     function closeAllMenus() {
         $all('.vault-menu-dropdown.open').forEach(function (menu) {
             menu.classList.remove('open');
             menu.style.top = '';
             menu.style.left = '';
+
+            if (menu._vaultMenuPlaceholder && menu._vaultMenuPlaceholder.parentNode) {
+                menu._vaultMenuPlaceholder.parentNode.replaceChild(menu, menu._vaultMenuPlaceholder);
+                menu._vaultMenuPlaceholder = null;
+            }
+        });
+        $all('tr.vault-menu-open', tableWrap).forEach(function (row) {
+            row.classList.remove('vault-menu-open');
         });
     }
+    
 
     function positionMenu(menu, btn) {
         var rect = btn.getBoundingClientRect();
@@ -245,7 +235,6 @@
         var top = rect.bottom + 6;
         var menuHeight = menu.offsetHeight || 0;
         if (menuHeight && top + menuHeight > window.innerHeight - 8) {
-            // kung mauubusan na ng puwang sa ibaba, ilagay na lang sa itaas ng button
             top = rect.top - menuHeight - 6;
         }
 
@@ -254,12 +243,22 @@
     }
 
     $all('.vault-menu-btn').forEach(function (btn) {
+        var menu = btn.parentElement.querySelector('.vault-menu-dropdown'); 
+
         btn.addEventListener('click', function (event) {
             event.stopPropagation();
-            var menu = btn.parentElement.querySelector('.vault-menu-dropdown');
+            var row = btn.closest('tr');
             var willOpen = !menu.classList.contains('open');
             closeAllMenus();
             if (willOpen) {
+                if (row) row.classList.add('vault-menu-open');
+
+                var placeholder = document.createElement('span');
+                placeholder.style.display = 'none';
+                menu.parentNode.insertBefore(placeholder, menu);
+                menu._vaultMenuPlaceholder = placeholder;
+                document.body.appendChild(menu);
+
                 menu.classList.add('open');
                 positionMenu(menu, btn);
             }
@@ -269,7 +268,6 @@
     document.addEventListener('click', closeAllMenus);
     window.addEventListener('resize', closeAllMenus);
     if (tableWrap) tableWrap.addEventListener('scroll', closeAllMenus, { passive: true });
-
     /* ---------- Favorite star: toggle straight from the Vault list (Actions column) ---------- */
     function toggleFavorite(vaultId) {
         var body = new URLSearchParams();
@@ -294,8 +292,6 @@
             el.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
             el.setAttribute('aria-label', isFavorite ? 'Remove from favorites' : 'Add to favorites');
             el.setAttribute('data-tooltip', isFavorite ? 'Unfavorite' : 'Favorite');
-            // Hindi natin binabago yung icon class (ti-star lang palagi) — yung
-            // .is-fav class na sa CSS ang bahala sa pagpalit ng kulay papuntang gold.
         });
     }
 
@@ -306,11 +302,11 @@
             var id = row.getAttribute('data-vault-id');
             var wasFavorite = row.getAttribute('data-favorite') === '1';
 
-            applyFavoriteState(row, !wasFavorite); // optimistic update, agad-agad ang feel
+            applyFavoriteState(row, !wasFavorite); 
             toggleFavorite(id).then(function (json) {
                 applyFavoriteState(row, !!json.is_favorite);
             }).catch(function () {
-                applyFavoriteState(row, wasFavorite); // ibalik kung nabigo
+                applyFavoriteState(row, wasFavorite); 
             });
         });
     });
@@ -327,8 +323,6 @@
             btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
         try { window.localStorage.setItem(VIEW_KEY, view); } catch (error) {}
-        // ang paglipat ng view ay pwedeng magbago ng laki ng laman
-        // (list vs. cards), kaya kailangan i-recheck ang scroll hint
         requestAnimationFrame(updateScrollHint);
     }
 
@@ -340,15 +334,7 @@
     try { savedView = window.localStorage.getItem(VIEW_KEY); } catch (error) {}
     if (savedView === 'grid') setView('grid');
 
-    /* ---------- Bottom info bar: "Scroll down to see more items" hint ---------- */
-    /*
-     * Palagi nakikita ang "N vault items" (server-rendered na sa index.php).
-     * Yung "Scroll down to see more items" naman ay lalabas lang kapag:
-     *   1. May overflow talaga ang #vaultTableWrap (mas mataas ang laman
-     *      kaysa sa max-height nito), AT
-     *   2. Hindi pa naka-scroll ang user hanggang sa dulo.
-     * Nawawala ito kapag na-reach na ang ibaba ng listahan.
-     */
+
     var scrollHint = document.getElementById('vaultScrollHint');
 
     function updateScrollHint() {
@@ -363,4 +349,123 @@
         window.addEventListener('resize', updateScrollHint);
         updateScrollHint();
     }
+
+
+    (function () {
+        var form = document.getElementById('vaultSearchForm');
+        var input = document.getElementById('vaultSearchInput');
+        var box = document.getElementById('vaultSearchSuggestions');
+        if (!form || !input || !box || !tableWrap) return;
+
+        var activeIndex = -1;
+        var currentMatches = [];
+
+        function rowTitle(row) {
+            var strong = row.querySelector('.vault-item-text strong');
+            return strong ? strong.textContent.trim() : '';
+        }
+
+        function closeSuggestions() {
+            box.classList.remove('open');
+            box.innerHTML = '';
+            activeIndex = -1;
+            currentMatches = [];
+        }
+
+        function setActive(index) {
+            $all('.vault-search-suggestion', box).forEach(function (el, i) {
+                el.classList.toggle('active', i === index);
+            });
+            activeIndex = index;
+        }
+
+        function renderSuggestions(matches) {
+            currentMatches = matches;
+            box.innerHTML = '';
+
+            if (matches.length === 0) {
+                closeSuggestions();
+                return;
+            }
+
+            matches.forEach(function (match) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'vault-search-suggestion';
+                btn.setAttribute('data-vault-id', match.id);
+                btn.setAttribute('data-title', match.title);
+                btn.appendChild(document.createTextNode(match.title));
+                box.appendChild(btn);
+            });
+
+            box.classList.add('open');
+            setActive(0);
+        }
+
+        function highlightRow(row) {
+            if (!row) return;
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.remove('vault-item-highlight');
+            void row.offsetWidth; // force reflow para paulit-ulit gumana ang transition
+            row.classList.add('vault-item-highlight');
+            setTimeout(function () { row.classList.remove('vault-item-highlight'); }, 1700);
+        }
+
+        function jumpToVaultId(id, title) {
+            if (title !== undefined) input.value = title; // i-autocomplete ang search bar
+            var row = tableWrap.querySelector('tr[data-vault-id="' + id + '"]');
+            highlightRow(row);
+            closeSuggestions();
+            input.blur();
+        }
+
+        input.addEventListener('input', function () {
+            var q = input.value.trim().toLowerCase();
+            if (q === '') { closeSuggestions(); return; }
+
+            var matches = [];
+            $all('tr[data-vault-id]', tableWrap).forEach(function (row) {
+                var title = rowTitle(row);
+                if (title.toLowerCase().indexOf(q) !== -1) {
+                    matches.push({ id: row.getAttribute('data-vault-id'), title: title });
+                }
+            });
+            renderSuggestions(matches.slice(0, 6));
+        });
+
+        box.addEventListener('click', function (event) {
+            var btn = event.target.closest('.vault-search-suggestion');
+            if (btn) jumpToVaultId(btn.getAttribute('data-vault-id'), btn.getAttribute('data-title'));
+        });
+
+        input.addEventListener('keydown', function (event) {
+            if (!box.classList.contains('open')) return;
+
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                var count = currentMatches.length;
+                var next = activeIndex + (event.key === 'ArrowDown' ? 1 : -1);
+                if (next < 0) next = count - 1;
+                if (next >= count) next = 0;
+                setActive(next);
+                return;
+            }
+
+            if (event.key === 'Escape') {
+                closeSuggestions();
+            }
+        });
+
+
+        form.addEventListener('submit', function (event) {
+            if (currentMatches.length === 0) return; 
+            event.preventDefault();
+            var pick = currentMatches[activeIndex] || currentMatches[0];
+            jumpToVaultId(pick.id, pick.title);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!form.contains(event.target)) closeSuggestions();
+        });
+    })();
 })();
