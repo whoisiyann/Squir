@@ -1,6 +1,3 @@
-/* assets/css/vault.css */
-
-
 /* ---------- Toolbar (view toggle + search + tags + add) ---------- */
 .vault-toolbar {
   display: flex;
@@ -11,13 +8,13 @@
   flex-wrap: wrap;
 }
 
-.vault-toolbar-left {
+.vault-toolbar-right {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
+  margin-left: auto;
 }
 
 /* grid / list view toggle (segmented control) */
@@ -57,8 +54,9 @@
 
 .vault-search {
   position: relative;
-  flex: 1 1 260px;
-  max-width: 420px;
+  flex: 1 1 280px;
+  min-width: 0;
+  max-width: 300px;
 }
 
 .vault-search i {
@@ -117,13 +115,7 @@
 /* ---------- "Add Vault" button (moved into the toolbar) ---------- */
 .vault-toolbar .quick-add {
   flex: 0 0 auto;
-}
-
-.quick-add-divider {
-  width: 1px;
-  height: 16px;
-  margin: 0 2px;
-  background: rgba(255, 255, 255, .35);
+  white-space: nowrap;
 }
 
 /* ---------- Table ---------- */
@@ -132,18 +124,57 @@
   border-radius: var(--radius);
   background: var(--card);
   box-shadow: var(--shadow);
+  max-height: 640px;
+  overflow-y: auto;
+  scrollbar-width: none;      /* Firefox: itago ang scrollbar pero naka-scroll pa rin */
+  -ms-overflow-style: none;   /* IE / legacy Edge */
+}
+
+/* Chrome, Safari, at ibang WebKit/Blink browsers */
+.vault-table-wrap::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.vault-table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .vault-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* fixed ang column widths, hindi na ito babago base sa laman */
 }
+
+.vault-table th.col-item,
+.vault-table td.col-item { width: 42%; }
+
+.vault-table th.col-user,
+.vault-table td.col-user { width: 22%; }
+
+.vault-table th.col-password,
+.vault-table td.col-password { width: 18%; }
+
+.vault-table th.col-actions,
+.vault-table td.col-actions { width: 18%; }
 
 .vault-table th,
 .vault-table td {
   padding: 14px 18px;
   border-bottom: 1px solid var(--border);
   font-size: .85rem;
+}
+
+/* kapag mas mahaba ang revealed password/username kaysa sa column width,
+   i-truncate na lang (...) imbes na palakihin ang column/row */
+.vault-table td.col-user,
+.vault-table td.col-password {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vault-table th {
@@ -167,35 +198,46 @@
 .vault-table th.col-item,
 .vault-table td.col-item { text-align: left; }
 
-.vault-table th.col-user,
-.vault-table td.col-user,
-.vault-table th.col-password,
-.vault-table td.col-password,
 .vault-table th.col-actions,
 .vault-table td.col-actions { text-align: center; }
 
-/* item cell (icon + title + website) */
+.vault-table th.col-user,
+.vault-table td.col-user,
+.vault-table th.col-password,
+.vault-table td.col-password { text-align: left; }
+
+/* item cell (icon + title + website/username + tags) */
 .vault-item-cell {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+.vault-item-text {
+  min-width: 0;
+}
+
+/* sa grid view, icon top-aligned (hindi naka-center) para sa card look */
+.vault-table-wrap.grid-view .vault-item-cell {
+  align-items: flex-start;
+}
+
 .vault-icon {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   background: var(--soft);
   color: var(--accent);
   overflow: hidden;
   flex: 0 0 auto;
+  font-size: 1.1rem;
 }
 
 .vault-icon img {
-  width: 20px;
-  height: 20px;
+  width:35px;
+  height: 35px;
   object-fit: contain;
 }
 
@@ -227,19 +269,24 @@
   position: relative;
 }
 
+/*
+ * position: fixed dito, hindi absolute — sinasadya ito. Ang exact top/left
+ * ay itinatakda ng JS (vault.js, function positionMenu()) base sa
+ * getBoundingClientRect() ng button na pinindot, sa bawat pag-open.
+ * Dahil "fixed" ito relative sa viewport, hindi na ito na-c-clip ng
+ * overflow:auto ng #vaultTableWrap, at laging nasa IBABAW ng ibang
+ * card/row (z-index) sa halip na matakpan ng mga ito.
+ */
 .vault-menu-dropdown {
   display: none;
-  position: absolute;
-  right: 0;
-  top: 100%;
+  position: fixed;
   min-width: 190px;
-  margin-top: 6px;
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--card);
   box-shadow: var(--shadow);
-  z-index: 200;
+  z-index: 1000;
 }
 
 .vault-menu-dropdown.open {
@@ -275,6 +322,7 @@
   border: none;
   background: transparent;
   box-shadow: none;
+  max-height: 700px;
 }
 
 .vault-table-wrap.grid-view .vault-table thead {
@@ -289,14 +337,26 @@
 
 .vault-table-wrap.grid-view .vault-table tbody {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  align-items: stretch; /* pantay ang height ng lahat ng card sa parehong row */
+  gap: 16px;
 }
 
+/* Card = CSS grid (dating flex-column). Sa grid, ang password + actions
+   ay "na-pin" sa sariling row sa ilalim ng card, kaya laging magkatapat
+   sila sa ibang card kahit may notes ang isa at wala ang isa. */
 .vault-table-wrap.grid-view .vault-table tr {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "item     item"
+    "password actions";
+  row-gap: 14px;
+  column-gap: 12px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 20px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
@@ -306,76 +366,80 @@
 .vault-table-wrap.grid-view .vault-table td {
   display: block;
   width: 100%;
-  padding: 6px 0;
+  padding: 0;
   border-bottom: 0;
   text-align: left !important;
 }
 
 .vault-table-wrap.grid-view .vault-table td.col-item {
-  padding-bottom: 10px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+  grid-area: item;
 }
 
-.vault-table-wrap.grid-view .vault-table td.col-user::before,
-.vault-table-wrap.grid-view .vault-table td.col-password::before {
-  content: attr(data-label);
-  display: block;
-  margin-bottom: 3px;
-  color: var(--muted);
-  font-size: .7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .05em;
+/* username/email column hindi na kailangan, subtitle na sa item cell ang gamit */
+.vault-table-wrap.grid-view .vault-table td.col-user {
+  display: none;
+}
+
+/* password ngayon lumalabas sa grid card, naka-mask (**********),
+   naka-pin sa ilalim ng card, katabi ng actions -- gaya ng reference image */
+.vault-table-wrap.grid-view .vault-table td.col-password {
+  grid-area: password;
+  align-self: end;
+  font-size: .85rem;
+}
+
+.vault-table-wrap.grid-view .vault-table td.col-actions {
+  grid-area: actions;
+  align-self: end;
+  justify-self: end;
 }
 
 .vault-table-wrap.grid-view .vault-actions {
-  justify-content: flex-start;
-  margin-top: 8px;
+  justify-content: flex-end;
+  margin-top: 0; /* grid na ang bahala mag-pin sa ilalim, hindi na margin */
 }
 
-/* ---------- Pagination ---------- */
+/* ---------- Info bar sa pinaka-ilalim ng Vault page ---------- */
+/* Parang footer ang itsura (border-top + muted text, full width, laging
+   nasa dulo ng listahan/grid) pero <div> lang ito, hindi <footer> tag.
+   Kaliwa: "N vault items" (laging nakikita). Kanan: "Scroll down to see
+   more items" — JS na lang (vault.js) ang bahala mag-toggle ng
+   .visible dito, base kung may overflow pa ang #vaultTableWrap. */
 .vault-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
   color: var(--muted);
   font-size: .82rem;
+  flex-wrap: wrap;
 }
 
-.vault-pages {
+.vault-pagination-count,
+.vault-pagination-hint {
   display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-.vault-pages a {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  color: var(--text);
-  text-decoration: none;
+.vault-pagination-count i {
+  color: var(--accent);
+}
+
+.vault-pagination-hint {
+  display: none; /* JS ang magpapakita nito (class .visible) kapag may overflow */
   font-weight: 600;
 }
 
-.vault-pages a.active {
-  color: var(--button-text);
-  background: var(--dark);
-  border-color: var(--dark);
+.vault-pagination-hint.visible {
+  display: flex;
 }
 
-.vault-pages a.vault-page-nav {
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.vault-pages a.vault-page-nav.disabled {
-  opacity: .4;
-  pointer-events: none;
-  cursor: not-allowed;
+.vault-pagination-hint i {
+  font-size: .8rem;
 }
 
 /* ---------- Modal shell ---------- */
@@ -441,8 +505,8 @@
 }
 
 .vault-edit-preview .vault-icon img {
-  width: 28px;
-  height: 28px;
+  width: 35px;
+  height: 35px;
 }
 
 .vault-edit-preview strong {
@@ -572,8 +636,8 @@
 }
 
 .vault-favicon-badge img {
-  width: 16px;
-  height: 16px;
+  width: 25px;
+  height: 25px;
   object-fit: contain;
 }
 
@@ -671,27 +735,64 @@
   .vault-toolbar {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
   }
 
-  .vault-toolbar-left {
-    flex-direction: column;
-    align-items: stretch;
+  .vault-toolbar-right {
+    flex-direction: row; /* search + all tags + add, magkatabi na lang, hindi na stacked */
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    margin-left: 0;
+    width: 100%;
   }
 
   .vault-view-toggle {
     align-self: flex-start;
   }
 
-  .vault-search,
-  .vault-tags-filter,
-  .vault-tags-filter select {
+  /* Search: sumasakop na lang ng natitirang space, hindi na fixed 280px basis */
+  .vault-search {
+    flex: 1 1 auto;
+    min-width: 0;
     max-width: none;
-    width: 100%;
+    width: auto;
   }
 
+  .vault-search input {
+    padding: 8px 12px 8px 36px;
+    font-size: .82rem;
+  }
+
+  .vault-search i {
+    left: 12px;
+  }
+
+  /* All Tags: compact select na lang, hindi full width */
+  .vault-tags-filter {
+    flex: 0 0 auto;
+  }
+
+  .vault-tags-filter select {
+    max-width: none;
+    width: auto;
+    min-width: 0;
+    padding: 8px 26px 8px 30px;
+    font-size: .78rem;
+  }
+
+  /* Add Vault: icon-lang sa mobile (parang maliit na "+" button), hindi na full-width pill na may text */
   .vault-toolbar .quick-add {
-    width: 100%;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    padding: 0;
     justify-content: center;
+    border-radius: 12px;
+  }
+
+  .vault-toolbar .quick-add span {
+    display: none;
   }
 
   /* Table -> stacked cards (same treatment as .grid-view, single column) */
@@ -756,10 +857,21 @@
     margin-top: 8px;
   }
 
-  .vault-pagination {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+  /* Mobile stacked-card view acts like grid view, so show tags/notes there too */
+  .vault-table-wrap:not(.grid-view) .vault-tag-chips {
+    display: flex;
+  }
+
+  .vault-table-wrap:not(.grid-view) .vault-item-cell .vault-item-website {
+    display: none;
+  }
+
+  .vault-table-wrap:not(.grid-view) .vault-item-cell .vault-item-username {
+    display: block;
+  }
+
+  .vault-table-wrap:not(.grid-view) .vault-item-notes {
+    display: -webkit-box;
   }
 
   /* Modal adjustments */
@@ -811,18 +923,6 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- Tooltips (eye / copy / favorite / more, atbp.) ---------- */
 [data-tooltip] {
   position: relative;
@@ -832,8 +932,9 @@
   content: attr(data-tooltip);
   position: absolute;
   left: 50%;
-  top: 100%;
-  transform: translate(-50%, 4px);
+  bottom: 100%;
+  top: auto;
+  transform: translate(-50%, -6px);
   padding: 4px 8px;
   border-radius: 6px;
   background: var(--dark);
@@ -845,7 +946,7 @@
   visibility: hidden;
   pointer-events: none;
   transition: opacity .12s ease, visibility .12s ease;
-  z-index: 80;
+  z-index: 1000;
 }
 
 [data-tooltip]:hover::after,
@@ -854,12 +955,21 @@
   visibility: visible;
 }
 
-/* ---------- Tag chips sa ilalim ng item name sa listahan ---------- */
+/* ---------- Tag chips: nasa kanang-itaas ng card sa grid view ---------- */
+/* (sibling ng icon+text sa loob ng .vault-item-cell, .vault-tag-chips
+   mismo ang naglalagay sa sarili sa dulong-kanan gamit ang margin-left:auto) */
 .vault-tag-chips {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: flex-start;
   gap: 4px;
-  margin-top: 4px;
+  margin-left: auto;
+  max-width: 55%;
+}
+
+.vault-table-wrap.grid-view .vault-tag-chips {
+  display: flex;
 }
 
 .vault-tag-chip {
@@ -869,6 +979,38 @@
   color: var(--accent);
   font-size: .68rem;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- List view subtitle = website, grid view subtitle = username ---------- */
+/* (naka-double-class ang selectors para manalo sa specificity ng
+   ".vault-item-cell small" na nagse-set ng display:block sa lahat) */
+.vault-item-cell .vault-item-username {
+  display: none;
+}
+
+.vault-table-wrap.grid-view .vault-item-cell .vault-item-website {
+  display: none;
+}
+
+.vault-table-wrap.grid-view .vault-item-cell .vault-item-username {
+  display: block;
+}
+
+/* ---------- Notes: hidden in list/table view, shown only in grid view ---------- */
+.vault-item-notes {
+  display: none;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.4;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vault-table-wrap.grid-view .vault-item-notes {
+  display: -webkit-box;
 }
 
 /* ---------- Dropdown menu (3-dot): icon + text, delete sa red ---------- */
@@ -902,4 +1044,3 @@
   color: var(--muted);
   font-size: .72rem;
 }
-

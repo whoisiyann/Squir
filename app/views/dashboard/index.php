@@ -26,6 +26,7 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
             } catch (error) {}
         })();
     </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
@@ -44,7 +45,7 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
             </div>
 
             <section class="stat-grid" aria-label="Vault summary">
-                <article class="stat-card"><span class="stat-icon"><i class="ti ti-lock"></i></span><strong>Credentials</strong><b><?= $counts['vault'] ?></b><small>Total saved</small></article>
+                <article class="stat-card"><span class="stat-icon"><i class="ti ti-key"></i></span><strong>Credentials</strong><b><?= $counts['vault'] ?></b><small>Total saved</small></article>
                 <article class="stat-card"><span class="stat-icon"><i class="ti ti-notes"></i></span><strong>Notes</strong><b><?= $counts['notes'] ?></b><small>Total notes</small></article>
                 <article class="stat-card"><span class="stat-icon"><i class="ti ti-checkbox"></i></span><strong>Tasks</strong><b><?= $dashboard['pendingTasks'] ?></b><small>Pending tasks</small></article>
                 <article class="stat-card"><span class="stat-icon"><i class="ti ti-folder"></i></span><strong>Folders</strong><b><?= $counts['folders'] ?></b><small>Total folders</small></article>

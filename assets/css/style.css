@@ -3,12 +3,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg: #fbf6ef;
+  --bg: #ffffff;
   --card: #fff;
-  --border: #eee0cf;
-  --soft: #fbe9dc;
-  --text: #2e2018;
-  --muted: #8a7360;
+  --border: #E5E5E5;
+  --soft: #F2F4F5;
+  --text: #000000;
+  --muted: #747877;
   --accent: #6b3f2a;
   --dark: #3d2418;
   --hover: #5a331f;
@@ -18,7 +18,7 @@
   --active-text: #fdf6ec;
   --active-icon: #e8985a;
   --backdrop: rgba(46,32,24,.3);
-  --shadow: 0 4px 14px rgba(107,63,42,.06);
+  --shadow: 0 4px 14px rgba(94, 93, 92, 0.329);
   --radius: 18px;
   --topbar-h: 74px;
   --content-gutter: 32px;
@@ -26,22 +26,22 @@
 
 body.dashboard-dark,
 html.dashboard-dark-preload {
-  --bg: #08090B;
-  --card: #0D1014;
-  --border: #24282E;
+  --bg: #121212;
+  --card: #1e1e1e;
+  --border: #3a3a3a;
   --soft: #181D23;
-  --text: #F5F5F5;
+  --text: #f1f1f1;
   --muted: #7E8490;
-  --accent: #FF9800;
+  --accent: #fc9700;
   --dark: #FF9800;
   --hover: #ffad33;
-  --topbar-bg: #0A0C0F;
-  --input-bg: #0D1014;
+  --topbar-bg: #121212;
+  --input-bg: #181818;
   --button-text: #08090B;
   --active-text: #08090B;
   --active-icon: #08090B;
   --backdrop: rgba(0,0,0,.58);
-  --shadow: 0 4px 14px rgba(0,0,0,.28);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 * {

@@ -66,7 +66,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
                 <div class="vault-field">
                     <label>Favorite</label>
                     <button type="button" class="vault-favorite-toggle" id="createFavoriteToggle" aria-pressed="false" aria-label="Mark as favorite">
-                        <i class="ti ti-star"></i>
+                        <i class="fa-solid fa-star"></i>
                     </button>
                 </div>
             </div>

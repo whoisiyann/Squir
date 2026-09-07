@@ -9,17 +9,6 @@
 /** @var array|null $editItem */
 
 $escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-
-// pagination math para sa "Showing X to Y of Z items"
-$perPage   = Vault::PER_PAGE;
-$total     = (int) $data['total'];
-$shown     = count($data['items']);
-$rangeFrom = $total === 0 ? 0 : (($data['page'] - 1) * $perPage) + 1;
-$rangeTo   = $total === 0 ? 0 : $rangeFrom + $shown - 1;
-$qs        = static fn (int $page): string => '?page=' . $page
-    . '&q=' . urlencode($data['search'])
-    . '&folder=' . (int) $data['activeFolder']
-    . '&tag=' . urlencode($data['activeTag']);
 ?>
 <!doctype html>
 <html lang="en">
@@ -40,6 +29,7 @@ $qs        = static fn (int $page): string => '?page=' . $page
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/vault.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body data-open-modal="<?= $escape($openModal ?? '') ?>">
 <div class="app-shell" id="appShell">
@@ -64,16 +54,17 @@ $qs        = static fn (int $page): string => '?page=' . $page
             <?php endif; ?>
 
             <div class="vault-toolbar">
-                <div class="vault-toolbar-left">
-                    <div class="vault-view-toggle" role="group" aria-label="Switch layout">
-                        <button type="button" class="view-toggle-btn" data-view="grid" aria-label="Grid view" aria-pressed="false">
-                            <i class="ti ti-layout-grid"></i>
-                        </button>
-                        <button type="button" class="view-toggle-btn active" data-view="list" aria-label="List view" aria-pressed="true">
-                            <i class="ti ti-list"></i>
-                        </button>
-                    </div>
+                <div class="vault-view-toggle" role="group" aria-label="Switch layout">
+                    <button type="button" class="view-toggle-btn" data-view="grid" aria-label="Grid view" aria-pressed="false">
+                        <i class="ti ti-layout-grid"></i>
+                    </button>
+                    <button type="button" class="view-toggle-btn active" data-view="list" aria-label="List view" aria-pressed="true">
+                        <i class="ti ti-list"></i>
+                    </button>
+                </div>
 
+                <!-- Search + tags + Add Vault, magkakasama ngayon sa kanang side ng toolbar -->
+                <div class="vault-toolbar-right">
                     <form method="get" class="vault-search" role="search">
                         <i class="ti ti-search"></i>
                         <input type="search" name="q" placeholder="Search vault..." value="<?= $escape($data['search']) ?>">
@@ -95,14 +86,12 @@ $qs        = static fn (int $page): string => '?page=' . $page
                         <input type="hidden" name="folder" value="<?= (int) $data['activeFolder'] ?>">
                         <i class="ti ti-chevron-down chevron"></i>
                     </form>
-                </div>
 
-                <button class="quick-add" type="button" id="openCreateModal">
-                    <i class="ti ti-plus"></i>
-                    <span>Add Vault</span>
-                    <span class="quick-add-divider"></span>
-                    <i class="ti ti-chevron-down"></i>
-                </button>
+                    <button class="quick-add" type="button" id="openCreateModal">
+                        <i class="ti ti-plus"></i>
+                        <span>Add Vault</span>
+                    </button>
+                </div>
             </div>
 
             <?php if ($data['items'] === []): ?>
@@ -127,7 +116,7 @@ $qs        = static fn (int $page): string => '?page=' . $page
                                 <?php
                                 $favicon     = Vault::faviconUrlFor($item['website_url']);
                                 $isFav       = !empty($item['is_favorite']);
-                                $starClass   = 'ti ti-star';
+                                $starClass   = 'fa-solid fa-star';
                                 $itemTags    = array_filter(array_map('trim', explode(',', (string) ($item['tags'] ?? ''))));
                                 $websiteHref = $item['website_url']
                                     ? (preg_match('~^https?://~i', $item['website_url']) ? $item['website_url'] : 'https://' . $item['website_url'])
@@ -135,6 +124,14 @@ $qs        = static fn (int $page): string => '?page=' . $page
                                 ?>
                                 <tr data-vault-id="<?= (int) $item['vault_id'] ?>" data-favorite="<?= $isFav ? '1' : '0' ?>">
                                     <td class="col-item">
+                                        <!--
+                                            List view: icon + title + website lang ang lumalabas (walang tags/notes).
+                                            Grid view (kapag naka .grid-view ang #vaultTableWrap): tags lumilipat
+                                            sa kanang-itaas ng card (katabi ng icon row), subtitle nagiging
+                                            username/email (imbes na website), at notes lumalabas sa ilalim.
+                                            Lahat ng element na "grid-only" o "list-only" ay laging nasa DOM,
+                                            CSS na lang ang nagpapakita/nagtatago depende sa active view.
+                                        -->
                                         <div class="vault-item-cell">
                                             <span class="vault-icon">
                                                 <?php if ($favicon): ?>
@@ -143,18 +140,24 @@ $qs        = static fn (int $page): string => '?page=' . $page
                                                     <i class="ti ti-key"></i>
                                                 <?php endif; ?>
                                             </span>
-                                            <div>
+                                            <div class="vault-item-text">
                                                 <strong><?= $escape($item['title']) ?></strong>
-                                                <small><?= $escape($item['website_url'] ?: 'No website linked') ?></small>
-                                                <?php if ($itemTags !== []): ?>
-                                                    <div class="vault-tag-chips">
-                                                        <?php foreach ($itemTags as $tagName): ?>
-                                                            <span class="vault-tag-chip">#<?= $escape($tagName) ?></span>
-                                                        <?php endforeach; ?>
-                                                    </div>
-                                                <?php endif; ?>
+                                                <small class="vault-item-website"><?= $escape($item['website_url'] ?: 'No website linked') ?></small>
+                                                <small class="vault-item-username"><?= $escape($item['account_username'] ?: '—') ?></small>
                                             </div>
+
+                                            <?php if ($itemTags !== []): ?>
+                                                <div class="vault-tag-chips">
+                                                    <?php foreach ($itemTags as $tagName): ?>
+                                                        <span class="vault-tag-chip">#<?= $escape($tagName) ?></span>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
+
+                                        <?php if (!empty($item['notes'])): ?>
+                                            <p class="vault-item-notes"><?= $escape($item['notes']) ?></p>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="col-user" data-label="Username / Email"><?= $escape($item['account_username'] ?: '—') ?></td>
                                     <td class="col-password" data-label="Password"><span class="vault-password" data-revealed="false">**********</span></td>
@@ -199,25 +202,22 @@ $qs        = static fn (int $page): string => '?page=' . $page
                     </table>
                 </div>
 
-                <div class="vault-pagination">
-                    <span>Showing <?= $rangeFrom ?> to <?= $rangeTo ?> of <?= $total ?> items</span>
-                    <div class="vault-pages">
-                        <a class="vault-page-nav <?= $data['page'] <= 1 ? 'disabled' : '' ?>"
-                           href="<?= $data['page'] <= 1 ? '#' : $qs($data['page'] - 1) ?>"
-                           aria-label="Previous page">
-                            <i class="ti ti-chevron-left"></i>
-                        </a>
-
-                        <?php for ($p = 1; $p <= $data['pages']; $p++): ?>
-                            <a class="<?= $p === $data['page'] ? 'active' : '' ?>" href="<?= $qs($p) ?>"><?= $p ?></a>
-                        <?php endfor; ?>
-
-                        <a class="vault-page-nav <?= $data['page'] >= $data['pages'] ? 'disabled' : '' ?>"
-                           href="<?= $data['page'] >= $data['pages'] ? '#' : $qs($data['page'] + 1) ?>"
-                           aria-label="Next page">
-                            <i class="ti ti-chevron-right"></i>
-                        </a>
-                    </div>
+                <!--
+                    Info bar sa pinaka-ilalim ng Vault page: laging nakikita
+                    yung "N vault items" sa kaliwa; yung "Scroll down to see
+                    more items" (kanan) ay JS na lang ang bahala magpakita
+                    (vault.js) — lalabas lang kapag may overflow talaga sa
+                    #vaultTableWrap at hindi pa naka-scroll hanggang dulo.
+                -->
+                <div class="vault-pagination" id="vaultPagination">
+                    <span class="vault-pagination-count">
+                        <i class="ti ti-shield-lock"></i>
+                        <?= (int) $data['total'] ?> vault item<?= (int) $data['total'] === 1 ? '' : 's' ?>
+                    </span>
+                    <span class="vault-pagination-hint" id="vaultScrollHint">
+                        <i class="ti ti-arrow-down"></i>
+                        Scroll down to see more items
+                    </span>
                 </div>
             <?php endif; ?>
         </main>

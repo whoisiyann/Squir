@@ -13,25 +13,22 @@ class VaultController
 
     public function index(int $userId, array $query): array
     {
-        $page = max(1, (int) ($query['page'] ?? 1));
         $folderId = isset($query['folder']) && $query['folder'] !== '' ? (int) $query['folder'] : null;
         $search = trim((string) ($query['q'] ?? ''));
         $tag = trim((string) ($query['tag'] ?? ''));
 
-        $result = $this->vaultModel->paginateForUser($userId, $page, $folderId, $search, $tag !== '' ? $tag : null);
+        $items = $this->vaultModel->searchForUser($userId, $folderId, $search, $tag !== '' ? $tag : null);
 
         // i-mark kung alin sa mga item ang paborito ng user (para sa bituin sa listahan)
         $favoriteIds = $this->favoriteVaultIds($userId);
-        foreach ($result['items'] as &$item) {
+        foreach ($items as &$item) {
             $item['is_favorite'] = in_array((int) $item['vault_id'], $favoriteIds, true);
         }
         unset($item);
 
         return [
-            'items' => $result['items'],
-            'total' => $result['total'],
-            'page' => $result['page'],
-            'pages' => $result['pages'],
+            'items' => $items,
+            'total' => count($items),
             'folders' => $this->getFolders($userId),
             'tags' => $this->vaultModel->tagCountsForUser($userId), // ['dev' => 3, 'cloud' => 1, ...]
             'activeFolder' => $folderId,

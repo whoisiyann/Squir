@@ -3,6 +3,7 @@
 (function () {
     function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
+    var tableWrap = document.getElementById('vaultTableWrap');
 
     /* ---------- Modal open/close ---------- */
     function openModal(name) {
@@ -207,17 +208,67 @@
     });
 
     /* ---------- 3-dot dropdown menu ---------- */
+    /*
+     * Dati, `.vault-menu-dropdown` ay `position: absolute` relative sa
+     * `.vault-menu` (ang parent nito). Problema: dahil naka-scroll na
+     * ngayon ang #vaultTableWrap (overflow-y: auto) at grid cards naman
+     * ang magkakatabi sa grid view, na-cli-clip / natatakpan ang dropdown
+     * ng ibang laman (kasunod na row/card, o ng scroll boundary mismo).
+     *
+     * Ayos: sa pag-open, kino-compute natin ang exact position ng button
+     * gamit ang getBoundingClientRect(), tapos ilalagay natin ang dropdown
+     * bilang `position: fixed` sa eksaktong lugar na iyon (via inline
+     * style). Dahil `position: fixed` ay relative sa buong viewport (hindi
+     * sa alinmang scrollable na ninuno), hindi na ito ma-c-clip pa ng
+     * #vaultTableWrap o matatakpan ng kahit anong card/row.
+     *
+     * Para hindi "lumutang" sa lugar ang dropdown habang naka-scroll ang
+     * user (dahil naka-fix na ito sa screen samantalang gumagalaw naman
+     * ang button sa ilalim ng scroll), isinasara na lang natin agad ang
+     * bukas na dropdown sa sandaling mag-scroll o mag-resize.
+     */
+    function closeAllMenus() {
+        $all('.vault-menu-dropdown.open').forEach(function (menu) {
+            menu.classList.remove('open');
+            menu.style.top = '';
+            menu.style.left = '';
+        });
+    }
+
+    function positionMenu(menu, btn) {
+        var rect = btn.getBoundingClientRect();
+        var menuWidth = menu.offsetWidth || 190;
+        var left = rect.right - menuWidth;
+        left = Math.min(left, window.innerWidth - menuWidth - 8);
+        left = Math.max(8, left);
+
+        var top = rect.bottom + 6;
+        var menuHeight = menu.offsetHeight || 0;
+        if (menuHeight && top + menuHeight > window.innerHeight - 8) {
+            // kung mauubusan na ng puwang sa ibaba, ilagay na lang sa itaas ng button
+            top = rect.top - menuHeight - 6;
+        }
+
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
+    }
+
     $all('.vault-menu-btn').forEach(function (btn) {
         btn.addEventListener('click', function (event) {
             event.stopPropagation();
             var menu = btn.parentElement.querySelector('.vault-menu-dropdown');
-            $all('.vault-menu-dropdown.open').forEach(function (open) { if (open !== menu) open.classList.remove('open'); });
-            menu.classList.toggle('open');
+            var willOpen = !menu.classList.contains('open');
+            closeAllMenus();
+            if (willOpen) {
+                menu.classList.add('open');
+                positionMenu(menu, btn);
+            }
         });
     });
-    document.addEventListener('click', function () {
-        $all('.vault-menu-dropdown.open').forEach(function (menu) { menu.classList.remove('open'); });
-    });
+
+    document.addEventListener('click', closeAllMenus);
+    window.addEventListener('resize', closeAllMenus);
+    if (tableWrap) tableWrap.addEventListener('scroll', closeAllMenus, { passive: true });
 
     /* ---------- Favorite star: toggle straight from the Vault list (Actions column) ---------- */
     function toggleFavorite(vaultId) {
@@ -266,7 +317,6 @@
 
     /* ---------- Grid / List view toggle ---------- */
     var VIEW_KEY = 'squir-vault-view';
-    var tableWrap = document.getElementById('vaultTableWrap');
     var viewButtons = $all('.view-toggle-btn');
 
     function setView(view) {
@@ -277,6 +327,9 @@
             btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
         try { window.localStorage.setItem(VIEW_KEY, view); } catch (error) {}
+        // ang paglipat ng view ay pwedeng magbago ng laki ng laman
+        // (list vs. cards), kaya kailangan i-recheck ang scroll hint
+        requestAnimationFrame(updateScrollHint);
     }
 
     viewButtons.forEach(function (btn) {
@@ -286,4 +339,28 @@
     var savedView = null;
     try { savedView = window.localStorage.getItem(VIEW_KEY); } catch (error) {}
     if (savedView === 'grid') setView('grid');
+
+    /* ---------- Bottom info bar: "Scroll down to see more items" hint ---------- */
+    /*
+     * Palagi nakikita ang "N vault items" (server-rendered na sa index.php).
+     * Yung "Scroll down to see more items" naman ay lalabas lang kapag:
+     *   1. May overflow talaga ang #vaultTableWrap (mas mataas ang laman
+     *      kaysa sa max-height nito), AT
+     *   2. Hindi pa naka-scroll ang user hanggang sa dulo.
+     * Nawawala ito kapag na-reach na ang ibaba ng listahan.
+     */
+    var scrollHint = document.getElementById('vaultScrollHint');
+
+    function updateScrollHint() {
+        if (!tableWrap || !scrollHint) return;
+        var hasOverflow = tableWrap.scrollHeight > tableWrap.clientHeight + 2;
+        var atBottom = tableWrap.scrollTop + tableWrap.clientHeight >= tableWrap.scrollHeight - 4;
+        scrollHint.classList.toggle('visible', hasOverflow && !atBottom);
+    }
+
+    if (tableWrap && scrollHint) {
+        tableWrap.addEventListener('scroll', updateScrollHint, { passive: true });
+        window.addEventListener('resize', updateScrollHint);
+        updateScrollHint();
+    }
 })();

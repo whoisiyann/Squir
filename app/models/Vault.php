@@ -62,6 +62,12 @@ class Vault
 
     /* ================= TAGS ================= */
 
+    /**
+     * "dev, Cloud, dev,, finance" -> ['dev', 'cloud', 'finance']
+     * - tine-trim, tinatanggal ang leading "#", ginagawang lowercase
+     *   para consistent ang counting/filtering
+     * - nagde-dedupe at nagli-limit hanggang MAX_TAGS
+     */
     public static function normalizeTags(string $raw): array
     {
         $tags = [];
@@ -88,7 +94,10 @@ class Vault
         return implode(', ', array_filter(array_map('trim', explode(',', $stored))));
     }
 
-
+    /**
+     * ['dev' => 3, 'cloud' => 1, ...] pababa sa a-z, para sa
+     * "All Tags" dropdown sa toolbar (#dev (3), #cloud (1), ...).
+     */
     public function tagCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare("SELECT tags FROM vault WHERE user_id = :uid AND tags IS NOT NULL AND tags <> ''");
@@ -117,11 +126,13 @@ class Vault
         return (int) $stmt->fetchColumn();
     }
 
-    public function paginateForUser(int $userId, int $page = 1, ?int $folderId = null, string $search = '', ?string $tag = null): array
+    /**
+     * Ibinabalik LAHAT ng vault items na tugma sa filters (walang LIMIT/OFFSET),
+     * kasi ang listahan sa vault.php ay scrollable na ngayon sa halip na
+     * naka-pagination. Palagi itong naka-ORDER BY created_at DESC.
+     */
+    public function searchForUser(int $userId, ?int $folderId = null, string $search = '', ?string $tag = null): array
     {
-        $page = max(1, $page);
-        $offset = ($page - 1) * self::PER_PAGE;
-
         $conditions = ['user_id = :uid'];
         $params = ['uid' => $userId];
 
@@ -134,33 +145,17 @@ class Vault
             $params['search'] = '%' . $search . '%';
         }
         if ($tag !== null && $tag !== '') {
-            
+            // FIND_IN_SET gumagana dahil stored tayo ng "tag1,tag2,tag3" (walang space).
             $conditions[] = 'FIND_IN_SET(:tag, tags) > 0';
             $params['tag'] = $tag;
         }
 
         $where = implode(' AND ', $conditions);
 
-        $countStmt = $this->dbh->prepare("SELECT COUNT(*) FROM vault WHERE {$where}");
-        $countStmt->execute($params);
-        $total = (int) $countStmt->fetchColumn();
+        $stmt = $this->dbh->prepare("SELECT * FROM vault WHERE {$where} ORDER BY created_at DESC");
+        $stmt->execute($params);
 
-        $stmt = $this->dbh->prepare(
-            "SELECT * FROM vault WHERE {$where} ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
-        );
-        foreach ($params as $key => $value) {
-            $stmt->bindValue(':' . $key, $value);
-        }
-        $stmt->bindValue(':limit', self::PER_PAGE, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-
-        return [
-            'items' => $stmt->fetchAll(PDO::FETCH_ASSOC),
-            'total' => $total,
-            'page' => $page,
-            'pages' => (int) max(1, ceil($total / self::PER_PAGE)),
-        ];
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function find(int $vaultId, int $userId): ?array
