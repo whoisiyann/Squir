@@ -7,6 +7,7 @@
     var backdrop = document.getElementById('sidebarBackdrop');
     var themeButton = document.getElementById('themeToggle');
     var themeStorageKey = 'squir-dashboard-theme';
+    var sidebarStorageKey = 'squir-sidebar-collapsed';
 
     document.querySelectorAll('.sidebar-nav .nav-link').forEach(function (link) {
         link.addEventListener('click', function () {
@@ -40,7 +41,12 @@
             shell.classList.remove('mobile-open');
             return;
         }
-        shell.classList.toggle('sidebar-collapsed');
+        var isCollapsed = shell.classList.toggle('sidebar-collapsed');
+        try {
+            window.localStorage.setItem(sidebarStorageKey, isCollapsed ? '1' : '0');
+        } catch (error) {
+
+        }
     });
 
     mobileButton.addEventListener('click', function () {

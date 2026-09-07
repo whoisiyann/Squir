@@ -61,13 +61,6 @@ class Vault
     }
 
     /* ================= TAGS ================= */
-
-    /**
-     * "dev, Cloud, dev,, finance" -> ['dev', 'cloud', 'finance']
-     * - tine-trim, tinatanggal ang leading "#", ginagawang lowercase
-     *   para consistent ang counting/filtering
-     * - nagde-dedupe at nagli-limit hanggang MAX_TAGS
-     */
     public static function normalizeTags(string $raw): array
     {
         $tags = [];
@@ -126,11 +119,7 @@ class Vault
         return (int) $stmt->fetchColumn();
     }
 
-    /**
-     * Ibinabalik LAHAT ng vault items na tugma sa filters (walang LIMIT/OFFSET),
-     * kasi ang listahan sa vault.php ay scrollable na ngayon sa halip na
-     * naka-pagination. Palagi itong naka-ORDER BY created_at DESC.
-     */
+
     public function searchForUser(int $userId, ?int $folderId = null, string $search = '', ?string $tag = null): array
     {
         $conditions = ['user_id = :uid'];
@@ -145,7 +134,7 @@ class Vault
             $params['search'] = '%' . $search . '%';
         }
         if ($tag !== null && $tag !== '') {
-            // FIND_IN_SET gumagana dahil stored tayo ng "tag1,tag2,tag3" (walang space).
+            // FIND_IN_SET
             $conditions[] = 'FIND_IN_SET(:tag, tags) > 0';
             $params['tag'] = $tag;
         }

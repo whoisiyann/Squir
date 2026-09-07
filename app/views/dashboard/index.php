@@ -33,6 +33,13 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
 </head>
 <body>
 <div class="app-shell" id="appShell">
+<script>
+    try {
+        if (window.localStorage.getItem('squir-sidebar-collapsed') === '1') {
+            document.getElementById('appShell').classList.add('sidebar-collapsed');
+        }
+    } catch (error) {}
+</script>
     <?php require __DIR__ . '/../../../includes/sidebar.php'; ?>
 
     <div class="main-area">
