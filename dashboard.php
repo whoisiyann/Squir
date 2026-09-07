@@ -9,6 +9,7 @@ if (empty($_SESSION['user_id'])) {
 }
 
 require_once __DIR__ . '/includes/dbconnect.php';
+require_once __DIR__ . '/app/models/Vault.php';
 require_once __DIR__ . '/app/controllers/DashboardController.php';
 
 $dashboard = (new DashboardController($dbh))->index((int) $_SESSION['user_id']);

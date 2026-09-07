@@ -60,7 +60,31 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
 
             <section class="dashboard-grid">
                 <article class="app-card" id="tasks"><div class="card-heading"><h2>Tasks Overview</h2><a href="#tasks">View all</a></div><div class="empty-state"><i class="ti ti-list-check"></i><p>No tasks yet</p><small>Your upcoming tasks will appear here.</small></div></article>
-                <article class="app-card" id="favorites"><div class="card-heading"><h2>Recent Items</h2><a href="#favorites">View all</a></div><div class="empty-state"><i class="ti ti-inbox"></i><p>No recent items</p><small>Saved passwords and notes will appear here.</small></div></article>
+                <article class="app-card" id="favorites">
+                    <div class="card-heading"><h2>Recent Items</h2><a href="./vault.php">View all</a></div>
+                    <?php if (empty($dashboard['recentItems'])): ?>
+                        <div class="empty-state"><i class="ti ti-inbox"></i><p>No recent items</p><small>Saved passwords and notes will appear here.</small></div>
+                    <?php else: ?>
+                        <ul class="recent-list">
+                            <?php foreach ($dashboard['recentItems'] as $item): ?>
+                                <li class="recent-item">
+                                    <span class="recent-icon">
+                                        <?php if (!empty($item['icon_url'])): ?>
+                                            <img src="<?= htmlspecialchars($item['icon_url'], ENT_QUOTES, 'UTF-8') ?>" alt="" onerror="this.replaceWith(Object.assign(document.createElement('i'), {className:'ti ti-key'}))">
+                                        <?php else: ?>
+                                            <i class="ti <?= $item['item_type'] === 'note' ? 'ti-notes' : 'ti-key' ?>"></i>
+                                        <?php endif; ?>
+                                    </span>
+                                    <span class="recent-info">
+                                        <strong><?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                        <small><?= htmlspecialchars($item['subtitle'], ENT_QUOTES, 'UTF-8') ?></small>
+                                    </span>
+                                    <i class="<?= $item['is_favorite'] ? 'fa-solid fa-star recent-star is-favorite' : 'fa-solid fa-star recent-star' ?>"></i>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </article>
                 <article class="app-card folder-card" id="folders"><div class="card-heading"><div><h2>Folders</h2><p>Organize your items with folders.</p></div><a class="small-action" href="#folders"><i class="ti ti-plus"></i> New Folder</a></div><div class="empty-state compact"><i class="ti ti-folder-plus"></i><p>No folders yet</p><small>Create a folder to organize your vault.</small></div></article>
             </section>
         </main>

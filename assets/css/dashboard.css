@@ -188,6 +188,87 @@
   font-size: .75rem;
 }
 
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.recent-item:last-child {
+  border-bottom: 0;
+}
+
+.recent-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--soft);
+  overflow: hidden;
+}
+
+.recent-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.recent-icon i {
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.recent-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.recent-info strong {
+  font-size: .85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-info small {
+  color: var(--muted);
+  font-size: .74rem;
+}
+
+.recent-star {
+  flex: 0 0 auto;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.recent-star.is-favorite {
+  color: #F5A623;
+}
+
+
+
+
+
+
 @media (max-width: 1100px) {
   .stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
