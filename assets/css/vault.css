@@ -604,6 +604,17 @@
   font-size: .88rem;
 }
 
+.vault-field select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 38px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b5b4f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
 .vault-field textarea {
   resize: vertical;
   min-height: 78px;
@@ -636,7 +647,21 @@
 }
 
 .vault-password-field input {
-  padding-right: 68px;   /* dati 74px, pero mas maliit na icons ngayon */
+  padding-right: 68px;  
+}
+
+.vault-password-field input::-ms-reveal,
+.vault-password-field input::-ms-clear {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.vault-password-field input::-webkit-credentials-auto-fill-button,
+.vault-password-field input::-webkit-strong-password-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
 }
 
 .vault-password-actions {
@@ -720,8 +745,6 @@
 
 .vault-favorite-toggle.active {
   color: #f5a623;
-  border-color: #f5a623;
-  background: rgba(245, 166, 35, .1);
 }
 
 /* modal action buttons */

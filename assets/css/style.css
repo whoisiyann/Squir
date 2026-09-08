@@ -389,8 +389,8 @@ button, input {
 /* ===== Mobile ===== */
 @media (max-width: 700px) {
   :root {
-    --topbar-h: 128px;
-    --content-gutter: 14px;
+    --topbar-h: 64px;
+    --content-gutter: 12px;
   }
   .sidebar {
     width: 250px;
@@ -443,17 +443,35 @@ button, input {
     left: 0;
   }
   .topbar-inner {
-    padding: 14px var(--content-gutter);
-    flex-wrap: wrap;
+    padding: 10px var(--content-gutter);
+    flex-wrap: nowrap;
+    gap: 8px;
     max-width: none;
   }
   .profile-name, .profile > i {
     display: none;
   }
   .search-box {
-    order: 3;
-    width: calc(100% - 8px);
+    order: 0;
+    flex: 1 1 auto;
+    width: auto;
     max-width: none;
-    flex-basis: calc(100% - 8px);
+    flex-basis: 0;
+    min-width: 0;
+  }
+  .search-box input {
+    padding: 8px 10px 8px 34px;
+    font-size: .82rem;
+  }
+  .search-box i {
+    left: 10px;
+    font-size: .85rem;
+  }
+  .topbar-actions {
+    gap: 4px;
+  }
+  .avatar {
+    width: 30px;
+    height: 30px;
   }
 }

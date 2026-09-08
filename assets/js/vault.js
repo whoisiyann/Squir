@@ -11,19 +11,40 @@
         if (backdrop) backdrop.classList.add('open');
     }
 
+    function resetCreateForm() {
+        var form = document.querySelector('#createModalBackdrop form');
+        if (form) form.reset();
+
+        var favBtn = document.getElementById('createFavoriteToggle');
+        var favInput = document.getElementById('createIsFavorite');
+        if (favBtn && favInput) {
+            favBtn.classList.remove('active');
+            favBtn.setAttribute('aria-pressed', 'false');
+            favInput.value = '0';
+        }
+
+        var faviconPreview = document.getElementById('createFaviconPreview');
+        if (faviconPreview) faviconPreview.innerHTML = '<i class="ti ti-key"></i>';
+    }
+
+    function closeModal(name) {
+        var backdrop = document.getElementById(name + 'ModalBackdrop');
+        if (backdrop) backdrop.classList.remove('open');
+        if (name === 'create') resetCreateForm();
+    }
+
     var openBtn = document.getElementById('openCreateModal');
     if (openBtn) openBtn.addEventListener('click', function () { openModal('create'); });
 
     $all('[data-close-modal]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var backdrop = document.getElementById(btn.getAttribute('data-close-modal') + 'ModalBackdrop');
-            if (backdrop) backdrop.classList.remove('open');
+            closeModal(btn.getAttribute('data-close-modal'));
         });
     });
 
     $all('.vault-modal-backdrop').forEach(function (backdrop) {
         backdrop.addEventListener('click', function (event) {
-            if (event.target === backdrop) backdrop.classList.remove('open');
+            if (event.target === backdrop) closeModal(backdrop.id.replace('ModalBackdrop', ''));
         });
     });
 

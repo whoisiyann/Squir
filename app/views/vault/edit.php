@@ -64,7 +64,8 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
                 <div class="vault-field">
                     <label for="e_password">Password</label>
                     <div class="vault-password-field">
-                        <input id="e_password" name="account_password" type="password" placeholder="**********">
+                        <input id="e_password" name="account_password" type="password" placeholder="**********"
+    autocomplete="new-password" data-lpignore="true" data-1p-ignore data-bwignore="true">
                         <div class="vault-password-actions">
                             <button type="button" class="toggle-password" data-target="e_password" data-vault-id="<?= (int) $editItem['vault_id'] ?>" aria-label="Show password"><i class="ti ti-eye"></i></button>
                             <button type="button" class="generate-password" data-target="e_password" aria-label="Generate password"><i class="ti ti-wand"></i></button>

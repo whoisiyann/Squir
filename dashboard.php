@@ -8,6 +8,7 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
+require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/includes/dbconnect.php';
 require_once __DIR__ . '/app/models/Vault.php';
 require_once __DIR__ . '/app/controllers/DashboardController.php';

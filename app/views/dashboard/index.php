@@ -10,6 +10,15 @@ $user = $dashboard['user'];
 $counts = $dashboard['counts'];
 $firstName = explode(' ', trim($user['full_name']))[0] ?: $user['username'];
 $initials = strtoupper(substr($user['full_name'], 0, 1));
+
+$hour = (int) date('G'); 
+if ($hour < 12) {
+    $greeting = 'Good morning';
+} elseif ($hour < 18) {
+    $greeting = 'Good afternoon';
+} else {
+    $greeting = 'Good evening';
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -47,7 +56,7 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
 
         <main class="content-area">
             <div class="page-heading">
-                <div><h1>What’s on your mind today, <?= htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') ?>!</h1><p>Here's what's happening with your vault today.</p></div>
+                <div><h1><?= $greeting ?>, <?= htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') ?>.</h1><p>Here's what's happening with your vault today.<p></div>
                 <button class="quick-add" type="button"><i class="ti ti-plus"></i> Quick Add <i class="ti ti-chevron-down"></i></button>
             </div>
 
@@ -61,7 +70,7 @@ $initials = strtoupper(substr($user['full_name'], 0, 1));
             <section class="dashboard-grid">
                 <article class="app-card" id="tasks"><div class="card-heading"><h2>Tasks Overview</h2><a href="#tasks">View all</a></div><div class="empty-state"><i class="ti ti-list-check"></i><p>No tasks yet</p><small>Your upcoming tasks will appear here.</small></div></article>
                 <article class="app-card" id="favorites">
-                    <div class="card-heading"><h2>Recent Items</h2><a href="./vault.php">View all</a></div>
+                    <div class="card-heading"><h2>Recent Credentials</h2><a href="./vault.php">View all</a></div>
                     <?php if (empty($dashboard['recentItems'])): ?>
                         <div class="empty-state"><i class="ti ti-inbox"></i><p>No recent items</p><small>Saved passwords and notes will appear here.</small></div>
                     <?php else: ?>

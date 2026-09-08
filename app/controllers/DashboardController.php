@@ -38,13 +38,13 @@ class DashboardController
 	private function recentItems(int $userId, int $limit = 5): array
 	{
 		$statement = $this->db->prepare(
-			'SELECT v.vault_id, v.title, v.website_url, v.created_at,
-			        CASE WHEN f.favorite_id IS NULL THEN 0 ELSE 1 END AS is_favorite
-			 FROM vault v
-			 LEFT JOIN favorites f ON f.vault_id = v.vault_id AND f.user_id = v.user_id
-			 WHERE v.user_id = :user_id
-			 ORDER BY is_favorite DESC, v.created_at DESC
-			 LIMIT :limit'
+			'SELECT v.vault_id, v.title, v.website_url, v.account_username, v.created_at,
+					CASE WHEN f.favorite_id IS NULL THEN 0 ELSE 1 END AS is_favorite
+			FROM vault v
+			LEFT JOIN favorites f ON f.vault_id = v.vault_id AND f.user_id = v.user_id
+			WHERE v.user_id = :user_id
+			ORDER BY is_favorite DESC, v.created_at DESC
+			LIMIT :limit'
 		);
 		$statement->bindValue(':user_id', $userId, PDO::PARAM_INT);
 		$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -55,7 +55,7 @@ class DashboardController
 			$items[] = [
 				'item_type'   => 'vault',
 				'title'       => $row['title'],
-				'subtitle'    => 'Vault',
+				'subtitle'    => $row['account_username'] !== null && $row['account_username'] !== '' ? $row['account_username']: 'No username',
 				'icon_url'    => Vault::faviconUrlFor($row['website_url']),
 				'is_favorite' => (bool) $row['is_favorite'],
 			];

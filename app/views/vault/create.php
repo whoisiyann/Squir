@@ -35,7 +35,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
             <div class="vault-field">
                 <label for="v_password">Password</label>
                 <div class="vault-password-field">
-                    <input id="v_password" name="account_password" type="password" placeholder="password" required>
+                    <input id="v_password" name="account_password" type="password" placeholder="password" utocomplete="new-password" data-lpignore="true" data-1p-ignore data-bwignore="true" required>
                     <div class="vault-password-actions">
                         <button type="button" class="toggle-password" data-target="v_password" aria-label="Show password"><i class="ti ti-eye"></i></button>
                         <button type="button" class="generate-password" data-target="v_password" aria-label="Generate password"><i class="ti ti-wand"></i></button>
