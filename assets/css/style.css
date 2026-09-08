@@ -288,9 +288,11 @@ button, input {
   transition: background .15s ease, color .15s ease;
 }
 
-.icon-btn:hover {
-  background: var(--soft);
-  color: var(--accent);
+@media (hover: hover) and (pointer: fine) {
+  .icon-btn:hover {
+    background: var(--soft);
+    color: var(--accent);
+  }
 }
 
 .notification-dot {

@@ -185,13 +185,68 @@
         });
     });
 
+    function copyPasswordToClipboard(passwordPromise, onSuccess) {
+        function legacyCopy(text) {
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.top = '-1000px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, text.length);
+            var ok = false;
+            try { ok = document.execCommand('copy'); } catch (error) { ok = false; }
+            document.body.removeChild(textarea);
+            return ok;
+        }
+
+        if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+            var item = new ClipboardItem({
+                'text/plain': passwordPromise.then(function (text) {
+                    return new Blob([text], { type: 'text/plain' });
+                })
+            });
+            navigator.clipboard.write([item]).then(onSuccess).catch(function () {
+                passwordPromise.then(function (text) {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(onSuccess).catch(function () {
+                            if (legacyCopy(text)) { onSuccess(); } else { alert('Hindi ma-copy ang password. Subukang i-tap ulit.'); }
+                        });
+                    } else if (legacyCopy(text)) {
+                        onSuccess();
+                    } else {
+                        alert('Hindi ma-copy ang password. Subukang i-tap ulit.');
+                    }
+                }).catch(function () {
+                    alert('Hindi makuha ang password. Subukang i-tap ulit.');
+                });
+            });
+        } else {
+            passwordPromise.then(function (text) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(onSuccess).catch(function () {
+                        if (legacyCopy(text)) { onSuccess(); } else { alert('Hindi ma-copy ang password. Subukang i-tap ulit.'); }
+                    });
+                } else if (legacyCopy(text)) {
+                    onSuccess();
+                } else {
+                    alert('Hindi ma-copy ang password. Subukang i-tap ulit.');
+                }
+            }).catch(function () {
+                alert('Hindi makuha ang password. Subukang i-tap ulit.');
+            });
+        }
+    }
+
     $all('.vault-copy-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var row = btn.closest('tr');
             var id = row.getAttribute('data-vault-id');
-            revealById(id).then(function (json) {
-                navigator.clipboard.writeText(json.password);
-                var icon = btn.querySelector('i');
+            var icon = btn.querySelector('i');
+            var passwordPromise = revealById(id).then(function (json) { return json.password; });
+
+            copyPasswordToClipboard(passwordPromise, function () {
                 icon.className = 'ti ti-check';
                 btn.setAttribute('data-tooltip', 'Copied!');
                 setTimeout(function () {
@@ -207,8 +262,9 @@
     if (editCopyBtn) {
         editCopyBtn.addEventListener('click', function () {
             var id = editCopyBtn.getAttribute('data-vault-id');
-            revealById(id).then(function (json) {
-                navigator.clipboard.writeText(json.password);
+            var passwordPromise = revealById(id).then(function (json) { return json.password; });
+
+            copyPasswordToClipboard(passwordPromise, function () {
                 var original = editCopyBtn.textContent;
                 editCopyBtn.textContent = 'Copied!';
                 setTimeout(function () { editCopyBtn.textContent = original; }, 1200);
