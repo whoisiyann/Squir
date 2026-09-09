@@ -199,18 +199,37 @@
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+  max-height: 300px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.recent-list::-webkit-scrollbar {
+  display: none;
 }
 
 .recent-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 2px;
+  padding: 0;
   border-bottom: 1px solid var(--border);
 }
 
 .recent-item:last-child {
   border-bottom: 0;
+}
+
+.recent-item-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color .15s ease;
+}
+
+.recent-item-link:hover {
+  background-color: var(--soft);
 }
 
 .recent-icon {
@@ -262,6 +281,32 @@
 
 .recent-star.is-favorite {
   color: #F5A623;
+}
+
+.recent-see-more {
+  display: block;
+  text-align: center;
+  margin-top: 6px;
+  padding: 8px;
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 600;
+  text-decoration: none;
+  flex: 0 0 auto;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+
+.recent-see-more.is-visible {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.recent-see-more:hover {
+  text-decoration: underline;
 }
 
 

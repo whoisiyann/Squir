@@ -5,6 +5,7 @@
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
     var tableWrap = document.getElementById('vaultTableWrap');
 
+
     /* ---------- Modal open/close ---------- */
     function openModal(name) {
         var backdrop = document.getElementById(name + 'ModalBackdrop');
@@ -411,6 +412,28 @@
     try { savedView = window.localStorage.getItem(VIEW_KEY); } catch (error) {}
     if (savedView === 'grid') setView('grid');
 
+    // ---- Auto-highlight vault item in dashboard "Recent Credentials" click ----
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        var highlightId = params.get('highlight');
+        if (!highlightId || !tableWrap) return;
+
+        var row = tableWrap.querySelector('tr[data-vault-id="' + highlightId + '"]');
+        if (!row) return;
+
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                row.classList.add('vault-item-highlight');
+                setTimeout(function () { row.classList.remove('vault-item-highlight'); }, 1700);
+            });
+        });
+
+        params.delete('highlight');
+        var newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+    })();
+
 
     var scrollHint = document.getElementById('vaultScrollHint');
 
@@ -483,13 +506,13 @@
             if (!row) return;
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
             row.classList.remove('vault-item-highlight');
-            void row.offsetWidth; // force reflow para paulit-ulit gumana ang transition
+            void row.offsetWidth;
             row.classList.add('vault-item-highlight');
             setTimeout(function () { row.classList.remove('vault-item-highlight'); }, 1700);
         }
 
         function jumpToVaultId(id, title) {
-            if (title !== undefined) input.value = title; // i-autocomplete ang search bar
+            if (title !== undefined) input.value = title; // autocomplete search bar
             var row = tableWrap.querySelector('tr[data-vault-id="' + id + '"]');
             highlightRow(row);
             closeSuggestions();

@@ -66,4 +66,20 @@
             // Theme still works for the current page if storage is unavailable.
         }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const recentList = document.querySelector('.recent-list');
+    const seeMoreBtn = document.querySelector('.recent-see-more');
+
+    if (recentList && seeMoreBtn) {
+        const checkScrollEnd = () => {
+        const reachedEnd = recentList.scrollTop + recentList.clientHeight >= recentList.scrollHeight - 4;
+        seeMoreBtn.classList.toggle('is-visible', reachedEnd);
+        };
+
+        recentList.addEventListener('scroll', checkScrollEnd);
+        checkScrollEnd(); // initial check — kung baba pa lang, kasya na agad lahat kahit walang scroll
+    }
+    });
+
 })();
