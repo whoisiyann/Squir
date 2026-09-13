@@ -20,8 +20,7 @@ if (empty($_SESSION['vault_csrf_token'])) {
 }
 $csrfToken = $_SESSION['vault_csrf_token'];
 
-// ---- AJAX: ibalik ang decrypted password para sa eye/copy button ----
-// (hindi ito naka-embed sa HTML, kaya safe kahit view-source ang gawin ng user)
+// ---- AJAX: decrypted password para sa eye/copy button ----
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     header('Content-Type: application/json');
     if (!hash_equals($csrfToken, (string) ($_GET['token'] ?? ''))) {
@@ -39,8 +38,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     exit;
 }
 
-// ---- AJAX: i-toggle ang favorite ng isang vault item mula mismo sa listahan ----
-// (star sa tabi ng item + star sa Actions column, walang kailangang mag-reload)
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
     if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
@@ -105,7 +103,7 @@ if (isset($_GET['edit'])) {
     $editItem = $controller->edit((int) $_GET['edit'], $userId);
 }
 
-// para sa sidebar/header partials (parehong variable names gaya ng dashboard.php)
+
 $userStmt = $dbh->prepare('SELECT full_name, username FROM users WHERE user_id = :uid');
 $userStmt->execute(['uid' => $userId]);
 $user = $userStmt->fetch(PDO::FETCH_ASSOC) ?: ['full_name' => 'User', 'username' => 'user'];

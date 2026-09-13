@@ -305,7 +305,7 @@
   pointer-events: auto;
 }
 
-.recent-see-more:hover {
+.recent-see-more:hover {  
   text-decoration: underline;
 }
 

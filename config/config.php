@@ -1,5 +1,4 @@
 <?php
-// config/config.php
 // General application-wide settings and constants.
 
 error_reporting(E_ALL);

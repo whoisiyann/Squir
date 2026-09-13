@@ -527,6 +527,12 @@
   border-radius: var(--radius);
   background: var(--card);
   box-shadow: var(--shadow);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.vault-modal::-webkit-scrollbar {
+    display: none;
 }
 
 .vault-modal-header {
