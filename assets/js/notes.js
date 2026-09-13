@@ -177,6 +177,56 @@
 
         var saveTimer = null;
 
+        /* ---- Mobile: floating toolbar above the on-screen keyboard ---- */
+        var mobileBreakpoint = '(max-width: 900px)';
+
+        function isMobile() {
+            return window.matchMedia(mobileBreakpoint).matches;
+        }
+
+        function positionMobileToolbar() {
+            if (!toolbar || !window.visualViewport) return;
+            var vv = window.visualViewport;
+            var keyboardHeight = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+            toolbar.style.bottom = keyboardHeight + 'px';
+        }
+
+        function showMobileToolbar() {
+            if (!toolbar || !isMobile()) return;
+            toolbar.classList.add('note-toolbar-visible');
+            positionMobileToolbar();
+        }
+
+        function hideMobileToolbar() {
+            if (!toolbar) return;
+            toolbar.classList.remove('note-toolbar-visible');
+        }
+
+        if (toolbar && contentEl) {
+            contentEl.addEventListener('focus', showMobileToolbar);
+
+            document.addEventListener('focusin', function (event) {
+                if (!isMobile()) return;
+                var withinEditor = event.target === contentEl || toolbar.contains(event.target);
+                if (!withinEditor) hideMobileToolbar();
+            });
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', function () {
+                    if (toolbar.classList.contains('note-toolbar-visible')) positionMobileToolbar();
+                });
+                window.visualViewport.addEventListener('scroll', function () {
+                    if (toolbar.classList.contains('note-toolbar-visible')) positionMobileToolbar();
+                });
+            }
+        }
+
+        function updateEmptyState() {
+            var isEmpty = contentEl.textContent.replace(/\u200B/g, '').trim() === '';
+            contentEl.classList.toggle('is-empty', isEmpty);
+        }
+        updateEmptyState();
+
         function scheduleSave() {
             if (statusEl) statusEl.textContent = 'Editing…';
             clearTimeout(saveTimer);
@@ -275,6 +325,7 @@
                 }
                 scheduleSave();
                 updateToolbarState();
+                updateEmptyState();
             });
         });
 
@@ -293,6 +344,7 @@
             event.preventDefault();
             document.execCommand('insertText', false, plainText);
             scheduleSave();
+            updateEmptyState();
         });
 
         titleInput.addEventListener('input', function () {
@@ -301,7 +353,10 @@
         });
         titleInput.addEventListener('blur', saveNow);
 
-        contentEl.addEventListener('input', scheduleSave);
+        contentEl.addEventListener('input', function () {
+            scheduleSave();
+            updateEmptyState();
+        });
         contentEl.addEventListener('blur', saveNow);
 
         folderSelect.addEventListener('change', saveNow);

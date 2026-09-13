@@ -30,7 +30,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/notes.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
-<body>
+<body class="<?= $activeNote ? 'notes-detail-active' : '' ?>">
 <div class="app-shell" id="appShell">
 <script>
     try {
@@ -182,6 +182,9 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     <?php else: ?>
                         <div class="note-editor" id="noteEditor" data-note-id="<?= (int) $activeNote['note_id'] ?>" data-csrf="<?= $escape($csrfToken) ?>">
                             <div class="note-editor-topline">
+                                <a class="note-mobile-close" href="?<?= http_build_query(array_filter(['folder' => $data['activeFolder'], 'q' => $data['search']])) ?>" aria-label="Back to notes list">
+                                    <i class="ti ti-x"></i>
+                                </a>
                                 <span class="note-breadcrumb">Notes <i class="ti ti-chevron-right"></i> <span id="noteBreadcrumbTitle"><?= $escape(Note::titleOrDefault($activeNote['title'])) ?></span></span>
                                 <div class="note-editor-actions">
                                     <span class="note-save-status" id="noteSaveStatus"></span>
@@ -280,8 +283,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                 Content is stored as sanitized HTML (see NoteController::sanitizeContent),
                                 so it is safe to output raw here rather than htmlspecialchars-escaped.
                             -->
-                            <div class="note-content-editable" id="noteContentEditable" contenteditable="true"><?= $activeNote['content'] !== null && $activeNote['content'] !== '' ? $activeNote['content'] : '<p></p>' ?></div>
-                        </div>
+                            <div class="note-content-editable<?= ($activeNote['content'] === null || trim(strip_tags($activeNote['content'])) === '') ? ' is-empty' : '' ?>" id="noteContentEditable" contenteditable="true" data-placeholder="Start typing…"><?= $activeNote['content'] !== null && $activeNote['content'] !== '' ? $activeNote['content'] : '<p></p>' ?></div>
                     <?php endif; ?>
                 </section>
 

@@ -130,11 +130,9 @@
 
 .notes-list::-webkit-scrollbar { display: none; }
 
+/* ---------- Note card (list item) ----------*/
 .note-card {
   position: relative;
-  display: flex;
-  align-items: stretch;
-  gap: 4px;
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--card);
@@ -154,7 +152,6 @@
   display: flex;
   align-items: flex-start;
   gap: 11px;
-  flex: 1;
   min-width: 0;
   padding: 12px;
   color: inherit;
@@ -190,6 +187,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
+  padding-right: 44px;
 }
 
 .note-card-top strong {
@@ -226,7 +224,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 2px;
+  margin-top: 2px
 }
 
 .note-folder-chip {
@@ -259,9 +257,30 @@
 /* ---------- 3-dot menu (shared: list rows + detail header) ---------- */
 .note-menu {
   position: relative;
-  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
+}
+
+.note-card > .note-menu {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  padding: 0;
+}
+
+.note-card > .note-menu .note-menu-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+.note-card > .note-menu .note-menu-btn i {
+  font-size: 1rem;
+}
+
+/* Detail panel header keeps its original inline spacing */
+.note-editor-actions .note-menu {
+  flex: 0 0 auto;
   padding: 10px 8px 0 0;
 }
 
@@ -314,7 +333,7 @@
   }
 }
 
-/* ---- Move to folder: drill-down submenu sa loob mismo ng dropdown ---- */
+/* ---- Move to folder: drill-down submenu  ---- */
 .note-menu-dropdown .note-menu-folders {
   display: none;
   max-height: 260px;
@@ -451,6 +470,7 @@
 }
 
 .note-content-editable {
+  position: relative;
   flex: 1; 
   min-height: 0;  
   overflow-y: auto;    
@@ -462,10 +482,23 @@
   line-height: 1.7;
 }
 
+
+.note-content-editable.is-empty:before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  color: var(--muted);
+  pointer-events: none;
+  user-select: none;
+}
+
 .note-content-editable::-webkit-scrollbar { display: none; }
 
 
 .note-editor-topline {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -711,19 +744,72 @@
   }
 }
 
+.note-mobile-close {
+  display: none; 
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  margin-right: 2px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--text);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .note-mobile-close:hover {
+    background: var(--border);
+  }
+}
+
 @media (max-width: 900px) {
   .notes-content-area {
-    overflow-y: auto;
+    overflow: hidden;
   }
   .notes-layout {
-    grid-template-columns: 1fr;
-    grid-auto-rows: min-content;
+    display: block;
+    height: 100%;
   }
-  .notes-list-panel {
-    max-height: 360px;
-  }
+  .notes-list-panel,
   .note-detail-panel {
-    min-height: 400px;
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+  }
+
+  /* Default (no note open): show the list, hide the detail panel */
+  .note-detail-panel {
+    display: none;
+  }
+
+  /* A note is open: hide the list, show the detail panel full-screen */
+  body.notes-detail-active .notes-list-panel {
+    display: none;
+  }
+  body.notes-detail-active .note-detail-panel {
+    display: flex;
+  }
+
+  .note-mobile-close {
+    display: inline-flex;
+  }
+
+
+  .note-editor-topline {
+    padding-right: 44px;
+  }
+  .note-editor-actions .note-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .note-save-status,
+  .note-last-modified {
+    display: none;
   }
 }
 
@@ -737,15 +823,29 @@
 }
 
 @media (max-width: 900px) {
-  .note-detail-panel {
-    display: block;
-    overflow: visible;
+  .note-toolbar {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 500;
+    margin: 0;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    border-bottom: 0;
+    background: var(--card);
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, .12);
+    overflow-x: auto;
+    flex-wrap: nowrap;
   }
-  .note-editor {
-    display: block;
+
+  .note-toolbar.note-toolbar-visible {
+    display: flex;
   }
+
+
   .note-content-editable {
-    flex: none;
-    overflow: visible;
+    padding-bottom: 70px;
   }
 }
