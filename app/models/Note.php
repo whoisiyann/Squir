@@ -59,11 +59,7 @@ class Note
         return (int) $stmt->fetchColumn();
     }
 
-    /**
-     * Folder list + note counts for the filter pills at the top of the
-     * Notes list ("All", "Work", "School", ...). LEFT JOIN so folders
-     * with zero notes still show up (count 0).
-     */
+
     public function folderCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -94,7 +90,7 @@ class Note
         $stmt->execute([
             'user_id' => $userId,
             'folder_id' => $data['folder_id'] ?: null,
-            'title' => $data['title'] !== '' ? $data['title'] : 'Untitled note',
+            'title' => $data['title'],
             'content' => $data['content'] !== '' ? $data['content'] : null,
         ]);
 
@@ -114,7 +110,7 @@ class Note
         );
         $stmt->execute([
             'folder_id' => $data['folder_id'] ?: null,
-            'title' => $data['title'] !== '' ? $data['title'] : 'Untitled note',
+            'title' => $data['title'],
             'content' => $data['content'] !== '' ? $data['content'] : null,
             'id' => $noteId,
             'uid' => $userId,
@@ -136,9 +132,15 @@ class Note
     {
         $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) $htmlContent)));
         if ($text === '') {
-            return 'No additional text';
+            return 'No text';
         }
         return mb_strlen($text) > $length ? mb_substr($text, 0, $length) . '…' : $text;
+    }
+
+    public static function titleOrDefault(?string $title): string
+    {
+        $title = trim((string) $title);
+        return $title !== '' ? $title : 'Untitled note';
     }
 
     private function validate(array $data): array

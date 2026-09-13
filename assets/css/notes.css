@@ -431,6 +431,11 @@
   outline: none;
 }
 
+.note-title-input::placeholder {
+  color: var(--muted);
+  opacity: 1; 
+}
+
 .note-folder-row {
   flex: 0 0 auto;
   margin-bottom: 16px;

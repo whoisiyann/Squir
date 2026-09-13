@@ -99,7 +99,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                         <span class="note-card-icon"><i class="ti ti-file-text"></i></span>
                                         <span class="note-card-body">
                                             <span class="note-card-top">
-                                                <strong><?= $escape($item['title']) ?></strong>
+                                                <strong><?= $escape(Note::titleOrDefault($item['title'])) ?></strong>
                                                 <button type="button" class="note-favorite-btn <?= $item['is_favorite'] ? 'is-fav' : '' ?>" data-tooltip="<?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>" aria-label="Favorite">
                                                     <i class="fa-solid fa-star"></i>
                                                 </button>
@@ -148,7 +148,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     <?php else: ?>
                         <div class="note-editor" id="noteEditor" data-note-id="<?= (int) $activeNote['note_id'] ?>" data-csrf="<?= $escape($csrfToken) ?>">
                             <div class="note-editor-topline">
-                                <span class="note-breadcrumb">Notes <i class="ti ti-chevron-right"></i> <span id="noteBreadcrumbTitle"><?= $escape($activeNote['title']) ?></span></span>
+                                <span class="note-breadcrumb">Notes <i class="ti ti-chevron-right"></i> <span id="noteBreadcrumbTitle"><?= $escape(Note::titleOrDefault($activeNote['title'])) ?></span></span>
                                 <div class="note-editor-actions">
                                     <span class="note-save-status" id="noteSaveStatus"></span>
                                     <span class="note-last-modified"><i class="ti ti-clock"></i> Last modified <?= $escape(date('F j, g:i A', strtotime($activeNote['updated_at']))) ?></span>

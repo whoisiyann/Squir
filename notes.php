@@ -20,8 +20,7 @@ if (empty($_SESSION['notes_csrf_token'])) {
 }
 $csrfToken = $_SESSION['notes_csrf_token'];
 
-// ---- AJAX: i-save ang title/content/folder habang nagta-type ang user ----
-// (debounced sa notes.js, hindi kailangan mag-fully reload ang page)
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') {
     header('Content-Type: application/json');
     if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
     }
 
     echo json_encode([
-        'title' => $saved['title'],
+        'title' => Note::titleOrDefault($saved['title']),
         'excerpt' => Note::excerptOf($saved['content']),
         'updated_at' => date('F j, g:i A', strtotime($saved['updated_at'])),
         'folder_name' => $saved['folder_name'],
@@ -54,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
     exit;
 }
 
-// ---- AJAX: i-toggle ang favorite ng isang note mula sa listahan o editor ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
     if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
@@ -110,7 +108,6 @@ $data = $controller->index($userId, $_GET);
 $activeNoteId = isset($_GET['note']) ? (int) $_GET['note'] : null;
 $activeNote = $activeNoteId ? $controller->find($activeNoteId, $userId) : null;
 
-// para sa sidebar/header partials (parehong variable names gaya ng dashboard.php / vault.php)
 $userStmt = $dbh->prepare('SELECT full_name, username FROM users WHERE user_id = :uid');
 $userStmt->execute(['uid' => $userId]);
 $user = $userStmt->fetch(PDO::FETCH_ASSOC) ?: ['full_name' => 'User', 'username' => 'user'];
