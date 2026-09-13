@@ -59,7 +59,6 @@ class Note
         return (int) $stmt->fetchColumn();
     }
 
-
     public function folderCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -125,6 +124,42 @@ class Note
         return $stmt->execute(['id' => $noteId, 'uid' => $userId]);
     }
 
+
+    public function moveToFolder(int $noteId, int $userId, ?int $folderId): bool
+    {
+        $stmt = $this->dbh->prepare(
+            'UPDATE notes SET folder_id = :folder_id WHERE note_id = :id AND user_id = :uid'
+        );
+        return $stmt->execute([
+            'folder_id' => $folderId,
+            'id' => $noteId,
+            'uid' => $userId,
+        ]);
+    }
+
+    public function duplicate(int $noteId, int $userId): ?int
+    {
+        $original = $this->find($noteId, $userId);
+        if (!$original) {
+            return null;
+        }
+
+        $originalTitle = trim((string) $original['title']);
+
+        $stmt = $this->dbh->prepare(
+            'INSERT INTO notes (user_id, folder_id, title, content)
+             VALUES (:user_id, :folder_id, :title, :content)'
+        );
+        $stmt->execute([
+            'user_id' => $userId,
+            'folder_id' => $original['folder_id'],
+            'title' => $originalTitle !== '' ? $originalTitle . ' (Copy)' : '',
+            'content' => $original['content'],
+        ]);
+
+        return (int) $this->dbh->lastInsertId();
+    }
+
     /* ================= HELPERS ================= */
 
     /** Plain-text preview for the list card (strips HTML tags, collapses whitespace). */
@@ -136,6 +171,7 @@ class Note
         }
         return mb_strlen($text) > $length ? mb_substr($text, 0, $length) . '…' : $text;
     }
+
 
     public static function titleOrDefault(?string $title): string
     {

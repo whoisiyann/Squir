@@ -252,13 +252,8 @@
   white-space: nowrap;
 }
 
-.notes-empty,
-.note-detail-empty {
+.notes-empty {
   padding: 50px 10px;
-}
-
-.note-detail-empty form {
-  margin-top: 14px;
 }
 
 /* ---------- 3-dot menu (shared: list rows + detail header) ---------- */
@@ -273,7 +268,7 @@
 .note-menu-dropdown {
   display: none;
   position: fixed;
-  min-width: 180px;
+  min-width: 190px;
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -308,7 +303,51 @@
   }
 }
 
-.note-menu-delete { color: #e5484d; }
+.note-menu-dropdown button.note-menu-delete {
+  color: #e5484d;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .note-menu-dropdown button.note-menu-delete:hover {
+    background: rgba(229, 72, 77, .12);
+    color: #e5484d;
+  }
+}
+
+/* ---- Move to folder: drill-down submenu sa loob mismo ng dropdown ---- */
+.note-menu-dropdown .note-menu-folders {
+  display: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.note-menu-dropdown.showing-folders .note-menu-main {
+  display: none;
+}
+
+.note-menu-dropdown.showing-folders .note-menu-folders {
+  display: block;
+}
+
+.note-menu-move-toggle {
+  justify-content: space-between;
+}
+
+.note-menu-move-toggle span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-menu-move-chevron {
+  font-size: .7rem;
+  color: var(--muted);
+}
+
+.note-menu-folder-back {
+  color: var(--muted);
+  font-weight: 600;
+}
 
 .note-detail-menu-btn {
   background: var(--soft);
@@ -338,6 +377,64 @@
   padding: 26px 32px 0;    
 }
 
+/* ---- "No note selected" empty state ---- */
+.note-detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.note-detail-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 22px;
+  border-radius: 24px;
+  background: var(--soft);
+  color: var(--accent);
+  font-size: 2.6rem;
+}
+
+.note-detail-empty-title {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.note-detail-empty-subtitle {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.note-detail-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dark);
+  color: var(--button-text);
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter .15s ease, transform .15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .note-detail-empty-btn:hover {
+    filter: brightness(1.08);
+  }
+}
 
 .note-editor {
   display: flex;
@@ -563,10 +660,6 @@
   margin-bottom: 0;
 }
 
-
-
-
-
 /* ---------- Tooltips (toolbar buttons) ---------- */
 [data-tooltip] {
   position: relative;
@@ -610,14 +703,6 @@
   bottom: auto;
   transform: translate(-50%, 6px);
 }
-
-
-
-
-
-
-
-
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {

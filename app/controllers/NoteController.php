@@ -63,6 +63,16 @@ class NoteController
         return $this->noteModel->delete($noteId, $userId);
     }
 
+    public function moveToFolder(int $noteId, int $userId, ?int $folderId): bool
+    {
+        return $this->noteModel->moveToFolder($noteId, $userId, $folderId);
+    }
+
+    public function duplicate(int $noteId, int $userId): ?int
+    {
+        return $this->noteModel->duplicate($noteId, $userId);
+    }
+
     public function toggleFavorite(int $noteId, int $userId): ?bool
     {
         $item = $this->noteModel->find($noteId, $userId);

@@ -75,10 +75,52 @@
         });
     }
 
+    /* ---------- Favorite item  (list rows) ---------- */
+    $all('.note-menu-favorite-item').forEach(function (btn) {
+        btn.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var card = btn.closest('.note-card');
+            if (!card) return;
+            var noteId = card.getAttribute('data-note-id');
+            var wasFav = card.getAttribute('data-favorite') === '1';
+            var starBtn = card.querySelector('.note-favorite-btn');
+
+            if (starBtn) applyFavState(card, starBtn, !wasFav);
+            btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (!wasFav ? 'Unfavorite' : 'Favorite');
+
+            toggleFavoriteRequest(noteId, editorCsrf).then(function (json) {
+                if (starBtn) applyFavState(card, starBtn, !!json.is_favorite);
+                btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (json.is_favorite ? 'Unfavorite' : 'Favorite');
+            }).catch(function () {
+                if (starBtn) applyFavState(card, starBtn, wasFav);
+                btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (wasFav ? 'Unfavorite' : 'Favorite');
+            });
+        });
+    });
+
+    /* ---------- Move-to-folder ---------- */
+    $all('.note-menu-move-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            var dropdown = btn.closest('.note-menu-dropdown');
+            if (dropdown) dropdown.classList.add('showing-folders');
+        });
+    });
+
+    $all('.note-menu-folder-back').forEach(function (btn) {
+        btn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            var dropdown = btn.closest('.note-menu-dropdown');
+            if (dropdown) dropdown.classList.remove('showing-folders');
+        });
+    });
+
     /* ---------- 3-dot dropdown menus (list rows + detail header) ---------- */
     function closeAllMenus() {
         $all('.note-menu-dropdown.open').forEach(function (menu) {
             menu.classList.remove('open');
+            menu.classList.remove('showing-folders');
             menu.style.top = '';
             menu.style.left = '';
             if (menu._placeholder && menu._placeholder.parentNode) {

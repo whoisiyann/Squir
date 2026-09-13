@@ -20,7 +20,7 @@ if (empty($_SESSION['notes_csrf_token'])) {
 }
 $csrfToken = $_SESSION['notes_csrf_token'];
 
-
+// ---- AJAX: i-save ang title/content/folder habang nagta-type ang user ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') {
     header('Content-Type: application/json');
     if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
     ]);
     exit;
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
@@ -97,6 +98,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
         } elseif ($action === 'delete') {
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $controller->destroy($noteId, $userId);
+            header('Location: ./notes.php?' . http_build_query($redirectParams));
+            exit;
+        } elseif ($action === 'move_folder') {
+
+            $noteId = (int) ($_POST['note_id'] ?? 0);
+            $targetFolder = ($_POST['target_folder'] ?? '') !== '' ? (int) $_POST['target_folder'] : null;
+            $controller->moveToFolder($noteId, $userId, $targetFolder);
+            $redirectParams['note'] = $noteId;
+            header('Location: ./notes.php?' . http_build_query($redirectParams));
+            exit;
+        } elseif ($action === 'duplicate') {
+  
+            $noteId = (int) ($_POST['note_id'] ?? 0);
+            $newNoteId = $controller->duplicate($noteId, $userId);
+            if ($newNoteId !== null) {
+                $redirectParams['note'] = $newNoteId;
+            }
             header('Location: ./notes.php?' . http_build_query($redirectParams));
             exit;
         }
