@@ -88,19 +88,29 @@ class NoteController
         ];
     }
 
-    /**
-     * Bare-bones HTML sanitizer for note content coming from the
-     * contenteditable editor. Keeps a small safe tag whitelist and
-     * strips event-handler attributes / javascript: links.
-     * NOTE: for a real production app, swap this for a proper library
-     * like HTML Purifier — this is intentionally minimal.
-     */
+
     private function sanitizeContent(string $html): string
     {
-        $allowed = '<h1><h2><h3><p><br><b><strong><i><em><u><ul><ol><li><a>';
+        $allowed = '<h1><h2><h3><p><br><b><strong><i><em><u><s><strike><ul><ol><li><a><span><blockquote><div>';
         $clean = strip_tags($html, $allowed);
         $clean = preg_replace('/\son\w+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $clean);
         $clean = preg_replace('/(href\s*=\s*)("|\')\s*javascript:[^"\']*\2/i', '$1$2#$2', $clean);
+
+        $clean = preg_replace_callback(
+            '/\sstyle\s*=\s*(["\'])(.*?)\1/i',
+            static function (array $matches): string {
+                $declarations = array_filter(array_map('trim', explode(';', $matches[2])));
+                $safe = [];
+                foreach ($declarations as $declaration) {
+                    if (preg_match('/^(background-color|text-align)\s*:\s*[#a-zA-Z0-9(),.\s%-]+$/', $declaration)) {
+                        $safe[] = $declaration;
+                    }
+                }
+                return $safe !== [] ? ' style="' . htmlspecialchars(implode('; ', $safe), ENT_QUOTES, 'UTF-8') . '"' : '';
+            },
+            $clean
+        );
+
         return trim($clean);
     }
 

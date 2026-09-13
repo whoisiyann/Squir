@@ -22,6 +22,7 @@
   --radius: 18px;
   --topbar-h: 74px;
   --content-gutter: 32px;
+  --highlight-color: #fbff00;
 }
 
 body.dashboard-dark,
@@ -42,6 +43,7 @@ html.dashboard-dark-preload {
   --active-icon: #08090B;
   --backdrop: rgba(0,0,0,.58);
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --highlight-color: #8f6b00;
 }
 
 * {

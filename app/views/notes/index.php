@@ -153,7 +153,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                     <span class="note-save-status" id="noteSaveStatus"></span>
                                     <span class="note-last-modified"><i class="ti ti-clock"></i> Last modified <?= $escape(date('F j, g:i A', strtotime($activeNote['updated_at']))) ?></span>
                                     <div class="note-menu">
-                                        <button type="button" class="icon-btn note-menu-btn" aria-label="More actions"><i class="ti ti-dots-vertical"></i></button>
+                                        <button type="button" class="icon-btn note-menu-btn note-detail-menu-btn" aria-label="More actions"><i class="ti ti-dots-vertical"></i></button>
                                         <div class="note-menu-dropdown">
                                             <button type="button" class="note-menu-favorite">
                                                 <i class="fa-solid fa-star"></i> <?= $activeNote['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
@@ -173,33 +173,44 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 
                             <div class="note-folder-row">
                                 <label for="noteFolderSelect" class="visually-hidden">Folder</label>
-                                <select id="noteFolderSelect" class="note-folder-select">
-                                    <option value="">No folder</option>
-                                    <?php foreach ($data['folders'] as $folder): ?>
-                                        <option value="<?= (int) $folder['folder_id'] ?>" <?= (int) $activeNote['folder_id'] === (int) $folder['folder_id'] ? 'selected' : '' ?>>
-                                            <?= $escape($folder['folder_name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <span class="note-folder-select-wrap">
+                                    <select id="noteFolderSelect" class="note-folder-select">
+                                        <option value="">No folder</option>
+                                        <?php foreach ($data['folders'] as $folder): ?>
+                                            <option value="<?= (int) $folder['folder_id'] ?>" <?= (int) $activeNote['folder_id'] === (int) $folder['folder_id'] ? 'selected' : '' ?>>
+                                                <?= $escape($folder['folder_name']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <i class="ti ti-chevron-down note-folder-select-icon" aria-hidden="true"></i>
+                                </span>
                             </div>
 
-                            <div class="note-toolbar" role="toolbar" aria-label="Formatting">
-                                <select class="note-heading-select" data-cmd="formatBlock" aria-label="Text style">
-                                    <option value="p">Paragraph</option>
-                                    <option value="h1">Heading 1</option>
-                                    <option value="h2">Heading 2</option>
-                                    <option value="h3">Heading 3</option>
-                                </select>
-                                <span class="note-toolbar-sep"></span>
-                                <button type="button" data-cmd="bold" aria-label="Bold"><i class="ti ti-bold"></i></button>
-                                <button type="button" data-cmd="italic" aria-label="Italic"><i class="ti ti-italic"></i></button>
-                                <button type="button" data-cmd="underline" aria-label="Underline"><i class="ti ti-underline"></i></button>
-                                <span class="note-toolbar-sep"></span>
-                                <button type="button" data-cmd="insertUnorderedList" aria-label="Bullet list"><i class="ti ti-list"></i></button>
-                                <button type="button" data-cmd="insertOrderedList" aria-label="Numbered list"><i class="ti ti-list-numbers"></i></button>
-                                <button type="button" data-cmd="createLink" aria-label="Insert link"><i class="ti ti-link"></i></button>
-                            </div>
-
+                                <div class="note-toolbar" role="toolbar" aria-label="Formatting">
+                                    <button type="button" class="note-heading-btn" data-cmd="formatBlock" data-value="h1" data-tooltip="Heading 1" aria-label="Heading 1">H1</button>
+                                    <button type="button" class="note-heading-btn" data-cmd="formatBlock" data-value="h2" data-tooltip="Heading 2" aria-label="Heading 2">H2</button>
+                                    <button type="button" class="note-heading-btn" data-cmd="formatBlock" data-value="h3" data-tooltip="Heading 3" aria-label="Heading 3">H3</button>
+                                    <span class="note-toolbar-sep"></span>
+                                    <button type="button" data-cmd="bold" data-tooltip="Bold" aria-label="Bold"><i class="ti ti-bold"></i></button>
+                                    <button type="button" data-cmd="italic" data-tooltip="Italic" aria-label="Italic"><i class="ti ti-italic"></i></button>
+                                    <button type="button" data-cmd="underline" data-tooltip="Underline" aria-label="Underline"><i class="ti ti-underline"></i></button>
+                                    <button type="button" data-cmd="strikeThrough" data-tooltip="Strikethrough" aria-label="Strikethrough"><i class="ti ti-strikethrough"></i></button>
+                                    <span class="note-toolbar-sep"></span>
+                                    <button type="button" class="note-highlight-btn" data-cmd="hiliteColor" data-value="var(--highlight-color)" data-tooltip="Highlight" aria-label="Highlight"><i class="ti ti-palette"></i></button>
+                                    <span class="note-toolbar-sep"></span>
+                                    <button type="button" data-cmd="justifyLeft" data-tooltip="Align left" aria-label="Align left"><i class="ti ti-align-left"></i></button>
+                                    <button type="button" data-cmd="justifyCenter" data-tooltip="Align center" aria-label="Align center"><i class="ti ti-align-center"></i></button>
+                                    <button type="button" data-cmd="justifyRight" data-tooltip="Align right" aria-label="Align right"><i class="ti ti-align-right"></i></button>
+                                    <button type="button" data-cmd="justifyFull" data-tooltip="Justify" aria-label="Justify"><i class="ti ti-align-justified"></i></button>
+                                    <span class="note-toolbar-sep"></span>
+                                    <button type="button" data-cmd="insertUnorderedList" data-tooltip="Bullet list" aria-label="Bullet list"><i class="ti ti-list"></i></button>
+                                    <button type="button" data-cmd="insertOrderedList" data-tooltip="Numbered list" aria-label="Numbered list"><i class="ti ti-list-numbers"></i></button>
+                                    <span class="note-toolbar-sep"></span>
+                                    <button type="button" data-cmd="outdent" data-tooltip="Decrease indent" aria-label="Decrease indent"><i class="ti ti-indent-decrease"></i></button>
+                                    <button type="button" data-cmd="indent" data-tooltip="Increase indent" aria-label="Increase indent"><i class="ti ti-indent-increase"></i></button>
+                                    <span class="note-toolbar-sep"></span>
+                                    <button type="button" data-cmd="createLink" data-tooltip="Insert link" aria-label="Insert link"><i class="ti ti-link"></i></button>
+                                </div>
                             <!--
                                 Content is stored as sanitized HTML (see NoteController::sanitizeContent),
                                 so it is safe to output raw here rather than htmlspecialchars-escaped.
