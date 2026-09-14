@@ -5,17 +5,25 @@
 
     var editor = document.getElementById('noteEditor');
     var notesList = document.getElementById('notesList');
+    var menuFavBtn = document.querySelector('.note-menu-favorite'); // editor's 3-dot Favorite item
 
-    /* ---------- Search: debounce auto-submit (feels live, still a normal GET) ---------- */
+/* ---------- Search: debounce auto-submit (feels live, still a normal GET) ---------- */
     (function () {
         var form = document.getElementById('notesSearchForm');
         var input = document.getElementById('notesSearchInput');
         if (!form || !input) return;
+
         var timer = null;
         input.addEventListener('input', function () {
             clearTimeout(timer);
             timer = setTimeout(function () { form.submit(); }, 450);
         });
+
+        if (input.value !== '') {
+            input.focus();
+            var end = input.value.length;
+            input.setSelectionRange(end, end);
+        }
     })();
 
     /* ---------- Favorite star ---------- */
@@ -40,7 +48,14 @@
         btn.setAttribute('data-tooltip', isFav ? 'Unfavorite' : 'Favorite');
     }
 
-    var editorCsrf = editor ? editor.getAttribute('data-csrf') : null;
+
+    function syncEditorFavoriteLabel(noteId, isFav) {
+        if (!editor || !menuFavBtn) return;
+        if (editor.getAttribute('data-note-id') !== String(noteId)) return;
+        menuFavBtn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (isFav ? 'Unfavorite' : 'Favorite');
+    }
+
+    var editorCsrf = window.NOTES_CSRF_TOKEN || (editor ? editor.getAttribute('data-csrf') : null);
 
     $all('.note-favorite-btn').forEach(function (btn) {
         btn.addEventListener('click', function (event) {
@@ -52,15 +67,17 @@
             var wasFav = card.getAttribute('data-favorite') === '1';
 
             applyFavState(card, btn, !wasFav);
+            syncEditorFavoriteLabel(noteId, !wasFav);
             toggleFavoriteRequest(noteId, editorCsrf).then(function (json) {
                 applyFavState(card, btn, !!json.is_favorite);
+                syncEditorFavoriteLabel(noteId, !!json.is_favorite);
             }).catch(function () {
                 applyFavState(card, btn, wasFav);
+                syncEditorFavoriteLabel(noteId, wasFav);
             });
         });
     });
 
-    var menuFavBtn = document.querySelector('.note-menu-favorite');
     if (menuFavBtn && editor) {
         menuFavBtn.addEventListener('click', function () {
             var noteId = editor.getAttribute('data-note-id');
@@ -75,26 +92,34 @@
         });
     }
 
-    /* ---------- Favorite item  (list rows) ---------- */
+    /* ---------- Favorite item (list rows, inside 3-dot dropdown) ---------- */
     $all('.note-menu-favorite-item').forEach(function (btn) {
         btn.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
-            var card = btn.closest('.note-card');
+
+            var dropdown = btn.closest('.note-menu-dropdown');
+            var noteId = dropdown ? dropdown.getAttribute('data-note-id') : null;
+            if (!noteId || !notesList) return;
+
+            var card = notesList.querySelector('.note-card[data-note-id="' + noteId + '"]');
             if (!card) return;
-            var noteId = card.getAttribute('data-note-id');
+
             var wasFav = card.getAttribute('data-favorite') === '1';
             var starBtn = card.querySelector('.note-favorite-btn');
 
             if (starBtn) applyFavState(card, starBtn, !wasFav);
             btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (!wasFav ? 'Unfavorite' : 'Favorite');
+            syncEditorFavoriteLabel(noteId, !wasFav);
 
             toggleFavoriteRequest(noteId, editorCsrf).then(function (json) {
                 if (starBtn) applyFavState(card, starBtn, !!json.is_favorite);
                 btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (json.is_favorite ? 'Unfavorite' : 'Favorite');
+                syncEditorFavoriteLabel(noteId, !!json.is_favorite);
             }).catch(function () {
                 if (starBtn) applyFavState(card, starBtn, wasFav);
                 btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (wasFav ? 'Unfavorite' : 'Favorite');
+                syncEditorFavoriteLabel(noteId, wasFav);
             });
         });
     });
@@ -146,6 +171,12 @@
     $all('.note-menu-btn').forEach(function (btn) {
         var menu = btn.parentElement.querySelector('.note-menu-dropdown');
         if (!menu) return;
+
+        var card = btn.closest('.note-card');
+        if (card) {
+            menu.setAttribute('data-note-id', card.getAttribute('data-note-id'));
+        }
+
         btn.addEventListener('click', function (event) {
             event.stopPropagation();
             var willOpen = !menu.classList.contains('open');
@@ -177,7 +208,6 @@
 
         var saveTimer = null;
 
-        /* ---- Mobile: floating toolbar above the on-screen keyboard ---- */
         var mobileBreakpoint = '(max-width: 900px)';
 
         function isMobile() {
@@ -276,7 +306,6 @@
             if (dateEl) dateEl.textContent = json.updated_at;
         }
 
-        /* ---- Toolbar: heading toggle, highlight toggle, active-state tracking ---- */
         function updateToolbarState() {
             $all('[data-cmd]', toolbar).forEach(function (el) {
                 var cmd = el.getAttribute('data-cmd');

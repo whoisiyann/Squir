@@ -69,7 +69,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     </button>
                 </div>
 
-                <!-- Search + tags + Add Vault, magkakasama ngayon sa kanang side ng toolbar -->
+
                 <div class="vault-toolbar-right">
                     <form method="get" class="vault-search" role="search" id="vaultSearchForm" autocomplete="off">
                         <i class="ti ti-search"></i>
@@ -209,13 +209,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     </table>
                 </div>
 
-                <!--
-                    Info bar sa pinaka-ilalim ng Vault page: laging nakikita
-                    yung "N vault items" sa kaliwa; yung "Scroll down to see
-                    more items" (kanan) ay JS na lang ang bahala magpakita
-                    (vault.js) — lalabas lang kapag may overflow talaga sa
-                    #vaultTableWrap at hindi pa naka-scroll hanggang dulo.
-                -->
+
                 <div class="vault-pagination" id="vaultPagination">
                     <span class="vault-pagination-count">
                         <i class="ti ti-shield-lock"></i>

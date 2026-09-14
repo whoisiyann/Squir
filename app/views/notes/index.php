@@ -291,6 +291,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
         </main>
     </div>
 </div>
+<script>window.NOTES_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;</script>
 <script src="./assets/js/dashboard.js?v=2"></script>
 <script src="./assets/js/notes.js"></script>
 </body>

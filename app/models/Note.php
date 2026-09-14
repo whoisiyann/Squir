@@ -5,39 +5,40 @@ class Note
     private PDO $dbh;
 
     public function __construct(PDO $dbh)
-    {
+    {   
         $this->dbh = $dbh;
     }
 
     /* ================= QUERIES ================= */
 
-    public function searchForUser(int $userId, ?int $folderId = null, string $search = ''): array
-    {
-        $conditions = ['n.user_id = :uid'];
-        $params = ['uid' => $userId];
+public function searchForUser(int $userId, ?int $folderId = null, string $search = ''): array
+{
+    $conditions = ['n.user_id = :uid'];
+    $params = ['uid' => $userId];
 
-        if ($folderId !== null) {
-            $conditions[] = 'n.folder_id = :folder_id';
-            $params['folder_id'] = $folderId;
-        }
-        if ($search !== '') {
-            $conditions[] = '(n.title LIKE :search OR n.content LIKE :search)';
-            $params['search'] = '%' . $search . '%';
-        }
-
-        $where = implode(' AND ', $conditions);
-
-        $stmt = $this->dbh->prepare(
-            "SELECT n.*, f.folder_name
-             FROM notes n
-             LEFT JOIN folders f ON f.folder_id = n.folder_id
-             WHERE {$where}
-             ORDER BY n.updated_at DESC"
-        );
-        $stmt->execute($params);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($folderId !== null) {
+        $conditions[] = 'n.folder_id = :folder_id';
+        $params['folder_id'] = $folderId;
     }
+    if ($search !== '') {
+        $conditions[] = '(n.title LIKE :search1 OR n.content LIKE :search2)';
+        $params['search1'] = '%' . $search . '%';
+        $params['search2'] = '%' . $search . '%';
+    }
+
+    $where = implode(' AND ', $conditions);
+
+    $stmt = $this->dbh->prepare(
+        "SELECT n.*, f.folder_name
+         FROM notes n
+         LEFT JOIN folders f ON f.folder_id = n.folder_id
+         WHERE {$where}
+         ORDER BY n.updated_at DESC"
+    );
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function find(int $noteId, int $userId): ?array
     {
