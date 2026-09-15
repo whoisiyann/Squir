@@ -70,14 +70,14 @@ if ($hour < 12) {
             <section class="dashboard-grid">
                 <article class="app-card" id="tasks"><div class="card-heading"><h2>Tasks Overview</h2><a href="#tasks">View all</a></div><div class="empty-state"><i class="ti ti-list-check"></i><p>No tasks yet</p><small>Your upcoming tasks will appear here.</small></div></article>
                 <article class="app-card" id="favorites">
-                    <div class="card-heading"><h2>Recent Credentials</h2><a href="./vault.php">View all</a></div>
+                    <div class="card-heading"><h2>Recent Credentials</h2><a href="./vault">View all</a></div>
                     <?php if (empty($dashboard['recentItems'])): ?>
                         <div class="empty-state"><i class="ti ti-inbox"></i><p>No recent items</p><small>Saved passwords and notes will appear here.</small></div>
                         <?php else: ?>
                             <ul class="recent-list">
                                 <?php foreach ($dashboard['recentItems'] as $item): ?>
                                     <li class="recent-item">
-                                        <a class="recent-item-link" href="./vault.php?highlight=<?= (int) $item['vault_id'] ?>">
+                                        <a class="recent-item-link" href="./vault?highlight=<?= (int) $item['vault_id'] ?>">
                                             <span class="recent-icon">
                                                 <?php if (!empty($item['icon_url'])): ?>
                                                     <img src="<?= htmlspecialchars($item['icon_url'], ENT_QUOTES, 'UTF-8') ?>" alt="" onerror="this.replaceWith(Object.assign(document.createElement('i'), {className:'ti ti-key'}))">
@@ -95,7 +95,7 @@ if ($hour < 12) {
                                 <?php endforeach; ?>
                             </ul>
                             <?php if (count($dashboard['recentItems']) >= 10): ?>
-                                <a class="recent-see-more" href="./vault.php">See more <i class="ti ti-arrow-right"></i></a>
+                                <a class="recent-see-more" href="./vault">See more <i class="ti ti-arrow-right"></i></a>
                             <?php endif; ?>
                         <?php endif; ?>
                 </article>

@@ -191,7 +191,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                     <a href="?edit=<?= (int) $item['vault_id'] ?>">
                                                         <i class="ti ti-edit"></i> Edit
                                                     </a>
-                                                    <form method="post" action="./vault.php" onsubmit="return confirm('Delete this password?');">
+                                                    <form method="post" action="./vault" onsubmit="return confirm('Delete this password?');">
                                                         <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="vault_id" value="<?= (int) $item['vault_id'] ?>">

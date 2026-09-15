@@ -221,3 +221,43 @@ VALUES (
     'admin',
     'active'
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Update new column in folder
+
+-- 1. Folder color
+ALTER TABLE folders 
+    ADD COLUMN color VARCHAR(20) NOT NULL DEFAULT 'brown' AFTER folder_name;
+
+-- 2. Allow favoriting folders
+ALTER TABLE favorites 
+    ADD COLUMN folder_id INT NULL AFTER user_id,
+    ADD CONSTRAINT fk_favorites_folder FOREIGN KEY (folder_id) REFERENCES folders(folder_id) ON DELETE CASCADE;
+
+ALTER TABLE favorites DROP CONSTRAINT chk_favorite_item;
+
+ALTER TABLE favorites ADD CONSTRAINT chk_favorite_item CHECK (
+    (folder_id IS NOT NULL AND vault_id IS NULL AND note_id IS NULL AND task_id IS NULL) OR
+    (folder_id IS NULL AND vault_id IS NOT NULL AND note_id IS NULL AND task_id IS NULL) OR
+    (folder_id IS NULL AND vault_id IS NULL AND note_id IS NOT NULL AND task_id IS NULL) OR
+    (folder_id IS NULL AND vault_id IS NULL AND note_id IS NULL AND task_id IS NOT NULL)
+);

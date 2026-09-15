@@ -16,7 +16,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
             <button type="button" class="icon-btn" data-close-modal="create" aria-label="Close"><i class="ti ti-x"></i></button>
         </div>
 
-        <form method="post" action="./vault.php">
+        <form method="post" action="./vault">
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="create">
             <input type="hidden" name="is_favorite" id="createIsFavorite" value="0">

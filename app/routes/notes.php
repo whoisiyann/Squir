@@ -1,29 +1,17 @@
 <?php
-session_start();
 
-require_once __DIR__ . '/includes/dbconnect.php';
-require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/app/models/Note.php';
-require_once __DIR__ . '/app/controllers/NoteController.php';
+require_once __DIR__ . '/../models/Note.php';
+require_once __DIR__ . '/../controllers/NoteController.php';
 
-if (empty($_SESSION['user_id'])) {
-    header('Location: ./index.php');
-    exit;
-}
-
-$userId = (int) $_SESSION['user_id'];
+$userId = requireLogin();
 $noteModel = new Note($dbh);
 $controller = new NoteController($noteModel, $dbh);
-
-if (empty($_SESSION['notes_csrf_token'])) {
-    $_SESSION['notes_csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['notes_csrf_token'];
+$csrfToken = csrfToken();
 
 // ---- AJAX: i-save ang title/content/folder habang nagta-type ang user ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') {
     header('Content-Type: application/json');
-    if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
         http_response_code(403);
         echo json_encode(['error' => 'Invalid token']);
         exit;
@@ -53,10 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
     exit;
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
-    if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
         http_response_code(403);
         echo json_encode(['error' => 'Invalid token']);
         exit;
@@ -74,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
-    if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
     } else {
         $action = $_POST['action'] ?? '';
@@ -91,14 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
             $result = $controller->store($userId, $_POST);
             if ($result['errors'] === []) {
                 $redirectParams['note'] = $result['note_id'];
-                header('Location: ./notes.php?' . http_build_query($redirectParams));
+                header('Location: ./notes?' . http_build_query($redirectParams));
                 exit;
             }
             $errors = $result['errors'];
         } elseif ($action === 'delete') {
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $controller->destroy($noteId, $userId);
-            header('Location: ./notes.php?' . http_build_query($redirectParams));
+            header('Location: ./notes?' . http_build_query($redirectParams));
             exit;
         } elseif ($action === 'move_folder') {
 
@@ -106,16 +93,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
             $targetFolder = ($_POST['target_folder'] ?? '') !== '' ? (int) $_POST['target_folder'] : null;
             $controller->moveToFolder($noteId, $userId, $targetFolder);
             $redirectParams['note'] = $noteId;
-            header('Location: ./notes.php?' . http_build_query($redirectParams));
+            header('Location: ./notes?' . http_build_query($redirectParams));
             exit;
         } elseif ($action === 'duplicate') {
-  
+
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $newNoteId = $controller->duplicate($noteId, $userId);
             if ($newNoteId !== null) {
                 $redirectParams['note'] = $newNoteId;
             }
-            header('Location: ./notes.php?' . http_build_query($redirectParams));
+            header('Location: ./notes?' . http_build_query($redirectParams));
             exit;
         }
     }
@@ -126,9 +113,7 @@ $data = $controller->index($userId, $_GET);
 $activeNoteId = isset($_GET['note']) ? (int) $_GET['note'] : null;
 $activeNote = $activeNoteId ? $controller->find($activeNoteId, $userId) : null;
 
-$userStmt = $dbh->prepare('SELECT full_name, username FROM users WHERE user_id = :uid');
-$userStmt->execute(['uid' => $userId]);
-$user = $userStmt->fetch(PDO::FETCH_ASSOC) ?: ['full_name' => 'User', 'username' => 'user'];
-$initials = strtoupper(substr($user['full_name'], 0, 1));
+$user = currentUserSummary($dbh, $userId);
+$initials = $user['initials'];
 
-require __DIR__ . '/app/views/notes/index.php';
+require __DIR__ . '/../views/notes/index.php';

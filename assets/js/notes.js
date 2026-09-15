@@ -32,7 +32,7 @@
         body.set('ajax', 'toggle_favorite');
         body.set('csrf_token', csrfToken);
         body.set('note_id', noteId);
-        return fetch('./notes.php', {
+        return fetch('./notes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body.toString()
@@ -275,7 +275,7 @@
             body.set('content', contentEl.innerHTML);
             body.set('folder_id', folderSelect.value);
 
-            fetch('./notes.php', {
+            fetch('./notes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: body.toString()

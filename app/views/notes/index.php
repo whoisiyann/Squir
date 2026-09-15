@@ -64,7 +64,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                         </form>
 
-                        <form method="post" action="./notes.php">
+                        <form method="post" action="./notes">
                             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                             <input type="hidden" name="action" value="create">
                             <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
@@ -126,13 +126,13 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                 <button type="button" class="note-menu-favorite-item">
                                                     <i class="fa-solid fa-star"></i> <?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
                                                 </button>
-                                                <form method="post" action="./notes.php">
+                                                <form method="post" action="./notes">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="duplicate">
                                                     <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
                                                     <button type="submit"><i class="ti ti-copy"></i> Duplicate</button>
                                                 </form>
-                                                <form method="post" action="./notes.php" onsubmit="return confirm('Delete this note?');">
+                                                <form method="post" action="./notes" onsubmit="return confirm('Delete this note?');">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
@@ -141,7 +141,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                             </div>
                                             <div class="note-menu-folders">
                                                 <button type="button" class="note-menu-folder-back"><i class="ti ti-chevron-left"></i> Back</button>
-                                                <form method="post" action="./notes.php">
+                                                <form method="post" action="./notes">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="move_folder">
                                                     <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
@@ -149,7 +149,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                     <button type="submit"><i class="ti ti-x"></i> No folder</button>
                                                 </form>
                                                 <?php foreach ($data['folders'] as $folder): ?>
-                                                    <form method="post" action="./notes.php">
+                                                    <form method="post" action="./notes">
                                                         <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                         <input type="hidden" name="action" value="move_folder">
                                                         <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
@@ -173,7 +173,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <div class="note-detail-empty-icon"><i class="ti ti-file-text"></i></div>
                             <p class="note-detail-empty-title">No note selected</p>
                             <small class="note-detail-empty-subtitle">Choose a note from the list or create a new one.</small>
-                            <form method="post" action="./notes.php">
+                            <form method="post" action="./notes">
                                 <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                 <input type="hidden" name="action" value="create">
                                 <button type="submit" class="note-detail-empty-btn"><i class="ti ti-plus"></i> Create note</button>
@@ -200,13 +200,13 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                 <button type="button" class="note-menu-favorite">
                                                     <i class="fa-solid fa-star"></i> <?= $activeNote['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
                                                 </button>
-                                                <form method="post" action="./notes.php">
+                                                <form method="post" action="./notes">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="duplicate">
                                                     <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
                                                     <button type="submit"><i class="ti ti-copy"></i> Duplicate</button>
                                                 </form>
-                                                <form method="post" action="./notes.php" onsubmit="return confirm('Delete this note?');">
+                                                <form method="post" action="./notes" onsubmit="return confirm('Delete this note?');">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
@@ -215,7 +215,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                             </div>
                                             <div class="note-menu-folders">
                                                 <button type="button" class="note-menu-folder-back"><i class="ti ti-chevron-left"></i> Back</button>
-                                                <form method="post" action="./notes.php">
+                                                <form method="post" action="./notes">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="move_folder">
                                                     <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
@@ -223,7 +223,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                     <button type="submit"><i class="ti ti-x"></i> No folder</button>
                                                 </form>
                                                 <?php foreach ($data['folders'] as $folder): ?>
-                                                    <form method="post" action="./notes.php">
+                                                    <form method="post" action="./notes">
                                                         <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                         <input type="hidden" name="action" value="move_folder">
                                                         <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">

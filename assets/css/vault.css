@@ -385,10 +385,13 @@
 
 .vault-table-wrap.grid-view .vault-table tbody {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  align-items: stretch; 
+  /* Fixed 4 columns on full-width screens. Cards keep a consistent size/position
+     no matter how many items there are (was auto-fit, which stretched a single
+     card to fill the whole row). */
+  grid-template-columns: repeat(4, 1fr);
+  align-items: stretch;
   gap: 16px;
-  padding: 8px; 
+  padding: 8px;
 }
 
 
@@ -815,6 +818,20 @@
    ========================================================= */
 
 /* ---- Tablet ---- */
+/* Grid view: step the column count down as the screen narrows, so cards
+   stay a sensible, fixed size instead of stretching/squeezing to fit. */
+@media (max-width: 1500px) {
+  .vault-table-wrap.grid-view .vault-table tbody {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .vault-table-wrap.grid-view .vault-table tbody {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   .vault-modal {
     max-width: 400px;

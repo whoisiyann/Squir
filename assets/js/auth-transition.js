@@ -31,7 +31,7 @@
 
         var url = new URL(link.href, window.location.href);
         var isAuthNavigation = url.origin === window.location.origin
-            && (url.pathname.endsWith('/index.php') || url.pathname.endsWith('/register.php'))
+            && (url.pathname.endsWith('/login') || url.pathname.endsWith('/register'))
             && url.pathname !== window.location.pathname;
 
         if (!isAuthNavigation) {

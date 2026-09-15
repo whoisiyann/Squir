@@ -1,0 +1,129 @@
+<?php
+
+class Folder
+{
+    public const COLORS = [
+        'beige', 'blue', 'brown', 'coralRed', 'creamYellow', 'darkGreen',
+        'green', 'lavender', 'magenta', 'orange', 'pink', 'purple',
+        'red', 'skyBlue', 'teal', 'yellow',
+    ];
+
+    private PDO $dbh;
+
+    public function __construct(PDO $dbh)
+    {
+        $this->dbh = $dbh;
+    }
+
+    public function searchForUser(int $userId, string $search = ''): array
+    {
+        $conditions = ['f.user_id = :uid'];
+        $params = ['uid' => $userId];
+
+        if ($search !== '') {
+            $conditions[] = 'f.folder_name LIKE :search';
+            $params['search'] = '%' . $search . '%';
+        }
+
+        $where = implode(' AND ', $conditions);
+
+        $stmt = $this->dbh->prepare(
+            "SELECT f.*,
+                (SELECT COUNT(*) FROM vault v WHERE v.folder_id = f.folder_id AND v.user_id = f.user_id) AS vault_count,
+                (SELECT COUNT(*) FROM notes n WHERE n.folder_id = f.folder_id AND n.user_id = f.user_id) AS note_count
+             FROM folders f
+             WHERE {$where}
+             ORDER BY f.updated_at DESC"
+        );
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function find(int $folderId, int $userId): ?array
+    {
+        $stmt = $this->dbh->prepare('SELECT * FROM folders WHERE folder_id = :id AND user_id = :uid');
+        $stmt->execute(['id' => $folderId, 'uid' => $userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function nameExists(int $userId, string $name, ?int $excludeId = null): bool
+    {
+        $sql = 'SELECT folder_id FROM folders WHERE user_id = :uid AND folder_name = :name';
+        $params = ['uid' => $userId, 'name' => $name];
+        if ($excludeId !== null) {
+            $sql .= ' AND folder_id != :excludeId';
+            $params['excludeId'] = $excludeId;
+        }
+        $stmt = $this->dbh->prepare($sql . ' LIMIT 1');
+        $stmt->execute($params);
+        return (bool) $stmt->fetch();
+    }
+    
+    public function create(int $userId, array $data): array
+    {
+        $errors = $this->validate($data, $userId, null);
+        if ($errors !== []) {
+            return ['errors' => $errors];
+        }
+
+        $color = in_array($data['color'], self::COLORS, true) ? $data['color'] : 'brown';
+
+        $stmt = $this->dbh->prepare(
+            'INSERT INTO folders (user_id, folder_name, color) VALUES (:uid, :name, :color)'
+        );
+        $stmt->execute(['uid' => $userId, 'name' => $data['folder_name'], 'color' => $color]);
+
+        return ['errors' => [], 'folder_id' => (int) $this->dbh->lastInsertId()];
+    }
+
+    public function rename(int $folderId, int $userId, string $name): array
+    {
+        $errors = $this->validate(['folder_name' => $name], $userId, $folderId);
+        if ($errors !== []) {
+            return ['errors' => $errors];
+        }
+
+        $stmt = $this->dbh->prepare(
+            'UPDATE folders SET folder_name = :name WHERE folder_id = :id AND user_id = :uid'
+        );
+        $stmt->execute(['name' => trim($name), 'id' => $folderId, 'uid' => $userId]);
+
+        return ['errors' => []];
+    }
+
+    public function updateColor(int $folderId, int $userId, string $color): bool
+    {
+        if (!in_array($color, self::COLORS, true)) {
+            return false;
+        }
+
+        $stmt = $this->dbh->prepare(
+            'UPDATE folders SET color = :color WHERE folder_id = :id AND user_id = :uid'
+        );
+        return $stmt->execute(['color' => $color, 'id' => $folderId, 'uid' => $userId]);
+    }
+
+    public function delete(int $folderId, int $userId): bool
+    {
+        $stmt = $this->dbh->prepare('DELETE FROM folders WHERE folder_id = :id AND user_id = :uid');
+        return $stmt->execute(['id' => $folderId, 'uid' => $userId]);
+    }
+
+    private function validate(array $data, int $userId, ?int $excludeId): array
+    {
+        $errors = [];
+        $name = trim((string) ($data['folder_name'] ?? ''));
+
+        if ($name === '') {
+            $errors['folder_name'] = 'Folder name is required.';
+        } elseif (mb_strlen($name) > 100) {
+            $errors['folder_name'] = 'Folder name must be 100 characters or fewer.';
+        } elseif ($this->nameExists($userId, $name, $excludeId)) {
+            $errors['folder_name'] = 'You already have a folder with this name.';
+        }
+
+        return $errors;
+    }
+}

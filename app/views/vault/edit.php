@@ -15,7 +15,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
                 <h2 id="editModalTitle">Edit Vault</h2>
                 <p class="vault-modal-subtitle">Update the details of this credential.</p>
             </div>
-            <a class="icon-btn" href="./vault.php" aria-label="Close"><i class="ti ti-x"></i></a>
+            <a class="icon-btn" href="./vault" aria-label="Close"><i class="ti ti-x"></i></a>
         </div>
 
         <div class="vault-edit-preview">
@@ -32,7 +32,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
             </div>
         </div>
 
-        <form method="post" action="./vault.php">
+        <form method="post" action="./vault">
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="update">
             <input type="hidden" name="vault_id" value="<?= (int) $editItem['vault_id'] ?>">
@@ -108,7 +108,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
             <?php if (isset($errors['tags'])): ?><p class="invalid-feedback-squir"><?= $escape($errors['tags']) ?></p><?php endif; ?>
 
             <div class="vault-modal-actions vault-modal-actions-3">
-                <a class="btn-outline-squir" href="./vault.php">Cancel</a>
+                <a class="btn-outline-squir" href="./vault">Cancel</a>
                 <button type="button" class="btn-outline-squir vault-copy-password-btn" data-vault-id="<?= (int) $editItem['vault_id'] ?>">Copy password</button>
                 <button type="submit" class="btn-squir">Save Changes</button>
             </div>

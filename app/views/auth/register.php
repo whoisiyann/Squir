@@ -44,8 +44,8 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
                     <div class="form-alert" role="alert"><?= $escape($errors['form']) ?></div>
                 <?php endif; ?>
 
-                <form method="post" action="./register.php">
-                    <input type="hidden" name="csrf_token" value="<?= $escape($_SESSION['csrf_token'] ?? '') ?>">
+                <form method="post" action="./register">
+                    <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
 
                     <div class="input-group-squir">
                         <label class="visually-hidden" for="full_name">Full Name</label>
@@ -86,7 +86,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
                     <button type="submit" class="btn-squir">Create Account</button>
                 </form>
 
-                <p class="auth-switch">Already have an account? <a href="./index.php">Log in</a></p>
+                <p class="auth-switch">Already have an account? <a href="./login">Log in</a></p>
             </div>
         </section>
     </main>

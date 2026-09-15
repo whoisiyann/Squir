@@ -1,30 +1,19 @@
 <?php
-session_start();
 
-require_once __DIR__ . '/includes/dbconnect.php';
-require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/app/models/Vault.php';
-require_once __DIR__ . '/app/controllers/VaultController.php';
+require_once __DIR__ . '/../models/Vault.php';
+require_once __DIR__ . '/../controllers/VaultController.php';
 
-if (empty($_SESSION['user_id'])) {
-    header('Location: ./index.php');
-    exit;
-}
-
-$userId = (int) $_SESSION['user_id'];
+$userId = requireLogin();
 $vaultModel = new Vault($dbh);
 $controller = new VaultController($vaultModel, $dbh);
+$csrfToken = csrfToken();
 
-if (empty($_SESSION['vault_csrf_token'])) {
-    $_SESSION['vault_csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['vault_csrf_token'];
-
-// ---- AJAX: decrypted password para sa eye/copy button ----
+// ---- AJAX: ibalik ang decrypted password para sa eye/copy button ----
+// (hindi ito naka-embed sa HTML, kaya safe kahit view-source ang gawin ng user)
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     header('Content-Type: application/json');
-    if (!hash_equals($csrfToken, (string) ($_GET['token'] ?? ''))) {
-        http_response_code(403);
+    if (!csrfValid($_GET['token'] ?? null)) {
+        http_response_code(403);    
         echo json_encode(['error' => 'Invalid token']);
         exit;
     }
@@ -38,10 +27,11 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     exit;
 }
 
-
+// ---- AJAX: i-toggle ang favorite ng isang vault item mula mismo sa listahan ----
+// (star sa tabi ng item + star sa Actions column, walang kailangang mag-reload)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
-    if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
         http_response_code(403);
         echo json_encode(['error' => 'Invalid token']);
         exit;
@@ -62,7 +52,7 @@ unset($_SESSION['vault_flash_success']);
 $openModal = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($csrfToken, (string) ($_POST['csrf_token'] ?? ''))) {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
     } else {
         $action = $_POST['action'] ?? '';
@@ -71,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $controller->store($userId, $_POST);
             if ($result['errors'] === []) {
                 $_SESSION['vault_flash_success'] = 'Password saved to your vault.';
-                header('Location: ./vault.php');
+                header('Location: ./vault');
                 exit;
             }
             $errors = $result['errors'];
@@ -81,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $controller->update($vaultId, $userId, $_POST);
             if ($result['errors'] === []) {
                 $_SESSION['vault_flash_success'] = 'Password updated.';
-                header('Location: ./vault.php');
+                header('Location: ./vault');
                 exit;
             }
             $errors = $result['errors'];
@@ -90,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $vaultId = (int) ($_POST['vault_id'] ?? 0);
             $controller->destroy($vaultId, $userId);
             $_SESSION['vault_flash_success'] = 'Password deleted.';
-            header('Location: ./vault.php');
+            header('Location: ./vault');
             exit;
         }
     }
@@ -103,10 +93,8 @@ if (isset($_GET['edit'])) {
     $editItem = $controller->edit((int) $_GET['edit'], $userId);
 }
 
+// para sa sidebar/header partials (parehong variable names gaya ng dashboard)
+$user = currentUserSummary($dbh, $userId);
+$initials = $user['initials'];
 
-$userStmt = $dbh->prepare('SELECT full_name, username FROM users WHERE user_id = :uid');
-$userStmt->execute(['uid' => $userId]);
-$user = $userStmt->fetch(PDO::FETCH_ASSOC) ?: ['full_name' => 'User', 'username' => 'user'];
-$initials = strtoupper(substr($user['full_name'], 0, 1));
-
-require __DIR__ . '/app/views/vault/index.php';
+require __DIR__ . '/../views/vault/index.php';

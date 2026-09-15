@@ -1,20 +1,13 @@
-<!-- Squir/register.php -->
-
 <?php
-session_start();
 
-require_once __DIR__ . '/includes/dbconnect.php';
-require_once __DIR__ . '/app/controllers/AuthController.php';
+require_once __DIR__ . '/../controllers/AuthController.php';
 
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
+$csrfToken = csrfToken();
 $errors = [];
 $values = ['fullName' => '', 'username' => '', 'email' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!hash_equals($_SESSION['csrf_token'], (string) ($_POST['csrf_token'] ?? ''))) {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
     } else {
         $result = (new AuthController(new User($dbh)))->register($_POST);
@@ -23,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($errors === []) {
             $_SESSION['flash_success'] = 'Account created successfully. You can now log in.';
-            header('Location: index.php');
+            header('Location: ./login');
             exit;
         }
     }
@@ -34,4 +27,4 @@ $fieldError = static fn (string $field): string => isset($errors[$field])
     ? '<p class="invalid-feedback-squir" id="' . $field . '-error">' . $escape($errors[$field]) . '</p>'
     : '';
 
-require __DIR__ . '/app/views/auth/register.php';
+require __DIR__ . '/../views/auth/register.php';

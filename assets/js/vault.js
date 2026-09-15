@@ -151,7 +151,7 @@
 
     /* ---------- Reveal / copy password (server-side decrypt only) ---------- */
     function revealById(id) {
-        return fetch('./vault.php?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
+        return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
             .then(function (response) {
                 if (!response.ok) throw new Error('Failed to fetch password');
                 return response.json();
@@ -353,7 +353,7 @@
         body.set('csrf_token', csrfToken);
         body.set('vault_id', vaultId);
 
-        return fetch('./vault.php', {
+        return fetch('./vault', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body.toString()
