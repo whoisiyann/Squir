@@ -318,6 +318,10 @@
   color: #f5a623;
 }
 
+.vault-favorite-btn.is-fav i {
+  font-weight: 900;
+}
+
 .vault-menu {
   position: relative;
 }

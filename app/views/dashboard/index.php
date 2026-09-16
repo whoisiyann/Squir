@@ -89,7 +89,7 @@ if ($hour < 12) {
                                                 <strong><?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?></strong>
                                                 <small><?= htmlspecialchars($item['subtitle'], ENT_QUOTES, 'UTF-8') ?></small>
                                             </span>
-                                            <i class="<?= $item['is_favorite'] ? 'fa-solid fa-star recent-star is-favorite' : 'fa-solid fa-star recent-star' ?>"></i>
+                                            <i class="<?= $item['is_favorite'] ? 'fa-regular fa-star recent-star is-favorite' : 'fa-regular fa-star recent-star' ?>"></i>
                                         </a>
                                     </li>
                                 <?php endforeach; ?>

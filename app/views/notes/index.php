@@ -101,7 +101,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                             <span class="note-card-top">
                                                 <strong><?= $escape(Note::titleOrDefault($item['title'])) ?></strong>
                                                 <button type="button" class="note-favorite-btn <?= $item['is_favorite'] ? 'is-fav' : '' ?>" data-tooltip="<?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>" aria-label="Favorite">
-                                                    <i class="fa-solid fa-star"></i>
+                                                    <i class="fa-regular fa-star"></i>
                                                 </button>
                                             </span>
                                             <small class="note-card-excerpt"><?= $escape(Note::excerptOf($item['content'])) ?></small>

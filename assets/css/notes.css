@@ -211,6 +211,10 @@
   color: #f5a623;
 }
 
+.note-favorite-btn.is-fav i {
+  font-weight: 900;
+}
+
 .note-card-excerpt {
   color: var(--muted);
   font-size: .76rem;

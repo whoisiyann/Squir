@@ -10,7 +10,12 @@
     var viewButtons = $all('.view-toggle-btn');
 
     function setView(view) {
-        if (grid) grid.classList.toggle('list-view', view === 'list');
+        var isList = view === 'list';
+        if (grid) grid.classList.toggle('list-view', isList);
+
+        document.body.classList.toggle('folders-list-view', isList);
+        document.documentElement.classList.remove('folders-list-view-preload');
+
         viewButtons.forEach(function (btn) {
             var isActive = btn.getAttribute('data-view') === view;
             btn.classList.toggle('active', isActive);
@@ -25,7 +30,7 @@
 
     var savedView = null;
     try { savedView = window.localStorage.getItem(VIEW_KEY); } catch (error) {}
-    if (savedView === 'list') setView('list');
+    setView(savedView === 'list' ? 'list' : 'grid');
 
     function isListView() {
         return grid && grid.classList.contains('list-view');
@@ -91,39 +96,31 @@
         }
     });
 
-    /*
-     * Grid view: single click on the icon opens the color popover.
-     * List view: the row is a link (navigates to the folder's items),
-     * so a single click must be left alone; only a double-click on the
-     * icon opens the popover instead of navigating. We delay the
-     * navigation slightly to give the second click a chance to arrive.
-     */
+
     $all('.folder-icon-btn').forEach(function (iconBtn) {
         var card = iconBtn.closest('.folder-card');
         var folderId = card.getAttribute('data-folder-id');
-        var link = card.querySelector('.folder-card-link');
-        var clickTimer = null;
 
         iconBtn.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
+            openPopoverFor(iconBtn, folderId);
+        });
+    });
 
-            if (!isListView()) {
-                openPopoverFor(iconBtn, folderId);
+    $all('.folder-card').forEach(function (card) {
+        var link = card.querySelector('.folder-card-link');
+        if (!link) return;
+
+        card.addEventListener('click', function (event) {
+            if (
+                event.target.closest('.folder-icon-wrap') ||
+                event.target.closest('.folder-card-actions') ||
+                event.target.closest('a')
+            ) {
                 return;
             }
-
-            clearTimeout(clickTimer);
-            clickTimer = setTimeout(function () {
-                window.location.href = link.href;
-            }, 260);
-        });
-
-        iconBtn.addEventListener('dblclick', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            clearTimeout(clickTimer);
-            openPopoverFor(iconBtn, folderId);
+            window.location.href = link.href;
         });
     });
 

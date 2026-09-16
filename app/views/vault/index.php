@@ -123,7 +123,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                 <?php
                                 $favicon     = Vault::faviconUrlFor($item['website_url']);
                                 $isFav       = !empty($item['is_favorite']);
-                                $starClass   = 'fa-solid fa-star';
+                                $starClass   = 'fa-regular fa-star';
                                 $itemTags    = array_filter(array_map('trim', explode(',', (string) ($item['tags'] ?? ''))));
                                 $websiteHref = $item['website_url']
                                     ? (preg_match('~^https?://~i', $item['website_url']) ? $item['website_url'] : 'https://' . $item['website_url'])
@@ -131,14 +131,11 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                 ?>
                                 <tr data-vault-id="<?= (int) $item['vault_id'] ?>" data-favorite="<?= $isFav ? '1' : '0' ?>">
                                     <td class="col-item">
-                                        <!--
-                                            List view: icon + title + website lang ang lumalabas (walang tags/notes).
-                                            Grid view (kapag naka .grid-view ang #vaultTableWrap): tags lumilipat
-                                            sa kanang-itaas ng card (katabi ng icon row), subtitle nagiging
-                                            username/email (imbes na website), at notes lumalabas sa ilalim.
-                                            Lahat ng element na "grid-only" o "list-only" ay laging nasa DOM,
-                                            CSS na lang ang nagpapakita/nagtatago depende sa active view.
-                                        -->
+
+
+
+
+                                    
                                         <div class="vault-item-cell">
                                             <span class="vault-icon">
                                                 <?php if ($favicon): ?>

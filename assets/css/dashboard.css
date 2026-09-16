@@ -275,11 +275,12 @@
 
 .recent-star {
   flex: 0 0 auto;
-  color: #ffffff;
+  color: var(--text);
   font-size: 1rem;
 }
 
 .recent-star.is-favorite {
+  font-weight: 900;
   color: #F5A623;
 }
 
