@@ -17,7 +17,7 @@ class FolderController
         $search = trim((string) ($query['q'] ?? ''));
         $type = ($query['type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
 
-        $folders = $this->folderModel->searchForUser($userId, $search);
+        $folders = $this->folderModel->searchForUser($userId, $search, $type);
         $favoriteIds = $this->favoriteFolderIds($userId);
 
         foreach ($folders as &$folder) {
@@ -36,8 +36,11 @@ class FolderController
 
     public function store(int $userId, array $post): array
     {
+        $type = ($post['folder_type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
+
         return $this->folderModel->create($userId, [
             'folder_name' => trim((string) ($post['folder_name'] ?? '')),
+            'folder_type' => $type,
             'color' => (string) ($post['color'] ?? 'blue'),
         ]);
     }

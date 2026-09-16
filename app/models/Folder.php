@@ -8,6 +8,8 @@ class Folder
         'red', 'skyBlue', 'teal', 'yellow',
     ];
 
+    public const TYPES = ['passwords', 'notes'];
+
     private PDO $dbh;
 
     public function __construct(PDO $dbh)
@@ -15,10 +17,12 @@ class Folder
         $this->dbh = $dbh;
     }
 
-    public function searchForUser(int $userId, string $search = ''): array
+    public function searchForUser(int $userId, string $search = '', string $type = 'passwords'): array
     {
-        $conditions = ['f.user_id = :uid'];
-        $params = ['uid' => $userId];
+        $type = in_array($type, self::TYPES, true) ? $type : 'passwords';
+
+        $conditions = ['f.user_id = :uid', 'f.folder_type = :type'];
+        $params = ['uid' => $userId, 'type' => $type];
 
         if ($search !== '') {
             $conditions[] = 'f.folder_name LIKE :search';
@@ -48,10 +52,21 @@ class Folder
         return $row ?: null;
     }
 
-    public function nameExists(int $userId, string $name, ?int $excludeId = null): bool
+    /** Ginagamit sa <select> ng Vault (type=passwords) at Notes (type=notes) forms */
+    public function allForUserByType(int $userId, string $type): array
     {
-        $sql = 'SELECT folder_id FROM folders WHERE user_id = :uid AND folder_name = :name';
-        $params = ['uid' => $userId, 'name' => $name];
+        $type = in_array($type, self::TYPES, true) ? $type : 'passwords';
+        $stmt = $this->dbh->prepare(
+            'SELECT folder_id, folder_name FROM folders WHERE user_id = :uid AND folder_type = :type ORDER BY folder_name'
+        );
+        $stmt->execute(['uid' => $userId, 'type' => $type]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function nameExists(int $userId, string $name, string $type, ?int $excludeId = null): bool
+    {
+        $sql = 'SELECT folder_id FROM folders WHERE user_id = :uid AND folder_name = :name AND folder_type = :type';
+        $params = ['uid' => $userId, 'name' => $name, 'type' => $type];
         if ($excludeId !== null) {
             $sql .= ' AND folder_id != :excludeId';
             $params['excludeId'] = $excludeId;
@@ -60,7 +75,7 @@ class Folder
         $stmt->execute($params);
         return (bool) $stmt->fetch();
     }
-    
+
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data, $userId, null);
@@ -69,18 +84,28 @@ class Folder
         }
 
         $color = in_array($data['color'], self::COLORS, true) ? $data['color'] : 'brown';
+        $type = in_array($data['folder_type'] ?? '', self::TYPES, true) ? $data['folder_type'] : 'passwords';
 
         $stmt = $this->dbh->prepare(
-            'INSERT INTO folders (user_id, folder_name, color) VALUES (:uid, :name, :color)'
+            'INSERT INTO folders (user_id, folder_name, folder_type, color) VALUES (:uid, :name, :type, :color)'
         );
-        $stmt->execute(['uid' => $userId, 'name' => $data['folder_name'], 'color' => $color]);
+        $stmt->execute(['uid' => $userId, 'name' => $data['folder_name'], 'type' => $type, 'color' => $color]);
 
         return ['errors' => [], 'folder_id' => (int) $this->dbh->lastInsertId()];
     }
 
     public function rename(int $folderId, int $userId, string $name): array
     {
-        $errors = $this->validate(['folder_name' => $name], $userId, $folderId);
+        $existing = $this->find($folderId, $userId);
+        if (!$existing) {
+            return ['errors' => ['folder_name' => 'Folder not found.']];
+        }
+
+        $errors = $this->validate(
+            ['folder_name' => $name, 'folder_type' => $existing['folder_type']],
+            $userId,
+            $folderId
+        );
         if ($errors !== []) {
             return ['errors' => $errors];
         }
@@ -115,12 +140,13 @@ class Folder
     {
         $errors = [];
         $name = trim((string) ($data['folder_name'] ?? ''));
+        $type = in_array($data['folder_type'] ?? '', self::TYPES, true) ? $data['folder_type'] : 'passwords';
 
         if ($name === '') {
             $errors['folder_name'] = 'Folder name is required.';
         } elseif (mb_strlen($name) > 100) {
             $errors['folder_name'] = 'Folder name must be 100 characters or fewer.';
-        } elseif ($this->nameExists($userId, $name, $excludeId)) {
+        } elseif ($this->nameExists($userId, $name, $type, $excludeId)) {
             $errors['folder_name'] = 'You already have a folder with this name.';
         }
 

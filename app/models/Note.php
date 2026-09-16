@@ -63,12 +63,12 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
     public function folderCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
-            'SELECT f.folder_id, f.folder_name, COUNT(n.note_id) AS note_count
-             FROM folders f
-             LEFT JOIN notes n ON n.folder_id = f.folder_id AND n.user_id = f.user_id
-             WHERE f.user_id = :uid
-             GROUP BY f.folder_id, f.folder_name
-             ORDER BY f.folder_name'
+            "SELECT f.folder_id, f.folder_name, COUNT(n.note_id) AS note_count
+            FROM folders f
+            LEFT JOIN notes n ON n.folder_id = f.folder_id AND n.user_id = f.user_id
+            WHERE f.user_id = :uid AND f.folder_type = 'notes'
+            GROUP BY f.folder_id, f.folder_name
+            ORDER BY f.folder_name"
         );
         $stmt->execute(['uid' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

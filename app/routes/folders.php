@@ -73,11 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
         if ($action === 'create') {
             $result = $controller->store($userId, $_POST);
             if ($result['errors'] === []) {
-                header('Location: ./folders');
+                $redirectType = ($_POST['folder_type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
+                header('Location: ./folders?type=' . $redirectType);
                 exit;
             }
             $errors = $result['errors'];
-        } elseif ($action === 'delete') {
+        }elseif ($action === 'delete') {
             $controller->destroy((int) ($_POST['folder_id'] ?? 0), $userId);
             header('Location: ./folders');
             exit;

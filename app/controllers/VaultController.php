@@ -120,7 +120,9 @@ class VaultController
 
     private function getFolders(int $userId): array
     {
-        $stmt = $this->dbh->prepare('SELECT folder_id, folder_name FROM folders WHERE user_id = :uid ORDER BY folder_name');
+        $stmt = $this->dbh->prepare(
+            "SELECT folder_id, folder_name FROM folders WHERE user_id = :uid AND folder_type = 'passwords' ORDER BY folder_name"
+        );
         $stmt->execute(['uid' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

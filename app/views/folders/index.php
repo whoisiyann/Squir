@@ -109,7 +109,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
                             </a>
 
                             <span class="folder-date"><?= $escape(date('F j, g:i A', strtotime($folder['updated_at']))) ?></span>
-s
+
                             <div class="folder-card-actions">
                                 <button type="button" class="folder-favorite-btn <?= $isFav ? 'is-fav' : '' ?>" aria-label="<?= $isFav ? 'Remove from favorites' : 'Add to favorites' ?>" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><i class="fa-regular fa-star"></i></button>
                                 <div class="folder-menu">
@@ -148,6 +148,7 @@ s
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="create">
             <input type="hidden" name="color" id="createFolderColor" value="brown">
+            <input type="hidden" name="folder_type" value="<?= $escape($data['activeType']) ?>">
 
             <div class="folder-field">
                 <label for="folder_name">Folder name</label>

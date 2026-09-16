@@ -289,7 +289,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   border: 0;
   border-radius: 7px;
   background: transparent;
-  color: var(--accent);
+  color: var(--text);
   cursor: pointer;
   font-size: .88rem;
   transition: background-color .15s ease, color .15s ease;
