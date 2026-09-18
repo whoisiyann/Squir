@@ -1,22 +1,55 @@
 <?php
 
 require_once __DIR__ . '/../models/Vault.php';
+require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../controllers/VaultController.php';
+require_once __DIR__ . '/../controllers/PinController.php';
 
 $userId = requireLogin();
 $vaultModel = new Vault($dbh);
 $controller = new VaultController($vaultModel, $dbh);
+$pinController = new PinController(new UserPin($dbh));
 $csrfToken = csrfToken();
 
+// ---- AJAX: i-check ang PIN bago payagan ang reveal/copy ----
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_pin') {
+    header('Content-Type: application/json');
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Your session expired. Please refresh the page.']);
+        exit;
+    }
+
+    $result = $pinController->verify($userId, (string) ($_POST['pin'] ?? ''));
+
+    if (!empty($result['ok'])) {
+        grantPinUnlock();
+        echo json_encode(['ok' => true]);
+        exit;
+    }
+
+    http_response_code(401);
+    echo json_encode(['ok' => false, 'error' => $result['error'] ?? 'That PIN is incorrect.']);
+    exit;
+}
+
 // ---- AJAX: ibalik ang decrypted password para sa eye/copy button ----
-// (hindi ito naka-embed sa HTML, kaya safe kahit view-source ang gawin ng user)
+// Kailangan munang na-verify ang PIN (tingnan ang verify_pin sa itaas).
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     header('Content-Type: application/json');
     if (!csrfValid($_GET['token'] ?? null)) {
-        http_response_code(403);    
+        http_response_code(403);
         echo json_encode(['error' => 'Invalid token']);
         exit;
     }
+
+    if (!pinUnlocked()) {
+        http_response_code(423); // Locked
+        echo json_encode(['error' => 'pin_required']);
+        exit;
+    }
+    consumePinUnlock();
+
     $password = $controller->revealPassword((int) ($_GET['id'] ?? 0), $userId);
     if ($password === null) {
         http_response_code(404);
@@ -28,7 +61,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
 }
 
 // ---- AJAX: i-toggle ang favorite ng isang vault item mula mismo sa listahan ----
-// (star sa tabi ng item + star sa Actions column, walang kailangang mag-reload)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -92,6 +124,9 @@ $editItem = null;
 if (isset($_GET['edit'])) {
     $editItem = $controller->edit((int) $_GET['edit'], $userId);
 }
+
+$pinLength = UserPin::length();
+$pinUnlockSeconds = defined('VAULT_PIN_UNLOCK_SECONDS') ? (int) VAULT_PIN_UNLOCK_SECONDS : 0;
 
 // para sa sidebar/header partials (parehong variable names gaya ng dashboard)
 $user = currentUserSummary($dbh, $userId);

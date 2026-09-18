@@ -24,7 +24,9 @@ class DashboardController
 			$counts[$key] = (int) $statement->fetchColumn();
 		}
 
-		$pendingStatement = $this->db->prepare("SELECT COUNT(*) FROM tasks WHERE user_id = :user_id AND status <> 'completed'");
+		$pendingStatement = $this->db->prepare(
+			"SELECT COUNT(*) FROM tasks WHERE user_id = :user_id AND status <> 'done'"
+		);
 		$pendingStatement->execute(['user_id' => $userId]);
 
 		return [

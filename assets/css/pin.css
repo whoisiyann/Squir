@@ -1,0 +1,182 @@
+/* assets/css/pin.css — Create Your PIN page. */
+
+/* ---------- Left panel: buong laki ang mascot artwork ---------- */
+.pin-page .auth-visual {
+    flex: 0 0 40%;
+    align-items: stretch;
+    padding: 0;
+        justify-content: center;
+    align-items: flex-end;
+}
+
+
+
+.pin-page .auth-visual img {
+    width: 100%;
+    height: auto;
+    margin: 0;
+    object-fit: contain;
+}
+
+/* ---------- Right panel ---------- */
+.pin-page .auth-form {
+    padding: 44px 56px;
+    text-align: center;
+}
+
+.pin-page .auth-brand {
+    margin-bottom: 2px;
+}
+
+.pin-page .auth-brand img {
+    width: 58px;
+    height: 58px;
+}
+
+.pin-page .auth-brand span {
+    font-size: 2.9rem;
+}
+
+.pin-page .auth-tagline {
+    margin-bottom: 22px;
+    color: var(--squir-brown);
+    font-size: .92rem;
+    font-weight: 600;
+}
+
+.pin-lock {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #F1E4D6;
+    color: var(--squir-brown-dark);
+    font-size: 1.5rem;
+}
+
+.pin-title {
+    margin: 0 0 8px;
+    color: var(--squir-text);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.pin-subtitle {
+    margin: 0 0 26px;
+    color: var(--squir-muted);
+    font-size: .92rem;
+    line-height: 1.55;
+}
+
+/* ---------- PIN boxes ---------- */
+.pin-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 11px;
+    margin-bottom: 4px;
+}
+
+.pin-box {
+    width: 58px;
+    height: 58px;
+    border: 1px solid var(--squir-border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--squir-brown-dark);
+    font-size: 1.45rem;
+    font-weight: 700;
+    text-align: center;
+    caret-color: transparent;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.pin-box:focus {
+    outline: none;
+    border-color: var(--squir-brown);
+    box-shadow: 0 0 0 3px rgba(107, 66, 38, .12);
+}
+
+.pin-box.filled {
+    border-color: var(--squir-brown-light);
+}
+
+.pin-box::-ms-reveal,
+.pin-box::-ms-clear {
+    display: none !important;
+}
+
+.pin-inputs.shake {
+    animation: pin-shake .32s ease;
+}
+
+@keyframes pin-shake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-6px); }
+    75%      { transform: translateX(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pin-inputs.shake { animation: none; }
+}
+
+/* ---------- Hint / error line ---------- */
+.pin-hint {
+    min-height: 20px;
+    margin: 0 0 14px;
+    color: var(--squir-muted);
+    font-size: .8rem;
+}
+
+.pin-hint.is-error {
+    color: #B3261E;
+}
+
+/* ---------- Continue button ---------- */
+.pin-submit {
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.pin-submit:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.pin-submit:disabled:hover {
+    background: var(--squir-brown-dark);
+}
+
+/* ---------- Footer note ---------- */
+.pin-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin: 20px 0 0;
+    color: var(--squir-muted);
+    font-size: .76rem;
+}
+
+.pin-note i {
+    font-size: .95rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 767px) {
+    .pin-page .auth-form {
+        padding: 36px 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pin-page .auth-brand img { width: 46px; height: 46px; }
+    .pin-page .auth-brand span { font-size: 2.3rem; }
+    .pin-title { font-size: 1.6rem; }
+    .pin-inputs { gap: 7px; }
+    .pin-box { width: 44px; height: 50px; font-size: 1.2rem; }
+}

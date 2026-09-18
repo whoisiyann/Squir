@@ -1,5 +1,3 @@
-<!-- AuthController.php -->
-
 <?php
 require_once __DIR__ . '/../models/User.php';
 
@@ -65,7 +63,14 @@ class AuthController
 		}
 
 		try {
-			$this->user->create($fullName, $username, $email, password_hash($password, PASSWORD_DEFAULT));
+			// Kailangan ang bagong user_id para ma-login agad siya
+			// at madala sa PIN setup nang hindi na dumadaan sa login page.
+			$userId = $this->user->create(
+				$fullName,
+				$username,
+				$email,
+				password_hash($password, PASSWORD_DEFAULT)
+			);
 		} catch (PDOException $exception) {
 			return [
 				'errors' => ['form' => 'We could not create your account right now. Please try again.'],
@@ -73,7 +78,7 @@ class AuthController
 			];
 		}
 
-		return ['errors' => [], 'values' => []];
+		return ['errors' => [], 'values' => [], 'user_id' => $userId];
 	}
 
 	public function login(array $input): array

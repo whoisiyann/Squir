@@ -224,7 +224,6 @@ CREATE INDEX idx_password_resets_user ON password_resets(user_id);
 ALTER TABLE folders
     ADD COLUMN folder_type ENUM('passwords','notes') NOT NULL DEFAULT 'passwords' AFTER folder_name;
 
--- para pwede magkaroon ng parehong pangalan sa dalawang type (hal. "Work" sa Passwords at "Work" sa Notes)
 ALTER TABLE folders
     ADD CONSTRAINT uq_folder_user_name_type UNIQUE (user_id, folder_name, folder_type),
     DROP INDEX uq_folder_user_name;

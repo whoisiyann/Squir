@@ -151,11 +151,13 @@
 
     /* ---------- Reveal / copy password (server-side decrypt only) ---------- */
     function revealById(id) {
-        return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
-            .then(function (response) {
-                if (!response.ok) throw new Error('Failed to fetch password');
-                return response.json();
-            });
+        return window.SquirPin.ensure().then(function () {
+            return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
+                .then(function (response) {
+                    if (!response.ok) throw new Error('Failed to fetch password');
+                    return response.json();
+                });
+        });
     }
 
     $all('.vault-reveal-btn').forEach(function (btn) {

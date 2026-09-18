@@ -29,6 +29,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/vault.css">
+    <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body data-open-modal="<?= $escape($openModal ?? '') ?>">
@@ -226,9 +227,12 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 <?php if ($editItem): ?>
     <?php require __DIR__ . '/edit.php'; ?>
 <?php endif; ?>
+<?php require __DIR__ . '/pin-modal.php'; ?>
 
-<script>window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;</script>
+<script>
+    window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
+    window.SQUIR_PIN_TTL    = <?= (int) ($pinUnlockSeconds ?? 0) ?>;
+</script>
 <script src="./assets/js/dashboard.js?v=2"></script>
-<script src="./assets/js/vault.js"></script>
-</body>
-</html>
+<script src="./assets/js/pin-gate.js"></script>
+<script src="./assets/js/vault.js?v=2"></script>

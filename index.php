@@ -1,16 +1,9 @@
-
 <?php
-
+// Squir/index.php
 
 require_once __DIR__ . '/includes/bootstrap.php';
 
 $route = trim((string) ($_GET['route'] ?? ''), '/');
-
-
-if (str_contains($route, '/')) {
-    $route = basename($route);
-}
-
 if ($route === '') {
     $route = 'login';
 }
@@ -26,6 +19,10 @@ switch ($route) {
 
     case 'logout':
         require __DIR__ . '/app/routes/logout.php';
+        break;
+
+    case 'pin':
+        require __DIR__ . '/app/routes/pin.php';
         break;
 
     case 'dashboard':
@@ -49,4 +46,3 @@ switch ($route) {
         echo '404 — Page not found.';
         break;
 }
-

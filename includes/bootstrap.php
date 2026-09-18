@@ -1,6 +1,5 @@
-
 <?php
-
+// Squir/includes/bootstrap.php
 
 session_start();
 
@@ -8,14 +7,35 @@ require_once __DIR__ . '/dbconnect.php';
 require_once __DIR__ . '/../config/config.php';
 
 
-function requireLogin(): int
+/**
+ * @param bool $requirePin Kapag true (default), ire-redirect ang user sa
+ *                         PIN setup page hangga't wala pa siyang PIN.
+ *                         Gamitin ang false sa ./pin route mismo.
+ */
+function requireLogin(bool $requirePin = true): int
 {
     if (empty($_SESSION['user_id'])) {
         header('Location: ./login');
         exit;
     }
 
-    return (int) $_SESSION['user_id'];
+    $userId = (int) $_SESSION['user_id'];
+
+    if ($requirePin && empty($_SESSION['has_pin'])) {
+        global $dbh;
+
+        $stmt = $dbh->prepare('SELECT 1 FROM user_pins WHERE user_id = :uid');
+        $stmt->execute(['uid' => $userId]);
+
+        if ($stmt->fetchColumn()) {
+            $_SESSION['has_pin'] = true;
+        } else {
+            header('Location: ./pin');
+            exit;
+        }
+    }
+
+    return $userId;
 }
 
 
@@ -32,6 +52,50 @@ function csrfToken(): string
 function csrfValid(?string $submitted): bool
 {
     return hash_equals(csrfToken(), (string) $submitted);
+}
+
+
+/* ===================== PIN UNLOCK (vault reveal) ===================== */
+
+/**
+ * Tinatawag matapos ang matagumpay na PIN check.
+ * Kapag VAULT_PIN_UNLOCK_SECONDS = 0, isang reveal lang ang bisa nito.
+ */
+function grantPinUnlock(): void
+{
+    $seconds = defined('VAULT_PIN_UNLOCK_SECONDS') ? (int) VAULT_PIN_UNLOCK_SECONDS : 0;
+
+    if ($seconds > 0) {
+        $_SESSION['pin_unlocked_until'] = time() + $seconds;
+    } else {
+        $_SESSION['pin_unlock_once'] = true;
+    }
+}
+
+
+function pinUnlocked(): bool
+{
+    $seconds = defined('VAULT_PIN_UNLOCK_SECONDS') ? (int) VAULT_PIN_UNLOCK_SECONDS : 0;
+
+    if ($seconds > 0) {
+        return !empty($_SESSION['pin_unlocked_until'])
+            && (int) $_SESSION['pin_unlocked_until'] > time();
+    }
+
+    return !empty($_SESSION['pin_unlock_once']);
+}
+
+
+/** Ubusin ang single-use unlock matapos ang isang reveal. */
+function consumePinUnlock(): void
+{
+    unset($_SESSION['pin_unlock_once']);
+}
+
+
+function clearPinUnlock(): void
+{
+    unset($_SESSION['pin_unlock_once'], $_SESSION['pin_unlocked_until']);
 }
 
 

@@ -14,3 +14,7 @@ define('APP_NAME', 'Squir');
 // php -r "echo bin2hex(random_bytes(32));"
 // ============================================================
 define('VAULT_ENCRYPTION_KEY', '224d55d4e1d879000f317dbfdec7b20d5b6205d152fd3cac557285af78c48eb1');
+
+define('PIN_LENGTH', 6);
+
+define('VAULT_PIN_UNLOCK_SECONDS', 0);
