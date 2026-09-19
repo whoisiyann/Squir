@@ -8,10 +8,9 @@ require_once __DIR__ . '/../config/config.php';
 
 
 /**
- * @param bool $requirePin Kapag true (default), ire-redirect ang user sa
- *                         PIN setup page hangga't wala pa siyang PIN.
- *                         Gamitin ang false sa ./pin route mismo.
+ * @param bool $requirePin 
  */
+
 function requireLogin(bool $requirePin = true): int
 {
     if (empty($_SESSION['user_id'])) {
@@ -57,10 +56,6 @@ function csrfValid(?string $submitted): bool
 
 /* ===================== PIN UNLOCK (vault reveal) ===================== */
 
-/**
- * Tinatawag matapos ang matagumpay na PIN check.
- * Kapag VAULT_PIN_UNLOCK_SECONDS = 0, isang reveal lang ang bisa nito.
- */
 function grantPinUnlock(): void
 {
     $seconds = defined('VAULT_PIN_UNLOCK_SECONDS') ? (int) VAULT_PIN_UNLOCK_SECONDS : 0;
@@ -86,7 +81,6 @@ function pinUnlocked(): bool
 }
 
 
-/** Ubusin ang single-use unlock matapos ang isang reveal. */
 function consumePinUnlock(): void
 {
     unset($_SESSION['pin_unlock_once']);

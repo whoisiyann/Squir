@@ -128,6 +128,17 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
 
     public function moveToFolder(int $noteId, int $userId, ?int $folderId): bool
     {
+        // Tiyaking sa user ang target folder at type = 'notes' (hindi lang basta nag-e-exist).
+        if ($folderId !== null) {
+            $check = $this->dbh->prepare(
+                "SELECT 1 FROM folders WHERE folder_id = :id AND user_id = :uid AND folder_type = 'notes'"
+            );
+            $check->execute(['id' => $folderId, 'uid' => $userId]);
+            if (!$check->fetchColumn()) {
+                return false;
+            }
+        }
+
         $stmt = $this->dbh->prepare(
             'UPDATE notes SET folder_id = :folder_id WHERE note_id = :id AND user_id = :uid'
         );

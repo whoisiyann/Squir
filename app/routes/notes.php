@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/../models/Folder.php';
 require_once __DIR__ . '/../models/Note.php';
 require_once __DIR__ . '/../controllers/NoteController.php';
 
@@ -38,6 +39,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
         'updated_at' => date('F j, g:i A', strtotime($saved['updated_at'])),
         'folder_name' => $saved['folder_name'],
     ]);
+    exit;
+}
+
+// ---- AJAX: folder manager ng Notes (create / rename / delete notes folders) ----
+if ($_SERVER['REQUEST_METHOD'] === 'POST'
+    && in_array($_POST['ajax'] ?? '', ['folder_create', 'folder_rename', 'folder_delete'], true)) {
+    header('Content-Type: application/json');
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Your session expired. Please refresh the page.']);
+        exit;
+    }
+
+    $folderModel = new Folder($dbh);
+    $ajaxAction = $_POST['ajax'];
+
+    if ($ajaxAction === 'folder_create') {
+        $result = $folderModel->create($userId, [
+            'folder_name' => trim((string) ($_POST['folder_name'] ?? '')),
+            'folder_type' => 'notes',
+            'color'       => 'brown',
+        ]);
+        if ($result['errors'] !== []) {
+            http_response_code(422);
+            echo json_encode(['error' => reset($result['errors'])]);
+            exit;
+        }
+        echo json_encode(['success' => true, 'folder_id' => $result['folder_id']]);
+        exit;
+    }
+
+    // rename / delete
+    $targetFolder = $folderModel->find((int) ($_POST['folder_id'] ?? 0), $userId);
+    if (!$targetFolder || $targetFolder['folder_type'] !== 'notes') {
+        http_response_code(404);
+        echo json_encode(['error' => 'Folder not found.']);
+        exit;
+    }
+
+    if ($ajaxAction === 'folder_rename') {
+        $result = $folderModel->rename((int) $targetFolder['folder_id'], $userId, (string) ($_POST['folder_name'] ?? ''));
+        if ($result['errors'] !== []) {
+            http_response_code(422);
+            echo json_encode(['error' => reset($result['errors'])]);
+            exit;
+        }
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    $folderModel->delete((int) $targetFolder['folder_id'], $userId);
+    echo json_encode(['success' => true]);
     exit;
 }
 
@@ -109,6 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
 }
 
 $data = $controller->index($userId, $_GET);
+
+$totalNotes = $noteModel->countForUser($userId);
 
 $activeNoteId = isset($_GET['note']) ? (int) $_GET['note'] : null;
 $activeNote = $activeNoteId ? $controller->find($activeNoteId, $userId) : null;

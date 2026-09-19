@@ -122,6 +122,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $errors = $result['errors'];
             $openModal = 'edit:' . $vaultId;
+        } elseif ($action === 'move_folder') {
+            $vaultId = (int) ($_POST['vault_id'] ?? 0);
+            $destination = $controller->moveToFolder($vaultId, $userId, $_POST['target_folder'] ?? null);
+            if ($destination !== null) {
+                $_SESSION['vault_flash_success'] = $destination === 'No folder'
+                    ? 'Password removed from its folder.'
+                    : 'Password moved to "' . $destination . '".';
+            }
+            header('Location: ' . $returnTo);
+            exit;
         } elseif ($action === 'delete') {
             $vaultId = (int) ($_POST['vault_id'] ?? 0);
             $controller->destroy($vaultId, $userId);

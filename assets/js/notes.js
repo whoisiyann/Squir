@@ -124,28 +124,10 @@
         });
     });
 
-    /* ---------- Move-to-folder ---------- */
-    $all('.note-menu-move-toggle').forEach(function (btn) {
-        btn.addEventListener('click', function (event) {
-            event.stopPropagation();
-            var dropdown = btn.closest('.note-menu-dropdown');
-            if (dropdown) dropdown.classList.add('showing-folders');
-        });
-    });
-
-    $all('.note-menu-folder-back').forEach(function (btn) {
-        btn.addEventListener('click', function (event) {
-            event.stopPropagation();
-            var dropdown = btn.closest('.note-menu-dropdown');
-            if (dropdown) dropdown.classList.remove('showing-folders');
-        });
-    });
-
     /* ---------- 3-dot dropdown menus (list rows + detail header) ---------- */
     function closeAllMenus() {
         $all('.note-menu-dropdown.open').forEach(function (menu) {
             menu.classList.remove('open');
-            menu.classList.remove('showing-folders');
             menu.style.top = '';
             menu.style.left = '';
             if (menu._placeholder && menu._placeholder.parentNode) {

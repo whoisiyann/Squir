@@ -81,6 +81,32 @@ class VaultController
         return $this->vaultModel->delete($vaultId, $userId);
     }
 
+    /**
+     * Ibinabalik ang pangalan ng destination ("No folder" kung inalis sa folder),
+     * o null kung nabigo (walang item / invalid ang folder).
+     */
+    public function moveToFolder(int $vaultId, int $userId, $targetFolder): ?string
+    {
+        $folderId = ($targetFolder === null || $targetFolder === '') ? null : (int) $targetFolder;
+        if ($folderId !== null && $folderId <= 0) {
+            $folderId = null;
+        }
+
+        if (!$this->vaultModel->find($vaultId, $userId)) {
+            return null;
+        }
+        if (!$this->vaultModel->moveToFolder($vaultId, $userId, $folderId)) {
+            return null;
+        }
+        if ($folderId === null) {
+            return 'No folder';
+        }
+
+        $stmt = $this->dbh->prepare('SELECT folder_name FROM folders WHERE folder_id = :id AND user_id = :uid');
+        $stmt->execute(['id' => $folderId, 'uid' => $userId]);
+        return (string) $stmt->fetchColumn();
+    }
+
     public function revealPassword(int $vaultId, int $userId): ?string
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -121,7 +147,7 @@ class VaultController
     private function getFolders(int $userId): array
     {
         $stmt = $this->dbh->prepare(
-            "SELECT folder_id, folder_name FROM folders WHERE user_id = :uid AND folder_type = 'passwords' ORDER BY folder_name"
+            "SELECT folder_id, folder_name, color FROM folders WHERE user_id = :uid AND folder_type = 'passwords' ORDER BY folder_name"
         );
         $stmt->execute(['uid' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -86,10 +86,16 @@ $emptyStateButtonLabel = $emptyStateButtonLabel ?? 'Add Vault';
                                                 <i class="ti ti-external-link"></i> Open website
                                             </a>
                                         <?php endif; ?>
+                                        <button type="button" class="vault-menu-move-folder" data-move-folder-trigger
+                                                data-item-id="<?= (int) $item['vault_id'] ?>"
+                                                data-item-title="<?= $escape($item['title']) ?>"
+                                                data-folder-id="<?= $item['folder_id'] !== null ? (int) $item['folder_id'] : '' ?>">
+                                            <i class="ti ti-folder"></i> Move to folder
+                                        </button>
                                         <a href="?edit=<?= (int) $item['vault_id'] ?>">
                                             <i class="ti ti-edit"></i> Edit
                                         </a>
-                                        <form method="post" action="./vault" onsubmit="return confirm('Delete this password?');">
+                                        <form method="post" action="./vault" data-confirm-delete>
                                             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="vault_id" value="<?= (int) $item['vault_id'] ?>">

@@ -210,31 +210,34 @@
         btn.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
+            closeAllMenus();
+
             var card = btn.closest('.folder-card');
             var folderId = card.getAttribute('data-folder-id');
             var nameEl = card.querySelector('.folder-name');
-            var newName = window.prompt('Rename folder:', nameEl.textContent.trim());
-            if (!newName || newName.trim() === '') return;
 
-            var body = new URLSearchParams();
-            body.set('ajax', 'rename');
-            body.set('csrf_token', csrfToken);
-            body.set('folder_id', folderId);
-            body.set('folder_name', newName.trim());
+            window.SquirDialogs.promptName({
+                title: 'Rename Folder',
+                label: 'Rename to',
+                value: nameEl.textContent.trim(),
+                onSubmit: function (newName) {
+                    var body = new URLSearchParams();
+                    body.set('ajax', 'rename');
+                    body.set('csrf_token', csrfToken);
+                    body.set('folder_id', folderId);
+                    body.set('folder_name', newName);
 
-            fetch('./folders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: body.toString()
-            }).then(function (response) {
-                if (!response.ok) throw response.json();
-                return response.json();
-            }).then(function () {
-                nameEl.textContent = newName.trim();
-            }).catch(function (errPromise) {
-                Promise.resolve(errPromise).then(function (err) {
-                    alert(err && err.error ? err.error : 'Could not rename folder.');
-                });
+                    return fetch('./folders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: body.toString()
+                    }).then(function (response) {
+                        return response.json().catch(function () { return {}; }).then(function (json) {
+                            if (!response.ok) throw new Error(json.error || 'Could not rename folder.');
+                            nameEl.textContent = newName;
+                        });
+                    });
+                }
             });
         });
     });

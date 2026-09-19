@@ -69,8 +69,23 @@ $openFolderId = isset($_GET['folder']) && ctype_digit((string) $_GET['folder']) 
 
 if ($openFolderId !== null) {
     $folder = $folderModel->find($openFolderId, $userId);
-    if (!$folder || $folder['folder_type'] !== 'passwords') {
+    if (!$folder) {
         header('Location: ./folders');
+        exit;
+    }
+
+    // ---- Notes folder: ipakita ang lahat ng notes na nasa loob nito ----
+    if ($folder['folder_type'] === 'notes') {
+        require_once __DIR__ . '/../models/Note.php';
+        require_once __DIR__ . '/../controllers/NoteController.php';
+
+        $noteController = new NoteController(new Note($dbh), $dbh);
+        $notesData = $noteController->index($userId, ['folder' => $openFolderId]);
+
+        $user = currentUserSummary($dbh, $userId);
+        $initials = $user['initials'];
+
+        require __DIR__ . '/../views/folders/show-notes.php';
         exit;
     }
 
@@ -119,9 +134,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
                 exit;
             }
             $errors = $result['errors'];
-        }elseif ($action === 'delete') {
-            $controller->destroy((int) ($_POST['folder_id'] ?? 0), $userId);
-            header('Location: ./folders');
+        } elseif ($action === 'delete') {
+            $deleteId = (int) ($_POST['folder_id'] ?? 0);
+            $folderToDelete = $folderModel->find($deleteId, $userId);
+            $controller->destroy($deleteId, $userId);
+
+            $backType = ($folderToDelete && $folderToDelete['folder_type'] === 'notes') ? '?type=notes' : '';
+            header('Location: ./folders' . $backType);
             exit;
         }
     }

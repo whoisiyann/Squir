@@ -31,6 +31,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/folders.css">
+    <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
@@ -116,7 +117,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
                                     <button type="button" class="folder-menu-btn" aria-label="More actions"><i class="ti ti-dots-vertical"></i></button>
                                     <div class="folder-menu-dropdown">
                                         <button type="button" class="folder-menu-rename"><i class="ti ti-edit"></i> Rename</button>
-                                        <form method="post" action="./folders" onsubmit="return confirm('Delete this folder? Items inside will not be deleted.');">
+                                        <form method="post" action="./folders" data-confirm-delete data-confirm-text="Are you sure you want to delete this folder? Items inside will not be deleted.">
                                             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="folder_id" value="<?= (int) $folder['folder_id'] ?>">
@@ -192,6 +193,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
     window.FOLDERS_HAS_ERRORS = <?= json_encode(isset($errors) && $errors !== []) ?>;
 </script>
 <script src="./assets/js/dashboard.js?"></script>
-<script src="./assets/js/folders.js?v=3"></script>
+<script src="./assets/js/squir-dialogs.js"></script>
+<script src="./assets/js/folders.js?v=4"></script>
 </body>
 </html>

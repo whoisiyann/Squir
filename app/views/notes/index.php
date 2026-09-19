@@ -28,6 +28,9 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/notes.css">
+    <link rel="stylesheet" href="./assets/css/move-folder.css">
+    <link rel="stylesheet" href="./assets/css/notes-folders.css">
+    <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="<?= $activeNote ? 'notes-detail-active' : '' ?>">
@@ -54,7 +57,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <h1>Notes</h1>
                             <p>Write it down. Keep it organized.</p>
                         </div>
-                        <a class="icon-btn" href="#folders" data-tooltip="Manage folders" aria-label="Manage folders"><i class="ti ti-folder"></i></a>
+                        <button type="button" class="icon-btn" id="openNotesFolderPanel" data-tooltip="Manage folders" aria-label="Manage folders" aria-haspopup="dialog"><i class="ti ti-folder"></i></button>
                     </div>
 
                     <div class="notes-toolbar">
@@ -119,9 +122,11 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                         <button type="button" class="icon-btn note-menu-btn" data-tooltip="More" aria-label="More actions"><i class="ti ti-dots-vertical"></i></button>
                                         <div class="note-menu-dropdown">
                                             <div class="note-menu-main">
-                                                <button type="button" class="note-menu-move-toggle">
-                                                    <span><i class="ti ti-folder"></i> Move to folder</span>
-                                                    <i class="ti ti-chevron-right note-menu-move-chevron"></i>
+                                                <button type="button" class="note-menu-move-folder" data-move-folder-trigger
+                                                        data-item-id="<?= (int) $item['note_id'] ?>"
+                                                        data-item-title="<?= $escape(Note::titleOrDefault($item['title'])) ?>"
+                                                        data-folder-id="<?= $item['folder_id'] !== null ? (int) $item['folder_id'] : '' ?>">
+                                                    <i class="ti ti-folder"></i> Move to folder
                                                 </button>
                                                 <button type="button" class="note-menu-favorite-item">
                                                     <i class="fa-solid fa-star"></i> <?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
@@ -132,31 +137,12 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                     <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
                                                     <button type="submit"><i class="ti ti-copy"></i> Duplicate</button>
                                                 </form>
-                                                <form method="post" action="./notes" onsubmit="return confirm('Delete this note?');">
+                                                <form method="post" action="./notes" data-confirm-delete>
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
                                                     <button type="submit" class="note-menu-delete"><i class="ti ti-trash"></i> Delete</button>
                                                 </form>
-                                            </div>
-                                            <div class="note-menu-folders">
-                                                <button type="button" class="note-menu-folder-back"><i class="ti ti-chevron-left"></i> Back</button>
-                                                <form method="post" action="./notes">
-                                                    <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
-                                                    <input type="hidden" name="action" value="move_folder">
-                                                    <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
-                                                    <input type="hidden" name="target_folder" value="">
-                                                    <button type="submit"><i class="ti ti-x"></i> No folder</button>
-                                                </form>
-                                                <?php foreach ($data['folders'] as $folder): ?>
-                                                    <form method="post" action="./notes">
-                                                        <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
-                                                        <input type="hidden" name="action" value="move_folder">
-                                                        <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
-                                                        <input type="hidden" name="target_folder" value="<?= (int) $folder['folder_id'] ?>">
-                                                        <button type="submit"><i class="ti ti-folder"></i> <?= $escape($folder['folder_name']) ?></button>
-                                                    </form>
-                                                <?php endforeach; ?>
                                             </div>
                                         </div>
                                     </div>
@@ -193,9 +179,11 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                         <button type="button" class="icon-btn note-menu-btn note-detail-menu-btn" aria-label="More actions"><i class="ti ti-dots-vertical"></i></button>
                                         <div class="note-menu-dropdown">
                                             <div class="note-menu-main">
-                                                <button type="button" class="note-menu-move-toggle">
-                                                    <span><i class="ti ti-folder"></i> Move to folder</span>
-                                                    <i class="ti ti-chevron-right note-menu-move-chevron"></i>
+                                                <button type="button" class="note-menu-move-folder" data-move-folder-trigger
+                                                        data-item-id="<?= (int) $activeNote['note_id'] ?>"
+                                                        data-item-title="<?= $escape(Note::titleOrDefault($activeNote['title'])) ?>"
+                                                        data-folder-id="<?= $activeNote['folder_id'] !== null ? (int) $activeNote['folder_id'] : '' ?>">
+                                                    <i class="ti ti-folder"></i> Move to folder
                                                 </button>
                                                 <button type="button" class="note-menu-favorite">
                                                     <i class="fa-solid fa-star"></i> <?= $activeNote['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
@@ -206,31 +194,12 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                     <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
                                                     <button type="submit"><i class="ti ti-copy"></i> Duplicate</button>
                                                 </form>
-                                                <form method="post" action="./notes" onsubmit="return confirm('Delete this note?');">
+                                                <form method="post" action="./notes" data-confirm-delete>
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
                                                     <button type="submit" class="note-menu-delete"><i class="ti ti-trash"></i> Delete</button>
                                                 </form>
-                                            </div>
-                                            <div class="note-menu-folders">
-                                                <button type="button" class="note-menu-folder-back"><i class="ti ti-chevron-left"></i> Back</button>
-                                                <form method="post" action="./notes">
-                                                    <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
-                                                    <input type="hidden" name="action" value="move_folder">
-                                                    <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
-                                                    <input type="hidden" name="target_folder" value="">
-                                                    <button type="submit"><i class="ti ti-x"></i> No folder</button>
-                                                </form>
-                                                <?php foreach ($data['folders'] as $folder): ?>
-                                                    <form method="post" action="./notes">
-                                                        <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
-                                                        <input type="hidden" name="action" value="move_folder">
-                                                        <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
-                                                        <input type="hidden" name="target_folder" value="<?= (int) $folder['folder_id'] ?>">
-                                                        <button type="submit"><i class="ti ti-folder"></i> <?= $escape($folder['folder_name']) ?></button>
-                                                    </form>
-                                                <?php endforeach; ?>
                                             </div>
                                         </div>
                                     </div>
@@ -291,8 +260,21 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
         </main>
     </div>
 </div>
-<script>window.NOTES_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;</script>
+<?php
+$moveFolders = $data['folders'];
+$moveAction  = './notes';
+$moveIdField = 'note_id';
+require __DIR__ . '/../partials/move-folder-modal.php';
+?>
+<?php require __DIR__ . '/../partials/notes-folders-panel.php'; ?>
+<script>
+    window.NOTES_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
+    window.NOTES_ACTIVE_FOLDER = <?= json_encode($data['activeFolder'] !== null ? (int) $data['activeFolder'] : '') ?>;
+</script>
 <script src="./assets/js/dashboard.js?v=2"></script>
 <script src="./assets/js/notes.js"></script>
+<script src="./assets/js/move-folder.js"></script>
+<script src="./assets/js/notes-folders.js"></script>
+<script src="./assets/js/squir-dialogs.js"></script>
 </body>
 </html>

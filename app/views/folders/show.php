@@ -37,6 +37,8 @@ $lockFolderName = $folder['folder_name'];
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/vault.css">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
+    <link rel="stylesheet" href="./assets/css/move-folder.css">
+    <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
     <link rel="stylesheet" href="./assets/css/folders.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
@@ -110,6 +112,13 @@ $lockFolderName = $folder['folder_name'];
     <?php require __DIR__ . '/../vault/edit.php'; ?>
 <?php endif; ?>
 <?php require __DIR__ . '/../vault/pin-modal.php'; ?>
+<?php
+$moveFolders  = $data['folders'];
+$moveAction   = './vault';
+$moveIdField  = 'vault_id';
+$moveReturnTo = $returnTo ?? './folders';
+require __DIR__ . '/../partials/move-folder-modal.php';
+?>
 
 <script>
     window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
@@ -118,5 +127,7 @@ $lockFolderName = $folder['folder_name'];
 <script src="./assets/js/dashboard.js?v=2"></script>
 <script src="./assets/js/pin-gate.js"></script>
 <script src="./assets/js/vault.js?v=2"></script>
+<script src="./assets/js/move-folder.js"></script>
+<script src="./assets/js/squir-dialogs.js"></script>
 </body>
 </html>

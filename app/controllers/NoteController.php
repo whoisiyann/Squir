@@ -127,7 +127,7 @@ class NoteController
     private function getFolders(int $userId): array
     {
         $stmt = $this->dbh->prepare(
-            "SELECT folder_id, folder_name FROM folders WHERE user_id = :uid AND folder_type = 'notes' ORDER BY folder_name"
+            "SELECT folder_id, folder_name, color FROM folders WHERE user_id = :uid AND folder_type = 'notes' ORDER BY folder_name"
         );
         $stmt->execute(['uid' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

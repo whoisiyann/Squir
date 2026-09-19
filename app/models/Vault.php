@@ -310,6 +310,30 @@ class Vault
         return ['errors' => []];
     }
 
+    /**
+     * Ilipat ang isang vault item sa ibang folder (o alisin sa folder kung $folderId = null).
+     * Ibinabalik ang false kung hindi valid ang target folder (hindi sa user o hindi 'passwords').
+     */
+    public function moveToFolder(int $vaultId, int $userId, ?int $folderId): bool
+    {
+        $resolved = null;
+        if ($folderId !== null) {
+            $resolved = $this->resolveFolderId($folderId, $userId);
+            if ($resolved === null) {
+                return false;
+            }
+        }
+
+        $stmt = $this->dbh->prepare(
+            'UPDATE vault SET folder_id = :folder_id WHERE vault_id = :id AND user_id = :uid'
+        );
+        return $stmt->execute([
+            'folder_id' => $resolved,
+            'id'        => $vaultId,
+            'uid'       => $userId,
+        ]);
+    }
+
     public function delete(int $vaultId, int $userId): bool
     {
         // Ang vault_tags ay ON DELETE CASCADE, kaya awtomatikong mabubura ang links.

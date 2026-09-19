@@ -305,11 +305,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   color: #f5a623;
 }
 
-/* =========================================================
-   4. LIST VIEW — rows with divider lines
-   (already scoped with ".folders-grid.list-view", so this
-   naturally wins over dashboard.css's plain ".folder-card")
-   ========================================================= */
+
+   /* 4. LIST VIEW — rows with divider lines */
+
 .folders-grid.list-view {
   display: flex;
   flex-direction: column;
@@ -374,9 +372,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 
 .folders-empty { padding: 60px 10px; }
 
-/* =========================================================
-   5. 3-DOT DROPDOWN MENU
-   ========================================================= */
+
+   /* 5. 3-DOT DROPDOWN MENU */
+
 .folder-menu {
   position: relative;
   display: flex;
@@ -432,9 +430,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   .folder-menu-dropdown .folder-menu-delete:hover { background: rgba(229, 72, 77, .12); }
 }
 
-/* =========================================================
-   6. COLOR POPOVER + SWATCHES
-   ========================================================= */
+
+   /* 6. COLOR POPOVER + SWATCHES */
+
 .folder-color-popover {
   display: none;
   position: fixed;
@@ -473,9 +471,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 .folder-swatch.active,
 .folder-swatch:hover { border-color: var(--accent); }
 
-/* =========================================================
-   7. MODAL — sariling sistema ng Folders page
-   ========================================================= */
+
+   /* 7. MODAL — sariling sistema ng Folders page */
+
 .folder-modal-backdrop {
   display: none;
   position: fixed;
@@ -658,9 +656,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   font-size: .78rem;
 }
 
-/* =========================================================
-   8. RESPONSIVE
-   ========================================================= */
+
+   /* 8. RESPONSIVE */
+
 @media (max-width: 1300px) {
   .folders-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -716,4 +714,104 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 
 @media (max-width: 480px) {
   .folder-modal { padding: 18px; }
+}
+
+/* =========================================================
+   Notes folder detail page (Folders > Notes > <folder>)
+   ========================================================= */
+.folder-breadcrumb { display: flex; align-items: center; gap: .4rem; font-size: .85rem; color: var(--muted); margin: 0 0 .35rem; }
+.folder-breadcrumb a { display: inline-flex; align-items: center; gap: .3rem; color: inherit; text-decoration: none; }
+.folder-breadcrumb a:hover { text-decoration: underline; }
+.folder-heading-icon { width: 28px; height: 28px; vertical-align: middle; margin-right: .4rem; }
+
+.folder-notes-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex: 0 0 auto;
+}
+
+.folder-notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  flex: 0 0 auto;
+}
+
+.folder-note-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .folder-note-card:hover {
+    background: var(--soft);
+    border-color: var(--accent);
+  }
+}
+
+.folder-note-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.folder-note-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.folder-note-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.folder-note-top strong {
+  overflow: hidden;
+  font-size: .92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-note-fav {
+  flex: 0 0 auto;
+  color: #f5b301;
+  font-size: .8rem;
+}
+
+.folder-note-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.4;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.folder-note-date {
+  color: var(--muted);
+  font-size: .72rem;
 }

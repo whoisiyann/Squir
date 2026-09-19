@@ -30,6 +30,8 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/vault.css">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
+    <link rel="stylesheet" href="./assets/css/move-folder.css">
+    <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body data-open-modal="<?= $escape($openModal ?? '') ?>">
@@ -112,6 +114,13 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <?php require __DIR__ . '/edit.php'; ?>
 <?php endif; ?>
 <?php require __DIR__ . '/pin-modal.php'; ?>
+<?php
+$moveFolders  = $data['folders'];
+$moveAction   = './vault';
+$moveIdField  = 'vault_id';
+$moveReturnTo = $returnTo ?? './vault';
+require __DIR__ . '/../partials/move-folder-modal.php';
+?>
 
 <script>
     window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
@@ -120,3 +129,5 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 <script src="./assets/js/dashboard.js?v=2"></script>
 <script src="./assets/js/pin-gate.js"></script>
 <script src="./assets/js/vault.js?v=2"></script>
+<script src="./assets/js/move-folder.js"></script>
+<script src="./assets/js/squir-dialogs.js"></script>
