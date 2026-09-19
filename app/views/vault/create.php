@@ -20,6 +20,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="create">
             <input type="hidden" name="is_favorite" id="createIsFavorite" value="0">
+            <input type="hidden" name="return_to" value="<?= $escape($returnTo ?? './vault') ?>">
 
             <div class="vault-field">
                 <label for="v_title">Name</label>
@@ -56,12 +57,17 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
             <div class="vault-field-row">
                 <div class="vault-field">
                     <label for="v_folder">Folder</label>
-                    <select id="v_folder" name="folder_id">
-                        <option value="">No folder</option>
-                        <?php foreach ($data['folders'] as $folder): ?>
-                            <option value="<?= (int) $folder['folder_id'] ?>"><?= $escape($folder['folder_name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?php if (!empty($lockFolderId)): ?>
+                        <input type="text" value="<?= $escape($lockFolderName ?? '') ?>" disabled>
+                        <input type="hidden" name="folder_id" value="<?= (int) $lockFolderId ?>">
+                    <?php else: ?>
+                        <select id="v_folder" name="folder_id">
+                            <option value="">No folder</option>
+                            <?php foreach ($data['folders'] as $folder): ?>
+                                <option value="<?= (int) $folder['folder_id'] ?>"><?= $escape($folder['folder_name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    <?php endif; ?>
                 </div>
                 <div class="vault-field">
                     <label>Favorite</label>

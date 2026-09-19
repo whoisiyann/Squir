@@ -1,21 +1,28 @@
 <?php
-/** @var array $data */
-/** @var array $user */
-/** @var string $initials */
-/** @var string $csrfToken */
-/** @var array $errors */
-/** @var string|null $flashSuccess */
-/** @var string|null $openModal */
-/** @var array|null $editItem */
+/**
+ * @var array  $data       
+ * @var array  $folder     
+ * @var array  $user
+ * @var string $initials
+ * @var string $csrfToken
+ * @var array  $errors
+ * @var string|null $flashSuccess
+ * @var string|null $openModal
+ * @var array|null $editItem
+ * @var string $returnTo
+ * @var string $closeUrl
+ */
 
 $escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+$lockFolderId = (int) $folder['folder_id'];
+$lockFolderName = $folder['folder_name'];
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Squir - Passwords</title>
+    <title>Squir - <?= $escape($folder['folder_name']) ?></title>
     <script>
         (function () {
             try {
@@ -30,7 +37,14 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/vault.css">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
+    <link rel="stylesheet" href="./assets/css/folders.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        .folder-breadcrumb { display: flex; align-items: center; gap: .4rem; font-size: .85rem; color: var(--text-muted, #6b7280); margin: 0 0 .35rem; }
+        .folder-breadcrumb a { display: inline-flex; align-items: center; gap: .3rem; color: inherit; text-decoration: none; }
+        .folder-breadcrumb a:hover { text-decoration: underline; }
+        .folder-heading-icon { width: 28px; height: 28px; vertical-align: middle; margin-right: .4rem; }
+    </style>
 </head>
 <body data-open-modal="<?= $escape($openModal ?? '') ?>">
 <div class="app-shell" id="appShell">
@@ -48,8 +62,16 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
         <main class="content-area">
             <div class="page-heading">
                 <div>
-                    <h1>Vault</h1>
-                    <p>Manage and secure your saved passwords.</p>
+                    <p class="folder-breadcrumb">
+                        <a href="./folders"><i class="ti ti-folder"></i> Folders</a>
+                        <i class="ti ti-chevron-right"></i>
+                        <span><?= $escape($folder['folder_name']) ?></span>
+                    </p>
+                    <h1>
+                        <img class="folder-heading-icon" src="./assets/images/folderImages/Folder-<?= $escape($folder['color']) ?>.png" alt="">
+                        <?= $escape($folder['folder_name']) ?>
+                    </h1>
+                    <p>Credentials saved inside this folder.</p>
                 </div>
             </div>
 
@@ -70,48 +92,24 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     </button>
                 </div>
 
-
                 <div class="vault-toolbar-right">
-                    <form method="get" class="vault-search" role="search" id="vaultSearchForm" autocomplete="off">
-                        <i class="ti ti-search"></i>
-                        <input type="search" name="q" id="vaultSearchInput" placeholder="Search vault..." value="<?= $escape($data['search']) ?>">
-                        <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
-                        <input type="hidden" name="tag" value="<?= $escape($data['activeTag']) ?>">
-                        <div class="vault-search-suggestions" id="vaultSearchSuggestions"></div>
-                    </form>
-
-                    <form method="get" class="vault-tags-filter">
-                        <i class="ti ti-tag"></i>
-                        <select name="tag" onchange="this.form.submit()">
-                            <option value="">All Tags</option>
-                            <?php foreach ($data['tags'] as $tagName => $count): ?>
-                                <option value="<?= $escape($tagName) ?>" <?= $data['activeTag'] === $tagName ? 'selected' : '' ?>>
-                                    #<?= $escape($tagName) ?> (<?= $count ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <input type="hidden" name="q" value="<?= $escape($data['search']) ?>">
-                        <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
-                        <i class="ti ti-chevron-down chevron"></i>
-                    </form>
-
                     <button class="quick-add" type="button" id="openCreateModal">
                         <i class="ti ti-plus"></i>
-                        <span>Add Vault</span>
+                        <span>Add Password</span>
                     </button>
                 </div>
             </div>
 
-            <?php require __DIR__ . '/_table.php'; ?>
+            <?php $emptyStateButtonLabel = 'Add Password'; require __DIR__ . '/../vault/_table.php'; ?>
         </main>
     </div>
 </div>
 
-<?php require __DIR__ . '/create.php'; ?>
+<?php require __DIR__ . '/../vault/create.php'; ?>
 <?php if ($editItem): ?>
-    <?php require __DIR__ . '/edit.php'; ?>
+    <?php require __DIR__ . '/../vault/edit.php'; ?>
 <?php endif; ?>
-<?php require __DIR__ . '/pin-modal.php'; ?>
+<?php require __DIR__ . '/../vault/pin-modal.php'; ?>
 
 <script>
     window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
@@ -120,3 +118,5 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 <script src="./assets/js/dashboard.js?v=2"></script>
 <script src="./assets/js/pin-gate.js"></script>
 <script src="./assets/js/vault.js?v=2"></script>
+</body>
+</html>

@@ -15,7 +15,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
                 <h2 id="editModalTitle">Edit Vault</h2>
                 <p class="vault-modal-subtitle">Update the details of this credential.</p>
             </div>
-            <a class="icon-btn" href="./vault" aria-label="Close"><i class="ti ti-x"></i></a>
+            <a class="icon-btn" href="<?= $escape($closeUrl ?? './vault') ?>" aria-label="Close"><i class="ti ti-x"></i></a>
         </div>
 
         <div class="vault-edit-preview">
@@ -37,6 +37,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
             <input type="hidden" name="action" value="update">
             <input type="hidden" name="vault_id" value="<?= (int) $editItem['vault_id'] ?>">
             <input type="hidden" name="is_favorite" id="editIsFavorite" value="<?= $editItem['is_favorite'] ? '1' : '0' ?>">
+            <input type="hidden" name="return_to" value="<?= $escape($returnTo ?? './vault') ?>">
 
             <div class="vault-field-grid-2">
                 <div class="vault-field">
@@ -108,7 +109,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
             <?php if (isset($errors['tags'])): ?><p class="invalid-feedback-squir"><?= $escape($errors['tags']) ?></p><?php endif; ?>
 
             <div class="vault-modal-actions vault-modal-actions-3">
-                <a class="btn-outline-squir" href="./vault">Cancel</a>
+                <a class="btn-outline-squir" href="<?= $escape($closeUrl ?? './vault') ?>">Cancel</a>
                 <button type="button" class="btn-outline-squir vault-copy-password-btn" data-vault-id="<?= (int) $editItem['vault_id'] ?>">Copy password</button>
                 <button type="submit" class="btn-squir">Save Changes</button>
             </div>

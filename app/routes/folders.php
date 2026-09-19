@@ -8,7 +8,7 @@ $folderModel = new Folder($dbh);
 $controller = new FolderController($folderModel, $dbh);
 $csrfToken = csrfToken();
 
-// ---- AJAX: palitan ang kulay ng folder (single click sa grid / double-click sa list) ----
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_color') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -63,6 +63,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'rename'
 }
 
 $errors = [];
+
+// ---- Detail view ng folder ----
+$openFolderId = isset($_GET['folder']) && ctype_digit((string) $_GET['folder']) ? (int) $_GET['folder'] : null;
+
+if ($openFolderId !== null) {
+    $folder = $folderModel->find($openFolderId, $userId);
+    if (!$folder || $folder['folder_type'] !== 'passwords') {
+        header('Location: ./folders');
+        exit;
+    }
+
+    require_once __DIR__ . '/../models/Vault.php';
+    require_once __DIR__ . '/../models/UserPin.php';
+    require_once __DIR__ . '/../controllers/VaultController.php';
+
+    $vaultModel = new Vault($dbh);
+    $vaultController = new VaultController($vaultModel, $dbh);
+
+    $returnTo = './folders?folder=' . $openFolderId;
+    $closeUrl = $returnTo;
+
+    $flashSuccess = $_SESSION['vault_flash_success'] ?? null;
+    unset($_SESSION['vault_flash_success']);
+    $openModal = null;
+
+    $data = $vaultController->index($userId, ['folder' => $openFolderId] + $_GET);
+
+    $editItem = null;
+    if (isset($_GET['edit'])) {
+        $editItem = $vaultController->edit((int) $_GET['edit'], $userId);
+    }
+
+    $pinLength = UserPin::length();
+    $pinUnlockSeconds = defined('VAULT_PIN_UNLOCK_SECONDS') ? (int) VAULT_PIN_UNLOCK_SECONDS : 0;
+
+    $user = currentUserSummary($dbh, $userId);
+    $initials = $user['initials'];
+
+    require __DIR__ . '/../views/folders/show.php';
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {

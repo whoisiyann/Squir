@@ -103,7 +103,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
                                 </button>
                             </span>
 
-                            <a class="folder-card-link" href="./vault?folder=<?= (int) $folder['folder_id'] ?>">
+                            <a class="folder-card-link" href="./folders?folder=<?= (int) $folder['folder_id'] ?>">
                                 <span class="folder-name"><?= $escape($folder['folder_name']) ?></span>
                                 <span class="folder-item-count"><?= (int) $folder['item_count'] ?> item<?= (int) $folder['item_count'] === 1 ? '' : 's' ?></span>
                             </a>

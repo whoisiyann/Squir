@@ -15,7 +15,7 @@ $csrfToken = csrfToken();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_pin') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
-        http_response_code(403);
+        http_response_code(403);    
         echo json_encode(['ok' => false, 'error' => 'Your session expired. Please refresh the page.']);
         exit;
     }
@@ -34,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_
 }
 
 // ---- AJAX: ibalik ang decrypted password para sa eye/copy button ----
-// Kailangan munang na-verify ang PIN (tingnan ang verify_pin sa itaas).
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     header('Content-Type: application/json');
     if (!csrfValid($_GET['token'] ?? null)) {
@@ -83,7 +82,22 @@ $flashSuccess = $_SESSION['vault_flash_success'] ?? null;
 unset($_SESSION['vault_flash_success']);
 $openModal = null;
 
+
+function vaultSafeReturnTo(?string $value): string
+{
+    $default = './vault';
+    if (!is_string($value) || $value === '') {
+        return $default;
+    }
+    if (preg_match('~^\./(vault|folders)(\?[A-Za-z0-9=&%._\-]*)?$~', $value)) {
+        return $value;
+    }
+    return $default;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $returnTo = vaultSafeReturnTo($_POST['return_to'] ?? null);
+
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
     } else {
@@ -93,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $controller->store($userId, $_POST);
             if ($result['errors'] === []) {
                 $_SESSION['vault_flash_success'] = 'Password saved to your vault.';
-                header('Location: ./vault');
+                header('Location: ' . $returnTo);
                 exit;
             }
             $errors = $result['errors'];
@@ -103,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $controller->update($vaultId, $userId, $_POST);
             if ($result['errors'] === []) {
                 $_SESSION['vault_flash_success'] = 'Password updated.';
-                header('Location: ./vault');
+                header('Location: ' . $returnTo);
                 exit;
             }
             $errors = $result['errors'];
@@ -112,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $vaultId = (int) ($_POST['vault_id'] ?? 0);
             $controller->destroy($vaultId, $userId);
             $_SESSION['vault_flash_success'] = 'Password deleted.';
-            header('Location: ./vault');
+            header('Location: ' . $returnTo);
             exit;
         }
     }
@@ -128,7 +142,7 @@ if (isset($_GET['edit'])) {
 $pinLength = UserPin::length();
 $pinUnlockSeconds = defined('VAULT_PIN_UNLOCK_SECONDS') ? (int) VAULT_PIN_UNLOCK_SECONDS : 0;
 
-// para sa sidebar/header partials (parehong variable names gaya ng dashboard)
+
 $user = currentUserSummary($dbh, $userId);
 $initials = $user['initials'];
 
