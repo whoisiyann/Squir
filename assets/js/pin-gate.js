@@ -1,13 +1,8 @@
 // assets/js/pin-gate.js
-// Nagbibigay ng window.SquirPin.ensure() — humihingi ng PIN bago
-// payagan ang pag-reveal/copy ng isang vault password.
-//
-// I-load ito BAGO ang vault.js.
 
 window.SquirPin = (function () {
     var backdrop = document.getElementById('pinModalBackdrop');
 
-    // Walang modal sa page na ito (hal. ibang page) — huwag humarang.
     if (!backdrop) {
         return { ensure: function () { return Promise.resolve(); } };
     }
@@ -17,6 +12,12 @@ window.SquirPin = (function () {
     var boxes = Array.prototype.slice.call(wrap.querySelectorAll('.pin-modal-box'));
     var errorEl = document.getElementById('pinModalError');
     var closeBtn = document.getElementById('pinModalClose');
+    var subtitleEl = document.getElementById('pinModalSubtitle');
+
+    var SUBTITLES = {
+        view: 'Enter your PIN to view this password.',
+        copy: 'Enter your PIN to copy this password.'
+    };
 
     var length = boxes.length;
     var ttlSeconds = typeof window.SQUIR_PIN_TTL === 'number' ? window.SQUIR_PIN_TTL : 0;
@@ -55,9 +56,12 @@ window.SquirPin = (function () {
         modal.classList.toggle('is-busy', state);
     }
 
-    function open() {
+    function open(reason) {
         errorEl.textContent = '';
         setBusy(false);
+        if (subtitleEl) {
+            subtitleEl.textContent = SUBTITLES[reason] || SUBTITLES.view;
+        }
         backdrop.classList.add('open');
         backdrop.setAttribute('aria-hidden', 'false');
         clearBoxes();
@@ -178,19 +182,15 @@ window.SquirPin = (function () {
     /* ---------- Public API ---------- */
 
     return {
-        /**
-         * Nire-resolve kapag tama ang PIN. Kapag kinansela ng user,
-         * nananatiling pending ang promise — walang mangyayari,
-         * walang error message na lalabas.
-         */
-        ensure: function () {
+
+        ensure: function (reason) {
             if (ttlSeconds > 0 && Date.now() < unlockedUntil) {
                 return Promise.resolve();
             }
 
             return new Promise(function (resolve) {
                 resolveCurrent = resolve;
-                open();
+                open(reason);
             });
         },
 

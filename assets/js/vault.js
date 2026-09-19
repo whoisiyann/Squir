@@ -63,7 +63,7 @@
             var isPassword = input.type === 'password';
 
             if (isPassword && input.value === '' && btn.getAttribute('data-vault-id')) {
-                revealById(btn.getAttribute('data-vault-id')).then(function (json) {
+                revealById(btn.getAttribute('data-vault-id'), 'view').then(function (json) {
                     input.value = json.password || '';
                     input.type = 'text';
                     btn.querySelector('i').className = 'ti ti-eye-off';
@@ -150,8 +150,8 @@
     }
 
     /* ---------- Reveal / copy password (server-side decrypt only) ---------- */
-    function revealById(id) {
-        return window.SquirPin.ensure().then(function () {
+    function revealById(id, reason) {
+        return window.SquirPin.ensure(reason).then(function () {
             return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
                 .then(function (response) {
                     if (!response.ok) throw new Error('Failed to fetch password');
@@ -176,7 +176,7 @@
                 return;
             }
 
-            revealById(id).then(function (json) {
+            revealById(id, 'view').then(function (json) {
                 cell.textContent = json.password;
                 cell.setAttribute('data-revealed', 'true');
                 icon.className = 'ti ti-eye-off';
@@ -246,8 +246,16 @@
         btn.addEventListener('click', function () {
             var row = btn.closest('tr');
             var id = row.getAttribute('data-vault-id');
+            var cell = row.querySelector('.vault-password');
             var icon = btn.querySelector('i');
-            var passwordPromise = revealById(id).then(function (json) { return json.password; });
+
+            var passwordPromise;
+            if (cell && cell.getAttribute('data-revealed') === 'true') {
+                // Nakikita na sa screen ang password — huwag nang humingi ulit ng PIN.
+                passwordPromise = Promise.resolve(cell.textContent);
+            } else {
+                passwordPromise = revealById(id, 'copy').then(function (json) { return json.password; });
+            }
 
             copyPasswordToClipboard(passwordPromise, function () {
                 icon.className = 'ti ti-check';
@@ -265,7 +273,15 @@
     if (editCopyBtn) {
         editCopyBtn.addEventListener('click', function () {
             var id = editCopyBtn.getAttribute('data-vault-id');
-            var passwordPromise = revealById(id).then(function (json) { return json.password; });
+            var passwordInput = document.getElementById('e_password');
+
+            var passwordPromise;
+            if (passwordInput && passwordInput.type === 'text' && passwordInput.value !== '') {
+                // Nakikita na ang password sa field — huwag nang humingi ulit ng PIN.
+                passwordPromise = Promise.resolve(passwordInput.value);
+            } else {
+                passwordPromise = revealById(id, 'copy').then(function (json) { return json.password; });
+            }
 
             copyPasswordToClipboard(passwordPromise, function () {
                 var original = editCopyBtn.textContent;
