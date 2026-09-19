@@ -3,14 +3,14 @@
 require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../controllers/PinController.php';
 
-// requireLogin(false) = naka-login na, pero wala pang PIN — kaya huwag i-redirect pabalik dito.
+
 $userId = requireLogin(false);
 
 $pinModel = new UserPin($dbh);
 $controller = new PinController($pinModel);
 $csrfToken = csrfToken();
 
-// May PIN na? Wala nang dapat gawin dito.
+
 if ($controller->hasPin($userId)) {
     $_SESSION['has_pin'] = true;
     header('Location: ./dashboard');

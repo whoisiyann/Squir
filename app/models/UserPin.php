@@ -1,16 +1,9 @@
 <?php
 
-/**
- * Hinahawakan ang 4-6 digit na PIN ng user (tulad ng GCash).
- * Naka-hash ang PIN gamit ang password_hash() — hindi ito kailanman
- * nakaimbak bilang plain text.
- */
 class UserPin
 {
-    /** Ilang maling subok bago ma-lock */
     public const MAX_ATTEMPTS = 5;
 
-    /** Gaano katagal naka-lock matapos maubos ang attempts (minutes) */
     public const LOCK_MINUTES = 5;
 
     private PDO $dbh;
@@ -112,7 +105,7 @@ class UserPin
         ];
     }
 
-    /** Ginagamit sa Settings kapag gusto ng user palitan ang PIN. */
+
     public function change(int $userId, string $currentPin, string $newPin): array
     {
         $check = $this->verify($userId, $currentPin);

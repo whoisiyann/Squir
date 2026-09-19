@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         exit;
     }
 
-    // folder_delete — kasama nang nabubura ang lahat ng notes sa loob ng folder (tingnan ang Folder::delete)
+    // folder_delete 
     $folderModel->delete((int) $targetFolder['folder_id'], $userId);
     echo json_encode(['success' => true]);
     exit;

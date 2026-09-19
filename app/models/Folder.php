@@ -52,7 +52,7 @@ class Folder
         return $row ?: null;
     }
 
-    /** Ginagamit sa <select> ng Vault (type=passwords) at Notes (type=notes) forms */
+
     public function allForUserByType(int $userId, string $type): array
     {
         $type = in_array($type, self::TYPES, true) ? $type : 'passwords';

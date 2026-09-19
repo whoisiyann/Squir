@@ -60,12 +60,7 @@ class Vault
         return 'https://www.google.com/s2/favicons?sz=64&domain=' . rawurlencode($host);
     }
 
-    /* ================= TAGS =================
-       Ang tags ay nasa sariling `tags` table na ngayon, at naka-link sa
-       vault items sa pamamagitan ng `vault_tags` bridge table (M:N).
-       Para hindi na magbago ang mga view, ibinabalik pa rin ng queries
-       ang isang `tags` key na CSV (galing sa GROUP_CONCAT).
-       ======================================== */
+    /* ================= TAGS ================= */
 
     /** "  #Dev , cloud, dev " -> ['dev', 'cloud'] */
     public static function normalizeTags(string $raw): array
@@ -114,7 +109,7 @@ class Vault
         return $counts;
     }
 
-    /** Pinapalitan ang buong tag set ng isang vault item. */
+
     private function syncTags(int $vaultId, int $userId, array $tags): void
     {
         $clear = $this->dbh->prepare('DELETE FROM vault_tags WHERE vault_id = :vid');
@@ -147,7 +142,7 @@ class Vault
         $this->deleteOrphanTags($userId);
     }
 
-    /** Linisin ang tags na wala nang kahit isang naka-link na item. */
+
     private function deleteOrphanTags(int $userId): void
     {
         $stmt = $this->dbh->prepare(
@@ -310,10 +305,7 @@ class Vault
         return ['errors' => []];
     }
 
-    /**
-     * Ilipat ang isang vault item sa ibang folder (o alisin sa folder kung $folderId = null).
-     * Ibinabalik ang false kung hindi valid ang target folder (hindi sa user o hindi 'passwords').
-     */
+ 
     public function moveToFolder(int $vaultId, int $userId, ?int $folderId): bool
     {
         $resolved = null;
@@ -336,7 +328,6 @@ class Vault
 
     public function delete(int $vaultId, int $userId): bool
     {
-        // Ang vault_tags ay ON DELETE CASCADE, kaya awtomatikong mabubura ang links.
         $stmt = $this->dbh->prepare('DELETE FROM vault WHERE vault_id = :id AND user_id = :uid');
         $ok = $stmt->execute(['id' => $vaultId, 'uid' => $userId]);
         $this->deleteOrphanTags($userId);
@@ -345,10 +336,7 @@ class Vault
 
     /* ================= HELPERS ================= */
 
-    /**
-     * Tinitiyak na ang folder ay (a) pag-aari ng user at (b) type = 'passwords'.
-     * Hindi ito kayang i-enforce ng foreign key lang.
-     */
+
     private function resolveFolderId($raw, int $userId): ?int
     {
         if ($raw === null || $raw === '') {

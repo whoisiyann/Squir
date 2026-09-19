@@ -65,7 +65,6 @@ CREATE TABLE folders (
         FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE,
 
-    -- Pwedeng may "Work" sa Passwords at "Work" din sa Notes
     CONSTRAINT uq_folders_user_name_type
         UNIQUE (user_id, folder_name, folder_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -81,7 +80,7 @@ CREATE TABLE vault (
     folder_id        INT NULL,
     title            VARCHAR(100) NOT NULL,
     account_username VARCHAR(100) NULL,
-    account_password VARCHAR(500) NOT NULL,  -- AES-256-CBC ciphertext (base64)
+    account_password VARCHAR(500) NOT NULL,
     website_url      VARCHAR(255) NULL,
     notes            TEXT NULL,
     created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -131,7 +130,7 @@ CREATE INDEX idx_notes_user_updated ON notes (user_id, updated_at);
 CREATE TABLE tags (
     tag_id     INT AUTO_INCREMENT PRIMARY KEY,
     user_id    INT NOT NULL,
-    tag_name   VARCHAR(30) NOT NULL,   -- naka-lowercase, walang '#'
+    tag_name   VARCHAR(30) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_tags_user
@@ -232,13 +231,13 @@ CREATE TABLE favorites (
 -- 10. ACTIVITY_LOGS — audit trail para sa admin panel
 CREATE TABLE activity_logs (
     log_id      BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id     INT NULL,               -- NULL kung nabura na ang user
-    action      VARCHAR(60)  NOT NULL,  -- 'USER_LOGIN', 'VAULT_ITEM_ADDED', ...
+    user_id     INT NULL,
+    action      VARCHAR(60)  NOT NULL, 
     entity_type ENUM('user','folder','vault','note','task',
                      'favorite','tag','system') NULL,
-    entity_id   INT NULL,               -- ID ng apektadong record
+    entity_id   INT NULL,
     description VARCHAR(255) NOT NULL,
-    ip_address  VARCHAR(45)  NULL,      -- kasya ang IPv6
+    ip_address  VARCHAR(45)  NULL,
     user_agent  VARCHAR(255) NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
