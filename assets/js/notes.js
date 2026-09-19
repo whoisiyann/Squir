@@ -26,6 +26,25 @@
         }
     })();
 
+    /* ---------- Folder pills ---------- */
+    (function () {
+        var pills = document.querySelector('.notes-folder-pills');
+        if (!pills) return;
+
+        var active = pills.querySelector('.folder-pill.active');
+        if (active && pills.scrollWidth > pills.clientWidth) {
+            var offset = active.getBoundingClientRect().left - pills.getBoundingClientRect().left + pills.scrollLeft;
+            pills.scrollLeft = Math.max(0, offset - (pills.clientWidth - active.offsetWidth) / 2);
+        }
+
+        pills.addEventListener('wheel', function (event) {
+            if (pills.scrollWidth <= pills.clientWidth) return;
+            if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+            event.preventDefault();
+            pills.scrollLeft += event.deltaY;
+        }, { passive: false });
+    })();
+
     /* ---------- Favorite star ---------- */
     function toggleFavoriteRequest(noteId, csrfToken) {
         var body = new URLSearchParams();

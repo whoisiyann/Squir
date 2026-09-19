@@ -67,7 +67,7 @@ $nfEsc = static fn (?string $value): string => htmlspecialchars((string) $value,
     <div class="sqd-dialog sqd-dialog-center" role="alertdialog" aria-modal="true" aria-labelledby="nfDeleteTitle" aria-describedby="nfDeleteText">
         <i class="ti ti-trash sqd-delete-icon" aria-hidden="true"></i>
         <h2 id="nfDeleteTitle">Delete</h2>
-        <p id="nfDeleteText">Are you sure you want to delete this?</p>
+        <p id="nfDeleteText">Are you sure you want to delete this folder? All notes inside will be deleted too.</p>
         <p class="sqd-error" id="nfDeleteError" role="alert"></p>
         <div class="sqd-dialog-actions">
             <button type="button" class="sqd-btn sqd-btn-outline" id="nfDeleteCancel">Cancel</button>

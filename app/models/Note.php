@@ -89,7 +89,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
         );
         $stmt->execute([
             'user_id' => $userId,
-            'folder_id' => $data['folder_id'] ?: null,
+            'folder_id' => $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId),
             'title' => $data['title'],
             'content' => $data['content'] !== '' ? $data['content'] : null,
         ]);
@@ -189,6 +189,22 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
     {
         $title = trim((string) $title);
         return $title !== '' ? $title : 'Untitled note';
+    }
+
+
+    private function resolveNotesFolderId($raw, int $userId): ?int
+    {
+        $folderId = (int) $raw;
+        if ($folderId <= 0) {
+            return null;
+        }
+
+        $stmt = $this->dbh->prepare(
+            "SELECT folder_id FROM folders WHERE folder_id = :id AND user_id = :uid AND folder_type = 'notes'"
+        );
+        $stmt->execute(['id' => $folderId, 'uid' => $userId]);
+
+        return $stmt->fetchColumn() ? $folderId : null;
     }
 
     private function validate(array $data): array

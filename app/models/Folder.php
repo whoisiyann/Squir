@@ -132,8 +132,34 @@ class Folder
 
     public function delete(int $folderId, int $userId): bool
     {
-        $stmt = $this->dbh->prepare('DELETE FROM folders WHERE folder_id = :id AND user_id = :uid');
-        return $stmt->execute(['id' => $folderId, 'uid' => $userId]);
+        if (!$this->find($folderId, $userId)) {
+            return false;
+        }
+
+        $this->dbh->beginTransaction();
+        try {
+            $params = ['id' => $folderId, 'uid' => $userId];
+
+            $this->dbh->prepare('DELETE FROM vault WHERE folder_id = :id AND user_id = :uid')->execute($params);
+            $this->dbh->prepare('DELETE FROM notes WHERE folder_id = :id AND user_id = :uid')->execute($params);
+
+
+            $this->dbh->prepare(
+                'DELETE t FROM tags t
+                 LEFT JOIN vault_tags vt ON vt.tag_id = t.tag_id
+                 WHERE t.user_id = :uid AND vt.vault_id IS NULL'
+            )->execute(['uid' => $userId]);
+
+            $this->dbh->prepare('DELETE FROM folders WHERE folder_id = :id AND user_id = :uid')->execute($params);
+
+            $this->dbh->commit();
+            return true;
+        } catch (Throwable $e) {
+            if ($this->dbh->inTransaction()) {
+                $this->dbh->rollBack();
+            }
+            return false;
+        }
     }
 
     private function validate(array $data, int $userId, ?int $excludeId): array

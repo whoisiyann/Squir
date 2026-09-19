@@ -71,6 +71,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                             <input type="hidden" name="action" value="create">
                             <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
+                            <input type="hidden" name="folder_id" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                             <input type="hidden" name="q" value="<?= $escape($data['search']) ?>">
                             <button type="submit" class="notes-add-btn" aria-label="Create note"><i class="ti ti-plus"></i></button>
                         </form>
@@ -162,6 +163,9 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <form method="post" action="./notes">
                                 <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                 <input type="hidden" name="action" value="create">
+                                <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
+                                <input type="hidden" name="folder_id" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
+                                <input type="hidden" name="q" value="<?= $escape($data['search']) ?>">
                                 <button type="submit" class="note-detail-empty-btn"><i class="ti ti-plus"></i> Create note</button>
                             </form>
                         </div>

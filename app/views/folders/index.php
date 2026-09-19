@@ -72,12 +72,12 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
                 </div>
 
                 <div class="folders-toolbar-right">
-                    <form method="get" class="folders-search" role="search">
+                    <form method="get" class="folders-search" role="search" id="foldersSearchForm" autocomplete="off">
                         <i class="ti ti-search"></i>
-                        <input type="search" name="q" placeholder="Search folders..." value="<?= $escape($data['search']) ?>">
+                        <input type="search" name="q" id="foldersSearchInput" placeholder="Search folders..." value="<?= $escape($data['search']) ?>">
                         <input type="hidden" name="type" value="<?= $escape($data['activeType']) ?>">
                     </form>
-                    <button type="button" class="folders-sort-btn" id="foldersSortBtn" aria-label="Sort"><i class="ti ti-arrows-sort"></i></button>
+                    <button type="button" class="folders-sort-btn" id="foldersSortBtn" aria-label="Sort" data-tooltip="Click to sort A to Z"><i class="ti ti-arrows-sort"></i></button>
                     <button class="quick-add" type="button" id="openCreateFolderModal"><i class="ti ti-plus"></i> <span>Create A Folder</span></button>
                 </div>
             </div>
@@ -97,7 +97,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
                 <div class="folders-grid" id="foldersGrid">
                     <?php foreach ($data['folders'] as $folder): ?>
                         <?php $isFav = !empty($folder['is_favorite']); ?>
-                        <div class="folder-card" data-folder-id="<?= (int) $folder['folder_id'] ?>" data-favorite="<?= $isFav ? '1' : '0' ?>">
+                        <div class="folder-card" data-folder-id="<?= (int) $folder['folder_id'] ?>" data-favorite="<?= $isFav ? '1' : '0' ?>" data-created-at="<?= (int) strtotime($folder['created_at']) ?>" data-updated-at="<?= (int) strtotime($folder['updated_at']) ?>">
                             <span class="folder-icon-wrap">
                                 <button type="button" class="folder-icon-btn" data-color="<?= $escape($folder['color']) ?>" aria-label="Change folder color">
                                     <img src="./assets/images/folderImages/Folder-<?= $escape($folder['color']) ?>.png" alt="">
@@ -117,7 +117,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
                                     <button type="button" class="folder-menu-btn" aria-label="More actions"><i class="ti ti-dots-vertical"></i></button>
                                     <div class="folder-menu-dropdown">
                                         <button type="button" class="folder-menu-rename"><i class="ti ti-edit"></i> Rename</button>
-                                        <form method="post" action="./folders" data-confirm-delete data-confirm-text="Are you sure you want to delete this folder? Items inside will not be deleted.">
+                                        <form method="post" action="./folders" data-confirm-delete data-confirm-text="Are you sure you want to delete this folder? All items inside will be deleted too.">
                                             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="folder_id" value="<?= (int) $folder['folder_id'] ?>">
@@ -194,6 +194,6 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
 </script>
 <script src="./assets/js/dashboard.js?"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
-<script src="./assets/js/folders.js?v=4"></script>
+<script src="./assets/js/folders.js?v=5"></script>
 </body>
 </html>

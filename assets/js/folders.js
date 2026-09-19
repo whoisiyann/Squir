@@ -5,6 +5,98 @@
     var popover = document.getElementById('folderColorPopover');
     var popoverFolderId = null;
 
+    /* ---------- Folder sorting ---------- */
+    var SORT_KEY = 'squir-folder-sort';
+    var sortLabels = ['Click to sort A to Z', 'Click to sort Z to A', 'Click to sort by newest created', 'Click to sort by recently updated'];
+    var sortState = -1;
+    var isSorting = false;
+
+    try {
+        var savedSortState = parseInt(window.localStorage.getItem(SORT_KEY), 10);
+        if (savedSortState >= 0 && savedSortState < sortLabels.length) sortState = savedSortState;
+    } catch (error) {}
+
+    function updateSortButton() {
+        var sortButton = document.getElementById('foldersSortBtn');
+        if (!sortButton) return;
+
+        var nextLabel = sortLabels[(sortState + 1) % sortLabels.length];
+        sortButton.setAttribute('aria-label', nextLabel);
+        sortButton.setAttribute('data-tooltip', nextLabel);
+    }
+
+    function getSortValue(card) {
+        var name = card.querySelector('.folder-name');
+        return {
+            name: name ? name.textContent.trim().toLocaleLowerCase() : '',
+            created: Number(card.getAttribute('data-created-at')) || 0,
+            updated: Number(card.getAttribute('data-updated-at')) || 0
+        };
+    }
+
+    function sortCards() {
+        if (!grid || sortState < 0) return;
+
+        var cards = $all('.folder-card', grid);
+        var sortedCards = cards.slice().sort(function (firstCard, secondCard) {
+            var first = getSortValue(firstCard);
+            var second = getSortValue(secondCard);
+            var comparison;
+
+            if (sortState === 0 || sortState === 1) {
+                comparison = first.name.localeCompare(second.name, undefined, { sensitivity: 'base' });
+                return sortState === 0 ? comparison : -comparison;
+            }
+
+            comparison = sortState === 2 ? second.created - first.created : second.updated - first.updated;
+            return comparison || first.name.localeCompare(second.name, undefined, { sensitivity: 'base' });
+        });
+
+        if (cards.every(function (card, index) { return card === sortedCards[index]; })) return;
+
+        isSorting = true;
+        sortedCards.forEach(function (card) { grid.appendChild(card); });
+        isSorting = false;
+    }
+
+    function advanceSort() {
+        sortState = (sortState + 1) % sortLabels.length;
+        try { window.localStorage.setItem(SORT_KEY, String(sortState)); } catch (error) {}
+        updateSortButton();
+        sortCards();
+    }
+
+    document.addEventListener('click', function (event) {
+        if (event.target.closest('#foldersSortBtn')) advanceSort();
+    });
+    updateSortButton();
+    sortCards();
+
+    if (grid && window.MutationObserver) {
+        new MutationObserver(function () {
+            if (!isSorting) sortCards();
+        }).observe(grid, { childList: true });
+    }
+
+    /* ---------- Search: debounce auto-submit ---------- */
+    (function () {
+        var searchForm = document.getElementById('foldersSearchForm');
+        var searchInput = document.getElementById('foldersSearchInput');
+        if (!searchForm || !searchInput) return;
+
+        var searchTimer = null;
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function () { searchForm.submit(); }, 450);
+        });
+
+        if (searchInput.value !== '') {
+            searchInput.focus();
+            var end = searchInput.value.length;
+            searchInput.setSelectionRange(end, end);
+        }
+    })();
+
     /* ---------- Grid / List view toggle ---------- */
     var VIEW_KEY = 'squir-folder-view';
     var viewButtons = $all('.view-toggle-btn');
@@ -148,9 +240,7 @@
         });
     });
 
-    /* Auto-open the create modal when the page was reloaded with form errors.
-       (Flag is set from PHP in views/folders/index.php via window.FOLDERS_HAS_ERRORS,
-       since this is a plain .js file and can't contain <?php ?> tags directly.) */
+
     if (window.FOLDERS_HAS_ERRORS) {
         openCreateModal();
     }
@@ -189,30 +279,70 @@
         });
     });
 
-    /* ---------- 3-dot menu: rename ---------- */
+    /* ---------- 3-dot menu ---------- */
     function closeAllMenus() {
-        $all('.folder-menu-dropdown.open').forEach(function (menu) { menu.classList.remove('open'); });
+        $all('.folder-menu-dropdown.open').forEach(function (menu) {
+            menu.classList.remove('open');
+            menu.style.top = '';
+            menu.style.left = '';
+            if (menu._placeholder && menu._placeholder.parentNode) {
+                menu._placeholder.parentNode.replaceChild(menu, menu._placeholder);
+                menu._placeholder = null;
+            }
+        });
+    }
+
+    function positionMenu(menu, btn) {
+        var rect = btn.getBoundingClientRect();
+        var menuWidth = menu.offsetWidth || 170;
+        var left = Math.max(8, Math.min(rect.right - menuWidth, window.innerWidth - menuWidth - 8));
+        var top = rect.bottom + 6;
+        var menuHeight = menu.offsetHeight || 0;
+        if (menuHeight && top + menuHeight > window.innerHeight - 8) {
+            top = rect.top - menuHeight - 6;
+        }
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
     }
 
     $all('.folder-menu-btn').forEach(function (btn) {
         var menu = btn.parentElement.querySelector('.folder-menu-dropdown');
+        if (!menu) return;
+
         btn.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
             var willOpen = !menu.classList.contains('open');
             closeAllMenus();
-            if (willOpen) menu.classList.add('open');
+            if (willOpen) {
+                menu._card = btn.closest('.folder-card');
+
+                var placeholder = document.createElement('span');
+                placeholder.style.display = 'none';
+                menu.parentNode.insertBefore(placeholder, menu);
+                menu._placeholder = placeholder;
+                document.body.appendChild(menu);
+
+                menu.classList.add('open');
+                positionMenu(menu, btn);
+            }
         });
     });
     document.addEventListener('click', closeAllMenus);
+    window.addEventListener('resize', closeAllMenus);
+    document.addEventListener('scroll', closeAllMenus, true); 
 
     $all('.folder-menu-rename').forEach(function (btn) {
         btn.addEventListener('click', function (event) {
             event.preventDefault();
             event.stopPropagation();
-            closeAllMenus();
 
-            var card = btn.closest('.folder-card');
+
+            var menuEl = btn.closest('.folder-menu-dropdown');
+            var card = btn.closest('.folder-card') || (menuEl && menuEl._card);
+            closeAllMenus();
+            if (!card) return;
+
             var folderId = card.getAttribute('data-folder-id');
             var nameEl = card.querySelector('.folder-name');
 

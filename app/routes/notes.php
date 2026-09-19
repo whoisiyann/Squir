@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
     exit;
 }
 
-// ---- AJAX: folder manager ng Notes (create / rename / delete notes folders) ----
+// ---- AJAX: folder manager ng Notes (create / rename / delete ng notes folders) ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && in_array($_POST['ajax'] ?? '', ['folder_create', 'folder_rename', 'folder_delete'], true)) {
     header('Content-Type: application/json');
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         exit;
     }
 
-    // rename / delete
+    // rename / delete: dapat existing notes folder ng user
     $targetFolder = $folderModel->find((int) ($_POST['folder_id'] ?? 0), $userId);
     if (!$targetFolder || $targetFolder['folder_type'] !== 'notes') {
         http_response_code(404);
@@ -89,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         exit;
     }
 
+    // folder_delete — kasama nang nabubura ang lahat ng notes sa loob ng folder (tingnan ang Folder::delete)
     $folderModel->delete((int) $targetFolder['folder_id'], $userId);
     echo json_encode(['success' => true]);
     exit;

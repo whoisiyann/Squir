@@ -120,13 +120,49 @@
   font-size: 1.05rem;
 }
 
+.folders-sort-btn[data-tooltip] {
+  position: relative;
+}
+
+.folders-sort-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translate(-50%, -6px);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--dark);
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .12s ease, visibility .12s ease;
+  z-index: 1000;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .folders-sort-btn[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.folders-sort-btn[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .folders-sort-btn:hover { background: var(--soft); color: var(--accent); }
 }
 
-/* =========================================================
-   2. COUNT ROW + "Date modified" header (list view lang)
-   ========================================================= */
+
+   /* 2. COUNT ROW + "Date modified" header (list view lang) */
+
 .folders-count-row {
   display: flex;
   align-items: center;
@@ -305,9 +341,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   color: #f5a623;
 }
 
-
-   /* 4. LIST VIEW — rows with divider lines */
-
+/*4. LIST VIEW — rows with divider lines*/
 .folders-grid.list-view {
   display: flex;
   flex-direction: column;
@@ -372,9 +406,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 
 .folders-empty { padding: 60px 10px; }
 
-
-   /* 5. 3-DOT DROPDOWN MENU */
-
+/* =========================================================
+   5. 3-DOT DROPDOWN MENU
+   ========================================================= */
 .folder-menu {
   position: relative;
   display: flex;
@@ -382,9 +416,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 
 .folder-menu-dropdown {
   display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
+  position: fixed;   /* nililipat sa <body> ng folders.js para hindi matakpan ng ibang card */
   min-width: 170px;
   padding: 6px;
   border: 1px solid var(--border);
@@ -430,9 +462,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   .folder-menu-dropdown .folder-menu-delete:hover { background: rgba(229, 72, 77, .12); }
 }
 
-
-   /* 6. COLOR POPOVER + SWATCHES */
-
+/* =========================================================
+   6. COLOR POPOVER + SWATCHES
+   ========================================================= */
 .folder-color-popover {
   display: none;
   position: fixed;
@@ -471,9 +503,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 .folder-swatch.active,
 .folder-swatch:hover { border-color: var(--accent); }
 
-
-   /* 7. MODAL — sariling sistema ng Folders page */
-
+/* =========================================================
+   7. MODAL — sariling sistema ng Folders page
+   ========================================================= */
 .folder-modal-backdrop {
   display: none;
   position: fixed;
@@ -656,9 +688,9 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   font-size: .78rem;
 }
 
-
-   /* 8. RESPONSIVE */
-
+/* =========================================================
+   8. RESPONSIVE
+   ========================================================= */
 @media (max-width: 1300px) {
   .folders-grid {
     grid-template-columns: repeat(3, 1fr);
