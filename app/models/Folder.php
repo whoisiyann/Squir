@@ -12,11 +12,13 @@ class Folder
 
     private PDO $dbh;
 
+    // Initialize folder data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
     }
 
+    // Search user folders
     public function searchForUser(int $userId, string $search = '', string $type = 'passwords'): array
     {
         $type = in_array($type, self::TYPES, true) ? $type : 'passwords';
@@ -44,6 +46,7 @@ class Folder
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Fetch a user folder
     public function find(int $folderId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare('SELECT * FROM folders WHERE folder_id = :id AND user_id = :uid');
@@ -53,6 +56,7 @@ class Folder
     }
 
 
+    // Fetch folders by type
     public function allForUserByType(int $userId, string $type): array
     {
         $type = in_array($type, self::TYPES, true) ? $type : 'passwords';
@@ -63,6 +67,7 @@ class Folder
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Check for a duplicate folder name
     public function nameExists(int $userId, string $name, string $type, ?int $excludeId = null): bool
     {
         $sql = 'SELECT folder_id FROM folders WHERE user_id = :uid AND folder_name = :name AND folder_type = :type';
@@ -76,6 +81,7 @@ class Folder
         return (bool) $stmt->fetch();
     }
 
+    // Create a folder
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data, $userId, null);
@@ -94,6 +100,7 @@ class Folder
         return ['errors' => [], 'folder_id' => (int) $this->dbh->lastInsertId()];
     }
 
+    // Rename a folder
     public function rename(int $folderId, int $userId, string $name): array
     {
         $existing = $this->find($folderId, $userId);
@@ -118,6 +125,7 @@ class Folder
         return ['errors' => []];
     }
 
+    // Update folder color
     public function updateColor(int $folderId, int $userId, string $color): bool
     {
         if (!in_array($color, self::COLORS, true)) {
@@ -130,6 +138,7 @@ class Folder
         return $stmt->execute(['color' => $color, 'id' => $folderId, 'uid' => $userId]);
     }
 
+    // Delete a folder
     public function delete(int $folderId, int $userId): bool
     {
         if (!$this->find($folderId, $userId)) {
@@ -162,6 +171,7 @@ class Folder
         }
     }
 
+    // Validate folder data
     private function validate(array $data, int $userId, ?int $excludeId): array
     {
         $errors = [];

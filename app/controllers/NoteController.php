@@ -6,12 +6,14 @@ class NoteController
     private Note $noteModel;
     private PDO $dbh;
 
+    // Initialize note services
     public function __construct(Note $noteModel, PDO $dbh)
     {
         $this->noteModel = $noteModel;
         $this->dbh = $dbh;
     }
 
+    // Load user notes
     public function index(int $userId, array $query): array
     {
         $folderId = isset($query['folder']) && $query['folder'] !== '' ? (int) $query['folder'] : null;
@@ -38,6 +40,7 @@ class NoteController
         ];
     }
 
+    // Fetch a user note
     public function find(int $noteId, int $userId): ?array
     {
         $item = $this->noteModel->find($noteId, $userId);
@@ -48,31 +51,37 @@ class NoteController
         return $item;
     }
 
+    // Create a note
     public function store(int $userId, array $post): array
     {
         return $this->noteModel->create($userId, $this->extract($post));
     }
 
+    // Update a note
     public function update(int $noteId, int $userId, array $post): array
     {
         return $this->noteModel->update($noteId, $userId, $this->extract($post));
     }
 
+    // Delete a note
     public function destroy(int $noteId, int $userId): bool
     {
         return $this->noteModel->delete($noteId, $userId);
     }
 
+    // Move a note to a folder
     public function moveToFolder(int $noteId, int $userId, ?int $folderId): bool
     {
         return $this->noteModel->moveToFolder($noteId, $userId, $folderId);
     }
 
+    // Duplicate a note
     public function duplicate(int $noteId, int $userId): ?int
     {
         return $this->noteModel->duplicate($noteId, $userId);
     }
 
+    // Toggle note favorite state
     public function toggleFavorite(int $noteId, int $userId): ?bool
     {
         $item = $this->noteModel->find($noteId, $userId);
@@ -89,6 +98,7 @@ class NoteController
         return true;
     }
 
+    // Extract note input
     private function extract(array $post): array
     {
         return [
@@ -99,6 +109,7 @@ class NoteController
     }
 
 
+    // Sanitize note HTML
     private function sanitizeContent(string $html): string
     {
         $allowed = '<h1><h2><h3><p><br><b><strong><i><em><u><s><strike><ul><ol><li><a><span><blockquote><div>';
@@ -124,6 +135,7 @@ class NoteController
         return trim($clean);
     }
 
+    // Load note folders
     private function getFolders(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -133,6 +145,7 @@ class NoteController
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+    // Fetch favorite note IDs
     private function favoriteNoteIds(int $userId): array
     {
         $stmt = $this->dbh->prepare('SELECT note_id FROM favorites WHERE user_id = :uid AND note_id IS NOT NULL');
@@ -140,6 +153,7 @@ class NoteController
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
+    // Check note favorite state
     private function isFavorite(int $userId, int $noteId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM favorites WHERE user_id = :uid AND note_id = :nid');
@@ -147,6 +161,7 @@ class NoteController
         return (bool) $stmt->fetchColumn();
     }
 
+    // Mark a note favorite
     private function markFavorite(int $userId, int $noteId): void
     {
         $check = $this->dbh->prepare('SELECT favorite_id FROM favorites WHERE user_id = :uid AND note_id = :nid');
@@ -158,6 +173,7 @@ class NoteController
         $stmt->execute(['uid' => $userId, 'nid' => $noteId]);
     }
 
+    // Remove note favorite
     private function unmarkFavorite(int $userId, int $noteId): void
     {
         $stmt = $this->dbh->prepare('DELETE FROM favorites WHERE user_id = :uid AND note_id = :nid');

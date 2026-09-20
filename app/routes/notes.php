@@ -10,6 +10,7 @@ $controller = new NoteController($noteModel, $dbh);
 $csrfToken = csrfToken();
 
 // ---- AJAX: i-save ang title/content/folder habang nagta-type ang user ----
+// Save note changes
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -43,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
 }
 
 // ---- AJAX: folder manager ng Notes (create / rename / delete ng notes folders) ----
+// Handle note folder actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && in_array($_POST['ajax'] ?? '', ['folder_create', 'folder_rename', 'folder_delete'], true)) {
     header('Content-Type: application/json');
@@ -95,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     exit;
 }
 
+// Toggle note favorite
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -114,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
 
 $errors = [];
 
+// Process note form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -162,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     }
 }
 
+// Load the notes page
 $data = $controller->index($userId, $_GET);
 
 $totalNotes = $noteModel->countForUser($userId);

@@ -8,6 +8,7 @@ class Vault
 
     private PDO $dbh;
 
+    // Initialize vault data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
@@ -15,6 +16,7 @@ class Vault
 
     /* ================= ENCRYPTION ================= */
 
+    // Encrypt a vault secret
     private function encryptSecret(string $plain): string
     {   
         $key = $this->encryptionKey();
@@ -23,6 +25,7 @@ class Vault
         return base64_encode($iv . $cipherText);
     }
 
+    // Decrypt a vault secret
     public function decryptSecret(string $encoded): string
     {
         $key = $this->encryptionKey();
@@ -33,6 +36,7 @@ class Vault
         return $plain === false ? '' : $plain;
     }
 
+    // Load the encryption key
     private function encryptionKey(): string
     {
         $key = defined('VAULT_ENCRYPTION_KEY') ? VAULT_ENCRYPTION_KEY : '';
@@ -44,6 +48,7 @@ class Vault
 
     /* ================= FAVICON ================= */
 
+    // Build a favicon URL
     public static function faviconUrlFor(?string $websiteUrl): ?string
     {
         $websiteUrl = trim((string) $websiteUrl);
@@ -62,7 +67,7 @@ class Vault
 
     /* ================= TAGS ================= */
 
-    /** "  #Dev , cloud, dev " -> ['dev', 'cloud'] */
+    /** Normalize tag input. */
     public static function normalizeTags(string $raw): array
     {
         $tags = [];
@@ -79,7 +84,7 @@ class Vault
         return $tags;
     }
 
-    /** "dev,cloud" -> "dev, cloud" (para sa display sa input field) */
+    /** Format tags for display. */
     public static function tagsToString(?string $stored): string
     {
         $stored = trim((string) $stored);
@@ -89,7 +94,8 @@ class Vault
         return implode(', ', array_filter(array_map('trim', explode(',', $stored))));
     }
 
-    /** ['dev' => 3, 'cloud' => 1, ...] para sa "All Tags" dropdown. */
+    /** Count tags for the filter. */
+    // Count user tags
     public function tagCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -110,6 +116,7 @@ class Vault
     }
 
 
+    // Synchronize vault tags
     private function syncTags(int $vaultId, int $userId, array $tags): void
     {
         $clear = $this->dbh->prepare('DELETE FROM vault_tags WHERE vault_id = :vid');
@@ -143,6 +150,7 @@ class Vault
     }
 
 
+    // Remove unused tags
     private function deleteOrphanTags(int $userId): void
     {
         $stmt = $this->dbh->prepare(
@@ -155,6 +163,7 @@ class Vault
 
     /* ================= QUERIES ================= */
 
+    // Count user vault entries
     public function countForUser(int $userId): int
     {
         $stmt = $this->dbh->prepare('SELECT COUNT(*) FROM vault WHERE user_id = :uid');
@@ -162,6 +171,7 @@ class Vault
         return (int) $stmt->fetchColumn();
     }
 
+    // Search vault entries
     public function searchForUser(int $userId, ?int $folderId = null, string $search = '', ?string $tag = null): array
     {
         $conditions = ['v.user_id = :uid'];
@@ -176,7 +186,7 @@ class Vault
             $params['search'] = '%' . $search . '%';
         }
         if ($tag !== null && $tag !== '') {
-            // EXISTS para lumabas pa rin ang LAHAT ng tags ng item sa GROUP_CONCAT
+            // Include all item tags
             $conditions[] = 'EXISTS (
                 SELECT 1 FROM vault_tags vtf
                 JOIN tags tf ON tf.tag_id = vtf.tag_id
@@ -202,6 +212,7 @@ class Vault
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Fetch a vault entry
     public function find(int $vaultId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -220,6 +231,7 @@ class Vault
 
     /* ================= MUTATIONS ================= */
 
+    // Create a vault entry
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data, false);
@@ -257,6 +269,7 @@ class Vault
         return ['errors' => [], 'vault_id' => $vaultId];
     }
 
+    // Update a vault entry
     public function update(int $vaultId, int $userId, array $data): array
     {
         $errors = $this->validate($data, true);
@@ -306,6 +319,7 @@ class Vault
     }
 
  
+    // Move a vault entry to a folder
     public function moveToFolder(int $vaultId, int $userId, ?int $folderId): bool
     {
         $resolved = null;
@@ -326,6 +340,7 @@ class Vault
         ]);
     }
 
+    // Delete a vault entry
     public function delete(int $vaultId, int $userId): bool
     {
         $stmt = $this->dbh->prepare('DELETE FROM vault WHERE vault_id = :id AND user_id = :uid');
@@ -337,6 +352,7 @@ class Vault
     /* ================= HELPERS ================= */
 
 
+    // Resolve a folder ID
     private function resolveFolderId($raw, int $userId): ?int
     {
         if ($raw === null || $raw === '') {
@@ -356,6 +372,7 @@ class Vault
         return $stmt->fetchColumn() ? $folderId : null;
     }
 
+    // Validate vault data
     private function validate(array $data, bool $allowBlankPassword): array
     {
         $errors = [];

@@ -1,4 +1,3 @@
-// assets/js/vault.js
 
 (function () {
     function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
@@ -7,11 +6,13 @@
 
 
     /* ---------- Modal open/close ---------- */
+    // Open a vault modal
     function openModal(name) {
         var backdrop = document.getElementById(name + 'ModalBackdrop');
         if (backdrop) backdrop.classList.add('open');
     }
 
+    // Reset the create form
     function resetCreateForm() {
         var form = document.querySelector('#createModalBackdrop form');
         if (form) form.reset();
@@ -28,6 +29,7 @@
         if (faviconPreview) faviconPreview.innerHTML = '<i class="ti ti-key"></i>';
     }
 
+    // Close a vault modal
     function closeModal(name) {
         var backdrop = document.getElementById(name + 'ModalBackdrop');
         if (backdrop) backdrop.classList.remove('open');
@@ -101,6 +103,7 @@
     });
 
     /* ---------- Live favicon preview while typing a website URL ---------- */
+    // Update the favicon preview
     function wireFaviconPreview(inputId, previewId) {
         var input = document.getElementById(inputId);
         var preview = document.getElementById(previewId);
@@ -150,6 +153,7 @@
     }
 
     /* ---------- Reveal / copy password (server-side decrypt only) ---------- */
+    // Reveal a vault password
     function revealById(id, reason) {
         return window.SquirPin.ensure(reason).then(function () {
             return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
@@ -188,6 +192,7 @@
         });
     });
 
+    // Copy a password to the clipboard
     function copyPasswordToClipboard(passwordPromise, onSuccess) {
         function legacyCopy(text) {
             var textarea = document.createElement('textarea');
@@ -251,7 +256,8 @@
 
             var passwordPromise;
             if (cell && cell.getAttribute('data-revealed') === 'true') {
-                // Nakikita na sa screen ang password — huwag nang humingi ulit ng PIN.
+                
+                // Skip PIN when the password is already visible
                 passwordPromise = Promise.resolve(cell.textContent);
             } else {
                 passwordPromise = revealById(id, 'copy').then(function (json) { return json.password; });
@@ -277,7 +283,8 @@
 
             var passwordPromise;
             if (passwordInput && passwordInput.type === 'text' && passwordInput.value !== '') {
-                // Nakikita na ang password sa field — huwag nang humingi ulit ng PIN.
+                        // Skip PIN when the password is already visible
+                // Skip PIN when the password is already visible
                 passwordPromise = Promise.resolve(passwordInput.value);
             } else {
                 passwordPromise = revealById(id, 'copy').then(function (json) { return json.password; });
@@ -304,6 +311,7 @@
     });
 
     /* ---------- 3-dot dropdown menu ---------- */
+    // Close vault menus
     function closeAllMenus() {
         $all('.vault-menu-dropdown.open').forEach(function (menu) {
             menu.classList.remove('open');
@@ -365,6 +373,7 @@
     window.addEventListener('resize', closeAllMenus);
     if (tableWrap) tableWrap.addEventListener('scroll', closeAllMenus, { passive: true });
     /* ---------- Favorite star: toggle straight from the Vault list (Actions column) ---------- */
+    // Toggle a vault favorite
     function toggleFavorite(vaultId) {
         var body = new URLSearchParams();
         body.set('ajax', 'toggle_favorite');
@@ -411,6 +420,7 @@
     var VIEW_KEY = 'squir-vault-view';
     var viewButtons = $all('.view-toggle-btn');
 
+    // Switch vault layout view
     function setView(view) {
         if (tableWrap) tableWrap.classList.toggle('grid-view', view === 'grid');
         viewButtons.forEach(function (btn) {
@@ -431,6 +441,7 @@
     if (savedView === 'grid') setView('grid');
 
     // ---- Auto-highlight vault item in dashboard "Recent Credentials" click ----
+    // Highlight a vault item opened from the dashboard
     (function () {
         var params = new URLSearchParams(window.location.search);
         var highlightId = params.get('highlight');
@@ -455,6 +466,7 @@
 
     var scrollHint = document.getElementById('vaultScrollHint');
 
+    // Update the table scroll hint
     function updateScrollHint() {
         if (!tableWrap || !scrollHint) return;
         var hasOverflow = tableWrap.scrollHeight > tableWrap.clientHeight + 2;
@@ -483,6 +495,7 @@
             return strong ? strong.textContent.trim() : '';
         }
 
+        // Close search suggestions
         function closeSuggestions() {
             box.classList.remove('open');
             box.innerHTML = '';
@@ -497,6 +510,7 @@
             activeIndex = index;
         }
 
+        // Render vault search suggestions
         function renderSuggestions(matches) {
             currentMatches = matches;
             box.innerHTML = '';
@@ -520,6 +534,7 @@
             setActive(0);
         }
 
+        // Highlight a vault result
         function highlightRow(row) {
             if (!row) return;
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -529,6 +544,7 @@
             setTimeout(function () { row.classList.remove('vault-item-highlight'); }, 1700);
         }
 
+        // Open a vault result from a dashboard link
         function jumpToVaultId(id, title) {
             if (title !== undefined) input.value = title; // autocomplete search bar
             var row = tableWrap.querySelector('tr[data-vault-id="' + id + '"]');

@@ -1,5 +1,4 @@
-/* assets/css/pin-modal.css — PIN prompt sa Vault page.
-   Gumagamit ng mga variable ng style.css kaya gumagana rin sa dark mode. */
+/* Vault PIN prompt */
 
 .pin-modal-backdrop {
     display: none;

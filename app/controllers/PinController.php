@@ -5,20 +5,20 @@ class PinController
 {
     private UserPin $pinModel;
 
+    // Initialize PIN service
     public function __construct(UserPin $pinModel)
     {
         $this->pinModel = $pinModel;
     }
 
+    // Check whether a user has a PIN
     public function hasPin(int $userId): bool
     {
         return $this->pinModel->exists($userId);
     }
 
-    /**
-     * Gumawa ng PIN matapos mag-register / unang login.
-     * @return array{errors: array<string,string>}
-     */
+    /** Create a user PIN. */
+    // Create a user PIN
     public function store(int $userId, array $post): array
     {
         $pin = trim((string) ($post['pin'] ?? ''));
@@ -49,10 +49,8 @@ class PinController
         return ['errors' => []];
     }
 
-    /**
-     * Ginagamit ng vault reveal/copy.
-     * @return array{ok: bool, error?: string}
-     */
+    /** Verify the vault PIN. */
+    // Verify a user PIN
     public function verify(int $userId, string $pin): array
     {
         $length = UserPin::length();
@@ -64,7 +62,8 @@ class PinController
         return $this->pinModel->verify($userId, $pin);
     }
 
-    /** 111111, 123456, 654321 at kapareho nitong madaling hulaan. */
+    /** Reject predictable PINs. */
+    // Reject predictable PINs
     private function isWeak(string $pin): bool
     {
         if (preg_match('/^(\d)\1+$/', $pin)) {

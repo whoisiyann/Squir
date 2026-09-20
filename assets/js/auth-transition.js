@@ -1,5 +1,5 @@
-// assets/js/auth-transition.js
 
+// Handle authentication page transitions
 (function () {
     var leaving = false;
 

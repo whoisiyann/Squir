@@ -11,6 +11,7 @@ $controller = new PinController($pinModel);
 $csrfToken = csrfToken();
 
 
+// Redirect users who already have a PIN
 if ($controller->hasPin($userId)) {
     $_SESSION['has_pin'] = true;
     header('Location: ./dashboard');
@@ -19,6 +20,7 @@ if ($controller->hasPin($userId)) {
 
 $errors = [];
 
+// Process PIN creation
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['pin'] = 'Your session expired. Please refresh the page and try again.';
@@ -37,4 +39,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pinLength = UserPin::length();
 
+// Render the PIN form
 require __DIR__ . '/../views/auth/pin.php';

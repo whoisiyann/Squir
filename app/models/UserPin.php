@@ -8,16 +8,19 @@ class UserPin
 
     private PDO $dbh;
 
+    // Initialize PIN data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
     }
 
+    // Return the required PIN length
     public static function length(): int
     {
         return defined('PIN_LENGTH') ? (int) PIN_LENGTH : 6;
     }
 
+    // Check whether a user PIN exists
     public function exists(int $userId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM user_pins WHERE user_id = :uid');
@@ -25,6 +28,7 @@ class UserPin
         return (bool) $stmt->fetchColumn();
     }
 
+    // Store a user PIN
     public function create(int $userId, string $pin): bool
     {
         $stmt = $this->dbh->prepare(
@@ -42,6 +46,7 @@ class UserPin
     /**
      * @return array{ok: bool, error?: string, attempts_left?: int, locked_seconds?: int}
      */
+    // Verify a user PIN
     public function verify(int $userId, string $pin): array
     {
         $stmt = $this->dbh->prepare(
@@ -106,6 +111,7 @@ class UserPin
     }
 
 
+    // Change a user PIN
     public function change(int $userId, string $currentPin, string $newPin): array
     {
         $check = $this->verify($userId, $currentPin);

@@ -9,7 +9,6 @@ $isActiveRoute = static fn (string $r): string => $route === $r ? ' active' : ''
         <a class="brand" href="./dashboard"><img src="./assets/images/squir.png" alt=""><span>Squir</span></a>
     </div>
     <nav class="sidebar-nav" aria-label="Main navigation">
-        <span class="nav-caption">Modules</span>
         <a class="nav-link<?= $isActiveRoute('dashboard') ?>" href="./dashboard"<?= $route === 'dashboard' ? ' aria-current="page"' : '' ?>><i class="ti ti-home"></i><span>Dashboard</span></a>
         <a class="nav-link<?= $isActiveRoute('vault') ?>" href="./vault"<?= $route === 'vault' ? ' aria-current="page"' : '' ?>><i class="ti ti-key"></i><span>Vault</span></a>
         <a class="nav-link<?= $isActiveRoute('notes') ?>" href="./notes"<?= $route === 'notes' ? ' aria-current="page"' : '' ?>><i class="ti ti-notes"></i><span>Notes</span></a>
@@ -20,7 +19,7 @@ $isActiveRoute = static fn (string $r): string => $route === $r ? ' active' : ''
     <nav class="sidebar-nav sidebar-bottom" aria-label="Account navigation">
         <hr class="nav-separator">
         <a class="nav-link" href="#settings"><i class="ti ti-settings"></i><span>Settings</span></a>
-        <a class="nav-link" href="./logout"><i class="ti ti-logout"></i><span>Log Out</span></a>
+        <a class="nav-link" href="./logout"><i class="ti ti-logout"></i><span>Logout</span></a>
     </nav>
     <div class="sidebar-illustration"><img src="./assets/images/squirrel.gif" alt="Squir mascot"></div>
 </aside>

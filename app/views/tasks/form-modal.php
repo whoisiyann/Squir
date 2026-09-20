@@ -1,4 +1,5 @@
 
+<!-- Task creation and edit form -->
 <div class="task-modal-backdrop" id="taskFormBackdrop" aria-hidden="true">
     <div class="task-modal" role="dialog" aria-modal="true" aria-labelledby="taskFormTitle">
         <button type="button" class="task-modal-close" data-task-close aria-label="Close"><i class="ti ti-x"></i></button>

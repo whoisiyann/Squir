@@ -3,10 +3,12 @@ require_once __DIR__ . '/../models/User.php';
 
 class AuthController
 {
+	// Initialize authentication service
 	public function __construct(private User $user)
 	{
 	}
 
+	// Handle user registration
 	public function register(array $input): array
 	{
 		$fullName = trim((string) ($input['full_name'] ?? ''));
@@ -80,6 +82,7 @@ class AuthController
 		return ['errors' => [], 'values' => [], 'user_id' => $userId];
 	}
 
+	// Handle user login
 	public function login(array $input): array
 	{
 		$email = strtolower(trim((string) ($input['email'] ?? '')));
@@ -116,6 +119,7 @@ class AuthController
 		return ['errors' => [], 'values' => $user];
 	}
 
+	// Generate an available username
 	private function createUsernameFromName(string $fullName): string
 	{
 		$base = strtolower(trim((string) preg_replace('/[^A-Za-z0-9]+/', '-', $fullName), '-'));

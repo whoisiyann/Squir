@@ -1,14 +1,14 @@
 <?php
 /**
- * Notes "Manage folders" popup: folder list + New folder, Rename Folder dialog, Delete confirm dialog.
+ * Notes folder management dialog.
  *
- * @var array  $data         (NoteController::index) -> $data['folderCounts'] = folder_id, folder_name, note_count
- * @var int    $totalNotes   bilang ng lahat ng notes ng user (para sa "All")
+ * @var array  $data         folder counts from NoteController::index
+ * @var int    $totalNotes   total notes for the user
  * @var string $csrfToken
  */
 $nfEsc = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 ?>
-<!-- ===== Folders panel ===== -->
+ <!-- Folders panel -->
 <div class="nf-backdrop" id="nfPanelBackdrop" aria-hidden="true">
     <div class="nf-panel" role="dialog" aria-modal="true" aria-labelledby="nfPanelTitle">
         <div class="nf-panel-header">
@@ -45,7 +45,7 @@ $nfEsc = static fn (?string $value): string => htmlspecialchars((string) $value,
     </div>
 </div>
 
-<!-- ===== Rename / New folder dialog ===== -->
+ <!-- Rename or create folder dialog -->
 <div class="sqd-dialog-backdrop" id="nfNameBackdrop" aria-hidden="true">
     <div class="sqd-dialog" role="dialog" aria-modal="true" aria-labelledby="nfNameTitle">
         <div class="sqd-dialog-header">
@@ -62,7 +62,7 @@ $nfEsc = static fn (?string $value): string => htmlspecialchars((string) $value,
     </div>
 </div>
 
-<!-- ===== Delete confirm dialog ===== -->
+ <!-- Delete confirmation dialog -->
 <div class="sqd-dialog-backdrop" id="nfDeleteBackdrop" aria-hidden="true">
     <div class="sqd-dialog sqd-dialog-center" role="alertdialog" aria-modal="true" aria-labelledby="nfDeleteTitle" aria-describedby="nfDeleteText">
         <i class="ti ti-trash sqd-delete-icon" aria-hidden="true"></i>

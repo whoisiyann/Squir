@@ -12,6 +12,7 @@ $pinController = new PinController(new UserPin($dbh));
 $csrfToken = csrfToken();
 
 // ---- AJAX: i-check ang PIN bago payagan ang reveal/copy ----
+// Verify the vault PIN
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_pin') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_
 }
 
 // ---- AJAX: ibalik ang decrypted password para sa eye/copy button ----
+// Reveal a vault password
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     header('Content-Type: application/json');
     if (!csrfValid($_GET['token'] ?? null)) {
@@ -60,6 +62,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
 }
 
 // ---- AJAX: i-toggle ang favorite ng isang vault item mula mismo sa listahan ----
+// Toggle vault favorite
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -83,18 +86,20 @@ unset($_SESSION['vault_flash_success']);
 $openModal = null;
 
 
+// Validate a safe return URL
 function vaultSafeReturnTo(?string $value): string
 {
     $default = './vault';
     if (!is_string($value) || $value === '') {
         return $default;
     }
-    if (preg_match('~^\./(vault|folders)(\?[A-Za-z0-9=&%._\-]*)?$~', $value)) {
+    if (preg_match('~^\./(vault|folders|dashboard)(\?[A-Za-z0-9=&%._\-]*)?$~', $value)) {
         return $value;
     }
     return $default;
 }
 
+// Process vault form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $returnTo = vaultSafeReturnTo($_POST['return_to'] ?? null);
 

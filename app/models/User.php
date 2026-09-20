@@ -1,13 +1,14 @@
-<!-- models/User.php -->
 
 <?php
 
 class User
 {
+	// Initialize user data access
 	public function __construct(private PDO $db)
 	{
 	}
 
+	// Check username availability
 	public function usernameExists(string $username): bool
 	{
 		$statement = $this->db->prepare('SELECT user_id FROM users WHERE username = :username LIMIT 1');
@@ -16,6 +17,7 @@ class User
 		return (bool) $statement->fetch();
 	}
 
+	// Check email availability
 	public function emailExists(string $email): bool
 	{
 		$statement = $this->db->prepare('SELECT user_id FROM users WHERE email = :email LIMIT 1');
@@ -24,6 +26,7 @@ class User
 		return (bool) $statement->fetch();
 	}
 
+	// Fetch a user by email
 	public function findByEmail(string $email): ?array
 	{
 		$statement = $this->db->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
@@ -33,6 +36,7 @@ class User
 		return $user ?: null;
 	}
 
+	// Create a user record
 	public function create(string $fullName, string $username, string $email, string $passwordHash): int
 	{
 		$statement = $this->db->prepare(

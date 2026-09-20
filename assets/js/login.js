@@ -1,4 +1,3 @@
-// assets/js/login.js
 
 document.querySelectorAll('.toggle-password').forEach(function (button) {
     button.addEventListener('click', function () {

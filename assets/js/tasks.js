@@ -1,4 +1,5 @@
-// assets/js/tasks.js — Tasks Kanban board
+// Tasks board
+// Tasks board
 
 (function () {
     'use strict';
@@ -122,6 +123,7 @@
 
     /* =============== Server =============== */
 
+    // Send a task request
     function api(action, data) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -146,6 +148,7 @@
     }
 
 
+    // Apply the refreshed task board
     function applyServer(result) {
         if (result && Array.isArray(result.tasks)) tasks = result.tasks;
 
@@ -176,6 +179,7 @@
     }
 
     /* =============== Confirm (=============== */
+/* Confirmation dialog */
 
     function confirmAction(message, action) {
         if (window.SquirDialogs && window.SquirDialogs.confirmDelete) {
@@ -189,6 +193,7 @@
 
     /* =============== Board rendering =============== */
 
+    // Render the task board
     function render() {
         closeMenu();
         board.textContent = '';
@@ -199,6 +204,7 @@
         });
     }
 
+    // Build a task column
     function buildColumn(status, items) {
         var column = h('section', 'task-column');
         column.setAttribute('data-status', status.key);
@@ -249,6 +255,7 @@
         return column;
     }
 
+    // Build a task card
     function buildCard(task) {
         var done = task.status === 'done';
         var card = h('div', 'task-card' + (done ? ' is-done' : ''));
@@ -405,6 +412,7 @@
     }
 
 
+    // Handle task drop placement
     function dropTask(id, statusKey, spot) {
         var task = findTask(id);
         if (!task) return;
@@ -448,6 +456,7 @@
 
     /* =============== Actions =============== */
 
+    // Move a task to another status
     function moveTask(id, status) {
         var task = findTask(id);
         if (!task || task.status === status) return;
@@ -458,6 +467,7 @@
         }).catch(function (error) { toast(error.message); });
     }
 
+    // Move all tasks between statuses
     function moveAll(from, to) {
         var count = columnTasks(from).length;
         if (count === 0) return;
@@ -469,6 +479,7 @@
         }).catch(function (error) { toast(error.message); });
     }
 
+    // Duplicate a task
     function duplicateTask(id) {
         api('duplicate', { task_id: id }).then(function (result) {
             applyServer(result);
@@ -477,6 +488,7 @@
         }).catch(function (error) { toast(error.message); });
     }
 
+    // Confirm task deletion
     function confirmDeleteTask(task) {
         confirmAction('Delete \u201c' + task.title + '\u201d? This can\u2019t be undone.', function () {
             return api('delete', { task_id: task.task_id }).then(function (result) {
@@ -487,6 +499,7 @@
         });
     }
 
+    // Confirm clearing a task column
     function confirmClearColumn(status) {
         var count = columnTasks(status.key).length;
         if (count === 0) return;
@@ -501,7 +514,8 @@
         });
     }
 
-    /* =============== Menus (⋮⋮ sa card, ⋯ sa column) =============== */
+    /* Task and column menus */
+/* Task and column menus */
 
     var menu = null;
     var sub = null;
@@ -877,7 +891,8 @@
         for (var i = 0; i < closers.length; i++) closers[i].addEventListener('click', modal.close);
     });
 
-    // capture phase: para hindi sabay na magsara ang modal sa likod kapag Esc sa delete confirm
+    // Close only the active dialog on Escape
+    // Close only the active dialog on Escape
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
         if (menu) { closeMenu(); return; }
@@ -897,4 +912,28 @@
     }
 
     render();
+
+    /* =============== Deep links from the dashboard =============== */
+    // ./tasks?new=1   -> open "Create New Task" right away
+    // ./tasks?task=ID -> open that task's details
+    // Open task dialogs from dashboard links
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        var wantsNew = params.get('new') === '1';
+        var openId = parseInt(params.get('task'), 10);
+
+        if (wantsNew) {
+            openForm(null, 'todo');
+        } else if (openId > 0) {
+            var linked = findTask(openId);
+            if (linked) openView(linked);
+        }
+
+        if (wantsNew || params.has('task')) {
+            params.delete('new');
+            params.delete('task');
+            var query = params.toString();
+            window.history.replaceState({}, '', window.location.pathname + (query ? '?' + query : ''));
+        }
+    })();
 })();

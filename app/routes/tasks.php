@@ -7,6 +7,7 @@ $userId = requireLogin();
 $controller = new TaskController(new Task($dbh));
 $csrfToken = csrfToken();
 
+// Send a task JSON response
 function tasksRespond(array $payload, int $status = 200): void
 {
     http_response_code($status);
@@ -15,12 +16,14 @@ function tasksRespond(array $payload, int $status = 200): void
 }
 
 /** Successful response. */
+// Return the refreshed task board
 function tasksOk(TaskController $controller, int $userId, array $extra = []): void
 {
     tasksRespond($extra + ['tasks' => $controller->index($userId)]);
 }
 
 // ---- AJAX: lahat ng actions ng Kanban board (create, edit, drag, menus, etc.) ----
+// Process task actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
 
@@ -31,7 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $taskId = (int) ($_POST['task_id'] ?? 0);
 
     try {
+        // Dispatch the requested task action
         switch ($_POST['ajax'] ?? '') {
+            // Create a task
             case 'create':
                 $result = $controller->store($userId, $_POST);
                 if ($result['errors'] !== []) {
@@ -39,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId, ['task' => $result['task']]);
 
+            // Update a task
             case 'update':
                 $result = $controller->update($taskId, $userId, $_POST);
                 if (!empty($result['not_found'])) {
@@ -49,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId, ['task' => $result['task']]);
 
+            // Move a task
             case 'move':
                 $task = $controller->move($taskId, $userId, (string) ($_POST['status'] ?? ''));
                 if ($task === null) {
@@ -56,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId, ['task' => $task]);
 
+            // Reorder tasks
             case 'reorder':
                 $ok = $controller->reorder(
                     $taskId,
@@ -68,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId);
 
+            // Duplicate a task
             case 'duplicate':
                 $task = $controller->duplicate($taskId, $userId);
                 if ($task === null) {
@@ -75,12 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId, ['task' => $task]);
 
+            // Delete a task
             case 'delete':
                 if (!$controller->destroy($taskId, $userId)) {
                     tasksRespond(['error' => 'Task not found.'], 404);
                 }
                 tasksOk($controller, $userId);
 
+            // Move all tasks
             case 'move_all':
                 $moved = $controller->moveAll(
                     $userId,
@@ -89,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 tasksOk($controller, $userId, ['moved' => $moved]);
 
+            // Clear a task column
             case 'clear_all':
                 $cleared = $controller->clearAll($userId, (string) ($_POST['status'] ?? ''));
                 tasksOk($controller, $userId, ['cleared' => $cleared]);
@@ -102,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Load the task board
 $tasks = $controller->index($userId);
 
 $user = currentUserSummary($dbh, $userId);

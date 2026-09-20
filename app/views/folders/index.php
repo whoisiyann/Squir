@@ -134,7 +134,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
     </div>
 </div>
 
-<!-- ===== Create Folder modal ===== -->
+<!-- Create folder dialog -->
 <div class="folder-modal-backdrop" id="createFolderModalBackdrop">
     <div class="folder-modal" role="dialog" aria-modal="true" aria-labelledby="createFolderTitle">
         <div class="folder-modal-header">
@@ -177,7 +177,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
     </div>
 </div>
 
-<!-- ===== Color picker popover ===== -->
+<!-- Folder color picker -->
 <div class="folder-color-popover" id="folderColorPopover">
     <div class="folder-color-swatches">
         <?php foreach (Folder::COLORS as $color): ?>
@@ -192,7 +192,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
     window.FOLDERS_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
     window.FOLDERS_HAS_ERRORS = <?= json_encode(isset($errors) && $errors !== []) ?>;
 </script>
-<script src="./assets/js/dashboard.js?"></script>
+<script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
 <script src="./assets/js/folders.js?v=5"></script>
 </body>

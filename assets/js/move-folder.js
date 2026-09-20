@@ -11,6 +11,7 @@
     var options = Array.prototype.slice.call(backdrop.querySelectorAll('.move-option'));
     var currentFolderId = '';
 
+    // Open the move-to-folder dialog
     function openModal(itemId, title, folderId) {
         currentFolderId = folderId || '';
         idInput.value = itemId;
@@ -27,6 +28,7 @@
         backdrop.setAttribute('aria-hidden', 'false');
     }
 
+    // Close the move-to-folder dialog
     function closeModal() {
         backdrop.classList.remove('open');
         backdrop.setAttribute('aria-hidden', 'true');

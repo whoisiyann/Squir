@@ -1,4 +1,3 @@
-/* assets/css/vault.css */
 
 /* ---------- Toolbar (view toggle + search + tags + add) ---------- */
 .vault-toolbar {
@@ -121,7 +120,7 @@
   background: var(--soft);
 }
 
-/* highlight vault item na tumugma pag nag search vault -- */
+/* Search match highlight */
 .vault-table-wrap:not(.grid-view) .vault-table tbody tr,
 .vault-table-wrap.grid-view .vault-table tr {
   transition: background-color .5s ease;
@@ -131,7 +130,7 @@
   background-color: var(--accent-soft, rgba(128, 128, 128, 0.25)) !important;
 }
 
-/* "All Tags" pill filter (icon + native select + chevron) */
+/* Tag filter */
 .vault-tags-filter {
   position: relative;
   display: flex;
@@ -167,7 +166,7 @@
   min-width: 150px;
 }
 
-/* ---------- "Add Vault" button (moved into the toolbar) ---------- */
+/* Add vault button */
 .vault-toolbar .quick-add {
   flex: 0 0 auto;
   white-space: nowrap;
@@ -185,7 +184,7 @@
   -ms-overflow-style: none;  
 }
 
-/* Chrome, Safari, at ibang WebKit/Blink browsers */
+/* WebKit browsers */
 .vault-table-wrap::-webkit-scrollbar {
   display: none;
   width: 0;
@@ -471,7 +470,7 @@
   margin-top: 0; 
 }
 
-/* ---------- Info bar sa pinaka-ilalim ng Vault page ---------- */
+/* Vault info bar */
 .vault-pagination {
   display: flex;
   align-items: center;
@@ -561,7 +560,7 @@
   font-size: .8rem;
 }
 
-/* preview strip on the Edit Password modal (icon + title + website) */
+/* Edit modal preview */
 .vault-edit-preview {
   display: flex;
   align-items: center;
@@ -1035,7 +1034,7 @@
 }
 
 
-/* ---------- Tooltips (eye / copy / favorite / more, atbp.) ---------- */
+/* Tooltips */
 [data-tooltip] {
   position: relative;
 }
@@ -1073,7 +1072,7 @@
   visibility: visible;
 }
 
-/* ---------- Tag chips: nasa kanang-itaas ng card sa grid view ---------- */
+/* Grid tag chips */
 .vault-tag-chips {
   display: none;
   flex-wrap: wrap;

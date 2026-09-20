@@ -1,12 +1,12 @@
 <?php
 /**
- * Shared "Move to Folder" popup (Vault + Notes).
+ * Move-to-folder dialog shared by Vault and Notes.
  *
- * Expected variables:
+ * Variables:
  * @var array  $moveFolders   list of ['folder_id', 'folder_name', 'color']
- * @var string $moveAction    form action URL  (e.g. './vault' or './notes')
- * @var string $moveIdField   POST field name for the item id ('vault_id' | 'note_id')
- * @var string $moveReturnTo  (optional) where to redirect after moving
+ * @var string $moveAction    form action URL
+ * @var string $moveIdField   POST field name for the item ID
+ * @var string $moveReturnTo  redirect target after moving
  * @var string $csrfToken
  */
 $mfEsc = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');

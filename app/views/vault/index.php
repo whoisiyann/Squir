@@ -126,7 +126,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
     window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
     window.SQUIR_PIN_TTL    = <?= (int) ($pinUnlockSeconds ?? 0) ?>;
 </script>
-<script src="./assets/js/dashboard.js?v=2"></script>
+<script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/pin-gate.js"></script>
 <script src="./assets/js/vault.js?v=2"></script>
 <script src="./assets/js/move-folder.js"></script>

@@ -1,4 +1,3 @@
-// assets/js/notes.js
 
 (function () {
     function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
@@ -8,6 +7,7 @@
     var menuFavBtn = document.querySelector('.note-menu-favorite'); // editor's 3-dot Favorite item
 
 /* ---------- Search: debounce auto-submit (feels live, still a normal GET) ---------- */
+    /* Search debounce */
     (function () {
         var form = document.getElementById('notesSearchForm');
         var input = document.getElementById('notesSearchInput');
@@ -46,6 +46,7 @@
     })();
 
     /* ---------- Favorite star ---------- */
+    // Toggle a note favorite
     function toggleFavoriteRequest(noteId, csrfToken) {
         var body = new URLSearchParams();
         body.set('ajax', 'toggle_favorite');
@@ -144,6 +145,7 @@
     });
 
     /* ---------- 3-dot dropdown menus (list rows + detail header) ---------- */
+    // Close note menus
     function closeAllMenus() {
         $all('.note-menu-dropdown.open').forEach(function (menu) {
             menu.classList.remove('open');
@@ -264,6 +266,7 @@
             saveTimer = setTimeout(saveNow, 700);
         }
 
+        // Save the active note
         function saveNow() {
             clearTimeout(saveTimer);
             if (statusEl) statusEl.textContent = 'Saving…';
@@ -295,6 +298,7 @@
             });
         }
 
+        // Update the note list card
         function updateListCard(json) {
             if (!notesList) return;
             var card = notesList.querySelector('.note-card[data-note-id="' + noteId + '"]');

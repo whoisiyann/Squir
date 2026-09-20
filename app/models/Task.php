@@ -12,12 +12,14 @@ class Task
 
     private PDO $dbh;
 
+    // Initialize task data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
     }
 
 
+    // Fetch user tasks
     public function allForUser(int $userId): array
     {
 
@@ -36,6 +38,7 @@ class Task
         return array_map([$this, 'normalize'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
+    // Fetch a user task
     public function find(int $taskId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -47,7 +50,8 @@ class Task
         return $row ? $this->normalize($row) : null;
     }
 
-    /** @return array{0: array<string,string>, 1: array<string,mixed>} [errors, clean] */
+    /** Validate and normalize task input. */
+    // Validate and normalize task input
     public function validate(array $input): array
     {
         $errors = [];
@@ -95,6 +99,7 @@ class Task
     }
 
 
+    // Create a task
     public function create(int $userId, array $input): array
     {
         [$errors, $clean] = $this->validate($input);
@@ -127,6 +132,7 @@ class Task
     }
 
 
+    // Update a task
     public function update(int $taskId, int $userId, array $input): array
     {
         $before = $this->find($taskId, $userId);
@@ -173,7 +179,8 @@ class Task
         return ['errors' => [], 'task' => $this->find($taskId, $userId)];
     }
 
-    /** "Mark task as >" — ilipat sa ibang column, auto-place sa tamang pwesto. */
+    /** Move a task to another status. */
+    // Update task status
     public function setStatus(int $taskId, int $userId, string $status): ?array
     {
         $before = $this->find($taskId, $userId);
@@ -193,6 +200,7 @@ class Task
     }
 
 
+    // Reorder tasks in a status
     public function reorder(int $taskId, int $userId, string $status, array $ids): bool
     {
         if (!in_array($status, self::STATUSES, true) || !$this->find($taskId, $userId)) {
@@ -230,6 +238,7 @@ class Task
         return true;
     }
 
+    // Duplicate a task
     public function duplicate(int $taskId, int $userId): ?array
     {
         $original = $this->find($taskId, $userId);
@@ -270,6 +279,7 @@ class Task
         return $this->find($newId, $userId);
     }
 
+    // Delete a task
     public function delete(int $taskId, int $userId): bool
     {
         $stmt = $this->dbh->prepare('DELETE FROM tasks WHERE task_id = :id AND user_id = :uid');
@@ -278,6 +288,7 @@ class Task
         return $stmt->rowCount() > 0;
     }
 
+    // Move all tasks between statuses
     public function moveAll(int $userId, string $from, string $to): int
     {
         if ($from === $to || !in_array($from, self::STATUSES, true) || !in_array($to, self::STATUSES, true)) {
@@ -315,7 +326,8 @@ class Task
         });
     }
 
-    /** "Clear all" — burahin lahat ng task sa isang column. */
+    /** Clear tasks in a status. */
+    // Clear tasks in a status
     public function clearAll(int $userId, string $status): int
     {
         if (!in_array($status, self::STATUSES, true)) {
@@ -330,6 +342,7 @@ class Task
 
     /* ===================== ordering helpers ===================== */
 
+    // Apply a task status
     private function applyStatus(int $taskId, int $userId, string $status): void
     {
         $stmt = $this->dbh->prepare(
@@ -347,6 +360,7 @@ class Task
     }
 
 
+    // Compare automatic task ordering
     private function compareAuto(array $a, array $b): int
     {
         $byPriority = self::PRIORITY_RANK[$a['priority']] <=> self::PRIORITY_RANK[$b['priority']];
@@ -370,6 +384,7 @@ class Task
     }
 
 
+    // Insert a task into sorted rows
     private function insertSorted(array $rows, array $task): array
     {
         $rows = array_values($rows);
@@ -388,6 +403,7 @@ class Task
     }
 
 
+    // Place a task automatically
     private function placeAuto(int $userId, int $taskId): void
     {
         $task = $this->find($taskId, $userId);
@@ -401,6 +417,7 @@ class Task
     }
 
 
+    // Load tasks in a status column
     private function columnRows(int $userId, string $status, ?int $excludeId = null): array
     {
         $sql = 'SELECT task_id, priority, due_date, position, created_at
@@ -433,6 +450,7 @@ class Task
     }
 
   
+    // Persist task positions
     private function writePositions(int $userId, array $ids): void
     {
         $stmt = $this->dbh->prepare('UPDATE tasks SET position = :pos WHERE task_id = :id AND user_id = :uid');
@@ -443,6 +461,7 @@ class Task
     }
 
     /** @template T @param callable():T $callback @return T */
+    // Run a database transaction
     private function transactional(callable $callback)
     {
         $this->dbh->beginTransaction();
@@ -460,6 +479,7 @@ class Task
         }
     }
 
+    // Normalize a task row
     private function normalize(array $row): array
     {
         return [

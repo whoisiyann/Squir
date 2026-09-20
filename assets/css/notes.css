@@ -1,4 +1,3 @@
-/* assets/css/notes.css */
 
 .notes-content-area {
   overflow: hidden;
@@ -12,7 +11,7 @@
   min-height: 0;
 }
 
-/* ---------- List panel ---------- */
+/* List panel */
 .notes-list-panel {
   display: flex;
   flex-direction: column;
@@ -145,7 +144,7 @@
 
 .notes-list::-webkit-scrollbar { display: none; }
 
-/* ---------- Note card (list item) ----------*/
+/* Note cards */
 .note-card {
   position: relative;
   border: 1px solid var(--border);
@@ -273,7 +272,7 @@
   padding: 50px 10px;
 }
 
-/* ---------- 3-dot menu (shared: list rows + detail header) ---------- */
+/* Note menus */
 .note-menu {
   position: relative;
   display: flex;
@@ -297,7 +296,7 @@
   font-size: 1rem;
 }
 
-/* Detail panel header keeps its original inline spacing */
+/* Detail header spacing */
 .note-editor-actions .note-menu {
   flex: 0 0 auto;
   padding: 10px 8px 0 0;
@@ -352,7 +351,7 @@
   }
 }
 
-/* ---- Move to folder: drill-down submenu  ---- */
+/* Move-to-folder submenu */
 .note-menu-dropdown .note-menu-folders {
   display: none;
   max-height: 260px;
@@ -402,7 +401,7 @@
   }
 }
 
-/* ---------- Detail / editor panel ---------- */
+/* Detail editor */
 .note-detail-panel {
   min-height: 0;
   overflow: hidden; 
@@ -415,7 +414,7 @@
   padding: 26px 32px 0;    
 }
 
-/* ---- "No note selected" empty state ---- */
+/* Empty state */
 .note-detail-empty {
   display: flex;
   flex-direction: column;
@@ -800,12 +799,12 @@
     min-height: 0;
   }
 
-  /* Default (no note open): show the list, hide the detail panel */
+  /* Default note view */
   .note-detail-panel {
     display: none;
   }
 
-  /* A note is open: hide the list, show the detail panel full-screen */
+  /* Active note view */
   body.notes-detail-active .notes-list-panel {
     display: none;
   }

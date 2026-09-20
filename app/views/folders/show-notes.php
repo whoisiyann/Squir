@@ -105,6 +105,6 @@ $notesTotal = (int) $notesData['total'];
     </div>
 </div>
 
-<script src="./assets/js/dashboard.js?v=2"></script>
+<script src="./assets/js/dashboard.js?v=3"></script>
 </body>
 </html>

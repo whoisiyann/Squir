@@ -4,6 +4,7 @@ class Note
 {
     private PDO $dbh;
 
+    // Initialize note data access
     public function __construct(PDO $dbh)
     {   
         $this->dbh = $dbh;
@@ -11,7 +12,8 @@ class Note
 
     /* ================= QUERIES ================= */
 
-public function searchForUser(int $userId, ?int $folderId = null, string $search = ''): array
+    // Search user notes
+    public function searchForUser(int $userId, ?int $folderId = null, string $search = ''): array
 {
     $conditions = ['n.user_id = :uid'];
     $params = ['uid' => $userId];
@@ -40,6 +42,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+    // Fetch a user note
     public function find(int $noteId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -53,6 +56,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
         return $row ?: null;
     }
 
+    // Count user notes
     public function countForUser(int $userId): int
     {
         $stmt = $this->dbh->prepare('SELECT COUNT(*) FROM notes WHERE user_id = :uid');
@@ -60,6 +64,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
         return (int) $stmt->fetchColumn();
     }
 
+    // Count notes by folder
     public function folderCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -76,6 +81,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
 
     /* ================= MUTATIONS ================= */
 
+    // Create a note
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data);
@@ -97,6 +103,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
         return ['errors' => [], 'note_id' => (int) $this->dbh->lastInsertId()];
     }
 
+    // Update a note
     public function update(int $noteId, int $userId, array $data): array
     {
         $errors = $this->validate($data);
@@ -119,6 +126,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
         return ['errors' => []];
     }
 
+    // Delete a note
     public function delete(int $noteId, int $userId): bool
     {
         $stmt = $this->dbh->prepare('DELETE FROM notes WHERE note_id = :id AND user_id = :uid');
@@ -126,6 +134,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
     }
 
 
+    // Move a note to a folder
     public function moveToFolder(int $noteId, int $userId, ?int $folderId): bool
     {
         if ($folderId !== null) {
@@ -148,6 +157,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
         ]);
     }
 
+    // Duplicate a note
     public function duplicate(int $noteId, int $userId): ?int
     {
         $original = $this->find($noteId, $userId);
@@ -174,6 +184,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
     /* ================= HELPERS ================= */
 
     /** Plain-text preview for the list card (strips HTML tags, collapses whitespace). */
+    // Build a plain-text excerpt
     public static function excerptOf(?string $htmlContent, int $length = 90): string
     {
         $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) $htmlContent)));
@@ -184,6 +195,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
     }
 
 
+    // Provide a fallback note title
     public static function titleOrDefault(?string $title): string
     {
         $title = trim((string) $title);
@@ -191,6 +203,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
     }
 
 
+    // Resolve a notes folder ID
     private function resolveNotesFolderId($raw, int $userId): ?int
     {
         $folderId = (int) $raw;
@@ -206,6 +219,7 @@ public function searchForUser(int $userId, ?int $folderId = null, string $search
         return $stmt->fetchColumn() ? $folderId : null;
     }
 
+    // Validate note data
     private function validate(array $data): array
     {
         $errors = [];

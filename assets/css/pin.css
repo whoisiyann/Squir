@@ -1,6 +1,6 @@
-/* assets/css/pin.css — Create Your PIN page. */
+/* PIN creation page */
 
-/* ---------- Left panel: buong laki ang mascot artwork ---------- */
+/* Mascot panel */
 .pin-page .auth-visual {
     flex: 0 0 40%;
     align-items: stretch;
@@ -18,7 +18,7 @@
     object-fit: contain;
 }
 
-/* ---------- Right panel ---------- */
+/* Form panel */
 .pin-page .auth-form {
     padding: 44px 56px;
     text-align: center;
@@ -71,7 +71,7 @@
     line-height: 1.55;
 }
 
-/* ---------- PIN boxes ---------- */
+/* PIN fields */
 .pin-inputs {
     display: flex;
     justify-content: center;
@@ -122,7 +122,7 @@
     .pin-inputs.shake { animation: none; }
 }
 
-/* ---------- Hint / error line ---------- */
+/* Hint and error text */
 .pin-hint {
     min-height: 20px;
     margin: 0 0 14px;
@@ -134,7 +134,7 @@
     color: #B3261E;
 }
 
-/* ---------- Continue button ---------- */
+/* Continue button */
 .pin-submit {
     border-radius: 12px;
     padding: 15px;
@@ -151,7 +151,7 @@
     background: var(--squir-brown-dark);
 }
 
-/* ---------- Footer note ---------- */
+/* Footer note */
 .pin-note {
     display: flex;
     align-items: center;
@@ -166,7 +166,7 @@
     font-size: .95rem;
 }
 
-/* ---------- Responsive ---------- */
+/* Responsive layout */
 @media (max-width: 767px) {
     .pin-page .auth-form {
         padding: 36px 26px;

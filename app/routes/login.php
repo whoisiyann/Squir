@@ -9,6 +9,7 @@ unset($_SESSION['flash_success']);
 
 $csrfToken = csrfToken();
 
+// Process login submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -30,4 +31,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Render the login form
 require __DIR__ . '/../views/auth/login.php';

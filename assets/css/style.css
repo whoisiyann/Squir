@@ -1,4 +1,3 @@
-/* assets/css/style.css */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
@@ -23,6 +22,18 @@
   --topbar-h: 74px;
   --content-gutter: 32px;
   --highlight-color: #fbff00;
+
+  /* dashboard + header accents */
+  --peach: #fbe9dc;
+  --sky: #e7f1f8;
+  --mint: #e8f1dc;
+  --chip-blue: #2f8fd0;
+  --chip-blue-bg: #e6f2fa;
+  --danger: #d0312d;
+  --warn: #9a7d0a;
+  --toggle: #f28c28;
+  --wc-btn: #436f8c;
+  --card-shadow: 0 1px 3px rgba(60, 40, 20, .10);
 }
 
 body.dashboard-dark,
@@ -44,6 +55,16 @@ html.dashboard-dark-preload {
   --backdrop: rgba(0,0,0,.58);
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   --highlight-color: #8f6b00;
+  --peach: #2d2217;
+  --sky: #16232c;
+  --mint: #1b2718;
+  --chip-blue: #6cb8ee;
+  --chip-blue-bg: #15242e;
+  --danger: #ff7b72;
+  --warn: #e3b341;
+  --toggle: #ff9800;
+  --wc-btn: #4f86a8;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, .5);
 }
 
 * {
@@ -115,7 +136,7 @@ button, input {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--text);
+  color: var(--accent);
   font-size: 1.3rem;
   font-weight: 700;
   text-decoration: none;
@@ -140,10 +161,20 @@ button, input {
   cursor: pointer;
 }
 
+/* hamburger: plain icon, no box */
+.sidebar-collapse-btn {
+  border: 0;
+  background: transparent;
+}
+
+.sidebar-collapse-btn i {
+  font-size: 1.6rem;
+}
+
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 6px;
 }
 
 .nav-caption {
@@ -164,18 +195,19 @@ button, input {
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 11px 13px;
+  gap: 22px;
+  padding: 10px 16px;
   border-radius: 12px;
-  color: var(--muted);
-  font-size: .9rem;
-  font-weight: 500;
+  color: var(--text);
+  font-size: .88rem;
+  font-weight: 600;
   text-decoration: none;
 }
 
 .nav-link i {
-  width: 19px;
-  font-size: 1.05rem;
+  width: 24px;
+  color: var(--accent);
+  font-size: 1.45rem;
   text-align: center;
 }
 
@@ -251,7 +283,7 @@ button, input {
   max-width: 420px;
 }
 
-.search-box i {
+.search-box > i {
   position: absolute;
   top: 50%;
   left: 14px;
@@ -263,10 +295,11 @@ button, input {
   width: 100%;
   padding: 10px 14px 10px 40px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   outline: 0;
   color: var(--text);
   background: var(--input-bg);
+  font-size: .82rem;
 }
 
 .search-box input:focus {
@@ -296,6 +329,10 @@ button, input {
   }
 }
 
+.theme-toggle i {
+  font-size: 1.4rem;
+}
+
 .notification-dot {
   position: absolute;
   top: 8px;
@@ -310,8 +347,14 @@ button, input {
   display: flex;
   align-items: center;
   gap: 9px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-family: inherit;
   font-size: .85rem;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .profile i {
@@ -321,12 +364,13 @@ button, input {
 .avatar {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   color: var(--accent);
-  background: var(--soft);
-  font-size: .8rem;
+  background: var(--peach);
+  font-size: .85rem;
+  font-weight: 600;
 }
 
 /* ===== Collapsed sidebar state (desktop) - toggled via .sidebar-collapsed on #appShell ===== */
@@ -466,7 +510,7 @@ button, input {
     padding: 8px 10px 8px 34px;
     font-size: .82rem;
   }
-  .search-box i {
+  .search-box > i {
     left: 10px;
     font-size: .85rem;
   }
@@ -477,4 +521,147 @@ button, input {
     width: 30px;
     height: 30px;
   }
+}
+
+/* ===== Header: profile focus ring ===== */
+.profile:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ===== Header: profile dropdown ===== */
+.profile-menu {
+  position: relative;
+}
+
+.profile-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 40;
+  min-width: 210px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.profile-menu.open .profile-dropdown {
+  display: block;
+}
+
+.profile-dropdown-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-dropdown-head strong {
+  font-size: .85rem;
+}
+
+.profile-dropdown-head small {
+  color: var(--muted);
+  font-size: .75rem;
+}
+
+.profile-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: .85rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.profile-dropdown a:hover {
+  background: var(--soft);
+}
+
+.profile-dropdown a i {
+  color: var(--muted);
+}
+
+/* ===== Header: global search results ===== */
+.search-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  z-index: 40;
+  max-height: 60vh;
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.search-results.open {
+  display: block;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.search-result:hover,
+.search-result.active {
+  background: var(--soft);
+}
+
+.search-result-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--peach);
+}
+
+.search-result-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.search-result-text strong,
+.search-result-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-text strong {
+  font-size: .82rem;
+}
+
+.search-result-text small {
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.search-empty {
+  padding: 14px 10px;
+  color: var(--muted);
+  font-size: .82rem;
+  text-align: center;
 }

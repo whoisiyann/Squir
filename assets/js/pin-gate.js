@@ -1,4 +1,3 @@
-// assets/js/pin-gate.js
 
 window.SquirPin = (function () {
     var backdrop = document.getElementById('pinModalBackdrop');
@@ -56,6 +55,7 @@ window.SquirPin = (function () {
         modal.classList.toggle('is-busy', state);
     }
 
+    // Open the PIN verification dialog
     function open(reason) {
         errorEl.textContent = '';
         setBusy(false);
@@ -67,6 +67,7 @@ window.SquirPin = (function () {
         clearBoxes();
     }
 
+    // Close the PIN verification dialog
     function close() {
         backdrop.classList.remove('open');
         backdrop.setAttribute('aria-hidden', 'true');
@@ -82,6 +83,7 @@ window.SquirPin = (function () {
 
     /* ---------- Server check ---------- */
 
+    // Verify the entered PIN
     function sendPin(pin) {
         var body = new URLSearchParams();
         body.set('ajax', 'verify_pin');
@@ -97,6 +99,7 @@ window.SquirPin = (function () {
         });
     }
 
+    // Submit PIN verification
     function submitPin() {
         if (busy) return;
 

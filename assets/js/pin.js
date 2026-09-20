@@ -1,4 +1,6 @@
-// assets/js/pin.js — Create Your PIN page (create + confirm)
+// PIN creation
+// PIN creation
+// Pending PIN confirmation
 
 (function () {
     var form = document.getElementById('pinSetupForm');
@@ -14,7 +16,7 @@
     var hint = document.getElementById('pinHint');
 
     var length = window.SQUIR_PIN_LENGTH || boxes.length;
-    var firstPin = null; // naka-store habang kino-confirm
+    var firstPin = null; // Pending PIN confirmation
 
     var COPY = {
         create: {
@@ -27,6 +29,7 @@
         }
     };
 
+    // Switch PIN setup steps
     function applyStep(step) {
         titleEl.textContent = COPY[step].title;
         subtitleEl.innerHTML = COPY[step].subtitle;
@@ -36,6 +39,7 @@
         return boxes.map(function (box) { return box.value; }).join('');
     }
 
+    // Refresh PIN field state
     function refreshState() {
         boxes.forEach(function (box) {
             box.classList.toggle('filled', box.value !== '');
@@ -43,12 +47,14 @@
         submitBtn.disabled = currentValue().length !== length;
     }
 
+    // Clear PIN fields
     function clearBoxes(focus) {
         boxes.forEach(function (box) { box.value = ''; });
         refreshState();
         if (focus !== false) boxes[0].focus();
     }
 
+    // Display PIN validation feedback
     function setHint(message, isError) {
         hint.textContent = message || '';
         hint.classList.toggle('is-error', !!isError);
@@ -111,6 +117,7 @@
         }
 
         // Step 1: itago muna ang unang PIN at humingi ng confirmation.
+        // Request PIN confirmation
         if (firstPin === null) {
             event.preventDefault();
             firstPin = value;
@@ -121,6 +128,7 @@
         }
 
         // Step 2: dapat magkatugma.
+        // Compare PIN values
         if (value !== firstPin) {
             event.preventDefault();
             firstPin = null;

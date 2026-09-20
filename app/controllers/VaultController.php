@@ -5,12 +5,14 @@ class VaultController
     private Vault $vaultModel;
     private PDO $dbh;
 
+    // Initialize vault services
     public function __construct(Vault $vaultModel, PDO $dbh)
     {
         $this->vaultModel = $vaultModel;
         $this->dbh = $dbh;
     }
 
+    // Load user vault entries
     public function index(int $userId, array $query): array
     {
         $folderId = isset($query['folder']) && $query['folder'] !== '' ? (int) $query['folder'] : null;
@@ -40,6 +42,7 @@ class VaultController
         ];
     }
 
+    // Create a vault entry
     public function store(int $userId, array $post): array
     {
         $result = $this->vaultModel->create($userId, $this->extract($post));
@@ -51,6 +54,7 @@ class VaultController
         return $result;
     }
 
+    // Load a vault entry for editing
     public function edit(int $vaultId, int $userId): ?array
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -61,6 +65,7 @@ class VaultController
         return $item;
     }
 
+    // Update a vault entry
     public function update(int $vaultId, int $userId, array $post): array
     {
         $result = $this->vaultModel->update($vaultId, $userId, $this->extract($post));
@@ -76,11 +81,13 @@ class VaultController
         return $result;
     }
 
+    // Delete a vault entry
     public function destroy(int $vaultId, int $userId): bool
     {
         return $this->vaultModel->delete($vaultId, $userId);
     }
 
+    // Move a vault entry to a folder
     public function moveToFolder(int $vaultId, int $userId, $targetFolder): ?string
     {
         $folderId = ($targetFolder === null || $targetFolder === '') ? null : (int) $targetFolder;
@@ -103,6 +110,7 @@ class VaultController
         return (string) $stmt->fetchColumn();
     }
 
+    // Reveal a vault password
     public function revealPassword(int $vaultId, int $userId): ?string
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -111,6 +119,7 @@ class VaultController
         }
         return $this->vaultModel->decryptSecret($item['account_password']);
     }
+    // Toggle vault favorite state
     public function toggleFavorite(int $vaultId, int $userId): ?bool
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -127,6 +136,7 @@ class VaultController
         return true;
     }
 
+    // Extract vault input
     private function extract(array $post): array
     {
         return [
@@ -140,6 +150,7 @@ class VaultController
         ];
     }
 
+    // Load vault folders
     private function getFolders(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -149,13 +160,15 @@ class VaultController
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-      private function favoriteVaultIds(int $userId): array
+    // Fetch favorite vault IDs
+    private function favoriteVaultIds(int $userId): array
     {
         $stmt = $this->dbh->prepare('SELECT vault_id FROM favorites WHERE user_id = :uid AND vault_id IS NOT NULL');
         $stmt->execute(['uid' => $userId]);
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
+    // Check vault favorite state
     private function isFavorite(int $userId, int $vaultId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM favorites WHERE user_id = :uid AND vault_id = :vid');
@@ -163,6 +176,7 @@ class VaultController
         return (bool) $stmt->fetchColumn();
     }
 
+    // Mark a vault entry favorite
     private function markFavorite(int $userId, int $vaultId): void
     {
         $check = $this->dbh->prepare('SELECT favorite_id FROM favorites WHERE user_id = :uid AND vault_id = :vid');
@@ -175,6 +189,7 @@ class VaultController
         $stmt->execute(['uid' => $userId, 'vid' => $vaultId]);
     }
 
+    // Remove vault favorite
     private function unmarkFavorite(int $userId, int $vaultId): void
     {
         $stmt = $this->dbh->prepare('DELETE FROM favorites WHERE user_id = :uid AND vault_id = :vid');

@@ -41,6 +41,7 @@
     function show(el) { el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); }
     function hide(el) { el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); }
 
+    // Send a folder management request
     function request(params) {
         var body = new URLSearchParams();
         body.set('csrf_token', csrf);
@@ -64,6 +65,7 @@
     }
 
     /* ---------- selection ---------- */
+    // Select a notes folder
     function select(id) {
         selectedId = id;
         rows.forEach(function (row) {
@@ -87,6 +89,7 @@
     });
 
     /* ---------- panel open / close ---------- */
+    // Open the notes folder panel
     function openPanel() {
         select(rowFor(activeFolder) ? activeFolder : '');
         show(panel);
@@ -111,6 +114,7 @@
     });
 
     /* ---------- rename / new folder dialog ---------- */
+    // Open the folder name dialog
     function openNameDialog(mode, folderId, currentName) {
         nameMode = mode;
         nameTargetId = folderId;
@@ -129,6 +133,7 @@
 
     function closeNameDialog() { hide(nameDialog); }
 
+    // Submit a folder name change
     function submitName() {
         var name = nameInput.value.trim();
         if (name === '') {
@@ -181,7 +186,8 @@
         deleteConfirm.disabled = true;
 
         request({ ajax: 'folder_delete', folder_id: selectedId }).then(function () {
-            // kung ang binura ay ang naka-filter na folder, bumalik sa All notes
+            // Reset the filter when its folder is deleted
+            // Reset the filter when its folder is deleted
             reloadWithPanelOpen(selectedId === activeFolder ? './notes' : null);
         }).catch(function (error) {
             deleteError.textContent = error.message;

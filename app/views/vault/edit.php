@@ -1,6 +1,6 @@
-<!-- view/vault/edit.php -->
 
 <?php
+// Prepare vault edit form
 /** @var array $data */
 /** @var array $errors */
 /** @var string $csrfToken */

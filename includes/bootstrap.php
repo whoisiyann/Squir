@@ -1,5 +1,4 @@
 <?php
-// Squir/includes/bootstrap.php
 
 session_start();
 
@@ -93,13 +92,29 @@ function clearPinUnlock(): void
 }
 
 
+function userInitials(string $fullName): string
+{
+    $parts = preg_split('/\s+/', trim($fullName), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    if ($parts === []) {
+        return 'U';
+    }
+
+    $initials = mb_substr($parts[0], 0, 1);
+    if (count($parts) > 1) {
+        $initials .= mb_substr($parts[count($parts) - 1], 0, 1);
+    }
+
+    return mb_strtoupper($initials);
+}
+
+
 function currentUserSummary(PDO $dbh, int $userId): array
 {
     $stmt = $dbh->prepare('SELECT full_name, username FROM users WHERE user_id = :uid');
     $stmt->execute(['uid' => $userId]);
 
     $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['full_name' => 'User', 'username' => 'user'];
-    $user['initials'] = strtoupper(substr($user['full_name'], 0, 1));
+    $user['initials'] = userInitials($user['full_name']);
 
     return $user;
 }

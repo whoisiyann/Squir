@@ -34,6 +34,7 @@
         };
     }
 
+    // Sort folder cards
     function sortCards() {
         if (!grid || sortState < 0) return;
 
@@ -59,6 +60,7 @@
         isSorting = false;
     }
 
+    // Cycle folder sort order
     function advanceSort() {
         sortState = (sortState + 1) % sortLabels.length;
         try { window.localStorage.setItem(SORT_KEY, String(sortState)); } catch (error) {}
@@ -101,6 +103,7 @@
     var VIEW_KEY = 'squir-folder-view';
     var viewButtons = $all('.view-toggle-btn');
 
+    // Switch folder layout view
     function setView(view) {
         var isList = view === 'list';
         if (grid) grid.classList.toggle('list-view', isList);
@@ -152,6 +155,7 @@
         popover.style.top = (rect.bottom + 8) + 'px';
     }
 
+    // Save a folder color
     function updateFolderColor(folderId, color, iconBtn) {
         var body = new URLSearchParams();
         body.set('ajax', 'update_color');
@@ -221,6 +225,7 @@
     var openCreateBtn = document.getElementById('openCreateFolderModal');
     var createColorInput = document.getElementById('createFolderColor');
 
+    // Open the folder creation dialog
     function openCreateModal() { createBackdrop.classList.add('open'); }
     function closeCreateModal() { createBackdrop.classList.remove('open'); }
 
@@ -245,7 +250,23 @@
         openCreateModal();
     }
 
+    // ./folders?new=1 (from the dashboard "Add Something" menu) opens the popup right away
+    // Open the create dialog from a dashboard link
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('new') !== '1') return;
+
+        openCreateModal();
+        var nameInput = document.getElementById('folder_name');
+        if (nameInput) nameInput.focus();
+
+        params.delete('new');
+        var query = params.toString();
+        window.history.replaceState({}, '', window.location.pathname + (query ? '?' + query : ''));
+    })();
+
     /* ---------- Favorite toggle ---------- */
+    // Toggle a folder favorite
     function toggleFavorite(folderId) {
         var body = new URLSearchParams();
         body.set('ajax', 'toggle_favorite');
@@ -280,6 +301,7 @@
     });
 
     /* ---------- 3-dot menu ---------- */
+    // Close folder menus
     function closeAllMenus() {
         $all('.folder-menu-dropdown.open').forEach(function (menu) {
             menu.classList.remove('open');

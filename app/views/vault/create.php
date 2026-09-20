@@ -1,6 +1,6 @@
-<!-- view/vault/create.php -->
 
 <?php
+// Prepare vault creation form
 /** @var array $data */
 /** @var array $errors */
 /** @var string $csrfToken */

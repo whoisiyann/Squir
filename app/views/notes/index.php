@@ -50,7 +50,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
         <main class="content-area notes-content-area">
             <div class="notes-layout">
 
-                <!-- ===== LEFT: notes list ===== -->
+                <!-- Notes list -->
                 <section class="notes-list-panel" aria-label="Notes list">
                     <div class="notes-list-heading">
                         <div>
@@ -153,7 +153,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     <?php endif; ?>
                 </section>
 
-                <!-- ===== RIGHT: note detail / editor ===== -->
+                <!-- Note editor -->
                 <section class="note-detail-panel" aria-label="Note detail">
                     <?php if (!$activeNote): ?>
                         <div class="note-detail-empty">
@@ -253,8 +253,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                     <button type="button" data-cmd="createLink" data-tooltip="Insert link" aria-label="Insert link"><i class="ti ti-link"></i></button>
                                 </div>
                             <!--
-                                Content is stored as sanitized HTML (see NoteController::sanitizeContent),
-                                so it is safe to output raw here rather than htmlspecialchars-escaped.
+                                Sanitized note content
                             -->
                             <div class="note-content-editable<?= ($activeNote['content'] === null || trim(strip_tags($activeNote['content'])) === '') ? ' is-empty' : '' ?>" id="noteContentEditable" contenteditable="true" data-placeholder="Start typing…"><?= $activeNote['content'] !== null && $activeNote['content'] !== '' ? $activeNote['content'] : '<p></p>' ?></div>
                     <?php endif; ?>
@@ -275,7 +274,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
     window.NOTES_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
     window.NOTES_ACTIVE_FOLDER = <?= json_encode($data['activeFolder'] !== null ? (int) $data['activeFolder'] : '') ?>;
 </script>
-<script src="./assets/js/dashboard.js?v=2"></script>
+<script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/notes.js"></script>
 <script src="./assets/js/move-folder.js"></script>
 <script src="./assets/js/notes-folders.js"></script>

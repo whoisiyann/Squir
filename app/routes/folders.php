@@ -9,6 +9,7 @@ $controller = new FolderController($folderModel, $dbh);
 $csrfToken = csrfToken();
 
 
+// Update folder color
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_color') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -27,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_
 }
 
 // ---- AJAX: i-toggle ang favorite ng folder ----
+// Toggle folder favorite
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -45,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
 }
 
 // ---- AJAX: rename folder (inline, mula sa 3-dot menu) ----
+// Rename a folder
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'rename') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -67,6 +70,7 @@ $errors = [];
 // ---- Detail view ng folder ----
 $openFolderId = isset($_GET['folder']) && ctype_digit((string) $_GET['folder']) ? (int) $_GET['folder'] : null;
 
+// Load an open folder
 if ($openFolderId !== null) {
     $folder = $folderModel->find($openFolderId, $userId);
     if (!$folder) {
@@ -120,6 +124,7 @@ if ($openFolderId !== null) {
     exit;
 }
 
+// Process folder form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -146,6 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     }
 }
 
+// Load the folder list
 $data = $controller->index($userId, $_GET);
 
 $user = currentUserSummary($dbh, $userId);

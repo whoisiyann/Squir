@@ -1,6 +1,6 @@
 
 
-/* ---------- Backdrop ---------- */
+/* Backdrop */
 .nf-backdrop {
     display: none;
     position: fixed;
@@ -15,7 +15,7 @@
 
 .nf-backdrop.open { display: flex; }
 
-/* ---------- Folders panel ---------- */
+/* Folders panel */
 .nf-panel {
     display: flex;
     flex-direction: column;
@@ -174,7 +174,7 @@
     .nf-new:hover { background: var(--soft); }
 }
 
-/* ---------- Mobile ---------- */
+/* Mobile layout */
 @media (max-width: 480px) {
     .nf-panel { padding: 18px 16px 18px; border-radius: 20px; }
 }

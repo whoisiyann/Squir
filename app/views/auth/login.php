@@ -1,6 +1,6 @@
-<!-- view/auth/login.php -->
 
 <?php
+// Prepare login form data
 $errors = $errors ?? [];
 $values = $values ?? ['email' => ''];
 $success = $success ?? null;

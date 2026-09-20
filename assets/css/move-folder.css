@@ -27,7 +27,7 @@
     box-shadow: var(--shadow);
 }
 
-/* ---------- Header ---------- */
+/* Header */
 .move-modal-header {
     display: flex;
     align-items: flex-start;
@@ -91,7 +91,7 @@
     }
 }
 
-/* ---------- Folder options ---------- */
+/* Folder options */
 .move-modal-list {
     display: flex;
     flex-direction: column;
@@ -178,7 +178,7 @@
     display: grid;
 }
 
-/* ---------- Mobile ---------- */
+/* Mobile layout */
 @media (max-width: 480px) {
     .move-modal {
         padding: 18px 16px 16px;

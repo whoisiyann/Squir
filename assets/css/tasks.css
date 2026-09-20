@@ -1,4 +1,4 @@
-/* assets/css/tasks.css — Tasks Kanban board */
+/* Tasks board */
 
 /* ---------- Tokens (light) ---------- */
 :root {
@@ -12,7 +12,7 @@
   --task-done-fg: #2b8a37;
   --task-done-dot: #3f9a48;
 
-  /* priority badge sa card */
+  /* Card priority badge */
   --pri-high-bg: #f4a1a1;
   --pri-high-fg: #8f1d1d;
   --pri-medium-bg: #efe0a3;
@@ -20,7 +20,7 @@
   --pri-low-bg: #b5e0aa;
   --pri-low-fg: #266b2c;
 
-  /* priority chip sa View Task modal */
+  /* Modal priority chip */
   --chip-high-bg: #ffe4e4;
   --chip-high-fg: #e5252a;
   --chip-medium-bg: #fff2c9;
@@ -327,7 +327,7 @@ html.dashboard-dark-preload {
 .priority-medium { background: var(--pri-medium-bg); color: var(--pri-medium-fg); }
 .priority-low    { background: var(--pri-low-bg);    color: var(--pri-low-fg); }
 
-/* 6-dot grip — lalabas kapag naka-hover sa card; click = task menu */
+/* Task menu grip */
 .task-grip {
   position: absolute;
   top: 50%;
@@ -359,7 +359,7 @@ html.dashboard-dark-preload {
   color: var(--text);
 }
 
-/* Touch / maliit na screen: walang hover, kaya laging visible at nasa loob ng card */
+/* Touch layout */
 @media (hover: none), (max-width: 900px) {
   .task-grip {
     position: static;

@@ -67,6 +67,7 @@
         return del;
     }
 
+    // Show a delete confirmation dialog
     function confirmDelete(options) {
         options = options || {};
         var ui = getDeleteUi();
@@ -148,6 +149,7 @@
         return nm;
     }
 
+    // Show a name input dialog
     function promptName(options) {
         options = options || {};
         var ui = getNameUi();
@@ -164,6 +166,8 @@
     }
 
     /* =============== forms na may data-confirm-delete =============== */
+    /* Delete confirmation forms */
+    // Handle protected delete forms
     document.addEventListener('submit', function (event) {
         var form = event.target;
         if (!form || !form.matches || !form.matches('form[data-confirm-delete]')) return;
@@ -176,6 +180,7 @@
     });
 
     /* =============== Esc =============== */
+    /* Escape key handling */
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
         if (del && del.backdrop.classList.contains('open')) { hide(del.backdrop); return; }
