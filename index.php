@@ -1,5 +1,4 @@
 <?php
-// Squir/index.php
 
 require_once __DIR__ . '/includes/bootstrap.php';
 
@@ -35,6 +34,10 @@ switch ($route) {
 
     case 'notes':
         require __DIR__ . '/app/routes/notes.php';
+        break;
+
+    case 'tasks':
+        require __DIR__ . '/app/routes/tasks.php';
         break;
 
     case 'folders':

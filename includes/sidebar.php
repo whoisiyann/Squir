@@ -13,7 +13,7 @@ $isActiveRoute = static fn (string $r): string => $route === $r ? ' active' : ''
         <a class="nav-link<?= $isActiveRoute('dashboard') ?>" href="./dashboard"<?= $route === 'dashboard' ? ' aria-current="page"' : '' ?>><i class="ti ti-home"></i><span>Dashboard</span></a>
         <a class="nav-link<?= $isActiveRoute('vault') ?>" href="./vault"<?= $route === 'vault' ? ' aria-current="page"' : '' ?>><i class="ti ti-key"></i><span>Vault</span></a>
         <a class="nav-link<?= $isActiveRoute('notes') ?>" href="./notes"<?= $route === 'notes' ? ' aria-current="page"' : '' ?>><i class="ti ti-notes"></i><span>Notes</span></a>
-        <a class="nav-link" href="#tasks"><i class="ti ti-edit"></i><span>Tasks</span></a>
+        <a class="nav-link<?= $isActiveRoute('tasks') ?>" href="./tasks"<?= $route === 'tasks' ? ' aria-current="page"' : '' ?>><i class="ti ti-checkbox"></i><span>Tasks</span></a>
         <a class="nav-link<?= $isActiveRoute('folders') ?>" href="./folders"<?= $route === 'folders' ? ' aria-current="page"' : '' ?>><i class="ti ti-folder"></i><span>Folders</span></a>
         <a class="nav-link" href="#favorites"><i class="ti ti-star"></i><span>Favorites</span></a>
     </nav>

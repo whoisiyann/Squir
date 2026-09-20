@@ -63,8 +63,7 @@ class AuthController
 		}
 
 		try {
-			// Kailangan ang bagong user_id para ma-login agad siya
-			// at madala sa PIN setup nang hindi na dumadaan sa login page.
+
 			$userId = $this->user->create(
 				$fullName,
 				$username,

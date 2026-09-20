@@ -81,10 +81,6 @@ class VaultController
         return $this->vaultModel->delete($vaultId, $userId);
     }
 
-    /**
-     * Ibinabalik ang pangalan ng destination ("No folder" kung inalis sa folder),
-     * o null kung nabigo (walang item / invalid ang folder).
-     */
     public function moveToFolder(int $vaultId, int $userId, $targetFolder): ?string
     {
         $folderId = ($targetFolder === null || $targetFolder === '') ? null : (int) $targetFolder;
