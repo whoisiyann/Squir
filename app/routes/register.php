@@ -16,10 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $values = array_merge($values, $result['values']);
 
         if ($errors === []) {
-            // Naka-login na agad ang bagong account, tapos diretso sa PIN setup.
             session_regenerate_id(true);
             $_SESSION['user_id'] = (int) $result['user_id'];
-            $_SESSION['user_role'] = 'user';
             unset($_SESSION['has_pin']);
             clearPinUnlock();
 

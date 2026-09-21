@@ -136,7 +136,7 @@ $pageData = [
                         <span class="live-pill"><span class="live-dot"></span>Live</span>
                     </div>
                     <ul class="clock-list" id="clockList"></ul>
-                    <button type="button" class="clock-add-btn" id="openClockModal">+ Add city or country +</button>
+                    <button type="button" class="clock-add-btn" id="openClockModal">+ Add city or country ></button>
                 </section>
 
                 <section class="dash-card dash-tasks" id="tasks" aria-labelledby="taskOverviewTitle">

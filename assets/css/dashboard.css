@@ -1,4 +1,3 @@
-
 .content-area {
   width: 100%;
   max-width: auto;
@@ -88,7 +87,9 @@
 }
 
 
-/* Dashboard home */
+/* =========================================================
+   DASHBOARD HOME
+   ========================================================= */
 
 /* ---------- "Add Something" menu ---------- */
 .add-menu {
@@ -331,7 +332,6 @@
   padding: 0;
   overflow-y: auto;
   list-style: none;
-  scrollbar-width: thin;
 }
 
 .clock-row {
@@ -541,7 +541,6 @@
   padding: 0 8px 0 6px;
   overflow-y: auto;
   list-style: none;
-  scrollbar-width: thin;
 }
 
 .catalog-row {
@@ -973,7 +972,9 @@ a.mini-task:focus-visible {
   }
 }
 
-/* Responsive layout */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 @media (max-width: 1180px) {
   .dash-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -1071,7 +1072,6 @@ a.mini-task:focus-visible {
   }
 }
 
-/* Dashboard layout overrides */
 
 /* ---- Grid:  [ hero | clocks ]  /  [ tasks | recent ] ---- */
 .dash-layout {
@@ -1186,6 +1186,60 @@ a.mini-task:focus-visible {
 }
 
 .clock-row { min-height: 42px; }
+
+/* ---- Scrollbar for the World Clocks list and the Add City popup ---- */
+.clock-list,
+.clock-catalog {
+  --scroll-track: var(--peach);
+  --scroll-thumb: #d6b79f;
+}
+
+body.dashboard-dark .clock-list,
+body.dashboard-dark .clock-catalog {
+  --scroll-track: #2a2119;
+  --scroll-thumb: #7a5a34;
+}
+
+/* Chrome, Edge, Safari: slim rounded pill with a little space around it */
+.clock-list::-webkit-scrollbar,
+.clock-catalog::-webkit-scrollbar {
+  width: 10px;
+}
+
+.clock-list::-webkit-scrollbar-track,
+.clock-catalog::-webkit-scrollbar-track {
+  margin: 2px 0;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--scroll-track);
+  background-clip: padding-box;
+}
+
+.clock-list::-webkit-scrollbar-thumb,
+.clock-catalog::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--scroll-thumb);
+  background-clip: padding-box;
+  transition: background-color .15s ease;
+}
+
+.clock-list::-webkit-scrollbar-thumb:hover,
+.clock-list::-webkit-scrollbar-thumb:active,
+.clock-catalog::-webkit-scrollbar-thumb:hover,
+.clock-catalog::-webkit-scrollbar-thumb:active {
+  background: var(--accent);
+  background-clip: padding-box;
+}
+
+/* Firefox */
+@supports not selector(::-webkit-scrollbar) {
+  .clock-list,
+  .clock-catalog {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  }
+}
 
 .clock-add-btn {
   margin-top: auto;
@@ -1317,7 +1371,7 @@ a.mini-task:focus-visible {
    RESPONSIVE
    ========================================================= */
 
-/* Tablet and phone layout */
+/* tablet + phone: cards stack and the page scrolls */
 @media (max-width: 1180px) {
   .dash-layout {
     flex: 0 0 auto;

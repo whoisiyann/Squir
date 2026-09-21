@@ -25,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         unset($_SESSION['has_pin']);
         clearPinUnlock();
         $_SESSION['user_id'] = (int) $result['values']['user_id'];
-        $_SESSION['user_role'] = $result['values']['role'];
         header('Location: ./dashboard');
         exit;
     }

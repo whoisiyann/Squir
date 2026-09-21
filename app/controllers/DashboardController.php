@@ -137,7 +137,7 @@ class DashboardController
 		return $items;
 	}
 
-	// Search dashboard data
+
 	// Search dashboard data
 	public function search(int $userId, string $term): array
 	{

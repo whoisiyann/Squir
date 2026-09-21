@@ -1,4 +1,3 @@
-
 <?php
 
 class User
@@ -40,15 +39,14 @@ class User
 	public function create(string $fullName, string $username, string $email, string $passwordHash): int
 	{
 		$statement = $this->db->prepare(
-			'INSERT INTO users (full_name, username, email, password_hash, role, status)
-			 VALUES (:full_name, :username, :email, :password_hash, :role, :status)'
+			'INSERT INTO users (full_name, username, email, password_hash, status)
+			 VALUES (:full_name, :username, :email, :password_hash, :status)'
 		);
 		$statement->execute([
 			'full_name' => $fullName,
 			'username' => $username,
 			'email' => $email,
 			'password_hash' => $passwordHash,
-			'role' => 'user',
 			'status' => 'active',
 		]);
 

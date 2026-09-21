@@ -6,7 +6,7 @@ USE squirdb;
 
 
 
--- 1. USERS — account holders (regular users and administrators)
+-- 1. USERS 
 
 CREATE TABLE users (
     user_id       INT AUTO_INCREMENT PRIMARY KEY,
@@ -14,7 +14,6 @@ CREATE TABLE users (
     username      VARCHAR(50)  NOT NULL,
     email         VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,   -- bcrypt (password_hash)
-    role          ENUM('user','admin')                  NOT NULL DEFAULT 'user',
     status        ENUM('active','inactive','suspended') NOT NULL DEFAULT 'active',
     last_login_at DATETIME  NULL,
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -25,11 +24,29 @@ CREATE TABLE users (
     CONSTRAINT uq_users_email    UNIQUE (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE INDEX idx_users_role_status ON users (role, status);
+CREATE INDEX idx_users_status ON users (status);
+
+
+-- 1b. ADMINS — administrator accounts (separate entity from users)
+CREATE TABLE admins (
+    admin_id      INT AUTO_INCREMENT PRIMARY KEY,
+    full_name     VARCHAR(100) NOT NULL,
+    username      VARCHAR(50)  NOT NULL,
+    email         VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,   -- bcrypt (password_hash)
+    status        ENUM('active','inactive') NOT NULL DEFAULT 'active',
+    last_login_at DATETIME  NULL,
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                          ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT uq_admins_username UNIQUE (username),
+    CONSTRAINT uq_admins_email    UNIQUE (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
--- 2. USER_PINS — 4-6 digit secret passcode (1:1, optional)
+-- 2. USER_PINS (1:1, optional)
 CREATE TABLE user_pins (
     user_id          INT NOT NULL PRIMARY KEY,
     pin_hash         VARCHAR(255)     NOT NULL,
@@ -47,7 +64,7 @@ CREATE TABLE user_pins (
 
 
 
--- 3. FOLDERS — containers para sa vault items o notes
+-- 3. FOLDERS — 
 CREATE TABLE folders (
     folder_id   INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
@@ -190,14 +207,13 @@ CREATE INDEX idx_tasks_due_date ON tasks (user_id, due_date);
 
 
 
--- 9. FAVORITES
+-- 9. FAVORITES 
 CREATE TABLE favorites (
     favorite_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
     folder_id   INT NULL,
     vault_id    INT NULL,
     note_id     INT NULL,
-    task_id     INT NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_favorites_user
@@ -208,21 +224,17 @@ CREATE TABLE favorites (
         FOREIGN KEY (vault_id) REFERENCES vault(vault_id) ON DELETE CASCADE,
     CONSTRAINT fk_favorites_note
         FOREIGN KEY (note_id) REFERENCES notes(note_id) ON DELETE CASCADE,
-    CONSTRAINT fk_favorites_task
-        FOREIGN KEY (task_id) REFERENCES tasks(task_id) ON DELETE CASCADE,
 
     CONSTRAINT chk_favorites_one_item CHECK (
         (folder_id IS NOT NULL) +
         (vault_id  IS NOT NULL) +
-        (note_id   IS NOT NULL) +
-        (task_id   IS NOT NULL) = 1
+        (note_id   IS NOT NULL) = 1
     ),
 
 
     CONSTRAINT uq_favorites_folder UNIQUE (user_id, folder_id),
     CONSTRAINT uq_favorites_vault  UNIQUE (user_id, vault_id),
-    CONSTRAINT uq_favorites_note   UNIQUE (user_id, note_id),
-    CONSTRAINT uq_favorites_task   UNIQUE (user_id, task_id)
+    CONSTRAINT uq_favorites_note   UNIQUE (user_id, note_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -232,8 +244,9 @@ CREATE TABLE favorites (
 CREATE TABLE activity_logs (
     log_id      BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NULL,
-    action      VARCHAR(60)  NOT NULL, 
-    entity_type ENUM('user','folder','vault','note','task',
+    admin_id    INT NULL,
+    action      VARCHAR(60)  NOT NULL,
+    entity_type ENUM('user','admin','folder','vault','note','task',
                      'favorite','tag','system') NULL,
     entity_id   INT NULL,
     description VARCHAR(255) NOT NULL,
@@ -243,10 +256,15 @@ CREATE TABLE activity_logs (
 
     CONSTRAINT fk_activity_logs_user
         FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_activity_logs_admin
+        FOREIGN KEY (admin_id) REFERENCES admins(admin_id)
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE INDEX idx_logs_user_created ON activity_logs (user_id, created_at);
+CREATE INDEX idx_logs_user_created  ON activity_logs (user_id, created_at);
+CREATE INDEX idx_logs_admin_created ON activity_logs (admin_id, created_at);
 CREATE INDEX idx_logs_created      ON activity_logs (created_at);
 CREATE INDEX idx_logs_action       ON activity_logs (action);
 
@@ -274,17 +292,12 @@ CREATE INDEX idx_password_resets_user ON password_resets (user_id, expires_at);
 
 
 
--- -- 12. SEED: ADMINISTRATOR ACCOUNT 
+-- 12. SEED: ADMINISTRATOR ACCOUNT
+--   php database/create_admin.php "System Administrator" admin adminsquir@gmail.com "Admin@123"
+--
+-- O manual: 
 
--- Bago patakbuhin, kunin muna ang hash sa terminal:
 --   php -r "echo password_hash('Admin@123', PASSWORD_DEFAULT), PHP_EOL;"
--- Tapos palitan ang PALITAN_NG_HASH sa ibaba ng output.
 
--- INSERT INTO users (full_name, username, email, password_hash, role, status)
--- VALUES ('System Administrator', 'admin', 'adminsquir@gmail.com',
---         'PALITAN_NG_HASH', 'admin', 'active');
-
--- Opsyonal na PIN para sa admin (PIN: 1234):
---   php -r "echo password_hash('1234', PASSWORD_DEFAULT), PHP_EOL;"
--- INSERT INTO user_pins (user_id, pin_hash)
--- VALUES (LAST_INSERT_ID(), 'PALITAN_NG_PIN_HASH');
+-- INSERT INTO admins (full_name, username, email, password_hash)
+-- VALUES ('System Administrator', 'admin', 'adminsquir@gmail.com', 'PALITAN_NG_HASH');
