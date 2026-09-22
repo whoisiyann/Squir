@@ -25,7 +25,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
                 <img src="./assets/images/squir-login-signin-left-image.png" alt="Squir mascot">
             </div>
 
-            <div class="auth-form">
+            <div class="auth-form<?= !empty($errors) ? ' has-errors' : '' ?>">
                 <header class="auth-brand">
                     <img src="./assets/images/squir.png" alt="">
                     <div>

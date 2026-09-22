@@ -2,10 +2,9 @@
 
 /* Mascot panel */
 .pin-page .auth-visual {
-    flex: 0 0 40%;
     align-items: stretch;
     padding: 0;
-        justify-content: center;
+    justify-content: center;
     align-items: flex-end;
 }
 
@@ -20,7 +19,6 @@
 
 /* Form panel */
 .pin-page .auth-form {
-    padding: 44px 56px;
     text-align: center;
 }
 
@@ -169,7 +167,7 @@
 /* Responsive layout */
 @media (max-width: 767px) {
     .pin-page .auth-form {
-        padding: 36px 26px;
+        padding: 32px 24px;
     }
 }
 

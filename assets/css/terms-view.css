@@ -5,6 +5,7 @@
 	flex: 1;
 	min-width: 0;
 	position: relative;
+	height: 100%;
 	padding: 48px 56px;
 	display: flex;
 	flex-direction: column;
@@ -13,6 +14,26 @@
 .terms-view[hidden],
 .auth-form[hidden] {
 	display: none;
+}
+
+.auth-form.terms-view-leaving,
+.terms-view.terms-view-leaving {
+	animation: terms-view-out .2s ease both;
+}
+
+.auth-form.terms-view-entering,
+.terms-view.terms-view-entering {
+	animation: terms-view-in .3s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes terms-view-out {
+	from { opacity: 1; transform: translateX(0); }
+	to { opacity: 0; transform: translateX(-18px); }
+}
+
+@keyframes terms-view-in {
+	from { opacity: 0; transform: translateX(18px); }
+	to { opacity: 1; transform: translateX(0); }
 }
 
 .terms-view-close {
@@ -81,10 +102,22 @@
 }
 
 @media (max-width: 767px) {
-	.terms-view { padding: 32px 24px; }
+	.terms-view {
+		height: 100%;
+		padding: 32px 24px;
+	}
 }
 
 @media (max-width: 420px) {
 	.terms-view { padding: 26px 18px; }
 	.terms-view h1 { font-size: 1.15rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.auth-form.terms-view-leaving,
+	.terms-view.terms-view-leaving,
+	.auth-form.terms-view-entering,
+	.terms-view.terms-view-entering {
+		animation: none;
+	}
 }
