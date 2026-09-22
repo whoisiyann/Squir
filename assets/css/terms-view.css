@@ -1,0 +1,90 @@
+/* Terms of Service & Privacy Policy panel (register page) —
+   swaps into the same right-hand slot as .auth-form, instead of a popup. */
+
+.terms-view {
+	flex: 1;
+	min-width: 0;
+	position: relative;
+	padding: 48px 56px;
+	display: flex;
+	flex-direction: column;
+}
+
+.terms-view[hidden],
+.auth-form[hidden] {
+	display: none;
+}
+
+.terms-view-close {
+	position: absolute;
+	top: 18px;
+	left: 18px;
+	width: 34px;
+	height: 34px;
+	display: grid;
+	place-items: center;
+	padding: 0;
+	border: 0;
+	border-radius: 10px;
+	background: transparent;
+	color: var(--squir-muted);
+	cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.terms-view-close:hover { background: var(--squir-bg); color: var(--squir-brown-dark); }
+}
+
+.terms-view h1 {
+	font-size: 1.3rem;
+	font-weight: 700;
+	color: var(--squir-brown);
+	text-align: center;
+	margin: 16px 0 18px;
+}
+
+.terms-view-list {
+	list-style: disc;
+	margin: 0;
+	padding-left: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	font-size: .87rem;
+	line-height: 1.55;
+	color: var(--squir-text);
+}
+
+.terms-view-list strong {
+	font-weight: 700;
+}
+
+.terms-view-footnote {
+	margin: 20px 0 0;
+	font-size: .8rem;
+	line-height: 1.55;
+	color: var(--squir-muted);
+}
+
+.terms-view-accent {
+	color: #D64B2A;
+	font-weight: 600;
+}
+
+.terms-view-actions {
+	margin-top: auto;
+	padding-top: 22px;
+}
+
+.terms-view-actions .btn-squir {
+	width: 100%;
+}
+
+@media (max-width: 767px) {
+	.terms-view { padding: 32px 24px; }
+}
+
+@media (max-width: 420px) {
+	.terms-view { padding: 26px 18px; }
+	.terms-view h1 { font-size: 1.15rem; }
+}

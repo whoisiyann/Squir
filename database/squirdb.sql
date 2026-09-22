@@ -46,7 +46,7 @@ CREATE TABLE admins (
 
 
 
--- 2. USER_PINS (1:1, optional)
+-- 2. USER_PINS 
 CREATE TABLE user_pins (
     user_id          INT NOT NULL PRIMARY KEY,
     pin_hash         VARCHAR(255)     NOT NULL,

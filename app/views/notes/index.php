@@ -6,6 +6,7 @@
 /** @var array $errors */
 /** @var array|null $activeNote */
 /** @var int|null $activeNoteId */
+/** @var string|null $flashSuccess */
 
 $escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 ?>
@@ -273,6 +274,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 <script>
     window.NOTES_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
     window.NOTES_ACTIVE_FOLDER = <?= json_encode($data['activeFolder'] !== null ? (int) $data['activeFolder'] : '') ?>;
+    window.NOTES_FLASH = <?= json_encode($flashSuccess ?? null) ?>;
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/notes.js"></script>

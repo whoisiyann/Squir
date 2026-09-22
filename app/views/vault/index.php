@@ -55,9 +55,6 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                 </div>
             </div>
 
-            <?php if ($flashSuccess): ?>
-                <div class="alert-squir alert-success-squir" role="status"><?= $escape($flashSuccess) ?></div>
-            <?php endif; ?>
             <?php if (!empty($errors['form'])): ?>
                 <div class="alert-squir alert-danger-squir" role="alert"><?= $escape($errors['form']) ?></div>
             <?php endif; ?>
@@ -125,6 +122,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 <script>
     window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
     window.SQUIR_PIN_TTL    = <?= (int) ($pinUnlockSeconds ?? 0) ?>;
+    window.VAULT_FLASH      = <?= json_encode($flashSuccess) ?>;
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/pin-gate.js"></script>

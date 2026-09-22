@@ -1,8 +1,29 @@
-
 (function () {
     function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
     var tableWrap = document.getElementById('vaultTableWrap');
+
+    /* ---------- Toast (bottom pop-up) ---------- */
+    var toastEl = null;
+    var toastTimer = null;
+
+    function toast(message) {
+        if (!message) return;
+        if (!toastEl) {
+            toastEl = document.createElement('div');
+            toastEl.className = 'dash-toast';
+            toastEl.setAttribute('role', 'status');
+            document.body.appendChild(toastEl);
+        }
+        toastEl.textContent = message;
+
+        void toastEl.offsetWidth;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2800);
+    }
+
+    if (window.VAULT_FLASH) toast(window.VAULT_FLASH);
 
 
     /* ---------- Modal open/close ---------- */

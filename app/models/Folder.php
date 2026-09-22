@@ -3,9 +3,14 @@
 class Folder
 {
     public const COLORS = [
-        'beige', 'blue', 'brown', 'coralRed', 'creamYellow', 'darkGreen',
-        'green', 'lavender', 'magenta', 'orange', 'pink', 'purple',
-        'red', 'skyBlue', 'teal', 'yellow',
+        'brown',
+        'skyBlue', 'blue',
+        'creamYellow', 'yellow',
+        'coralRed', 'red',
+        'green', 'darkGreen',
+        'lavender', 'purple',
+        'pink', 'magenta',
+        'beige', 'teal', 'orange',
     ];
 
     public const TYPES = ['passwords', 'notes'];

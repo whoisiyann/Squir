@@ -1,10 +1,31 @@
-
 (function () {
     function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
 
     var editor = document.getElementById('noteEditor');
     var notesList = document.getElementById('notesList');
     var menuFavBtn = document.querySelector('.note-menu-favorite'); // editor's 3-dot Favorite item
+
+    /* ---------- Toast (bottom pop-up) ---------- */
+    var toastEl = null;
+    var toastTimer = null;
+
+    function toast(message) {
+        if (!message) return;
+        if (!toastEl) {
+            toastEl = document.createElement('div');
+            toastEl.className = 'dash-toast';
+            toastEl.setAttribute('role', 'status');
+            document.body.appendChild(toastEl);
+        }
+        toastEl.textContent = message;
+
+        void toastEl.offsetWidth;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2800);
+    }
+
+    if (window.NOTES_FLASH) toast(window.NOTES_FLASH);
 
 /* ---------- Search: debounce auto-submit (feels live, still a normal GET) ---------- */
     /* Search debounce */

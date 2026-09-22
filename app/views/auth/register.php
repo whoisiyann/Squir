@@ -1,4 +1,3 @@
-
 <?php
 // Prepare registration form data
 $errors = $errors ?? [];
@@ -17,6 +16,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
     <title>Squir - Create your account</title>
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/register.css">
+    <link rel="stylesheet" href="./assets/css/terms-view.css">
 </head>
 <body>
     <main class="registration-shell">
@@ -79,7 +79,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
 
                     <div class="form-check-squir">
                         <input class="form-check-input" id="terms" name="terms" type="checkbox" value="1" required <?= isset($_POST['terms']) ? 'checked' : '' ?> aria-describedby="terms-error">
-                        <label for="terms">I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a></label>
+                        <label for="terms">I agree to the <a href="#terms" data-terms-view>Terms of Service</a> and <a href="#privacy" data-terms-view>Privacy Policy</a></label>
                     </div>
                     <?= $fieldError('terms') ?>
 
@@ -88,9 +88,37 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
 
                 <p class="auth-switch">Already have an account? <a href="./login">Log in</a></p>
             </div>
+
+            <!-- Swaps in over the sign-up form when "Terms of Service" / "Privacy Policy" is clicked -->
+            <div class="terms-view" id="termsView" hidden>
+                <button type="button" class="terms-view-close" id="termsViewClose" aria-label="Back to sign up"><i class="ti ti-arrow-left"></i></button>
+
+                <header class="auth-brand">
+                    <img src="./assets/images/squir.png" alt="">
+                    <div>
+                        <span>Squir</span>
+                    </div>
+                </header>
+
+                <h1 id="termsViewTitle">Terms of Service and Privacy Policy</h1>
+
+                <ul class="terms-view-list">
+                    <li><strong>Acceptance &amp; Registration:</strong> By creating an account and using Squir, you agree to these terms and permit us to collect your registration details.</li>
+                    <li><strong>Platform Usage:</strong> You are responsible for your account credentials, passwords, personal notes, tasks, and folders managed within the platform.</li>
+                    <li><strong>Data Protection &amp; Use:</strong> We securely store and use your data strictly to operate the dashboard, search, and organization features, and we protect it from unauthorized access.</li>
+                </ul>
+
+                <p class="terms-view-footnote">By continuing to use Squir's services, you are agreeing to the <span class="terms-view-accent">Terms of Service</span> as of its effective date and acknowledging that you have read the <span class="terms-view-accent">Privacy Policy</span>.</p>
+
+                <div class="terms-view-actions">
+                    <button type="button" class="btn-squir" id="termsViewContinue">Continue</button>
+                </div>
+            </div>
         </section>
     </main>
+
     <script src="./assets/js/register.js"></script>
+    <script src="./assets/js/terms-view.js"></script>
     <script src="./assets/js/auth-transition.js"></script>
 </body>
 </html>

@@ -149,7 +149,16 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="create">
             <input type="hidden" name="color" id="createFolderColor" value="brown">
-            <input type="hidden" name="folder_type" value="<?= $escape($data['activeType']) ?>">
+            <input type="hidden" name="folder_type" id="createFolderType" value="<?= $escape($data['activeType']) ?>">
+
+            
+            <div class="folder-field folder-type-field" id="createFolderTypeField" hidden>
+                <label>Folder for</label>
+                <div class="folders-type-tabs folder-type-toggle" id="createFolderTypeToggle" role="group" aria-label="Folder for">
+                    <button type="button" class="type-tab<?= $data['activeType'] === 'passwords' ? ' active' : '' ?>" data-type="passwords">Passwords</button>
+                    <button type="button" class="type-tab<?= $data['activeType'] === 'notes' ? ' active' : '' ?>" data-type="notes">Notes</button>
+                </div>
+            </div>
 
             <div class="folder-field">
                 <label for="folder_name">Folder name</label>

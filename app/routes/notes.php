@@ -9,7 +9,6 @@ $noteModel = new Note($dbh);
 $controller = new NoteController($noteModel, $dbh);
 $csrfToken = csrfToken();
 
-// ---- AJAX: i-save ang title/content/folder habang nagta-type ang user ----
 // Save note changes
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') {
     header('Content-Type: application/json');
@@ -43,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
     exit;
 }
 
-// ---- AJAX: folder manager ng Notes (create / rename / delete ng notes folders) ----
 // Handle note folder actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && in_array($_POST['ajax'] ?? '', ['folder_create', 'folder_rename', 'folder_delete'], true)) {
@@ -72,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         exit;
     }
 
-    // rename / delete: dapat existing notes folder ng user
+    // rename / delete
     $targetFolder = $folderModel->find((int) ($_POST['folder_id'] ?? 0), $userId);
     if (!$targetFolder || $targetFolder['folder_type'] !== 'notes') {
         http_response_code(404);
@@ -116,6 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
 }
 
 $errors = [];
+$flashSuccess = $_SESSION['notes_flash_success'] ?? null;
+unset($_SESSION['notes_flash_success']);
 
 // Process note form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
@@ -136,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
             $result = $controller->store($userId, $_POST);
             if ($result['errors'] === []) {
                 $redirectParams['note'] = $result['note_id'];
+                $_SESSION['notes_flash_success'] = 'Note saved to your notes.';
                 header('Location: ./notes?' . http_build_query($redirectParams));
                 exit;
             }
@@ -143,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
         } elseif ($action === 'delete') {
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $controller->destroy($noteId, $userId);
+            $_SESSION['notes_flash_success'] = 'Note deleted.';
             header('Location: ./notes?' . http_build_query($redirectParams));
             exit;
         } elseif ($action === 'move_folder') {

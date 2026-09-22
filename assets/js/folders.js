@@ -224,12 +224,19 @@
     var createBackdrop = document.getElementById('createFolderModalBackdrop');
     var openCreateBtn = document.getElementById('openCreateFolderModal');
     var createColorInput = document.getElementById('createFolderColor');
+    var createTypeInput = document.getElementById('createFolderType');
+    var createTypeField = document.getElementById('createFolderTypeField');
 
     // Open the folder creation dialog
     function openCreateModal() { createBackdrop.classList.add('open'); }
     function closeCreateModal() { createBackdrop.classList.remove('open'); }
 
-    if (openCreateBtn) openCreateBtn.addEventListener('click', openCreateModal);
+    if (openCreateBtn) {
+        openCreateBtn.addEventListener('click', function () {
+            if (createTypeField) createTypeField.hidden = true;
+            openCreateModal();
+        });
+    }
     $all('[data-close-folder-modal]').forEach(function (btn) {
         btn.addEventListener('click', closeCreateModal);
     });
@@ -246,15 +253,24 @@
     });
 
 
+    $all('#createFolderTypeToggle .type-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            $all('#createFolderTypeToggle .type-tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            if (createTypeInput) createTypeInput.value = tab.getAttribute('data-type');
+        });
+    });
+
     if (window.FOLDERS_HAS_ERRORS) {
         openCreateModal();
     }
 
-    // ./folders?new=1 (from the dashboard "Add Something" menu) opens the popup right away
-    // Open the create dialog from a dashboard link
+
     (function () {
         var params = new URLSearchParams(window.location.search);
         if (params.get('new') !== '1') return;
+
+        if (createTypeField) createTypeField.hidden = false;
 
         openCreateModal();
         var nameInput = document.getElementById('folder_name');
@@ -265,7 +281,6 @@
         window.history.replaceState({}, '', window.location.pathname + (query ? '?' + query : ''));
     })();
 
-    /* ---------- Favorite toggle ---------- */
     // Toggle a folder favorite
     function toggleFavorite(folderId) {
         var body = new URLSearchParams();
@@ -300,7 +315,7 @@
         });
     });
 
-    /* ---------- 3-dot menu ---------- */
+
     // Close folder menus
     function closeAllMenus() {
         $all('.folder-menu-dropdown.open').forEach(function (menu) {
