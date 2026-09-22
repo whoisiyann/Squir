@@ -35,6 +35,16 @@ class User
 		return $user ?: null;
 	}
 
+	// Fetch a user by id
+	public function findById(int $userId): ?array
+	{
+		$statement = $this->db->prepare('SELECT * FROM users WHERE user_id = :id LIMIT 1');
+		$statement->execute(['id' => $userId]);
+		$user = $statement->fetch();
+
+		return $user ?: null;
+	}
+
 	// Create a user record
 	public function create(string $fullName, string $username, string $email, string $passwordHash): int
 	{
@@ -51,5 +61,16 @@ class User
 		]);
 
 		return (int) $this->db->lastInsertId();
+	}
+
+	// Update a user's password hash (used by the forgot-password flow)
+	public function updatePassword(int $userId, string $passwordHash): bool
+	{
+		$statement = $this->db->prepare('UPDATE users SET password_hash = :password_hash WHERE user_id = :id');
+
+		return $statement->execute([
+			'password_hash' => $passwordHash,
+			'id' => $userId,
+		]);
 	}
 }

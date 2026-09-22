@@ -20,6 +20,18 @@ switch ($route) {
         require __DIR__ . '/app/routes/logout.php';
         break;
 
+    case 'forgot-password':
+        require __DIR__ . '/app/routes/forgot-password.php';
+        break;
+
+    case 'verify-reset-code':
+        require __DIR__ . '/app/routes/verify-reset-code.php';
+        break;
+
+    case 'reset-password':
+        require __DIR__ . '/app/routes/reset-password.php';
+        break;
+
     case 'pin':
         require __DIR__ . '/app/routes/pin.php';
         break;

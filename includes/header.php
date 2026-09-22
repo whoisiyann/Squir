@@ -1,4 +1,3 @@
-
 <header class="topbar">
     <div class="topbar-inner">
         <button class="mobile-toggle-btn" id="mobileBtn" type="button" aria-label="Open menu"><i class="ti ti-menu-2"></i></button>

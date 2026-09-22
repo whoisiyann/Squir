@@ -105,13 +105,14 @@
         text-align: center;
         color: var(--squir-muted);
         font-size: 0.85rem;
-        margin-bottom: 28px;
+        margin-bottom: 20px;
     }
 
     .auth-form h1{
         font-size: 1.6rem;
         font-weight: 700;
         margin-bottom: 4px;
+        margin-top: 0;
         color: var(--squir-text);
     }
 

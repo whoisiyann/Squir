@@ -1,0 +1,9 @@
+{
+    "name": "squir/squir",
+    "description": "Squir - personal digital vault & productivity app",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^7.1"
+    }
+}

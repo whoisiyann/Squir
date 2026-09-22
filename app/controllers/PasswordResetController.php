@@ -1,0 +1,132 @@
+<?php
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/PasswordReset.php';
+require_once __DIR__ . '/../../includes/mailer.php';
+
+class PasswordResetController
+{
+    // Initialize the forgot-password service
+    public function __construct(private User $userModel, private PasswordReset $resetModel)
+    {
+    }
+
+    /**
+     * Step 1 — handle the "forgot password" email submission.
+     * Always reports success to the caller so we never reveal which emails are registered.
+     *
+     * @return array{errors: array, email: string, dev_code: ?string}
+     */
+    // Handle a password reset request
+    public function requestCode(array $input): array
+    {
+        $email = strtolower(trim((string) ($input['email'] ?? '')));
+        $errors = [];
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please enter a valid email address.';
+            return ['errors' => $errors, 'email' => $email, 'dev_code' => null];
+        }
+
+        $devCode = null;
+        $user = $this->userModel->findByEmail($email);
+
+        if ($user) {
+            $devCode = $this->issueAndSend((int) $user['user_id'], $email, $user['full_name']);
+        }
+
+        return ['errors' => [], 'email' => $email, 'dev_code' => $devCode];
+    }
+
+    /**
+     * Resend a fresh code to the same email (used by the "Resend" link).
+     */
+    // Resend a reset code
+    public function resendCode(string $email): ?string
+    {
+        $user = $this->userModel->findByEmail($email);
+        if (!$user) {
+            return null;
+        }
+
+        return $this->issueAndSend((int) $user['user_id'], $email, $user['full_name']);
+    }
+
+    /**
+     * Step 2 — verify the emailed code.
+     *
+     * @return array{ok: bool, error?: string, attempts_left?: int}
+     */
+    // Verify a submitted reset code
+    public function verifyCode(string $email, string $code): array
+    {
+        $code = trim($code);
+
+        if (!preg_match('/^\d{' . PasswordReset::CODE_LENGTH . '}$/', $code)) {
+            return ['ok' => false, 'error' => 'Enter all ' . PasswordReset::CODE_LENGTH . ' digits.'];
+        }
+
+        $user = $this->userModel->findByEmail($email);
+        if (!$user) {
+            // Same generic message as a wrong code — don't reveal the account doesn't exist.
+            return ['ok' => false, 'error' => 'That code is incorrect or has expired. Please request a new one.'];
+        }
+
+        return $this->resetModel->verify((int) $user['user_id'], $code);
+    }
+
+    /**
+     * Step 3 — set the new password once the code has been verified.
+     *
+     * @return array{errors: array}
+     */
+    // Apply the new password
+    public function resetPassword(string $email, array $input): array
+    {
+        $password = (string) ($input['password'] ?? '');
+        $confirmation = (string) ($input['password_confirmation'] ?? '');
+        $errors = [];
+
+        if ($password === '') {
+            $errors['password'] = 'Password is required.';
+        } elseif (strlen($password) < 8) {
+            $errors['password'] = 'Password must be at least 8 characters.';
+        }
+
+        if ($confirmation === '') {
+            $errors['password_confirmation'] = 'Please confirm your password.';
+        } elseif ($password !== $confirmation) {
+            $errors['password_confirmation'] = 'Passwords do not match.';
+        }
+
+        if ($errors !== []) {
+            return ['errors' => $errors];
+        }
+
+        $user = $this->userModel->findByEmail($email);
+        if (!$user || !$this->resetModel->isVerified((int) $user['user_id'])) {
+            return ['errors' => ['form' => 'Your reset session has expired. Please start again.']];
+        }
+
+        $this->userModel->updatePassword((int) $user['user_id'], password_hash($password, PASSWORD_DEFAULT));
+        $this->resetModel->markUsed((int) $user['user_id']);
+
+        return ['errors' => []];
+    }
+
+    /**
+     * Shared helper: create a code, try to email it, and fall back to
+     * returning it directly when MAIL_DEV_FALLBACK is on and sending failed.
+     */
+    // Issue a new code and attempt to send it
+    private function issueAndSend(int $userId, string $email, string $fullName): ?string
+    {
+        $reset = $this->resetModel->createForUser($userId);
+        $sent = sendPasswordResetEmail($email, $fullName, $reset['code'], $reset['ttl_minutes']);
+
+        if (!$sent && defined('MAIL_DEV_FALLBACK') && MAIL_DEV_FALLBACK) {
+            return $reset['code'];
+        }
+
+        return null;
+    }
+}

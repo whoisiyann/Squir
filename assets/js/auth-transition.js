@@ -2,6 +2,11 @@
 // Handle authentication page transitions
 (function () {
     var leaving = false;
+    var AUTH_PATHS = ['/login', '/register', '/forgot-password', '/verify-reset-code', '/reset-password'];
+
+    function endsWithAuthPath(pathname) {
+        return AUTH_PATHS.some(function (path) { return pathname.endsWith(path); });
+    }
 
     document.addEventListener('keydown', function (event) {
         if (!(event.ctrlKey || event.metaKey)) {
@@ -31,7 +36,7 @@
 
         var url = new URL(link.href, window.location.href);
         var isAuthNavigation = url.origin === window.location.origin
-            && (url.pathname.endsWith('/login') || url.pathname.endsWith('/register'))
+            && endsWithAuthPath(url.pathname)
             && url.pathname !== window.location.pathname;
 
         if (!isAuthNavigation) {
