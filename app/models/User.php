@@ -2,7 +2,6 @@
 
 class User
 {
-	// Initialize user data access
 	public function __construct(private PDO $db)
 	{
 	}

@@ -1,6 +1,3 @@
-// PIN creation
-// PIN creation
-// Pending PIN confirmation
 
 (function () {
     var form = document.getElementById('pinSetupForm');
@@ -16,7 +13,7 @@
     var hint = document.getElementById('pinHint');
 
     var length = window.SQUIR_PIN_LENGTH || boxes.length;
-    var firstPin = null; // Pending PIN confirmation
+    var firstPin = null;
 
     var COPY = {
         create: {

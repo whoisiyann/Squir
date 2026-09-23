@@ -11,7 +11,6 @@ $controller = new VaultController($vaultModel, $dbh);
 $pinController = new PinController(new UserPin($dbh));
 $csrfToken = csrfToken();
 
-// ---- AJAX: i-check ang PIN bago payagan ang reveal/copy ----
 // Verify the vault PIN
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_pin') {
     header('Content-Type: application/json');
@@ -34,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_
     exit;
 }
 
-// ---- AJAX: ibalik ang decrypted password para sa eye/copy button ----
+// Reveal the decrypted password
 // Reveal a vault password
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     header('Content-Type: application/json');
@@ -61,7 +60,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     exit;
 }
 
-// ---- AJAX: i-toggle ang favorite ng isang vault item mula mismo sa listahan ----
+// Toggle a vault favorite
 // Toggle vault favorite
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');

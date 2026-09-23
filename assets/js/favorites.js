@@ -5,7 +5,6 @@
     var wrap = document.getElementById('favoritesWrap');
     var itemType = wrap ? wrap.getAttribute('data-item-type') : null; // 'vault' | 'note' | 'folder'
 
-    /* ---------- Per-type configuration ---------- */
     var CONFIG = {
         vault:  { action: './vault',   field: 'vault_id',  rowSelector: 'tr[data-item-id]',           favSelector: '.vault-favorite-btn',  label: 'password' },
         note:   { action: './notes',   field: 'note_id',   rowSelector: '.note-card[data-item-id]',   favSelector: '.note-favorite-btn',   label: 'note' },
@@ -13,7 +12,6 @@
     };
     var cfg = CONFIG[itemType] || null;
 
-    /* ---------- Grid / List view toggle ---------- */
     var VIEW_KEY = 'squir-favorites-view';
     var viewButtons = $all('.view-toggle-btn');
 
@@ -44,7 +42,7 @@
 
     if (!wrap || !cfg) return;
 
-    /* ---------- Live search: filter favorites as you type, no page reload ---------- */
+    // Filter favorites as you type
     var searchInput = document.getElementById('favoritesSearchInput');
     var searchForm = searchInput ? searchInput.closest('form') : null;
     var noResultsEl = null;
@@ -99,7 +97,7 @@
         if (lastSearchTerm) applySearch(searchInput.value);
     }
 
-    /* ---------- Unfavorite: remove the item straight out of the list ---------- */
+    // Remove a favorite
     function toggleFavoriteRequest(id) {
         var body = new URLSearchParams();
         body.set('ajax', 'toggle_favorite');
@@ -185,7 +183,6 @@
         });
     }
 
-    /* ---------- Passwords only: reveal / copy ---------- */
     if (itemType === 'vault') {
         function revealById(id, reason) {
             return window.SquirPin.ensure(reason).then(function () {
@@ -291,7 +288,6 @@
         });
     }
 
-    /* ---------- Generic 3-dot dropdown menu (portaled out, like Vault/Notes/Folders) ---------- */
     var MENU_BTN_SELECTOR = '.vault-menu-btn, .note-menu-btn, .folder-menu-btn';
     var MENU_DROPDOWN_SELECTOR = '.vault-menu-dropdown, .note-menu-dropdown, .folder-menu-dropdown';
     var MENU_DROPDOWN_OPEN_SELECTOR = '.vault-menu-dropdown.open, .note-menu-dropdown.open, .folder-menu-dropdown.open';

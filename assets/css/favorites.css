@@ -1,6 +1,4 @@
-/* ================= Favorites page ================= */
-/* Reuses vault.css / notes.css / folders.css for the item cards themselves.
-   Only the bits specific to this page live here. */
+/* Favorites page */
 
 .favorites-toolbar-left {
   display: flex;
@@ -9,32 +7,20 @@
   flex: 0 0 auto;
 }
 
-/* The type-filter dropdown reuses .vault-tags-filter styling; swap the tag
-   icon for a star so it reads as "favorites type" instead of "tag filter". */
+/* Favorites type filter */
 .favorites-type-filter i.ti-star {
   left: 14px;
   font-size: .82rem;
 }
 
-/* ---------- Search box ----------
-   .favorites-search reuses .vault-search (flex: 1 1 280px; max-width: 300px)
-   from vault.css. On the Vault toolbar that cap is shared with two other
-   siblings (tags filter + Add button); here the search form is the only
-   child of .vault-toolbar-right, so pin the cap explicitly instead of
-   relying on it winning by load order alone. */
+/* Search box */
 .favorites-search {
   flex: 1 1 280px;
   min-width: 0;
   max-width: 300px;
 }
 
-/* ---------- Notes: shared container sizing ----------
-   notes.css's .notes-list is built for the Notes page's scrollable sidebar
-   panel, so it flex-grows to fill the whole column height (flex: 1). On the
-   Favorites page it just sits among other blocks on a normal page — left
-   as-is, that flex-grow made an almost-empty grid stretch every card down
-   to fill the leftover page height. Cap it and let it scroll internally
-   instead, the same way vault.css caps .vault-table-wrap. */
+/* Notes container */
 .notes-list.favorites-wrap {
   flex: 0 0 auto;
   min-height: 0;
@@ -42,11 +28,7 @@
   overflow-y: auto;
 }
 
-/* ---------- Notes: grid view ----------
-   notes.css only ships a single-column list layout (used on the Notes page
-   sidebar); add a card-grid variant for the Favorites "Notes" grid mode that
-   mirrors the Vault grid-view card style (fixed 4 columns, same column
-   breakpoints, padding, shadow and hover animation). */
+/* Notes grid view */
 .notes-list.favorites-wrap.grid-view {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

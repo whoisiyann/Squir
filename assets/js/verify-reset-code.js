@@ -1,4 +1,3 @@
-// Verification code entry (forgot password flow)
 
 (function () {
     var form = document.getElementById('verifyCodeForm');

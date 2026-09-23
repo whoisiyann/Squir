@@ -188,7 +188,7 @@ module.exports = plugin(function ({ addComponents, theme }) {
     '[data-pc-navbar="preset-18"]': {
       '.pc-sidebar': { '@apply bg-rose-500': {}}
     },
-    // ====== logo color ==========
+    // Logo color
     '[data-pc-logo="preset-1"]': {
       '.pc-sidebar .m-header': { '@apply bg-primary-500': {} }
     },
@@ -243,7 +243,7 @@ module.exports = plugin(function ({ addComponents, theme }) {
     '[data-pc-logo="preset-18"]': {
       '.pc-sidebar .m-header': { '@apply bg-rose-500': {}}
     },
-    // ===========   caption    ==========
+    // Caption
    '[data-pc-caption="preset-1"]': {
       '.pc-sidebar .pc-caption': { '@apply text-primary-500': {} }
     },
@@ -298,7 +298,7 @@ module.exports = plugin(function ({ addComponents, theme }) {
     '[data-pc-caption="preset-18"]': {
       '.pc-sidebar .pc-caption': { '@apply text-rose-500': {}}
     },
-    // =======  Navbar Image  =======
+    // Navbar image
     '[data-pc-navimg="preset-1"]': {
       '.pc-sidebar': { '@apply bg-theme-sidebarbg/40 bg-[url("../images/layout/navbar-img-1.jpg")]': {}}
     },
@@ -317,7 +317,7 @@ module.exports = plugin(function ({ addComponents, theme }) {
     '[data-pc-navimg="preset-6"]': {
       '.pc-sidebar': { '@apply bg-theme-sidebarbg/40 bg-[url("../images/layout/navbar-img-6.jpg")]': {}}
     },
-    // =======  Sidebar Dropdown icon  =======
+    // Sidebar dropdown icon
     '[data-pc-drp-menu-icon="preset-1"]': {
       '.pc-sidebar .pc-arrow > i::before': { '@apply content-["\\ea61"]': {}}
     },
@@ -333,7 +333,7 @@ module.exports = plugin(function ({ addComponents, theme }) {
     '[data-pc-drp-menu-icon="preset-5"]': {
       '.pc-sidebar .pc-arrow > i::before': { '@apply content-["\\eb0b"]': {}}
     },
-    // =======  Sidebar Dropdown menu link icon  =======
+    // Sidebar dropdown link icon
     '[data-pc-drp-menu-link-icon*="preset-"]': {
         '.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu .pc-item':{
           '> .pc-link:after':{

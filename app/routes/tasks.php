@@ -22,7 +22,6 @@ function tasksOk(TaskController $controller, int $userId, array $extra = []): vo
     tasksRespond($extra + ['tasks' => $controller->index($userId)]);
 }
 
-// ---- AJAX: lahat ng actions ng Kanban board (create, edit, drag, menus, etc.) ----
 // Process task actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');

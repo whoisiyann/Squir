@@ -1,5 +1,5 @@
 <?php
-// General application-wide settings and constants.
+// Application settings
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -57,8 +57,7 @@ define('SMTP_PASSWORD', str_replace(' ', '', getenv('SMTP_PASSWORD') ?: ''));
 
 define('MAIL_DEV_FALLBACK', true);
 
-// Set to false before going live — writes the full Gmail SMTP transcript to
-// includes/logs/mail-debug.log. Never shown to the user, dev-only.
+// Enable SMTP debug logging during development.
 define('MAIL_DEBUG', true);
 define('MAIL_FROM_ADDRESS', SMTP_USERNAME !== '' ? SMTP_USERNAME : 'no-reply@squir.local');
 define('MAIL_FROM_NAME', 'Squir');

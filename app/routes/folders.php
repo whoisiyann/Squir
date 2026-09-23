@@ -39,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_
     exit;
 }
 
-// ---- AJAX: i-toggle ang favorite ng folder ----
 // Toggle folder favorite
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
@@ -58,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
     exit;
 }
 
-// ---- AJAX: rename folder (inline, mula sa 3-dot menu) ----
 // Rename a folder
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'rename') {
     header('Content-Type: application/json');
@@ -79,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'rename'
 
 $errors = [];
 
-// ---- Detail view ng folder ----
+// Show folder details
 $openFolderId = isset($_GET['folder']) && ctype_digit((string) $_GET['folder']) ? (int) $_GET['folder'] : null;
 
 // Load an open folder
@@ -90,7 +88,7 @@ if ($openFolderId !== null) {
         exit;
     }
 
-    // ---- Notes folder: ipakita ang lahat ng notes na nasa loob nito ----
+    // Load notes in the folder
     if ($folder['folder_type'] === 'notes') {
         require_once __DIR__ . '/../models/Note.php';
         require_once __DIR__ . '/../controllers/NoteController.php';

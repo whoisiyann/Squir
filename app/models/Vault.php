@@ -8,13 +8,11 @@ class Vault
 
     private PDO $dbh;
 
-    // Initialize vault data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
     }
 
-    /* ================= ENCRYPTION ================= */
 
     // Encrypt a vault secret
     private function encryptSecret(string $plain): string
@@ -46,7 +44,6 @@ class Vault
         return substr(hash('sha256', $key, true), 0, 32);
     }
 
-    /* ================= FAVICON ================= */
 
     // Build a favicon URL
     public static function faviconUrlFor(?string $websiteUrl): ?string
@@ -65,9 +62,7 @@ class Vault
         return 'https://www.google.com/s2/favicons?sz=64&domain=' . rawurlencode($host);
     }
 
-    /* ================= TAGS ================= */
 
-    /** Normalize tag input. */
     public static function normalizeTags(string $raw): array
     {
         $tags = [];
@@ -84,7 +79,6 @@ class Vault
         return $tags;
     }
 
-    /** Format tags for display. */
     public static function tagsToString(?string $stored): string
     {
         $stored = trim((string) $stored);
@@ -94,7 +88,6 @@ class Vault
         return implode(', ', array_filter(array_map('trim', explode(',', $stored))));
     }
 
-    /** Count tags for the filter. */
     // Count user tags
     public function tagCountsForUser(int $userId): array
     {
@@ -161,7 +154,6 @@ class Vault
         $stmt->execute(['uid' => $userId]);
     }
 
-    /* ================= QUERIES ================= */
 
     // Count user vault entries
     public function countForUser(int $userId): int
@@ -229,7 +221,6 @@ class Vault
         return $row ?: null;
     }
 
-    /* ================= MUTATIONS ================= */
 
     // Create a vault entry
     public function create(int $userId, array $data): array
@@ -349,7 +340,6 @@ class Vault
         return $ok;
     }
 
-    /* ================= HELPERS ================= */
 
 
     // Resolve a folder ID

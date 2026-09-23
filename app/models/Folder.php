@@ -17,7 +17,6 @@ class Folder
 
     private PDO $dbh;
 
-    // Initialize folder data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;

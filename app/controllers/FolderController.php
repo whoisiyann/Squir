@@ -6,7 +6,6 @@ class FolderController
     private Folder $folderModel;
     private PDO $dbh;
 
-    // Initialize folder services
     public function __construct(Folder $folderModel, PDO $dbh)
     {
         $this->folderModel = $folderModel;

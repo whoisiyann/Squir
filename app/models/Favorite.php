@@ -4,13 +4,11 @@ class Favorite
 {
     private PDO $dbh;
 
-    // Initialize favorites data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
     }
 
-    /* ================= PASSWORDS (vault) ================= */
 
     // Fetch favorited vault entries for a user
     public function vaultForUser(int $userId, string $search = ''): array
@@ -41,7 +39,6 @@ class Favorite
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= NOTES ================= */
 
     // Fetch favorited notes for a user
     public function notesForUser(int $userId, string $search = ''): array
@@ -70,7 +67,6 @@ class Favorite
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= FOLDERS ================= */
 
     // Fetch favorited folders for a user
     public function foldersForUser(int $userId, string $search = ''): array
@@ -99,7 +95,6 @@ class Favorite
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= COUNTS (dropdown / empty states) ================= */
 
     // Count favorites per type for a user
     public function countsForUser(int $userId): array

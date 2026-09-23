@@ -5,17 +5,11 @@ require_once __DIR__ . '/../../includes/mailer.php';
 
 class PasswordResetController
 {
-    // Initialize the forgot-password service
     public function __construct(private User $userModel, private PasswordReset $resetModel)
     {
     }
 
-    /**
-     * Step 1 — handle the "forgot password" email submission.
-     * Always reports success to the caller so we never reveal which emails are registered.
-     *
-     * @return array{errors: array, email: string, dev_code: ?string}
-     */
+    /** Handle the forgot-password request. */
     // Handle a password reset request
     public function requestCode(array $input): array
     {
@@ -30,8 +24,7 @@ class PasswordResetController
         $user = $this->userModel->findByEmail($email);
 
         if (!$user) {
-            // Per spec: tell the user outright that the email isn't registered,
-            // and never generate or send a code for it.
+            // Do not send a code for unknown emails.
             $errors['email'] = 'This email address is not registered.';
             return ['errors' => $errors, 'email' => $email, 'dev_code' => null];
         }
@@ -41,9 +34,7 @@ class PasswordResetController
         return ['errors' => [], 'email' => $email, 'dev_code' => $devCode];
     }
 
-    /**
-     * Resend a fresh code to the same email (used by the "Resend" link).
-     */
+    /** Resend a reset code. */
     // Resend a reset code
     public function resendCode(string $email): ?string
     {
@@ -55,11 +46,7 @@ class PasswordResetController
         return $this->issueAndSend((int) $user['user_id'], $email, $user['full_name']);
     }
 
-    /**
-     * Step 2 — verify the emailed code.
-     *
-     * @return array{ok: bool, error?: string, attempts_left?: int}
-     */
+    /** Verify a reset code. */
     // Verify a submitted reset code
     public function verifyCode(string $email, string $code): array
     {
@@ -71,7 +58,7 @@ class PasswordResetController
 
         $user = $this->userModel->findByEmail($email);
         if (!$user) {
-            // Same generic message as a wrong code — don't reveal the account doesn't exist.
+            // Use the same message for unknown accounts.
             return ['ok' => false, 'error' => 'That code is incorrect or has expired. Please request a new one.'];
         }
 

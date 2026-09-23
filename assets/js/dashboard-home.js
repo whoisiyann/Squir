@@ -1,4 +1,3 @@
-// Dashboard home interactions
 
 (function () {
     'use strict';
@@ -54,7 +53,6 @@
         });
     }
 
-    /* =============== Toast =============== */
 
     var toastEl = null;
     var toastTimer = null;
@@ -75,7 +73,6 @@
 
     if (cfg.flash) toast(cfg.flash);
 
-    /* =============== Add Something menu =============== */
 
     var addMenu = $('addMenu');
     var addButton = $('addMenuBtn');
@@ -103,7 +100,6 @@
         });
     }
 
-    /* =============== World clocks =============== */
 
     var clockList = $('clockList');
     var formatterCache = {};
@@ -210,7 +206,6 @@
     renderClocks();
     setInterval(tick, 1000);
 
-    /* =============== Add World Clock City popup =============== */
 
     var modal = {
         backdrop: $('clockModalBackdrop'),
@@ -330,7 +325,6 @@
         setAddMenu(false);
     });
 
-    /* =============== Favorite star (Recent Credentials) =============== */
 
     function applyStar(button, isFavorite) {
         button.classList.toggle('is-favorite', isFavorite);
@@ -368,7 +362,6 @@
         });
     });
 
-    /* =============== "See more" appears at the end of the Recent list =============== */
 
     var recentList = document.querySelector('.recent-list');
     var seeMore = document.querySelector('.recent-see-more');

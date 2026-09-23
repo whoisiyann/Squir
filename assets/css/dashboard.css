@@ -87,9 +87,7 @@
 }
 
 
-/* =========================================================
-   DASHBOARD HOME
-   ========================================================= */
+/* Dashboard home */
 
 /* ---------- "Add Something" menu ---------- */
 .add-menu {
@@ -972,9 +970,7 @@ a.mini-task:focus-visible {
   }
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* Responsive layout */
 @media (max-width: 1180px) {
   .dash-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -1085,7 +1081,7 @@ a.mini-task:focus-visible {
   gap: 16px 12px;
 }
 
-/* every card: thin border, no shadow */
+/* Card border */
 .dash-hero,
 .dash-card,
 .stat-card {
@@ -1367,9 +1363,7 @@ a.mini-task:focus-visible {
   .clock-remove-spacer { grid-area: remove; }
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+/* Responsive layout */
 
 /* tablet + phone: cards stack and the page scrolls */
 @media (max-width: 1180px) {

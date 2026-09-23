@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../controllers/PasswordResetController.php';
 
-// Must have a verified code from step 2
+// Require a verified reset code
 if (empty($_SESSION['pwreset_email']) || empty($_SESSION['pwreset_verified'])) {
     header('Location: ./forgot-password');
     exit;

@@ -1,5 +1,4 @@
 
-<!-- Task details dialog -->
 <div class="task-modal-backdrop" id="taskViewBackdrop" aria-hidden="true">
     <div class="task-modal" role="dialog" aria-modal="true" aria-labelledby="taskViewHeading">
         <button type="button" class="task-modal-close" data-task-close aria-label="Close"><i class="ti ti-x"></i></button>

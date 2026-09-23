@@ -23,13 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['ajax'] ?? '') === 'search') 
     dashboardJson(['results' => $controller->search($userId, (string) ($_GET['q'] ?? ''))]);
 }
 
-// ---- AJAX: city list for the "Add World Clock City" popup ----
+// Load world clock cities
 // Load world clock catalog
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['ajax'] ?? '') === 'world_clock_catalog') {
     dashboardJson(['cities' => $clockModel->catalog()]);
 }
 
-// ---- AJAX: add / remove a world clock ----
+// Update world clocks
 // Handle world clock updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && in_array($_POST['ajax'] ?? '', ['world_clock_add', 'world_clock_remove'], true)) {

@@ -12,7 +12,6 @@ class Task
 
     private PDO $dbh;
 
-    // Initialize task data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
@@ -50,7 +49,6 @@ class Task
         return $row ? $this->normalize($row) : null;
     }
 
-    /** Validate and normalize task input. */
     // Validate and normalize task input
     public function validate(array $input): array
     {
@@ -179,7 +177,6 @@ class Task
         return ['errors' => [], 'task' => $this->find($taskId, $userId)];
     }
 
-    /** Move a task to another status. */
     // Update task status
     public function setStatus(int $taskId, int $userId, string $status): ?array
     {

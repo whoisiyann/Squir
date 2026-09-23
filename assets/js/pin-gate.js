@@ -26,7 +26,6 @@ window.SquirPin = (function () {
     var resolveCurrent = null;
     var busy = false;
 
-    /* ---------- UI helpers ---------- */
 
     function value() {
         return boxes.map(function (box) { return box.value; }).join('');
@@ -81,7 +80,6 @@ window.SquirPin = (function () {
         close();
     }
 
-    /* ---------- Server check ---------- */
 
     // Verify the entered PIN
     function sendPin(pin) {
@@ -132,7 +130,6 @@ window.SquirPin = (function () {
         });
     }
 
-    /* ---------- Events ---------- */
 
     boxes.forEach(function (box, index) {
         box.addEventListener('input', function () {
@@ -182,7 +179,6 @@ window.SquirPin = (function () {
         if (event.key === 'Escape' && backdrop.classList.contains('open')) cancel();
     });
 
-    /* ---------- Public API ---------- */
 
     return {
 

@@ -15,7 +15,6 @@ class DashboardController
 		'done' => 'Done',
 	];
 
-	// Initialize dashboard data access
 	public function __construct(private PDO $db)
 	{
 	}

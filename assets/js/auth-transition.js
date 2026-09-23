@@ -1,5 +1,4 @@
 
-// Handle authentication page transitions
 (function () {
     var leaving = false;
     var AUTH_PATHS = ['/login', '/register', '/forgot-password', '/verify-reset-code', '/reset-password'];

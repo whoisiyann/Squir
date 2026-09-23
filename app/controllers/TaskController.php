@@ -5,7 +5,6 @@ class TaskController
 {
     private Task $taskModel;
 
-    // Initialize task service
     public function __construct(Task $taskModel)
     {
         $this->taskModel = $taskModel;

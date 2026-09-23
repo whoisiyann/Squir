@@ -7,7 +7,6 @@
             <div class="search-results" id="globalSearchResults" role="listbox" aria-label="Search results"></div>
         </div>
         <div class="topbar-actions">
-            <!-- <button class="icon-btn" type="button" aria-label="Notifications"><i class="ti ti-bell"></i><span class="notification-dot"></span></button> -->
             <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><i class="ti ti-moon"></i></button>
             <div class="profile-menu" id="profileMenu">
                 <button class="profile" id="profileBtn" type="button" aria-haspopup="menu" aria-expanded="false">

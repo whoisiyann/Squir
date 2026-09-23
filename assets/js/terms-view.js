@@ -35,7 +35,7 @@
     var closeBtn = document.getElementById('termsViewClose');
     if (closeBtn) closeBtn.addEventListener('click', showForm);
 
-    // Reading and clicking "Continue" counts as agreeing, so tick the checkbox for them.
+    // Mark the terms as accepted.
     var continueBtn = document.getElementById('termsViewContinue');
     if (continueBtn) {
         continueBtn.addEventListener('click', function () {

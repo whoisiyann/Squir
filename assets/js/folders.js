@@ -5,7 +5,6 @@
     var popover = document.getElementById('folderColorPopover');
     var popoverFolderId = null;
 
-    /* ---------- Folder sorting ---------- */
     var SORT_KEY = 'squir-folder-sort';
     var sortLabels = ['Click to sort A to Z', 'Click to sort Z to A', 'Click to sort by newest created', 'Click to sort by recently updated'];
     var sortState = -1;
@@ -80,7 +79,6 @@
         }).observe(grid, { childList: true });
     }
 
-    /* ---------- Search: debounce auto-submit ---------- */
     (function () {
         var searchForm = document.getElementById('foldersSearchForm');
         var searchInput = document.getElementById('foldersSearchInput');
@@ -99,7 +97,6 @@
         }
     })();
 
-    /* ---------- Grid / List view toggle ---------- */
     var VIEW_KEY = 'squir-folder-view';
     var viewButtons = $all('.view-toggle-btn');
 
@@ -131,7 +128,6 @@
         return grid && grid.classList.contains('list-view');
     }
 
-    /* ---------- Color popover ---------- */
     function closePopover() {
         popover.classList.remove('open');
         popoverFolderId = null;
@@ -220,7 +216,6 @@
         });
     });
 
-    /* ---------- Create Folder modal ---------- */
     var createBackdrop = document.getElementById('createFolderModalBackdrop');
     var openCreateBtn = document.getElementById('openCreateFolderModal');
     var createColorInput = document.getElementById('createFolderColor');

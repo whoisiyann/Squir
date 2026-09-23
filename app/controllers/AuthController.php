@@ -3,7 +3,6 @@ require_once __DIR__ . '/../models/User.php';
 
 class AuthController
 {
-	// Initialize authentication service
 	public function __construct(private User $user)
 	{
 	}

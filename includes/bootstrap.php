@@ -6,9 +6,6 @@ require_once __DIR__ . '/dbconnect.php';
 require_once __DIR__ . '/../config/config.php';
 
 
-/**
- * @param bool $requirePin 
- */
 
 function requireLogin(bool $requirePin = true): int
 {
@@ -53,7 +50,7 @@ function csrfValid(?string $submitted): bool
 }
 
 
-/* ===================== PIN UNLOCK (vault reveal) ===================== */
+// PIN unlock
 
 function grantPinUnlock(): void
 {

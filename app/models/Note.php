@@ -4,13 +4,11 @@ class Note
 {
     private PDO $dbh;
 
-    // Initialize note data access
     public function __construct(PDO $dbh)
     {   
         $this->dbh = $dbh;
     }
 
-    /* ================= QUERIES ================= */
 
     // Search user notes
     public function searchForUser(int $userId, ?int $folderId = null, string $search = ''): array
@@ -79,7 +77,6 @@ class Note
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ================= MUTATIONS ================= */
 
     // Create a note
     public function create(int $userId, array $data): array
@@ -181,7 +178,6 @@ class Note
         return (int) $this->dbh->lastInsertId();
     }
 
-    /* ================= HELPERS ================= */
 
     /** Plain-text preview for the list card (strips HTML tags, collapses whitespace). */
     // Build a plain-text excerpt

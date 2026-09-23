@@ -6,7 +6,6 @@ class NoteController
     private Note $noteModel;
     private PDO $dbh;
 
-    // Initialize note services
     public function __construct(Note $noteModel, PDO $dbh)
     {
         $this->noteModel = $noteModel;

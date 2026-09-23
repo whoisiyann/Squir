@@ -8,7 +8,6 @@ class PasswordReset
 
     private PDO $dbh;
 
-    // Initialize password reset data access
     public function __construct(PDO $dbh)
     {
         $this->dbh = $dbh;
@@ -31,7 +30,7 @@ class PasswordReset
         $code = str_pad((string) random_int(0, 999999), self::CODE_LENGTH, '0', STR_PAD_LEFT);
         $ttl = self::ttlMinutes();
 
-        // Only one active code per user — clear anything older first.
+        // Keep one active code per user.
         $clear = $this->dbh->prepare('DELETE FROM password_resets WHERE user_id = :uid');
         $clear->execute(['uid' => $userId]);
 

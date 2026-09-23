@@ -3,7 +3,6 @@
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
     var tableWrap = document.getElementById('vaultTableWrap');
 
-    /* ---------- Toast (bottom pop-up) ---------- */
     var toastEl = null;
     var toastTimer = null;
 
@@ -26,7 +25,6 @@
     if (window.VAULT_FLASH) toast(window.VAULT_FLASH);
 
 
-    /* ---------- Modal open/close ---------- */
     // Open a vault modal
     function openModal(name) {
         var backdrop = document.getElementById(name + 'ModalBackdrop');
@@ -78,7 +76,6 @@
         openModal('edit');
     }
 
-    /* ---------- Show/hide password inside modals ---------- */
     $all('.toggle-password').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var input = document.getElementById(btn.getAttribute('data-target'));
@@ -101,7 +98,6 @@
         });
     });
 
-    /* ---------- Generate random password ---------- */
     $all('.generate-password').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var input = document.getElementById(btn.getAttribute('data-target'));
@@ -123,7 +119,6 @@
         });
     });
 
-    /* ---------- Live favicon preview while typing a website URL ---------- */
     // Update the favicon preview
     function wireFaviconPreview(inputId, previewId) {
         var input = document.getElementById(inputId);
@@ -151,7 +146,6 @@
     wireFaviconPreview('v_url', 'createFaviconPreview');
     wireFaviconPreview('e_url', 'editFaviconPreview');
 
-    /* ---------- Favorite toggle: Add Password modal ---------- */
     var createFavoriteBtn = document.getElementById('createFavoriteToggle');
     var createFavoriteInput = document.getElementById('createIsFavorite');
     if (createFavoriteBtn && createFavoriteInput) {
@@ -162,7 +156,6 @@
         });
     }
 
-    /* ---------- Favorite toggle: Edit Password modal ---------- */
     var editFavoriteBtn = document.getElementById('editFavoriteToggle');
     var editFavoriteInput = document.getElementById('editIsFavorite');
     if (editFavoriteBtn && editFavoriteInput) {
@@ -173,7 +166,6 @@
         });
     }
 
-    /* ---------- Reveal / copy password (server-side decrypt only) ---------- */
     // Reveal a vault password
     function revealById(id, reason) {
         return window.SquirPin.ensure(reason).then(function () {
@@ -295,7 +287,6 @@
         });
     });
 
-    /* Copy password button inside the Edit Password modal */
     var editCopyBtn = document.querySelector('.vault-copy-password-btn');
     if (editCopyBtn) {
         editCopyBtn.addEventListener('click', function () {
@@ -319,7 +310,6 @@
         });
     }
 
-    /* ---------- Copy username (from the 3-dot menu) ---------- */
     $all('.vault-menu-copy-username').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var username = btn.getAttribute('data-username') || '';
@@ -331,7 +321,6 @@
         });
     });
 
-    /* ---------- 3-dot dropdown menu ---------- */
     // Close vault menus
     function closeAllMenus() {
         $all('.vault-menu-dropdown.open').forEach(function (menu) {
@@ -393,7 +382,6 @@
     document.addEventListener('click', closeAllMenus);
     window.addEventListener('resize', closeAllMenus);
     if (tableWrap) tableWrap.addEventListener('scroll', closeAllMenus, { passive: true });
-    /* ---------- Favorite star: toggle straight from the Vault list (Actions column) ---------- */
     // Toggle a vault favorite
     function toggleFavorite(vaultId) {
         var body = new URLSearchParams();
@@ -437,7 +425,6 @@
         });
     });
 
-    /* ---------- Grid / List view toggle ---------- */
     var VIEW_KEY = 'squir-vault-view';
     var viewButtons = $all('.view-toggle-btn');
 

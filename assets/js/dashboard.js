@@ -1,4 +1,3 @@
-// Shared dashboard shell
 
 (function () {
     var shell = document.getElementById('appShell');
@@ -20,7 +19,6 @@
         });
     });
 
-    /* ---------- Theme switch ---------- */
     // Apply the selected theme
     function applyTheme(isDark) {
         document.body.classList.toggle('dashboard-dark', isDark);
@@ -54,7 +52,6 @@
         });
     }
 
-    /* ---------- Sidebar ---------- */
     if (collapseButton) {
         collapseButton.addEventListener('click', function () {
             if (window.matchMedia('(max-width: 700px)').matches) {
@@ -82,7 +79,6 @@
         });
     }
 
-    /* ---------- Profile dropdown ---------- */
     var profileMenu = document.getElementById('profileMenu');
     var profileButton = document.getElementById('profileBtn');
 
@@ -106,7 +102,6 @@
         });
     }
 
-    /* ---------- Header search ("Search anything...") ---------- */
     (function () {
         var input = document.getElementById('globalSearchInput');
         var panel = document.getElementById('globalSearchResults');

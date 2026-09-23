@@ -17,7 +17,6 @@
         return wrap;
     }
 
-    /* =============== Delete confirm =============== */
     var del = null;
 
     function getDeleteUi() {
@@ -79,7 +78,6 @@
         ui.cancel.focus(); //
     }
 
-    /* =============== Rename / New name dialog =============== */
     var nm = null;
 
     function getNameUi() {
@@ -165,7 +163,7 @@
         ui.input.select();
     }
 
-    /* =============== forms na may data-confirm-delete =============== */
+    // Forms with data-confirm-delete
     /* Delete confirmation forms */
     // Handle protected delete forms
     document.addEventListener('submit', function (event) {
@@ -179,7 +177,6 @@
         });
     });
 
-    /* =============== Esc =============== */
     /* Escape key handling */
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;

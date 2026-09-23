@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../controllers/PasswordResetController.php';
 
-// Must have started the flow from step 1
+// Require an active reset request
 if (empty($_SESSION['pwreset_email'])) {
     header('Location: ./forgot-password');
     exit;

@@ -6,7 +6,6 @@ class FavoriteController
     private Favorite $favoriteModel;
     private PDO $dbh;
 
-    // Initialize favorites services
     public function __construct(Favorite $favoriteModel, PDO $dbh)
     {
         $this->favoriteModel = $favoriteModel;

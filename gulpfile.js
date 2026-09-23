@@ -15,9 +15,7 @@ const { parallel } = require('gulp');
 var postcss = require('gulp-postcss');
 tailwindcss = require('tailwindcss');
 
-// =======================================================
-// ----------- START: Theme Configuration -----------
-// =======================================================
+// Theme configuration
 
 const caption_show = 'true'; // [ false , true ]
 const preset_theme = 'preset-1'; // [ preset-1 to preset-10 ]

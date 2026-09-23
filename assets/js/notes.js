@@ -5,7 +5,6 @@
     var notesList = document.getElementById('notesList');
     var menuFavBtn = document.querySelector('.note-menu-favorite'); // editor's 3-dot Favorite item
 
-    /* ---------- Toast (bottom pop-up) ---------- */
     var toastEl = null;
     var toastTimer = null;
 
@@ -27,8 +26,6 @@
 
     if (window.NOTES_FLASH) toast(window.NOTES_FLASH);
 
-/* ---------- Search: debounce auto-submit (feels live, still a normal GET) ---------- */
-    /* Search debounce */
     (function () {
         var form = document.getElementById('notesSearchForm');
         var input = document.getElementById('notesSearchInput');
@@ -47,7 +44,6 @@
         }
     })();
 
-    /* ---------- Folder pills ---------- */
     (function () {
         var pills = document.querySelector('.notes-folder-pills');
         if (!pills) return;
@@ -66,7 +62,6 @@
         }, { passive: false });
     })();
 
-    /* ---------- Favorite star ---------- */
     // Toggle a note favorite
     function toggleFavoriteRequest(noteId, csrfToken) {
         var body = new URLSearchParams();
@@ -133,7 +128,6 @@
         });
     }
 
-    /* ---------- Favorite item (list rows, inside 3-dot dropdown) ---------- */
     $all('.note-menu-favorite-item').forEach(function (btn) {
         btn.addEventListener('click', function (event) {
             event.preventDefault();
@@ -165,7 +159,6 @@
         });
     });
 
-    /* ---------- 3-dot dropdown menus (list rows + detail header) ---------- */
     // Close note menus
     function closeAllMenus() {
         $all('.note-menu-dropdown.open').forEach(function (menu) {
@@ -219,7 +212,6 @@
     document.addEventListener('click', closeAllMenus);
     window.addEventListener('resize', closeAllMenus);
 
-    /* ---------- Editor: toolbar + autosave ---------- */
     if (editor) {
         var noteId = editor.getAttribute('data-note-id');
         var csrfToken = editor.getAttribute('data-csrf');

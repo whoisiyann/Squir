@@ -30,7 +30,6 @@
     var nameTargetId = '';
     var nameOriginal = '';
 
-    /* ---------- helpers ---------- */
     function rowFor(id) {
         for (var i = 0; i < rows.length; i++) {
             if ((rows[i].getAttribute('data-folder-id') || '') === id) return rows[i];
@@ -64,7 +63,6 @@
         if (url) { window.location.href = url; } else { window.location.reload(); }
     }
 
-    /* ---------- selection ---------- */
     // Select a notes folder
     function select(id) {
         selectedId = id;
@@ -88,7 +86,6 @@
         }
     });
 
-    /* ---------- panel open / close ---------- */
     // Open the notes folder panel
     function openPanel() {
         select(rowFor(activeFolder) ? activeFolder : '');
@@ -113,7 +110,6 @@
         if (event.target === panel) hide(panel);
     });
 
-    /* ---------- rename / new folder dialog ---------- */
     // Open the folder name dialog
     function openNameDialog(mode, folderId, currentName) {
         nameMode = mode;
@@ -171,7 +167,6 @@
         if (event.target === nameDialog) closeNameDialog();
     });
 
-    /* ---------- delete confirm dialog ---------- */
     function closeDeleteDialog() { hide(deleteDialog); }
 
     deleteBtn.addEventListener('click', function () {

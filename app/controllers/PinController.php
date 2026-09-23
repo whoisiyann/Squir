@@ -5,7 +5,6 @@ class PinController
 {
     private UserPin $pinModel;
 
-    // Initialize PIN service
     public function __construct(UserPin $pinModel)
     {
         $this->pinModel = $pinModel;
@@ -17,7 +16,7 @@ class PinController
         return $this->pinModel->exists($userId);
     }
 
-    /** Create a user PIN. */
+    // Create a user PIN
     // Create a user PIN
     public function store(int $userId, array $post): array
     {

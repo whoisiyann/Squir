@@ -5,7 +5,6 @@ class VaultController
     private Vault $vaultModel;
     private PDO $dbh;
 
-    // Initialize vault services
     public function __construct(Vault $vaultModel, PDO $dbh)
     {
         $this->vaultModel = $vaultModel;

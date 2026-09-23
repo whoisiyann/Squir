@@ -1,5 +1,4 @@
-/* Terms of Service & Privacy Policy panel (register page) —
-   swaps into the same right-hand slot as .auth-form, instead of a popup. */
+/* Terms and privacy panel */
 
 .terms-view {
 	flex: 1;

@@ -1,5 +1,3 @@
-// Tasks board
-// Tasks board
 
 (function () {
     'use strict';
@@ -25,7 +23,6 @@
     var dragId = null;
     var indicatorEl = null;
 
-    /* =============== Small helpers =============== */
 
     function $(id) { return document.getElementById(id); }
 
@@ -57,7 +54,6 @@
         return null;
     }
 
-    /* =============== Dates =============== */
 
     function pad(n) { return n < 10 ? '0' + n : String(n); }
 
@@ -106,7 +102,6 @@
         return null;
     }
 
-    /* =============== Ordering =============== */
 
     function byPosition(a, b) {
         return (a.position - b.position) || (a.task_id - b.task_id);
@@ -121,7 +116,6 @@
         return (task.title + ' ' + task.description).toLowerCase().indexOf(searchTerm) !== -1;
     }
 
-    /* =============== Server =============== */
 
     // Send a task request
     function api(action, data) {
@@ -159,7 +153,6 @@
         }
     }
 
-    /* =============== Toast =============== */
 
     var toastEl = null;
     var toastTimer = null;
@@ -178,8 +171,6 @@
         toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2400);
     }
 
-    /* =============== Confirm (=============== */
-/* Confirmation dialog */
 
     function confirmAction(message, action) {
         if (window.SquirDialogs && window.SquirDialogs.confirmDelete) {
@@ -191,7 +182,6 @@
         }
     }
 
-    /* =============== Board rendering =============== */
 
     // Render the task board
     function render() {
@@ -313,7 +303,7 @@
             dragId = task.task_id;
             closeMenu();
             event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('text/plain', String(task.task_id)); // kailangan ng Firefox
+            event.dataTransfer.setData('text/plain', String(task.task_id)); // Firefox requires this
             card.classList.add('is-dragging');
         });
         card.addEventListener('dragend', function () {
@@ -325,7 +315,6 @@
         return card;
     }
 
-    /* =============== Drag & drop =============== */
 
     function clearIndicator() {
         if (indicatorEl) {
@@ -433,7 +422,7 @@
         ids.splice(index, 0, id);
 
         var current = columnTasks(statusKey).map(function (t) { return t.task_id; });
-        if (task.status === statusKey && current.join(',') === ids.join(',')) return; // walang nagbago
+        if (task.status === statusKey && current.join(',') === ids.join(',')) return; // No change
 
         var snapshot = tasks.map(function (t) { return Object.assign({}, t); });
 
@@ -454,7 +443,6 @@
         });
     }
 
-    /* =============== Actions =============== */
 
     // Move a task to another status
     function moveTask(id, status) {
@@ -716,7 +704,6 @@
     }, true);
     window.addEventListener('resize', closeMenu);
 
-    /* =============== Modal helpers =============== */
 
     function showModal(backdrop) {
         backdrop.classList.add('open');
@@ -732,7 +719,6 @@
         return backdrop.classList.contains('open');
     }
 
-    /* =============== Create / Edit modal =============== */
 
     var formEl = {
         backdrop: $('taskFormBackdrop'),
@@ -823,7 +809,6 @@
         });
     });
 
-    /* =============== View modal =============== */
 
     var viewEl = {
         backdrop: $('taskViewBackdrop'),
@@ -878,7 +863,6 @@
         if (task) confirmDeleteTask(task);
     });
 
-    /* =============== Modal close wiring =============== */
 
     [
         { backdrop: formEl.backdrop, close: closeForm },
@@ -913,7 +897,6 @@
 
     render();
 
-    /* =============== Deep links from the dashboard =============== */
     // ./tasks?new=1   -> open "Create New Task" right away
     // ./tasks?task=ID -> open that task's details
     // Open task dialogs from dashboard links
