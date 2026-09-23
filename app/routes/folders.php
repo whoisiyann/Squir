@@ -8,6 +8,18 @@ $folderModel = new Folder($dbh);
 $controller = new FolderController($folderModel, $dbh);
 $csrfToken = csrfToken();
 
+// Validate a safe return URL (used when the request came from Favorites)
+function foldersSafeReturnTo(?string $value): ?string
+{
+    if (!is_string($value) || $value === '') {
+        return null;
+    }
+    if (preg_match('~^\./(folders|favorites)(\?[A-Za-z0-9=&%._\-]*)?$~', $value)) {
+        return $value;
+    }
+    return null;
+}
+
 
 // Update folder color
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_color') {
@@ -143,6 +155,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
             $deleteId = (int) ($_POST['folder_id'] ?? 0);
             $folderToDelete = $folderModel->find($deleteId, $userId);
             $controller->destroy($deleteId, $userId);
+
+            $returnTo = foldersSafeReturnTo($_POST['return_to'] ?? null);
+            if ($returnTo !== null) {
+                header('Location: ' . $returnTo);
+                exit;
+            }
 
             $backType = ($folderToDelete && $folderToDelete['folder_type'] === 'notes') ? '?type=notes' : '';
             header('Location: ./folders' . $backType);

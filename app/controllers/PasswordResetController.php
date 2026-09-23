@@ -27,12 +27,16 @@ class PasswordResetController
             return ['errors' => $errors, 'email' => $email, 'dev_code' => null];
         }
 
-        $devCode = null;
         $user = $this->userModel->findByEmail($email);
 
-        if ($user) {
-            $devCode = $this->issueAndSend((int) $user['user_id'], $email, $user['full_name']);
+        if (!$user) {
+            // Per spec: tell the user outright that the email isn't registered,
+            // and never generate or send a code for it.
+            $errors['email'] = 'This email address is not registered.';
+            return ['errors' => $errors, 'email' => $email, 'dev_code' => null];
         }
+
+        $devCode = $this->issueAndSend((int) $user['user_id'], $email, $user['full_name']);
 
         return ['errors' => [], 'email' => $email, 'dev_code' => $devCode];
     }

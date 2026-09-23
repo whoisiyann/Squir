@@ -14,7 +14,7 @@ $isActiveRoute = static fn (string $r): string => $route === $r ? ' active' : ''
         <a class="nav-link<?= $isActiveRoute('notes') ?>" href="./notes"<?= $route === 'notes' ? ' aria-current="page"' : '' ?>><i class="ti ti-notes"></i><span>Notes</span></a>
         <a class="nav-link<?= $isActiveRoute('tasks') ?>" href="./tasks"<?= $route === 'tasks' ? ' aria-current="page"' : '' ?>><i class="ti ti-checkbox"></i><span>Tasks</span></a>
         <a class="nav-link<?= $isActiveRoute('folders') ?>" href="./folders"<?= $route === 'folders' ? ' aria-current="page"' : '' ?>><i class="ti ti-folder"></i><span>Folders</span></a>
-        <a class="nav-link" href="#favorites"><i class="ti ti-star"></i><span>Favorites</span></a>
+        <a class="nav-link<?= $isActiveRoute('favorites') ?>" href="./favorites"<?= $route === 'favorites' ? ' aria-current="page"' : '' ?>><i class="ti ti-star"></i><span>Favorites</span></a>
     </nav>
     <nav class="sidebar-nav sidebar-bottom" aria-label="Account navigation">
         <hr class="nav-separator">

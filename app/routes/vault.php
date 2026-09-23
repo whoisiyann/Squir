@@ -93,7 +93,7 @@ function vaultSafeReturnTo(?string $value): string
     if (!is_string($value) || $value === '') {
         return $default;
     }
-    if (preg_match('~^\./(vault|folders|dashboard)(\?[A-Za-z0-9=&%._\-]*)?$~', $value)) {
+    if (preg_match('~^\./(vault|folders|dashboard|favorites)(\?[A-Za-z0-9=&%._\-]*)?$~', $value)) {
         return $value;
     }
     return $default;

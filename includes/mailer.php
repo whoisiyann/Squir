@@ -3,7 +3,26 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
+
+/**
+ * Append a line to includes/logs/mail-debug.log (auto-ignored by .gitignore's
+ * "logs" / "*.log" rules). Only active while MAIL_DEBUG is true.
+ */
+function squirMailLog(string $line): void
+{
+    if (!defined('MAIL_DEBUG') || !MAIL_DEBUG) {
+        return;
+    }
+
+    $dir = __DIR__ . '/logs';
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+
+    file_put_contents($dir . '/mail-debug.log', '[' . date('Y-m-d H:i:s') . '] ' . $line . PHP_EOL, FILE_APPEND);
+}
 
 /**
  * Email a password reset code to a user via Gmail SMTP (PHPMailer).
@@ -46,6 +65,16 @@ function sendPasswordResetEmail(string $toEmail, string $toName, string $code, i
             throw new PHPMailerException('SMTP_USERNAME / SMTP_PASSWORD ay wala pang value sa .env');
         }
 
+        // Verbose SMTP transcript (server responses only) piped into our own
+        // log file instead of being echoed to the page. This is what lets us
+        // see Gmail's actual per-recipient response, not just true/false.
+        if (defined('MAIL_DEBUG') && MAIL_DEBUG) {
+            $mail->SMTPDebug   = SMTP::DEBUG_SERVER;
+            $mail->Debugoutput = static function (string $str, int $level): void {
+                squirMailLog('[SMTP] ' . trim($str));
+            };
+        }
+
         $mail->setFrom($fromAddress, $fromName);
         $mail->addAddress($toEmail, $toName);
         $mail->addReplyTo($fromAddress, $fromName);
@@ -56,13 +85,12 @@ function sendPasswordResetEmail(string $toEmail, string $toName, string $code, i
         $mail->AltBody = $plainBody;
 
         $mail->send();
+        squirMailLog("SUCCESS sending to {$toEmail} (auth user: {$mail->Username})");
         return true;
     } catch (PHPMailerException $e) {
         // Sa production, mas maganda kung nasa proper log file ito imbes na error_log lang.
         error_log('sendPasswordResetEmail failed: ' . $mail->ErrorInfo);
+        squirMailLog("FAILED sending to {$toEmail} (auth user: {$mail->Username}) — ErrorInfo: {$mail->ErrorInfo}");
         return false;
     }
 }
-
-
-

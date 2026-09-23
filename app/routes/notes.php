@@ -117,12 +117,25 @@ $errors = [];
 $flashSuccess = $_SESSION['notes_flash_success'] ?? null;
 unset($_SESSION['notes_flash_success']);
 
+// Validate a safe return URL (used when the request came from Favorites)
+function notesSafeReturnTo(?string $value): ?string
+{
+    if (!is_string($value) || $value === '') {
+        return null;
+    }
+    if (preg_match('~^\./(notes|favorites)(\?[A-Za-z0-9=&%._\-]*)?$~', $value)) {
+        return $value;
+    }
+    return null;
+}
+
 // Process note form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
     } else {
         $action = $_POST['action'] ?? '';
+        $returnTo = notesSafeReturnTo($_POST['return_to'] ?? null);
 
         $redirectParams = [];
         if (($_POST['folder'] ?? '') !== '') {
@@ -145,13 +158,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $controller->destroy($noteId, $userId);
             $_SESSION['notes_flash_success'] = 'Note deleted.';
-            header('Location: ./notes?' . http_build_query($redirectParams));
+            header('Location: ' . ($returnTo ?? ('./notes?' . http_build_query($redirectParams))));
             exit;
         } elseif ($action === 'move_folder') {
 
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $targetFolder = ($_POST['target_folder'] ?? '') !== '' ? (int) $_POST['target_folder'] : null;
             $controller->moveToFolder($noteId, $userId, $targetFolder);
+            if ($returnTo !== null) {
+                header('Location: ' . $returnTo);
+                exit;
+            }
             $redirectParams['note'] = $noteId;
             header('Location: ./notes?' . http_build_query($redirectParams));
             exit;

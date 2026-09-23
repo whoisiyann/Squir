@@ -56,6 +56,10 @@ switch ($route) {
         require __DIR__ . '/app/routes/folders.php';
         break;
 
+    case 'favorites':
+        require __DIR__ . '/app/routes/favorites.php';
+        break;
+
     default:
         http_response_code(404);
         echo '404 — Page not found.';
