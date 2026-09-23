@@ -68,7 +68,7 @@ CREATE TABLE user_pins (
 CREATE TABLE password_resets (
     reset_id    INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
-    code_hash   VARCHAR(255) NOT NULL,   -- bcrypt hash ng 6-digit code, hindi plain text
+    code_hash   VARCHAR(255) NOT NULL,
     attempts    TINYINT UNSIGNED NOT NULL DEFAULT 0,
     expires_at  DATETIME NOT NULL,
     verified_at DATETIME NULL,

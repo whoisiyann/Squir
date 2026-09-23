@@ -324,6 +324,35 @@
             if (dateEl) dateEl.textContent = json.updated_at;
         }
 
+        function isTransparentBg(value) {
+            if (!value) return true;
+            var v = value.trim().toLowerCase();
+            return v === '' || v === 'transparent' || v === 'initial' || v === 'inherit' ||
+                v === 'rgba(0, 0, 0, 0)' || v === 'rgba(0,0,0,0)';
+        }
+
+        function normalizeHighlights() {
+            $all('[style*="background-color"]', contentEl).forEach(function (el) {
+                if (isTransparentBg(el.style.backgroundColor)) {
+                    el.classList.remove('note-hl');
+                    el.style.removeProperty('background-color');
+                    if (!el.getAttribute('style')) el.removeAttribute('style');
+                } else {
+                    el.classList.add('note-hl');
+                }
+            });
+        }
+
+        function stripStrayHighlights() {
+            $all('[style*="background-color"]', contentEl).forEach(function (el) {
+                if (el.classList.contains('note-hl')) return;
+                el.style.removeProperty('background-color');
+                if (!el.getAttribute('style')) el.removeAttribute('style');
+            });
+        }
+
+        normalizeHighlights();
+
         function updateToolbarState() {
             $all('[data-cmd]', toolbar).forEach(function (el) {
                 var cmd = el.getAttribute('data-cmd');
@@ -350,9 +379,11 @@
                     var url = window.prompt('Link URL:', 'https://');
                     if (!url) return;
                     document.execCommand('createLink', false, url);
+                    stripStrayHighlights();
                 } else if (cmd === 'formatBlock') {
                     var current = document.queryCommandValue('formatBlock').toLowerCase();
                     document.execCommand('formatBlock', false, current === value ? 'p' : value);
+                    stripStrayHighlights();
                 } else if (cmd === 'hiliteColor') {
                     var isActive = el.classList.toggle('active');
                     var appliedValue = isActive
@@ -367,8 +398,10 @@
                     } else {
                         document.execCommand('backColor', false, appliedValue);
                     }
+                    normalizeHighlights();
                 } else {
                     document.execCommand(cmd, false, null);
+                    stripStrayHighlights();
                 }
                 scheduleSave();
                 updateToolbarState();
