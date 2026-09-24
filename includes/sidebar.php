@@ -18,7 +18,7 @@ $isActiveRoute = static fn (string $r): string => $route === $r ? ' active' : ''
     </nav>
     <nav class="sidebar-nav sidebar-bottom" aria-label="Account navigation">
         <hr class="nav-separator">
-        <a class="nav-link" href="#settings"><i class="ti ti-settings"></i><span>Settings</span></a>
+        <a class="nav-link<?= $isActiveRoute('settings') ?>" href="./settings"<?= $route === 'settings' ? ' aria-current="page"' : '' ?>><i class="ti ti-settings"></i><span>Settings</span></a>
         <a class="nav-link" href="./logout"><i class="ti ti-logout"></i><span>Logout</span></a>
     </nav>
     <div class="sidebar-illustration"><img src="./assets/images/squirrel.gif" alt="Squir mascot"></div>

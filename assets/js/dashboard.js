@@ -19,7 +19,7 @@
         });
     });
 
-    // Apply the selected theme
+    // Apply the selected theme (isDark: resolved light/dark state, not the raw preference)
     function applyTheme(isDark) {
         document.body.classList.toggle('dashboard-dark', isDark);
         document.documentElement.classList.remove('dashboard-dark-preload');
@@ -32,25 +32,55 @@
         themeButton.setAttribute('title', isDark ? 'Light Mode' : 'Dark Mode');
     }
 
-    var savedTheme = null;
-    try {
-        savedTheme = window.localStorage.getItem(themeStorageKey);
-    } catch (error) {
-        savedTheme = null;
+    var systemDarkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+    // Resolve a stored preference ('light' | 'dark' | 'auto') to an actual light/dark state
+    function resolveIsDark(pref) {
+        if (pref === 'dark') return true;
+        if (pref === 'light') return false;
+        return !!(systemDarkQuery && systemDarkQuery.matches);
     }
-    applyTheme(savedTheme === 'dark');
+
+    function getThemePreference() {
+        try {
+            return window.localStorage.getItem(themeStorageKey) || 'light';
+        } catch (error) {
+            return 'light';
+        }
+    }
+
+    // Store a theme preference and apply it ('light' | 'dark' | 'auto')
+    function setThemePreference(pref) {
+        applyTheme(resolveIsDark(pref));
+        try {
+            window.localStorage.setItem(themeStorageKey, pref);
+        } catch (error) {
+            // Ignore storage errors (private browsing, etc.)
+        }
+    }
+
+    setThemePreference(getThemePreference());
+
+    if (systemDarkQuery) {
+        var onSystemChange = function () {
+            if (getThemePreference() === 'auto') applyTheme(systemDarkQuery.matches);
+        };
+        if (systemDarkQuery.addEventListener) {
+            systemDarkQuery.addEventListener('change', onSystemChange);
+        } else if (systemDarkQuery.addListener) {
+            systemDarkQuery.addListener(onSystemChange);
+        }
+    }
 
     if (themeButton) {
         themeButton.addEventListener('click', function () {
             var isDark = !document.body.classList.contains('dashboard-dark');
-            applyTheme(isDark);
-            try {
-                window.localStorage.setItem(themeStorageKey, isDark ? 'dark' : 'light');
-            } catch (error) {
-                // Apply the current theme
-            }
+            setThemePreference(isDark ? 'dark' : 'light');
         });
     }
+
+    // Shared theme API used by the Settings > Appearance card
+    window.SquirTheme = { get: getThemePreference, set: setThemePreference };
 
     if (collapseButton) {
         collapseButton.addEventListener('click', function () {

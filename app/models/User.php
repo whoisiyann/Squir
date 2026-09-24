@@ -6,20 +6,36 @@ class User
 	{
 	}
 
-	// Check username availability
-	public function usernameExists(string $username): bool
+	// Check username availability (optionally excluding one user, e.g. when editing your own profile)
+	public function usernameExists(string $username, ?int $excludeUserId = null): bool
 	{
-		$statement = $this->db->prepare('SELECT user_id FROM users WHERE username = :username LIMIT 1');
-		$statement->execute(['username' => $username]);
+		$sql = 'SELECT user_id FROM users WHERE username = :username';
+		$params = ['username' => $username];
+
+		if ($excludeUserId !== null) {
+			$sql .= ' AND user_id != :exclude_id';
+			$params['exclude_id'] = $excludeUserId;
+		}
+
+		$statement = $this->db->prepare($sql . ' LIMIT 1');
+		$statement->execute($params);
 
 		return (bool) $statement->fetch();
 	}
 
-	// Check email availability
-	public function emailExists(string $email): bool
+	// Check email availability (optionally excluding one user, e.g. when editing your own profile)
+	public function emailExists(string $email, ?int $excludeUserId = null): bool
 	{
-		$statement = $this->db->prepare('SELECT user_id FROM users WHERE email = :email LIMIT 1');
-		$statement->execute(['email' => $email]);
+		$sql = 'SELECT user_id FROM users WHERE email = :email';
+		$params = ['email' => $email];
+
+		if ($excludeUserId !== null) {
+			$sql .= ' AND user_id != :exclude_id';
+			$params['exclude_id'] = $excludeUserId;
+		}
+
+		$statement = $this->db->prepare($sql . ' LIMIT 1');
+		$statement->execute($params);
 
 		return (bool) $statement->fetch();
 	}
@@ -71,5 +87,29 @@ class User
 			'password_hash' => $passwordHash,
 			'id' => $userId,
 		]);
+	}
+
+	// Update a user's profile info (Settings > Account Information)
+	public function updateProfile(int $userId, string $fullName, string $username, string $email): bool
+	{
+		$statement = $this->db->prepare(
+			'UPDATE users SET full_name = :full_name, username = :username, email = :email WHERE user_id = :id'
+		);
+
+		return $statement->execute([
+			'full_name' => $fullName,
+			'username' => $username,
+			'email' => $email,
+			'id' => $userId,
+		]);
+	}
+
+	// Permanently delete a user account. Related vault items, notes, tasks,
+	// folders, favorites, tags, and PIN data cascade-delete via foreign keys.
+	public function delete(int $userId): bool
+	{
+		$statement = $this->db->prepare('DELETE FROM users WHERE user_id = :id');
+
+		return $statement->execute(['id' => $userId]);
 	}
 }

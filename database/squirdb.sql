@@ -260,7 +260,7 @@ CREATE TABLE favorites (
 
 
 
--- 10. ACTIVITY_LOGS — audit trail para sa admin panel
+-- 10. ACTIVITY_LOGS — 
 CREATE TABLE activity_logs (
     log_id      BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NULL,

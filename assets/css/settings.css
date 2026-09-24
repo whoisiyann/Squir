@@ -1,0 +1,777 @@
+/* ===== Settings ===== */
+
+.page-heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-heading h1 i {
+  color: var(--accent);
+  font-size: 1.4rem;
+}
+
+.settings-card {
+  padding: 20px 22px 22px;
+}
+
+.settings-card .dash-card-head {
+  margin-bottom: 18px;
+}
+
+.settings-card-subtitle {
+  margin: -10px 0 18px;
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+/* ---------- Layout ---------- */
+.settings-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 20px;
+}
+
+.settings-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ---------- Account Information ---------- */
+.settings-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-avatar {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--avatar-bg, #8a4a1e);
+  color: var(--button-text);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.settings-profile-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-profile-text strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.settings-profile-text small {
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.settings-edit-btn {
+  flex: 0 0 auto;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-field {
+  margin-bottom: 14px;
+}
+
+.settings-field:last-child {
+  margin-bottom: 0;
+}
+
+.settings-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.settings-field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--soft);
+  color: var(--text);
+  font-size: .88rem;
+}
+
+.settings-field input:disabled {
+  cursor: default;
+  opacity: 1;
+  -webkit-text-fill-color: var(--text);
+}
+
+/* ---------- Appearance ---------- */
+.settings-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.settings-theme-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.settings-theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--accent);
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-theme-btn i {
+  font-size: 1.3rem;
+  color: var(--accent);
+}
+
+.settings-theme-btn.active {
+  border-color: var(--accent);
+  background: var(--peach);
+  color: var(--accent);
+}
+
+.settings-theme-btn.active i {
+  color: var(--accent);
+}
+
+/* ---------- Privacy & Security rows ---------- */
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.settings-row-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--accent);
+  font-size: 1.5rem;
+}
+
+.settings-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-row-text strong {
+  font-size: .9rem;
+}
+
+.settings-row-text small {
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.settings-row-chevron {
+  flex: 0 0 auto;
+  color: var(--muted);
+}
+
+.settings-row-export {
+  cursor: default;
+  align-items: center;
+}
+
+.settings-export-btn {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: .8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- Edit Account modal ---------- */
+.settings-page .vault-modal-actions .btn-squir {
+  color: var(--button-text);
+  background: var(--dark);
+}
+
+.settings-page .vault-modal-actions .btn-squir:hover {
+  background: var(--hover);
+}
+
+.settings-edit-modal {
+  max-width: 440px;
+}
+
+.settings-editable-field {
+  margin-bottom: 16px;
+}
+
+.settings-editable-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.settings-editable-field-head label {
+  color: var(--text);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.settings-field-edit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.settings-field-edit-link i {
+  font-size: .9rem;
+}
+
+/* ---------- Edit Account modal: profile row & delete account ---------- */
+.settings-modal-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-modal-profile-row .settings-profile-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-modal-profile-row .settings-profile-text strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.settings-modal-profile-row .settings-profile-text small {
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.settings-delete-account-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--danger);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-delete-account-btn:hover {
+  background: rgba(208, 49, 45, .08);
+}
+
+.settings-delete-account-btn i {
+  font-size: .95rem;
+}
+
+.settings-editable-field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--soft);
+  color: var(--text);
+  font-size: .88rem;
+}
+
+.settings-editable-field input:not([readonly]) {
+  background: var(--input-bg, #fff);
+  border-color: var(--accent);
+}
+
+.settings-form-error {
+  min-height: 0;
+  margin: 0 0 12px;
+  color: #e5484d;
+  font-size: .78rem;
+}
+
+.settings-form-error:empty {
+  display: none;
+}
+
+/* ---------- Sub-page heading (Activity Log / Change Password / Reset PIN) ---------- */
+.settings-subpage-heading {
+  align-items: flex-start;
+}
+
+.settings-subpage-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.settings-back-btn {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-top: 2px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+}
+
+.settings-danger-btn {
+  flex: 0 0 auto;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--danger);
+  border-color: var(--danger);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-danger-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* ---------- Activity log list ---------- */
+.settings-activity-card {
+  min-height: 200px;
+}
+
+.settings-activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-activity-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.settings-activity-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--soft);
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+
+.settings-activity-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-activity-text strong {
+  font-size: .9rem;
+}
+
+.settings-activity-text small {
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.settings-activity-time {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: .76rem;
+  white-space: nowrap;
+}
+
+/* ---------- Change Password / Reset PIN ---------- */
+.settings-security-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.settings-field-password {
+  margin-bottom: 18px;
+}
+
+.settings-field-password label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: .84rem;
+  font-weight: 600;
+}
+
+.settings-password-wrap {
+  position: relative;
+}
+
+.settings-password-wrap input {
+  width: 100%;
+  padding: 12px 42px 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--input-bg, #fff);
+  color: var(--text);
+  font-size: .9rem;
+}
+
+.settings-password-wrap input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.settings-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.settings-password-checklist {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-password-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.settings-password-checklist li i {
+  font-size: .95rem;
+}
+
+.settings-password-checklist li.is-valid {
+  color: #2e9e5b;
+}
+
+.settings-submit-btn {
+  width: 100%;
+  padding: 13px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--button-text);
+  background: var(--dark);
+  font-size: .92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.settings-submit-btn:hover {
+  background: var(--hover);
+}
+
+.settings-submit-btn:disabled {
+  opacity: .7;
+  cursor: default;
+}
+
+.settings-hint-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--peach);
+  color: var(--warn);
+}
+
+.settings-hint-box i {
+  margin-top: 1px;
+  font-size: 1.05rem;
+}
+
+.settings-hint-box p {
+  margin: 0;
+  font-size: .8rem;
+  line-height: 1.4;
+}
+
+.settings-security-aside {
+  padding: 26px 22px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--soft);
+  text-align: center;
+}
+
+.settings-security-aside img {
+  width: 140px;
+  height: auto;
+  margin: 0 auto 14px;
+}
+
+.settings-security-aside h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.settings-security-aside p {
+  margin: 0;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px) {
+  .settings-grid,
+  .settings-security-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-security-aside {
+    order: -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-theme-options {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .settings-profile-row {
+    flex-wrap: wrap;
+  }
+
+  .settings-edit-btn {
+    margin-left: auto;
+  }
+}
+
+/* ---------- Delete Account modal (para lang sa Delete Account button) ---------- */
+.sq-da-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1400; /* mas mataas sa Edit Account modal */
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--backdrop);
+}
+
+.sq-da-backdrop.open {
+  display: flex;
+}
+
+.sq-da-modal {
+  --da-bg: #f8f1ea;
+  --da-text: #a48f85;
+  --da-red: #ff1414;
+  --da-brown: #6b3f2a;
+
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 26px 54px 30px;
+  border-radius: 28px;
+  background: var(--da-bg);
+  box-shadow: var(--shadow);
+  text-align: center;
+  scrollbar-width: none;
+}
+
+.sq-da-modal::-webkit-scrollbar {
+  display: none;
+}
+
+body.dashboard-dark .sq-da-modal,
+html.dashboard-dark-preload .sq-da-modal {
+  --da-bg: var(--card);
+  --da-text: var(--muted);
+  --da-brown: var(--accent);
+}
+
+.sq-da-image {
+  display: block;
+  width: 167px;
+  height: auto;
+  margin: 0 auto 6px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.sq-da-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  color: var(--da-red);
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sq-da-title i {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.sq-da-text {
+  max-width: 360px;
+  margin: 0 auto 14px;
+  color: var(--da-text);
+  font-size: .98rem;
+  line-height: 1.45;
+}
+
+.sq-da-error {
+  min-height: 0;
+  margin: 0 0 10px;
+  color: var(--da-red);
+  font-size: .82rem;
+}
+
+.sq-da-error:empty {
+  display: none;
+}
+
+.sq-da-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sq-da-btn {
+  padding: 14px 12px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .15s ease, background-color .15s ease;
+}
+
+.sq-da-btn:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.sq-da-btn-cancel {
+  border: 1px solid var(--da-brown);
+  background: transparent;
+  color: var(--da-brown);
+}
+
+.sq-da-btn-danger {
+  border: 1px solid var(--da-red);
+  background: var(--da-red);
+  color: #fff;
+  font-weight: 600;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sq-da-btn-cancel:not(:disabled):hover {
+    background: rgba(107, 63, 42, .08);
+  }
+
+  .sq-da-btn-danger:not(:disabled):hover {
+    filter: brightness(.92);
+  }
+}
+
+@media (max-width: 520px) {
+  .sq-da-modal {
+    padding: 22px 22px 24px;
+    border-radius: 24px;
+  }
+
+  .sq-da-image {
+    width: 140px;
+  }
+
+  .sq-da-title {
+    font-size: 1.4rem;
+  }
+
+  .sq-da-title i {
+    font-size: 1.6rem;
+  }
+
+  .sq-da-actions {
+    gap: 12px;
+  }
+}
