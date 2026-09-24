@@ -77,12 +77,12 @@
   }
 }
 
-/* ---------- Empty state ---------- */
+/* Empty state */
 .favorites-empty {
   padding: 60px 10px;
 }
 
-/* ---------- Small screens ---------- */
+/* Small screens */
 @media (max-width: 640px) {
   .favorites-toolbar-left {
     order: -1;

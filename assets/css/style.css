@@ -83,7 +83,7 @@ button, input {
   font: inherit;
 }
 
-/* ===== App shell layout ===== */
+/* App shell */
 .app-shell {
   display: flex;
   height: 100vh;
@@ -100,7 +100,7 @@ button, input {
   transition: margin-left .3s ease;
 }
 
-/* ===== Sidebar ===== */
+/* Sidebar */
 .sidebar {
   width: 250px;
   flex: 0 0 250px;
@@ -246,7 +246,7 @@ button, input {
   display: none;
 }
 
-/* ===== Topbar / header ===== */
+/* Topbar */
 .topbar {
   min-height: var(--topbar-h);
   border-bottom: 1px solid var(--border);
@@ -373,7 +373,7 @@ button, input {
   font-weight: 600;
 }
 
-/* ===== Collapsed sidebar state (desktop) - toggled via .sidebar-collapsed on #appShell ===== */
+/* Collapsed sidebar */
 @media (min-width: 701px) {
   .sidebar-collapsed .main-area {
     margin-left: 76px;
@@ -419,7 +419,7 @@ button, input {
   }
 }
 
-/* ===== Tablet ===== */
+/* Tablet layout */
 @media (max-width: 900px) {
   .sidebar {
     width: 220px;
@@ -433,7 +433,7 @@ button, input {
   }
 }
 
-/* ===== Mobile ===== */
+/* Mobile layout */
 @media (max-width: 700px) {
   :root {
     --topbar-h: 64px;
@@ -523,13 +523,13 @@ button, input {
   }
 }
 
-/* ===== Header: profile focus ring ===== */
+/* Profile focus ring */
 .profile:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
-/* ===== Header: profile dropdown ===== */
+/* Profile dropdown */
 .profile-menu {
   position: relative;
 }
@@ -590,7 +590,7 @@ button, input {
   color: var(--muted);
 }
 
-/* ===== Header: global search results ===== */
+/* Global search */
 .search-results {
   display: none;
   position: absolute;

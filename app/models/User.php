@@ -6,7 +6,7 @@ class User
 	{
 	}
 
-	// Check username availability (optionally excluding one user, e.g. when editing your own profile)
+	// Check username availability
 	public function usernameExists(string $username, ?int $excludeUserId = null): bool
 	{
 		$sql = 'SELECT user_id FROM users WHERE username = :username';
@@ -23,7 +23,7 @@ class User
 		return (bool) $statement->fetch();
 	}
 
-	// Check email availability (optionally excluding one user, e.g. when editing your own profile)
+	// Check email availability
 	public function emailExists(string $email, ?int $excludeUserId = null): bool
 	{
 		$sql = 'SELECT user_id FROM users WHERE email = :email';
@@ -78,7 +78,7 @@ class User
 		return (int) $this->db->lastInsertId();
 	}
 
-	// Update a user's password hash (used by the forgot-password flow)
+	// Update the password hash
 	public function updatePassword(int $userId, string $passwordHash): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET password_hash = :password_hash WHERE user_id = :id');
@@ -89,7 +89,7 @@ class User
 		]);
 	}
 
-	// Update a user's profile info (Settings > Account Information)
+	// Update profile information
 	public function updateProfile(int $userId, string $fullName, string $username, string $email): bool
 	{
 		$statement = $this->db->prepare(
@@ -104,8 +104,7 @@ class User
 		]);
 	}
 
-	// Permanently delete a user account. Related vault items, notes, tasks,
-	// folders, favorites, tags, and PIN data cascade-delete via foreign keys.
+	// Delete the account and related data
 	public function delete(int $userId): bool
 	{
 		$statement = $this->db->prepare('DELETE FROM users WHERE user_id = :id');

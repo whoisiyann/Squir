@@ -47,7 +47,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                 <div class="settings-subpage-title">
                     <a class="settings-back-btn" href="./settings" aria-label="Back to Settings"><i class="ti ti-arrow-left"></i></a>
                     <div>
-                        <h1><i class="ti ti-shield-lock"></i> Activity Log</h1>
+                        <h1>Activity Log</h1>
                         <p>View your recent activities.</p>
                     </div>
                 </div>

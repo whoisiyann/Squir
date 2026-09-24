@@ -113,7 +113,6 @@
             return;
         }
 
-        // Step 1: itago muna ang unang PIN at humingi ng confirmation.
         // Request PIN confirmation
         if (firstPin === null) {
             event.preventDefault();
@@ -124,7 +123,6 @@
             return;
         }
 
-        // Step 2: dapat magkatugma.
         // Compare PIN values
         if (value !== firstPin) {
             event.preventDefault();

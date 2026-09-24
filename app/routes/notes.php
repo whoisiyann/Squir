@@ -117,7 +117,7 @@ $errors = [];
 $flashSuccess = $_SESSION['notes_flash_success'] ?? null;
 unset($_SESSION['notes_flash_success']);
 
-// Validate a safe return URL (used when the request came from Favorites)
+// Validate the return URL
 function notesSafeReturnTo(?string $value): ?string
 {
     if (!is_string($value) || $value === '') {

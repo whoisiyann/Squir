@@ -8,7 +8,7 @@ $folderModel = new Folder($dbh);
 $controller = new FolderController($folderModel, $dbh);
 $csrfToken = csrfToken();
 
-// Validate a safe return URL (used when the request came from Favorites)
+// Validate the return URL
 function foldersSafeReturnTo(?string $value): ?string
 {
     if (!is_string($value) || $value === '') {

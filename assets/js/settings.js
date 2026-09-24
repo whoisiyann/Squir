@@ -4,7 +4,7 @@
 
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
 
-    // Post a settings ajax action and resolve with the parsed JSON
+    // Send a settings request
     function postAjax(action, fields) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -23,7 +23,7 @@
         });
     }
 
-    /* ---------------- Generic modal open/close ---------------- */
+    /* Modal controls */
     function openModal(name) {
         var backdrop = document.getElementById(name + 'ModalBackdrop');
         if (backdrop) backdrop.classList.add('open');
@@ -46,7 +46,7 @@
 
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
-        // Kapag bukas ang Delete Account modal, siya lang ang isasara (hindi pati Edit Account modal)
+        // Keep the delete modal open
         var deleteModal = document.getElementById('deleteAccountModalBackdrop');
         if (deleteModal && deleteModal.classList.contains('open')) return;
         $all('.vault-modal-backdrop.open').forEach(function (backdrop) {
@@ -57,7 +57,7 @@
     var openEditBtn = document.getElementById('openEditAccountModal');
     if (openEditBtn) openEditBtn.addEventListener('click', function () { openModal('editAccount'); });
 
-    /* ---------------- Delete Account (sariling modal, para lang sa button na ito) ---------------- */
+    /* Delete account */
     var deleteAccountBtn = document.getElementById('deleteAccountBtn');
     var deleteBackdrop = document.getElementById('deleteAccountModalBackdrop');
     var deleteConfirmBtn = document.getElementById('deleteAccountConfirm');
@@ -86,7 +86,7 @@
             if (deleteBackdrop && deleteConfirmBtn && deleteCancelBtn && deleteErrorEl) {
                 openDeleteAccountModal();
             } else if (window.confirm('Are you sure you want to delete your account? This will permanently remove your vault, notes, tasks, and all related data. This cannot be undone.')) {
-                // fallback lang kung wala ang modal markup
+                // Use a browser prompt when the modal is unavailable
                 postAjax('delete_account', {}).then(function (result) {
                     if (result.ok) window.location.href = './login';
                 });
@@ -134,7 +134,7 @@
         });
     }
 
-    /* ---------------- Edit Account form ---------------- */
+    /* Edit account */
     function makeEditable(target) {
         if (!target || !target.hasAttribute('readonly')) return;
         target.removeAttribute('readonly');
@@ -189,7 +189,7 @@
         });
     }
 
-    /* ---------------- Appearance ---------------- */
+    /* Appearance */
     var themeButtons = $all('.settings-theme-btn');
     if (themeButtons.length) {
         function highlightTheme(pref) {
@@ -210,7 +210,7 @@
         });
     }
 
-    /* ---------------- Show / hide password & PIN fields ---------------- */
+    /* Password and PIN visibility */
     $all('.settings-password-toggle').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var input = document.getElementById(btn.getAttribute('data-target'));
@@ -226,7 +226,7 @@
         });
     });
 
-    /* ---------------- Change Password ---------------- */
+    /* Change password */
     var passwordForm = document.getElementById('changePasswordForm');
     if (passwordForm) {
         var newPasswordInput = document.getElementById('newPassword');
@@ -296,7 +296,7 @@
         });
     }
 
-    /* ---------------- Reset PIN ---------------- */
+    /* Reset PIN */
     var pinForm = document.getElementById('resetPinForm');
     if (pinForm) {
         $all('#resetPinForm input[inputmode="numeric"]').forEach(function (input) {
@@ -353,7 +353,102 @@
         });
     }
 
-    /* ---------------- Clear Activity Log ---------------- */
+    /* Export data */
+    var exportBtn = document.getElementById('exportDataBtn');
+    if (exportBtn) {
+        var exportBusy = false;
+        var exportIdleHtml = exportBtn.innerHTML;
+
+        function setExportBusy(state) {
+            exportBusy = state;
+            exportBtn.disabled = state;
+            exportBtn.innerHTML = state ? '<i class="ti ti-loader-2"></i> Preparing...' : exportIdleHtml;
+        }
+
+        function exportFail(message) {
+            var error = new Error(message);
+            error.friendly = true;
+            throw error;
+        }
+
+        function showExportError(message) {
+            if (window.Swal) {
+                Swal.fire({
+                    title: 'Export failed',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#6b3f2a'
+                });
+            } else {
+                window.alert(message);
+            }
+        }
+
+        function saveBlob(blob, filename) {
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        }
+
+        // Download the PDF after PIN verification
+        function downloadExport() {
+            setExportBusy(true);
+
+            return fetch('./settings?export=pdf', { credentials: 'same-origin' }).then(function (response) {
+                var type = response.headers.get('Content-Type') || '';
+
+                if (!response.ok || type.indexOf('application/pdf') === -1) {
+                    return response.json().catch(function () { return {}; }).then(function (json) {
+                        if (json.error === 'pin_required') {
+                            exportFail('Your PIN check expired. Please try again.');
+                        }
+                        exportFail(json.error || 'Could not create your PDF. Please try again.');
+                    });
+                }
+
+                var disposition = response.headers.get('Content-Disposition') || '';
+                var match = /filename="?([^";]+)"?/i.exec(disposition);
+                var filename = match ? match[1] : 'squir-export.pdf';
+
+                return response.blob().then(function (blob) {
+                    saveBlob(blob, filename);
+
+                    if (window.Swal) {
+                        Swal.fire({
+                            title: 'Export Complete',
+                            text: 'Your data was downloaded as a PDF.',
+                            icon: 'success',
+                            confirmButtonText: 'Done',
+                            confirmButtonColor: '#6b3f2a'
+                        });
+                    }
+                });
+            }).catch(function (error) {
+                showExportError(error && error.friendly ? error.message : 'Something went wrong while creating your PDF. Please try again.');
+            }).then(function () {
+                setExportBusy(false);
+            });
+        }
+
+        exportBtn.addEventListener('click', function () {
+            if (exportBusy) return;
+
+            if (!window.SquirPin) {
+                showExportError('The PIN check could not load. Please refresh the page and try again.');
+                return;
+            }
+
+            window.SquirPin.ensure('export').then(downloadExport);
+        });
+    }
+
+    /* Clear activity log */
     var clearBtn = document.getElementById('clearActivityLogBtn');
     if (clearBtn) {
         clearBtn.addEventListener('click', function () {

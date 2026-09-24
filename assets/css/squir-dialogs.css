@@ -13,7 +13,7 @@
 
 .sqd-dialog-backdrop.open { display: flex; }
 
-/* ---------- Dialogs (Rename / New / Delete) ---------- */
+/* Rename, create, and delete dialogs */
 .sqd-dialog {
     width: 100%;
     max-width: 440px;

@@ -89,7 +89,7 @@
 
 /* Dashboard home */
 
-/* ---------- "Add Something" menu ---------- */
+/* Add menu */
 .add-menu {
   position: relative;
   flex: 0 0 auto;
@@ -178,7 +178,7 @@
   outline: 0;
 }
 
-/* ---------- Layout ---------- */
+/* Layout */
 .dash-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.83fr) minmax(0, 1fr);
@@ -234,7 +234,7 @@
   font-size: 1.5rem;
 }
 
-/* ---------- Stat cards ---------- */
+/* Stat cards */
 .stat-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -291,7 +291,7 @@
   text-align: right;
 }
 
-/* ---------- World clocks ---------- */
+/* World clocks */
 .dash-clocks {
   display: flex;
   flex-direction: column;
@@ -431,7 +431,7 @@
   filter: brightness(.96);
 }
 
-/* ---------- Add World Clock City popup ---------- */
+/* Add clock dialog */
 .clock-modal-backdrop {
   display: none;
   position: fixed;
@@ -614,7 +614,7 @@
   text-align: center;
 }
 
-/* ---------- Task overview ---------- */
+/* Task overview */
 .dash-tasks {
   display: flex;
   flex-direction: column;
@@ -785,7 +785,7 @@ a.mini-task:focus-visible {
   text-align: center;
 }
 
-/* ---------- Recent credentials ---------- */
+/* Recent credentials */
 .dash-recent {
   display: flex;
   flex-direction: column;
@@ -928,7 +928,7 @@ a.mini-task:focus-visible {
   text-decoration: underline;
 }
 
-/* ---------- Toast ---------- */
+/* Toast */
 .dash-toast {
   position: fixed;
   bottom: 28px;
@@ -1069,7 +1069,7 @@ a.mini-task:focus-visible {
 }
 
 
-/* ---- Grid:  [ hero | clocks ]  /  [ tasks | recent ] ---- */
+/* Dashboard grid */
 .dash-layout {
   flex: 1 1 0;
   min-height: 600px;
@@ -1091,7 +1091,7 @@ a.mini-task:focus-visible {
   box-shadow: none;
 }
 
-/* ---- Hero card: greeting + Add Something + stat cards ---- */
+/* Hero card */
 .dash-hero {
   grid-area: hero;
   display: flex;
@@ -1128,7 +1128,7 @@ a.mini-task:focus-visible {
   font-size: .82rem;
 }
 
-/* ---- Stat cards ---- */
+/* Stat cards */
 .dash-stats {
   grid-area: auto;
   flex: 1;
@@ -1166,7 +1166,7 @@ a.mini-task:focus-visible {
   font-size: .72rem;
 }
 
-/* ---- World Clocks ---- */
+/* World clocks */
 .dash-clocks {
   padding: 18px 20px;
   container-type: inline-size;
@@ -1183,7 +1183,7 @@ a.mini-task:focus-visible {
 
 .clock-row { min-height: 42px; }
 
-/* ---- Scrollbar for the World Clocks list and the Add City popup ---- */
+/* World clock scrollbar */
 .clock-list,
 .clock-catalog {
   --scroll-track: var(--peach);
@@ -1196,7 +1196,7 @@ body.dashboard-dark .clock-catalog {
   --scroll-thumb: #7a5a34;
 }
 
-/* Chrome, Edge, Safari: slim rounded pill with a little space around it */
+/* Webkit scrollbar */
 .clock-list::-webkit-scrollbar,
 .clock-catalog::-webkit-scrollbar {
   width: 10px;
@@ -1243,7 +1243,7 @@ body.dashboard-dark .clock-catalog {
   font-size: .72rem;
 }
 
-/* ---- Task Overview + Recent Credentials fill the rest of the page ---- */
+/* Task and credential panels */
 .dash-tasks,
 .dash-recent {
   min-height: 0;
@@ -1318,7 +1318,7 @@ a.mini-task:focus-visible {
 
 .recent-star-btn { font-size: 1.3rem; }
 
-/* ---- Narrow hero card: the icon sits above the text ---- */
+/* Narrow hero card */
 @container stats (max-width: 730px) {
   .stat-card {
     grid-template-columns: minmax(0, 1fr);
@@ -1340,7 +1340,7 @@ a.mini-task:focus-visible {
   }
 }
 
-/* ---- Narrow clock card: the date goes under the city name ---- */
+/* Narrow clock card */
 @container clocks (max-width: 420px) {
   .clock-list {
     min-height: 154px;
@@ -1365,7 +1365,7 @@ a.mini-task:focus-visible {
 
 /* Responsive layout */
 
-/* tablet + phone: cards stack and the page scrolls */
+/* Tablet and phone layout */
 @media (max-width: 1180px) {
   .dash-layout {
     flex: 0 0 auto;

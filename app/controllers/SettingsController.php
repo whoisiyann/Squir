@@ -15,7 +15,7 @@ class SettingsController
     ) {
     }
 
-    // Update the signed-in user's account information
+    // Update account information
     public function updateProfile(int $userId, array $post): array
     {
         $fullName = trim((string) ($post['full_name'] ?? ''));
@@ -55,7 +55,7 @@ class SettingsController
         return ['errors' => [], 'user' => $this->user->findById($userId)];
     }
 
-    // Change the signed-in user's account password
+    // Change account password
     public function changePassword(int $userId, array $post): array
     {
         $current = (string) ($post['current_password'] ?? '');
@@ -137,13 +137,13 @@ class SettingsController
         return $this->activityLog->clearForUser($userId);
     }
 
-    // Permanently delete the signed-in user's account and all related data
+    // Delete the account and related data
     public function deleteAccount(int $userId): bool
     {
         return $this->user->delete($userId);
     }
 
-    // Build a full export of the user's vault, notes, tasks, and folders
+    // Build the account export
     public function exportData(int $userId): array
     {
         $vaultModel = new Vault($this->db);
@@ -176,8 +176,6 @@ class SettingsController
         );
         $folderStatement->execute(['uid' => $userId]);
 
-        $this->activityLog->log($userId, 'data_exported');
-
         return [
             'exported_at' => date('c'),
             'vault'       => $vaultOut,
@@ -185,5 +183,55 @@ class SettingsController
             'tasks'       => $taskStatement->fetchAll(PDO::FETCH_ASSOC),
             'folders'     => $folderStatement->fetchAll(PDO::FETCH_ASSOC),
         ];
+    }
+
+    // Check PDF support
+    public function pdfAvailable(): bool
+    {
+        $autoload = __DIR__ . '/../../vendor/autoload.php';
+        if (is_readable($autoload)) {
+            require_once $autoload;
+        }
+
+        return class_exists(\Dompdf\Dompdf::class);
+    }
+
+    // Render the export PDF
+    public function exportPdf(int $userId): string
+    {
+        $data = $this->exportData($userId);
+        $user = $this->user->findById($userId) ?: [];
+
+        $options = new \Dompdf\Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('isRemoteEnabled', false);
+        $options->set('isPhpEnabled', false);
+
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($this->renderExportHtml($data, $user), 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // Add page numbers
+        $canvas = $dompdf->getCanvas();
+        $font = $dompdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
+        $footerY = $canvas->get_height() - 30;
+        $canvas->page_text(40, $footerY, 'Squir - Confidential data export', $font, 8, [0.45, 0.45, 0.45]);
+        $canvas->page_text($canvas->get_width() - 110, $footerY, 'Page {PAGE_NUM} of {PAGE_COUNT}', $font, 8, [0.45, 0.45, 0.45]);
+
+        $pdf = $dompdf->output();
+
+        $this->activityLog->log($userId, 'data_exported');
+
+        return $pdf;
+    }
+
+    // Render the export view
+    private function renderExportHtml(array $data, array $user): string
+    {
+        ob_start();
+        require __DIR__ . '/../views/settings/export-pdf.php';
+
+        return (string) ob_get_clean();
     }
 }

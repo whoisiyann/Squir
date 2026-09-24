@@ -161,10 +161,7 @@
         });
     });
 
-    /* ---------- Folders only: click anywhere on the card to open it ----------
-       Mirrors folders.js so Favorites behaves the same as the real Folders
-       page: clicking the card navigates to the folder, except when the click
-       lands on the icon, the star/menu actions, or an inner link. */
+    /* Open folder cards */
     if (itemType === 'folder') {
         $all(cfg.rowSelector, wrap).forEach(function (card) {
             var link = card.querySelector('.folder-card-link');

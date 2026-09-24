@@ -503,7 +503,6 @@
     }
 
     /* Task and column menus */
-/* Task and column menus */
 
     var menu = null;
     var sub = null;
@@ -876,7 +875,6 @@
     });
 
     // Close only the active dialog on Escape
-    // Close only the active dialog on Escape
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
         if (menu) { closeMenu(); return; }
@@ -885,7 +883,7 @@
         if (isOpen(viewEl.backdrop)) closeView();
     }, true);
 
-    /* =============== Search =============== */
+    /* Search */
 
     var searchInput = $('tasksSearchInput');
     if (searchInput) {
@@ -897,9 +895,7 @@
 
     render();
 
-    // ./tasks?new=1   -> open "Create New Task" right away
-    // ./tasks?task=ID -> open that task's details
-    // Open task dialogs from dashboard links
+    // Open task dialogs from URL parameters
     (function () {
         var params = new URLSearchParams(window.location.search);
         var wantsNew = params.get('new') === '1';

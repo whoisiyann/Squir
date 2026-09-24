@@ -179,7 +179,6 @@ class Note
     }
 
 
-    /** Plain-text preview for the list card (strips HTML tags, collapses whitespace). */
     // Build a plain-text excerpt
     public static function excerptOf(?string $htmlContent, int $length = 90): string
     {

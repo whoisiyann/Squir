@@ -12,7 +12,7 @@ class FavoriteController
         $this->dbh = $dbh;
     }
 
-    // Load favorited items of the given type for a user
+    // Load user favorites
     public function index(int $userId, string $type, string $search): array
     {
         $type = in_array($type, ['passwords', 'notes', 'folders'], true) ? $type : 'passwords';
@@ -41,7 +41,7 @@ class FavoriteController
         ];
     }
 
-    // Load folders usable for "Move to folder" (matching the item type)
+    // Load folders for moving items
     private function getFolders(int $userId, string $type): array
     {
         $folderType = $type === 'notes' ? 'notes' : 'passwords';

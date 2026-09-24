@@ -1,5 +1,5 @@
 <?php
-// Application settings
+// App settings
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -57,7 +57,7 @@ define('SMTP_PASSWORD', str_replace(' ', '', getenv('SMTP_PASSWORD') ?: ''));
 
 define('MAIL_DEV_FALLBACK', true);
 
-// Enable SMTP debug logging during development.
+// Enable SMTP debug logging
 define('MAIL_DEBUG', true);
 define('MAIL_FROM_ADDRESS', SMTP_USERNAME !== '' ? SMTP_USERNAME : 'no-reply@squir.local');
 define('MAIL_FROM_NAME', 'Squir');

@@ -270,7 +270,7 @@
             var passwordPromise;
             if (cell && cell.getAttribute('data-revealed') === 'true') {
                 
-                // Skip PIN when the password is already visible
+                // Copy the visible password
                 passwordPromise = Promise.resolve(cell.textContent);
             } else {
                 passwordPromise = revealById(id, 'copy').then(function (json) { return json.password; });
@@ -295,8 +295,7 @@
 
             var passwordPromise;
             if (passwordInput && passwordInput.type === 'text' && passwordInput.value !== '') {
-                        // Skip PIN when the password is already visible
-                // Skip PIN when the password is already visible
+                    // Copy the visible password
                 passwordPromise = Promise.resolve(passwordInput.value);
             } else {
                 passwordPromise = revealById(id, 'copy').then(function (json) { return json.password; });

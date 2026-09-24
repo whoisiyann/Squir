@@ -13,7 +13,7 @@ class WorldClock
         $this->dbh = $dbh;
     }
 
-    /** Fetch the user's clocks. */
+    // Fetch user clocks
     public function forUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -29,7 +29,7 @@ class WorldClock
         return array_map([$this, 'normalize'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    /** Fetch available cities. */
+    // Fetch available cities
     public function catalog(): array
     {
         $stmt = $this->dbh->query(
@@ -42,7 +42,7 @@ class WorldClock
         return array_map([$this, 'normalize'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    /** Resolve a time zone to a city label. */
+    // Resolve a city label
     public function timezoneLabels(): array
     {
         $rows = $this->dbh->query(
@@ -66,7 +66,7 @@ class WorldClock
         return $labels;
     }
 
-    /** Add a user clock. */
+    // Add a user clock
     public function add(int $userId, int $cityId): ?string
     {
         $exists = $this->dbh->prepare('SELECT 1 FROM cities WHERE city_id = :cid');

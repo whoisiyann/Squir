@@ -253,9 +253,6 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                     <span class="note-toolbar-sep"></span>
                                     <button type="button" data-cmd="createLink" data-tooltip="Insert link" aria-label="Insert link"><i class="ti ti-link"></i></button>
                                 </div>
-                            <!--
-                                Sanitized note content
-                            -->
                             <div class="note-content-editable<?= ($activeNote['content'] === null || trim(strip_tags($activeNote['content'])) === '') ? ' is-empty' : '' ?>" id="noteContentEditable" contenteditable="true" data-placeholder="Start typing…"><?= $activeNote['content'] !== null && $activeNote['content'] !== '' ? $activeNote['content'] : '<p></p>' ?></div>
                     <?php endif; ?>
                 </section>

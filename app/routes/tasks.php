@@ -15,7 +15,6 @@ function tasksRespond(array $payload, int $status = 200): void
     exit;
 }
 
-/** Successful response. */
 // Return the refreshed task board
 function tasksOk(TaskController $controller, int $userId, array $extra = []): void
 {

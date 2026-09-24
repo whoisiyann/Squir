@@ -48,7 +48,6 @@ class PinController
         return ['errors' => []];
     }
 
-    /** Verify the vault PIN. */
     // Verify a user PIN
     public function verify(int $userId, string $pin): array
     {
@@ -61,7 +60,6 @@ class PinController
         return $this->pinModel->verify($userId, $pin);
     }
 
-    /** Reject predictable PINs. */
     // Reject predictable PINs
     private function isWeak(string $pin): bool
     {

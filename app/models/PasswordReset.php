@@ -19,18 +19,13 @@ class PasswordReset
         return defined('PASSWORD_RESET_CODE_TTL_MINUTES') ? (int) PASSWORD_RESET_CODE_TTL_MINUTES : 10;
     }
 
-    /**
-     * Generate a fresh 6-digit code for a user, replacing any code they already had.
-     *
-     * @return array{code: string, ttl_minutes: int}
-     */
-    // Create a new reset code for a user
+    /** @return array{code: string, ttl_minutes: int} */
     public function createForUser(int $userId): array
     {
         $code = str_pad((string) random_int(0, 999999), self::CODE_LENGTH, '0', STR_PAD_LEFT);
         $ttl = self::ttlMinutes();
 
-        // Keep one active code per user.
+        // Keep one active code
         $clear = $this->dbh->prepare('DELETE FROM password_resets WHERE user_id = :uid');
         $clear->execute(['uid' => $userId]);
 
@@ -47,12 +42,7 @@ class PasswordReset
         return ['code' => $code, 'ttl_minutes' => $ttl];
     }
 
-    /**
-     * Check a submitted code against the user's latest reset request.
-     *
-     * @return array{ok: bool, error?: string, attempts_left?: int}
-     */
-    // Verify a submitted reset code
+    /** @return array{ok: bool, error?: string, attempts_left?: int} */
     public function verify(int $userId, string $code): array
     {
         $stmt = $this->dbh->prepare(
@@ -98,7 +88,7 @@ class PasswordReset
         ];
     }
 
-    // Confirm the user's latest code was verified and not yet consumed
+    // Check the verified code
     public function isVerified(int $userId): bool
     {
         $stmt = $this->dbh->prepare(
@@ -111,7 +101,7 @@ class PasswordReset
         return (bool) $row && $row['verified_at'] !== null && $row['used_at'] === null;
     }
 
-    // Mark the latest verified code as used once the password has actually changed
+    // Mark the verified code as used
     public function markUsed(int $userId): void
     {
         $stmt = $this->dbh->prepare(

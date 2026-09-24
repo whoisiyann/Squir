@@ -404,9 +404,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 
 .folders-empty { padding: 60px 10px; }
 
-/* =========================================================
-   5. 3-DOT DROPDOWN MENU
-   ========================================================= */
+/* Folder menu */
 .folder-menu {
   position: relative;
   display: flex;
@@ -460,9 +458,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   .folder-menu-dropdown .folder-menu-delete:hover { background: rgba(229, 72, 77, .12); }
 }
 
-/* =========================================================
-   6. COLOR POPOVER + SWATCHES
-   ========================================================= */
+/* Folder colors */
 .folder-color-popover {
   display: none;
   position: fixed;
@@ -501,9 +497,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
 .folder-swatch.active,
 .folder-swatch:hover { border-color: var(--accent); }
 
-/* =========================================================
-   7. MODAL — sariling sistema ng Folders page
-   ========================================================= */
+/* Folder modal */
 .folder-modal-backdrop {
   display: none;
   position: fixed;
@@ -584,7 +578,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   .folder-modal-close:hover { background: var(--soft); color: var(--accent); }
 }
 
-/* ---------- Fields ---------- */
+/* Fields */
 .folder-field { margin-bottom: 18px; }
 
 .folder-field > label {
@@ -634,7 +628,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   font-size: .72rem;
 }
 
-/* ---------- Buttons ---------- */
+/* Buttons */
 .folder-modal-actions {
   display: flex;
   gap: 10px;
@@ -677,7 +671,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   .folder-btn-outline:hover { background: var(--soft); }
 }
 
-/* ---------- Alerts / validation ---------- */
+/* Alerts and validation */
 .folder-alert {
   margin-bottom: 14px;
   padding: 10px 12px;
@@ -697,9 +691,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   font-size: .78rem;
 }
 
-/* =========================================================
-   8. RESPONSIVE
-   ========================================================= */
+/* Responsive layout */
 @media (max-width: 1300px) {
   .folders-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -757,9 +749,7 @@ html.folders-list-view-preload .folders-list-head { display: block; }
   .folder-modal { padding: 18px; }
 }
 
-/* =========================================================
-   Notes folder detail page (Folders > Notes > <folder>)
-   ========================================================= */
+/* Notes folder detail */
 .folder-breadcrumb { display: flex; align-items: center; gap: .4rem; font-size: .85rem; color: var(--muted); margin: 0 0 .35rem; }
 .folder-breadcrumb a { display: inline-flex; align-items: center; gap: .3rem; color: inherit; text-decoration: none; }
 .folder-breadcrumb a:hover { text-decoration: underline; }

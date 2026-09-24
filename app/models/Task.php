@@ -323,7 +323,6 @@ class Task
         });
     }
 
-    /** Clear tasks in a status. */
     // Clear tasks in a status
     public function clearAll(int $userId, string $status): int
     {
@@ -337,7 +336,7 @@ class Task
         return $stmt->rowCount();
     }
 
-    /* ===================== ordering helpers ===================== */
+    /* Ordering helpers */
 
     // Apply a task status
     private function applyStatus(int $taskId, int $userId, string $status): void
@@ -457,7 +456,6 @@ class Task
         }
     }
 
-    /** @template T @param callable():T $callback @return T */
     // Run a database transaction
     private function transactional(callable $callback)
     {

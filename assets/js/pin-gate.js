@@ -1,4 +1,3 @@
-
 window.SquirPin = (function () {
     var backdrop = document.getElementById('pinModalBackdrop');
 
@@ -15,8 +14,15 @@ window.SquirPin = (function () {
 
     var SUBTITLES = {
         view: 'Enter your PIN to view this password.',
-        copy: 'Enter your PIN to copy this password.'
+        copy: 'Enter your PIN to copy this password.',
+        export: 'Enter your PIN to export your data as PDF.'
     };
+
+    // PIN verification endpoints
+    var ENDPOINTS = {
+        export: { url: './settings', action: 'verify_export_pin' }
+    };
+    var currentReason = 'view';
 
     var length = boxes.length;
     var ttlSeconds = typeof window.SQUIR_PIN_TTL === 'number' ? window.SQUIR_PIN_TTL : 0;
@@ -56,6 +62,7 @@ window.SquirPin = (function () {
 
     // Open the PIN verification dialog
     function open(reason) {
+        currentReason = reason || 'view';
         errorEl.textContent = '';
         setBusy(false);
         if (subtitleEl) {
@@ -83,13 +90,15 @@ window.SquirPin = (function () {
 
     // Verify the entered PIN
     function sendPin(pin) {
+        var endpoint = ENDPOINTS[currentReason] || { url: './vault', action: 'verify_pin' };
         var body = new URLSearchParams();
-        body.set('ajax', 'verify_pin');
+        body.set('ajax', endpoint.action);
         body.set('csrf_token', csrfToken);
         body.set('pin', pin);
 
-        return fetch('./vault', {
+        return fetch(endpoint.url, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body.toString()
         }).then(function (response) {
@@ -109,7 +118,8 @@ window.SquirPin = (function () {
 
         sendPin(pin).then(function (json) {
             if (json && json.ok) {
-                if (ttlSeconds > 0) {
+                // Export verification does not unlock vault passwords
+                if (ttlSeconds > 0 && currentReason !== 'export') {
                     unlockedUntil = Date.now() + ttlSeconds * 1000;
                 }
                 var resolve = resolveCurrent;
@@ -183,7 +193,8 @@ window.SquirPin = (function () {
     return {
 
         ensure: function (reason) {
-            if (ttlSeconds > 0 && Date.now() < unlockedUntil) {
+            // Always verify the export PIN
+            if (reason !== 'export' && ttlSeconds > 0 && Date.now() < unlockedUntil) {
                 return Promise.resolve();
             }
 

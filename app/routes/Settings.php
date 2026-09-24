@@ -4,12 +4,14 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../controllers/SettingsController.php';
+require_once __DIR__ . '/../controllers/PinController.php';
 
 $userId = requireLogin();
 $userModel = new User($dbh);
 $pinModel = new UserPin($dbh);
 $activityLogModel = new ActivityLog($dbh);
 $controller = new SettingsController($dbh, $userModel, $pinModel, $activityLogModel);
+$pinController = new PinController($pinModel);
 $csrfToken = csrfToken();
 
 // Send a settings JSON response
@@ -79,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'clear_a
     settingsJson(['success' => true]);
 }
 
-// Permanently delete the signed-in user's account
+// Delete the account
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'delete_account') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -90,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'delete_
         settingsJson(['error' => 'Could not delete your account. Please try again.'], 500);
     }
 
-    // End the session now that the account no longer exists
+    // End the session
     $_SESSION = [];
     if (ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();
@@ -101,13 +103,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'delete_
     settingsJson(['success' => true]);
 }
 
-// Export account data as a downloadable JSON file
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['export'] ?? '') === '1') {
-    $data = $controller->exportData($userId);
+// Verify the export PIN
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_export_pin') {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        settingsJson(['ok' => false, 'error' => 'Your session expired. Please refresh the page.'], 403);
+    }
 
-    header('Content-Type: application/json');
-    header('Content-Disposition: attachment; filename="squir-export-' . date('Y-m-d') . '.json"');
-    echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    $result = $pinController->verify($userId, (string) ($_POST['pin'] ?? ''));
+    if (!empty($result['ok'])) {
+        $_SESSION['export_unlocked_until'] = time() + 120;
+        settingsJson(['ok' => true]);
+    }
+
+    settingsJson(['ok' => false, 'error' => $result['error'] ?? 'That PIN is incorrect.'], 401);
+}
+
+// Export account data as a PIN-protected PDF download
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['export'] ?? '') === 'pdf') {
+    // Keep warnings out of the PDF response
+    ini_set('display_errors', '0');
+
+    // Consume the one-time unlock
+    $unlockedUntil = (int) ($_SESSION['export_unlocked_until'] ?? 0);
+    unset($_SESSION['export_unlocked_until']);
+    if ($unlockedUntil < time()) {
+        settingsJson(['error' => 'pin_required'], 423);
+    }
+
+    if (!$controller->pdfAvailable()) {
+        settingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
+    }
+
+    try {
+        $pdf = $controller->exportPdf($userId);
+    } catch (Throwable $error) {
+        error_log('Squir PDF export failed: ' . $error->getMessage());
+        settingsJson(['error' => 'Could not create your PDF. Please try again.'], 500);
+    }
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="squir-export-' . date('Y-m-d') . '.pdf"');
+    header('Content-Length: ' . strlen($pdf));
+    header('Cache-Control: private, no-store, no-cache, must-revalidate');
+    header('Pragma: no-cache');
+    echo $pdf;
     exit;
 }
 

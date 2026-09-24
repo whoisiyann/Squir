@@ -9,8 +9,7 @@ class PasswordResetController
     {
     }
 
-    /** Handle the forgot-password request. */
-    // Handle a password reset request
+    // Handle password reset requests
     public function requestCode(array $input): array
     {
         $email = strtolower(trim((string) ($input['email'] ?? '')));
@@ -24,7 +23,7 @@ class PasswordResetController
         $user = $this->userModel->findByEmail($email);
 
         if (!$user) {
-            // Do not send a code for unknown emails.
+            // Hide unknown accounts
             $errors['email'] = 'This email address is not registered.';
             return ['errors' => $errors, 'email' => $email, 'dev_code' => null];
         }
@@ -34,8 +33,7 @@ class PasswordResetController
         return ['errors' => [], 'email' => $email, 'dev_code' => $devCode];
     }
 
-    /** Resend a reset code. */
-    // Resend a reset code
+    // Resend the reset code
     public function resendCode(string $email): ?string
     {
         $user = $this->userModel->findByEmail($email);
@@ -46,8 +44,7 @@ class PasswordResetController
         return $this->issueAndSend((int) $user['user_id'], $email, $user['full_name']);
     }
 
-    /** Verify a reset code. */
-    // Verify a submitted reset code
+    // Verify the reset code
     public function verifyCode(string $email, string $code): array
     {
         $code = trim($code);
@@ -58,18 +55,13 @@ class PasswordResetController
 
         $user = $this->userModel->findByEmail($email);
         if (!$user) {
-            // Use the same message for unknown accounts.
+            // Hide unknown accounts
             return ['ok' => false, 'error' => 'That code is incorrect or has expired. Please request a new one.'];
         }
 
         return $this->resetModel->verify((int) $user['user_id'], $code);
     }
 
-    /**
-     * Step 3 — set the new password once the code has been verified.
-     *
-     * @return array{errors: array}
-     */
     // Apply the new password
     public function resetPassword(string $email, array $input): array
     {
@@ -104,11 +96,7 @@ class PasswordResetController
         return ['errors' => []];
     }
 
-    /**
-     * Shared helper: create a code, try to email it, and fall back to
-     * returning it directly when MAIL_DEV_FALLBACK is on and sending failed.
-     */
-    // Issue a new code and attempt to send it
+    // Issue and send a new code
     private function issueAndSend(int $userId, string $email, string $fullName): ?string
     {
         $reset = $this->resetModel->createForUser($userId);

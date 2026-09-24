@@ -25,6 +25,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/vault.css">
+    <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="./assets/css/settings.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
@@ -45,7 +46,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
         <main class="content-area">
             <div class="page-heading">
                 <div>
-                    <h1><i class="ti ti-settings"></i> Settings</h1>
+                    <h1>Settings</h1>
                     <p>Manage your account, appearance, and security.</p>
                 </div>
             </div>
@@ -138,11 +139,11 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
                             <span class="settings-row-icon"><i class="ti ti-database-export"></i></span>
                             <span class="settings-row-text">
                                 <strong>Export Data</strong>
-                                <small>Download your data (tasks, notes, events, etc)</small>
+                                <small>Download a PDF copy of your vault, notes, tasks, and folders.</small>
                             </span>
-                            <a class="btn-outline-squir settings-export-btn" href="./settings?export=1">
+                            <button type="button" class="btn-outline-squir settings-export-btn" id="exportDataBtn">
                                 <i class="ti ti-download"></i> Export
-                            </a>
+                            </button>
                         </div>
                     </section>
                 </div>
@@ -153,6 +154,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
 
 <?php require __DIR__ . '/partials/edit-account-modal.php'; ?>
 <?php require __DIR__ . '/partials/delete-account-modal.php'; ?>
+<?php require __DIR__ . '/../vault/pin-modal.php'; ?>
 
 <script>
     window.VAULT_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
@@ -160,6 +162,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
 <script src="./assets/js/dashboard.js?v=3"></script>
+<script src="./assets/js/pin-gate.js"></script>
 <script src="./assets/js/settings.js"></script>
 </body>
 </html>

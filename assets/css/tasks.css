@@ -1,6 +1,6 @@
 /* Tasks board */
 
-/* ---------- Tokens (light) ---------- */
+/* Light theme tokens */
 :root {
   --task-todo-bg: #ffe4e4;
   --task-todo-fg: #e5252a;
@@ -72,7 +72,7 @@ html.dashboard-dark-preload {
   --task-approaching: #f0cf6a;
 }
 
-/* ---------- Page header ---------- */
+/* Page header */
 .tasks-page .page-heading {
   align-items: flex-end;
   flex-wrap: wrap;
@@ -116,7 +116,7 @@ html.dashboard-dark-preload {
   color: var(--muted);
 }
 
-/* ---------- Board ---------- */
+/* Task board */
 .tasks-board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -199,7 +199,7 @@ html.dashboard-dark-preload {
   outline-offset: 2px;
 }
 
-/* ---------- Status pill ---------- */
+/* Status pill */
 .task-status-pill {
   display: inline-flex;
   align-items: center;
@@ -229,7 +229,7 @@ html.dashboard-dark-preload {
 .status-in_progress::before { background: var(--task-prog-dot); }
 .status-done::before        { background: var(--task-done-dot); }
 
-/* ---------- Cards ---------- */
+/* Task cards */
 .task-list {
   display: flex;
   flex-direction: column;
@@ -397,7 +397,7 @@ html.dashboard-dark-preload {
   font-size: 1rem;
 }
 
-/* ---------- Floating menus (card ⋮⋮ at column ⋯) ---------- */
+/* Floating menus */
 .task-menu,
 .task-submenu {
   position: fixed;
@@ -507,7 +507,7 @@ html.dashboard-dark-preload {
   font-size: 1rem;
 }
 
-/* ---------- Modals ---------- */
+/* Modals */
 .task-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -799,7 +799,7 @@ body.dashboard-dark .task-field textarea {
 .task-chip.status-in_progress::before { background: var(--task-prog-dot); }
 .task-chip.status-done::before        { background: var(--task-done-dot); }
 
-/* ---------- Toast ---------- */
+/* Toast */
 .task-toast {
   position: fixed;
   left: 50%;
@@ -824,7 +824,7 @@ body.dashboard-dark .task-field textarea {
   transform: translate(-50%, 0);
 }
 
-/* ---------- Responsive ---------- */
+/* Responsive layout */
 @media (max-width: 1100px) {
   .tasks-board {
     gap: 22px;
