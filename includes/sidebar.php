@@ -8,12 +8,11 @@ $accountType = !empty($_SESSION['admin_id']) ? 'admin' : 'user';
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar" id="appSidebar">
     <div class="brand-row">
-        <button class="sidebar-collapse-btn" id="collapseBtn" type="button" aria-label="Collapse sidebar"><i class="ti ti-menu-2"></i></button>
         <a class="brand" href="./dashboard"><img src="./assets/images/squir.png" alt=""><span>Squir</span></a>
-    </div>
-    <div class="account-badge account-badge-<?= $accountType ?>">
-        <i class="ti ti-<?= $accountType === 'admin' ? 'shield-check' : 'user' ?>"></i>
-        <span><?= $accountType === 'admin' ? 'Admin Account' : 'User Account' ?></span>
+        <button class="sidebar-collapse-btn" id="collapseBtn" type="button" aria-label="Collapse sidebar">
+            <i class="ti ti-menu-2 collapse-icon-menu"></i>
+            <img class="collapse-icon-brand" src="./assets/images/squir.png" alt="">
+        </button>
     </div>
     <nav class="sidebar-nav" aria-label="Main navigation">
         <a class="nav-link<?= $isActiveRoute('dashboard') ?>" href="./dashboard"<?= $route === 'dashboard' ? ' aria-current="page"' : '' ?>><i class="ti ti-home"></i><span>Dashboard</span></a>

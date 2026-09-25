@@ -113,13 +113,23 @@
         set: function (pref) { setThemePreference(pref, true); }
     };
 
+    function syncCollapseButtonLabel(isCollapsed) {
+        if (!collapseButton) return;
+        var label = isCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
+        collapseButton.setAttribute('aria-label', label);
+        collapseButton.setAttribute('title', label);
+    }
+
     if (collapseButton) {
+        syncCollapseButtonLabel(shell.classList.contains('sidebar-collapsed'));
+
         collapseButton.addEventListener('click', function () {
             if (window.matchMedia('(max-width: 700px)').matches) {
                 shell.classList.remove('mobile-open');
                 return;
             }
             var isCollapsed = shell.classList.toggle('sidebar-collapsed');
+            syncCollapseButtonLabel(isCollapsed);
             try {
                 window.localStorage.setItem(sidebarStorageKey, isCollapsed ? '1' : '0');
             } catch (error) {
