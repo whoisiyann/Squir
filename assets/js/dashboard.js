@@ -1,4 +1,3 @@
-
 (function () {
     var shell = document.getElementById('appShell');
     var collapseButton = document.getElementById('collapseBtn');
@@ -8,7 +7,7 @@
     var themeStorageKey = 'squir-dashboard-theme';
     var sidebarStorageKey = 'squir-sidebar-collapsed';
 
-    document.querySelectorAll('.sidebar-nav .nav-link').forEach(function (link) {
+    document.querySelectorAll('.sidebar-nav .nav-link:not([data-logout-trigger])').forEach(function (link) {
         link.addEventListener('click', function () {
             document.querySelectorAll('.sidebar-nav .nav-link.active').forEach(function (activeLink) {
                 activeLink.classList.remove('active');
@@ -49,9 +48,38 @@
         }
     }
 
-    // Store a theme preference and apply it ('light' | 'dark' | 'auto')
-    function setThemePreference(pref) {
-        applyTheme(resolveIsDark(pref));
+    function prefersReducedMotion() {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+
+    function runThemeTransition(applyFn) {
+        if (!document.startViewTransition || prefersReducedMotion()) {
+            applyFn();
+            return;
+        }
+        var transition = document.startViewTransition(applyFn);
+        transition.ready.then(function () {
+            document.documentElement.animate(
+                {
+                    clipPath: [
+                        'polygon(0% 0%, 0% 0%, 0% 0%)',
+                        'polygon(0% 0%, 200% 0%, 0% 200%)'
+                    ]
+                },
+                { duration: 650, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', pseudoElement: '::view-transition-new(root)' }
+            );
+        }).catch(function () {});
+    }
+
+
+    function setThemePreference(pref, animate) {
+        var isDark = resolveIsDark(pref);
+        if (animate) {
+            runThemeTransition(function () { applyTheme(isDark); });
+        } else {
+            applyTheme(isDark);
+        }
         try {
             window.localStorage.setItem(themeStorageKey, pref);
         } catch (error) {
@@ -75,12 +103,15 @@
     if (themeButton) {
         themeButton.addEventListener('click', function () {
             var isDark = !document.body.classList.contains('dashboard-dark');
-            setThemePreference(isDark ? 'dark' : 'light');
+            setThemePreference(isDark ? 'dark' : 'light', true);
         });
     }
 
-    // Shared theme API used by the Settings > Appearance card
-    window.SquirTheme = { get: getThemePreference, set: setThemePreference };
+
+    window.SquirTheme = {
+        get: getThemePreference,
+        set: function (pref) { setThemePreference(pref, true); }
+    };
 
     if (collapseButton) {
         collapseButton.addEventListener('click', function () {
@@ -250,4 +281,39 @@
             if (!box.contains(event.target)) close();
         });
     })();
+})();
+
+(function () {
+    var backdrop = document.getElementById('logoutModalBackdrop');
+    if (!backdrop) return;
+
+    var cancelBtn = document.getElementById('logoutModalCancel');
+
+    function openLogoutModal() {
+        backdrop.classList.add('open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        if (cancelBtn) cancelBtn.focus();
+    }
+
+    function closeLogoutModal() {
+        backdrop.classList.remove('open');
+        backdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelectorAll('[data-logout-trigger]').forEach(function (trigger) {
+        trigger.addEventListener('click', function (event) {
+            event.preventDefault();
+            openLogoutModal();
+        });
+    });
+
+    if (cancelBtn) cancelBtn.addEventListener('click', closeLogoutModal);
+
+    backdrop.addEventListener('click', function (event) {
+        if (event.target === backdrop) closeLogoutModal();
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && backdrop.classList.contains('open')) closeLogoutModal();
+    });
 })();

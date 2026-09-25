@@ -36,7 +36,7 @@ class TaskController
         $result = $this->taskModel->update($taskId, $userId, $post);
         if ($result['errors'] === [] && $result['task']) {
             $action = $this->statusAction($before['status'] ?? null, $result['task']['status']);
-            $this->activityLog->log($userId, $action, ucfirst(str_replace('_', ' ', $action)) . " '" . $this->activityTitle($result['task']['title']) . "'", 'task', $taskId);
+            $this->activityLog->log($userId, $action, $this->statusDescription($action, $result['task']), 'task', $taskId);
         }
         return $result;
     }
@@ -48,7 +48,7 @@ class TaskController
         $task = $this->taskModel->setStatus($taskId, $userId, $status);
         if ($task && $before && $before['status'] !== $task['status']) {
             $action = $this->statusAction($before['status'], $task['status']);
-            $this->activityLog->log($userId, $action, ucfirst(str_replace('_', ' ', $action)) . " '" . $this->activityTitle($task['title']) . "'", 'task', $taskId);
+            $this->activityLog->log($userId, $action, $this->statusDescription($action, $task), 'task', $taskId);
         }
         return $task;
     }
@@ -56,12 +56,22 @@ class TaskController
     // Reorder tasks in a status
     public function reorder(int $taskId, int $userId, string $status, string $idsCsv): bool
     {
+        $before = $this->taskModel->find($taskId, $userId);
         $ids = array_values(array_unique(array_filter(
             array_map('intval', explode(',', $idsCsv)),
             static fn (int $id): bool => $id > 0
         )));
 
-        return $this->taskModel->reorder($taskId, $userId, $status, array_slice($ids, 0, 1000));
+        $reordered = $this->taskModel->reorder($taskId, $userId, $status, array_slice($ids, 0, 1000));
+        if ($reordered && $before && $before['status'] !== $status) {
+            $task = $this->taskModel->find($taskId, $userId);
+            if ($task) {
+                $action = $this->statusAction($before['status'], $task['status']);
+                $this->activityLog->log($userId, $action, $this->statusDescription($action, $task), 'task', $taskId);
+            }
+        }
+
+        return $reordered;
     }
 
     // Duplicate a task
@@ -105,7 +115,34 @@ class TaskController
         if ($before === 'done' && $after !== 'done') {
             return 'task_reopened';
         }
+        if ($before !== null && $before !== $after) {
+            return 'task_moved';
+        }
         return 'task_updated';
+    }
+
+    private function statusDescription(string $action, array $task): string
+    {
+        $title = "'" . $this->activityTitle($task['title']) . "'";
+        if ($action === 'task_completed') {
+            return 'Completed task ' . $title;
+        }
+        if ($action === 'task_reopened') {
+            return 'Reopened task ' . $title;
+        }
+        if ($action === 'task_moved') {
+            return 'Moved task ' . $title . ' to ' . $this->statusLabel($task['status']);
+        }
+        return 'Updated task ' . $title;
+    }
+
+    private function statusLabel(string $status): string
+    {
+        return [
+            'todo' => 'To do',
+            'in_progress' => 'In progress',
+            'done' => 'Done',
+        ][$status] ?? ucfirst(str_replace('_', ' ', $status));
     }
 
     private function activityTitle(string $title): string

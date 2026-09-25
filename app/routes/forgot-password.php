@@ -3,8 +3,20 @@
 require_once __DIR__ . '/../controllers/PasswordResetController.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
 
+// Remember where to send the back link if we arrived from Settings > Change Password
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['from'] ?? '') === 'settings') {
+    $_SESSION['pwreset_from'] = 'settings';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['from'])) {
+    unset($_SESSION['pwreset_from']);
+}
+$backUrl = ($_SESSION['pwreset_from'] ?? '') === 'settings' ? './settings?panel=change-password' : './login';
+
 $errors = [];
-$values = ['email' => $_SESSION['pwreset_email'] ?? ''];
+$prefillEmail = $_SESSION['pwreset_email'] ?? '';
+if ($prefillEmail === '' && $_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['email'])) {
+    $prefillEmail = trim((string) $_GET['email']);
+}
+$values = ['email' => $prefillEmail];
 $csrfToken = csrfToken();
 
 // Process the "forgot password" email submission

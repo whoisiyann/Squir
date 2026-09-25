@@ -1,5 +1,3 @@
-/* Settings */
-
 .page-heading h1 {
   display: flex;
   align-items: center;
@@ -575,6 +573,20 @@ button.settings-export-btn {
 .settings-password-wrap input:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.settings-forgot-password-link {
+  display: block;
+  margin-top: 8px;
+  text-align: right;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.settings-forgot-password-link:hover {
+  text-decoration: underline;
 }
 
 .settings-password-toggle {

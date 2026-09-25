@@ -1,4 +1,3 @@
-
 (function () {
     'use strict';
 
@@ -817,7 +816,7 @@
         due: $('viewTaskDue'),
         status: $('viewTaskStatus'),
         created: $('viewTaskCreated'),
-        remove: $('viewTaskDelete')
+        edit: $('viewTaskEdit')
     };
     var viewingId = null;
 
@@ -857,9 +856,12 @@
         viewingId = null;
     }
 
-    viewEl.remove.addEventListener('click', function () {
+    viewEl.edit.addEventListener('click', function () {
         var task = viewingId !== null ? findTask(viewingId) : null;
-        if (task) confirmDeleteTask(task);
+        if (task) {
+            closeView();
+            openForm(task);
+        }
     });
 
 

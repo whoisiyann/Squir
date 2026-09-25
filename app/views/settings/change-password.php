@@ -60,6 +60,7 @@
                                 <input type="password" id="currentPassword" name="current_password" placeholder="Enter your current password" autocomplete="current-password">
                                 <button type="button" class="settings-password-toggle" data-target="currentPassword" aria-label="Show password"><i class="ti ti-eye"></i></button>
                             </div>
+                            <a class="settings-forgot-password-link" href="./forgot-password?from=settings&email=<?= urlencode($user['email'] ?? '') ?>">Forgot your current password?</a>
                             <p class="settings-form-error" data-error-for="current_password"></p>
                         </div>
 

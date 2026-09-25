@@ -1,4 +1,3 @@
-
 <?php
 // Prepare forgot-password form data
 $errors = $errors ?? [];
@@ -27,7 +26,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
             </div>
 
             <div class="auth-form">
-                <a class="auth-back" href="./login" aria-label="Back to log in"><i class="ti ti-arrow-left" aria-hidden="true"></i></a>
+                <a class="auth-back" href="<?= $escape($backUrl ?? './login') ?>" aria-label="Back"><i class="ti ti-arrow-left" aria-hidden="true"></i></a>
 
                 <header class="auth-brand">
                     <img src="./assets/images/squir.png" alt="">

@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
@@ -65,6 +64,29 @@ html.dashboard-dark-preload {
   --toggle: #ff9800;
   --wc-btn: #4f86a8;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+/* Dark/light mode slide transition — used by the themeToggle button (see dashboard.js) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
 }
 
 * {
@@ -147,6 +169,35 @@ button, input {
   width: 31px;
   height: 31px;
   object-fit: contain;
+}
+
+.account-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: -14px 6px 18px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.account-badge i {
+  font-size: 1rem;
+}
+
+.account-badge-user {
+  background: var(--soft);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.account-badge-admin {
+  background: var(--peach);
+  color: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 .sidebar-collapse-btn, .mobile-toggle-btn, .icon-btn, .theme-toggle {
@@ -393,6 +444,15 @@ button, input {
     padding-right: 0;
   }
   .sidebar-collapsed .brand {
+    display: none;
+  }
+  .sidebar-collapsed .account-badge {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 6px;
+    justify-content: center;
+  }
+  .sidebar-collapsed .account-badge span {
     display: none;
   }
   .sidebar-collapsed .nav-caption {
@@ -664,4 +724,130 @@ button, input {
   color: var(--muted);
   font-size: .82rem;
   text-align: center;
+}
+/* Logout confirmation modal */
+.sq-lo-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(30, 22, 16, .45);
+}
+
+.sq-lo-backdrop.open {
+  display: flex;
+}
+
+.sq-lo-modal {
+  --lo-bg: #f8f1ea;
+  --lo-text: #a48f85;
+  --lo-brown: #6b3f2a;
+  width: 100%;
+  max-width: 360px;
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 28px 28px 26px;
+  border-radius: 28px;
+  background: var(--lo-bg);
+  text-align: center;
+  box-shadow: 0 24px 48px rgba(30, 22, 16, .22);
+}
+
+.sq-lo-modal::-webkit-scrollbar {
+  display: none;
+}
+
+body.dashboard-dark .sq-lo-modal,
+html.dashboard-dark-preload .sq-lo-modal {
+  --lo-bg: var(--card);
+  --lo-text: var(--muted);
+  --lo-brown: var(--accent);
+}
+
+.sq-lo-image {
+  display: block;
+  width: 140px;
+  height: auto;
+  margin: 0 auto 10px;
+}
+
+.sq-lo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: var(--lo-brown);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.sq-lo-title i {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.sq-lo-text {
+  max-width: 300px;
+  margin: 0 auto 22px;
+  color: var(--lo-text);
+  font-size: .92rem;
+}
+
+.sq-lo-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sq-lo-btn {
+  padding: 14px 12px;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.2;
+  display: inline-block;
+}
+
+.sq-lo-btn-cancel {
+  border: 1px solid var(--lo-brown);
+  background: transparent;
+  color: var(--lo-brown);
+}
+
+.sq-lo-btn-confirm {
+  border: 1px solid var(--lo-brown);
+  background: var(--lo-brown);
+  color: #fff;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sq-lo-btn-cancel:hover {
+    background: rgba(107, 63, 42, .08);
+  }
+
+  .sq-lo-btn-confirm:hover {
+    filter: brightness(.92);
+  }
+}
+
+@media (max-width: 520px) {
+  .sq-lo-modal {
+    padding: 22px 22px 24px;
+    border-radius: 24px;
+  }
+
+  .sq-lo-image {
+    width: 120px;
+  }
+
+  .sq-lo-title {
+    font-size: 1.3rem;
+  }
 }

@@ -1,4 +1,3 @@
-
 <div class="task-modal-backdrop" id="taskViewBackdrop" aria-hidden="true">
     <div class="task-modal" role="dialog" aria-modal="true" aria-labelledby="taskViewHeading">
         <button type="button" class="task-modal-close" data-task-close aria-label="Close"><i class="ti ti-x"></i></button>
@@ -37,8 +36,7 @@
         </div>
 
         <div class="task-modal-actions">
-            <button type="button" class="task-btn task-btn-outline task-btn-delete" id="viewTaskDelete">Delete</button>
-            <button type="button" class="task-btn task-btn-muted" data-task-close>Close</button>
+            <button type="button" class="task-btn task-btn-primary" id="viewTaskEdit">Edit</button>
         </div>
     </div>
 </div>
