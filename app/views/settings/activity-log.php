@@ -61,10 +61,10 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     <h2 id="recentActivityTitle">Recent Activity</h2>
                 </div>
 
-                <ul class="settings-activity-list" id="settingsActivityList">
+                <ul class="settings-activity-list<?= $activity === [] ? ' is-empty' : '' ?>" id="settingsActivityList">
                     <?php foreach ($activity as $entry): ?>
                         <li class="settings-activity-item">
-                            <span class="settings-activity-icon"><i class="ti <?= $escape($entry['icon']) ?>"></i></span>
+                            <span class="settings-activity-icon"><i class="<?= str_starts_with($entry['icon'], 'fa-') || str_starts_with($entry['icon'], 'fa ') || str_starts_with($entry['icon'], 'ti ') ? $escape($entry['icon']) : 'ti ' . $escape($entry['icon']) ?>"></i></span>
                             <span class="settings-activity-text">
                                 <strong><?= $escape($entry['label']) ?></strong>
                                 <?php if ($entry['detail'] !== ''): ?><small><?= $escape($entry['detail']) ?></small><?php endif; ?>

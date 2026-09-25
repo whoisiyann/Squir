@@ -82,13 +82,15 @@
         card.setAttribute('data-favorite', isFav ? '1' : '0');
         btn.classList.toggle('is-fav', isFav);
         btn.setAttribute('data-tooltip', isFav ? 'Unfavorite' : 'Favorite');
+        var star = btn.querySelector('i');
+        if (star) star.className = isFav ? 'fa-solid fa-star' : 'ti ti-star';
     }
 
 
     function syncEditorFavoriteLabel(noteId, isFav) {
         if (!editor || !menuFavBtn) return;
         if (editor.getAttribute('data-note-id') !== String(noteId)) return;
-        menuFavBtn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (isFav ? 'Unfavorite' : 'Favorite');
+        menuFavBtn.innerHTML = '<i class="' + (isFav ? 'fa-solid fa-star' : 'ti ti-star') + '"></i> ' + (isFav ? 'Unfavorite' : 'Favorite');
     }
 
     var editorCsrf = window.NOTES_CSRF_TOKEN || (editor ? editor.getAttribute('data-csrf') : null);
@@ -118,7 +120,7 @@
         menuFavBtn.addEventListener('click', function () {
             var noteId = editor.getAttribute('data-note-id');
             toggleFavoriteRequest(noteId, editorCsrf).then(function (json) {
-                menuFavBtn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (json.is_favorite ? 'Unfavorite' : 'Favorite');
+                menuFavBtn.innerHTML = '<i class="' + (json.is_favorite ? 'fa-solid fa-star' : 'ti ti-star') + '"></i> ' + (json.is_favorite ? 'Unfavorite' : 'Favorite');
                 var card = notesList && notesList.querySelector('.note-card[data-note-id="' + noteId + '"]');
                 if (card) {
                     var starBtn = card.querySelector('.note-favorite-btn');
@@ -144,16 +146,16 @@
             var starBtn = card.querySelector('.note-favorite-btn');
 
             if (starBtn) applyFavState(card, starBtn, !wasFav);
-            btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (!wasFav ? 'Unfavorite' : 'Favorite');
+            btn.innerHTML = '<i class="' + (!wasFav ? 'fa-solid fa-star' : 'ti ti-star') + '"></i> ' + (!wasFav ? 'Unfavorite' : 'Favorite');
             syncEditorFavoriteLabel(noteId, !wasFav);
 
             toggleFavoriteRequest(noteId, editorCsrf).then(function (json) {
                 if (starBtn) applyFavState(card, starBtn, !!json.is_favorite);
-                btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (json.is_favorite ? 'Unfavorite' : 'Favorite');
+                btn.innerHTML = '<i class="' + (json.is_favorite ? 'fa-solid fa-star' : 'ti ti-star') + '"></i> ' + (json.is_favorite ? 'Unfavorite' : 'Favorite');
                 syncEditorFavoriteLabel(noteId, !!json.is_favorite);
             }).catch(function () {
                 if (starBtn) applyFavState(card, starBtn, wasFav);
-                btn.innerHTML = '<i class="fa-solid fa-star"></i> ' + (wasFav ? 'Unfavorite' : 'Favorite');
+                btn.innerHTML = '<i class="' + (wasFav ? 'fa-solid fa-star' : 'ti ti-star') + '"></i> ' + (wasFav ? 'Unfavorite' : 'Favorite');
                 syncEditorFavoriteLabel(noteId, wasFav);
             });
         });

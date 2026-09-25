@@ -2,11 +2,12 @@
 
 require_once __DIR__ . '/../models/Folder.php';
 require_once __DIR__ . '/../models/Note.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../controllers/NoteController.php';
 
 $userId = requireLogin();
 $noteModel = new Note($dbh);
-$controller = new NoteController($noteModel, $dbh);
+$controller = new NoteController($noteModel, $dbh, new ActivityLog($dbh));
 $csrfToken = csrfToken();
 
 // Save note changes
@@ -66,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             echo json_encode(['error' => reset($result['errors'])]);
             exit;
         }
+        (new ActivityLog($dbh))->log($userId, 'folder_created', "Created folder '" . mb_substr(trim((string) ($_POST['folder_name'] ?? '')) ?: 'Untitled', 0, 140) . "'", 'folder', (int) $result['folder_id']);
         echo json_encode(['success' => true, 'folder_id' => $result['folder_id']]);
         exit;
     }
@@ -85,12 +87,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             echo json_encode(['error' => reset($result['errors'])]);
             exit;
         }
+        (new ActivityLog($dbh))->log($userId, 'folder_renamed', "Renamed folder '" . mb_substr(trim((string) ($_POST['folder_name'] ?? '')) ?: 'Untitled', 0, 140) . "'", 'folder', (int) $targetFolder['folder_id']);
         echo json_encode(['success' => true]);
         exit;
     }
 
     // folder_delete 
-    $folderModel->delete((int) $targetFolder['folder_id'], $userId);
+    $deleted = $folderModel->delete((int) $targetFolder['folder_id'], $userId);
+    if ($deleted) {
+        (new ActivityLog($dbh))->log($userId, 'folder_deleted', "Deleted folder '" . mb_substr(trim((string) $targetFolder['folder_name']) ?: 'Untitled', 0, 140) . "'", 'folder', (int) $targetFolder['folder_id']);
+    }
     echo json_encode(['success' => true]);
     exit;
 }
@@ -103,12 +109,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
         echo json_encode(['error' => 'Invalid token']);
         exit;
     }
-    $isFavorite = $controller->toggleFavorite((int) ($_POST['note_id'] ?? 0), $userId);
+    $noteId = (int) ($_POST['note_id'] ?? 0);
+    $item = $noteModel->find($noteId, $userId);
+    $isFavorite = $controller->toggleFavorite($noteId, $userId);
     if ($isFavorite === null) {
         http_response_code(404);
         echo json_encode(['error' => 'Not found']);
         exit;
     }
+    $action = $isFavorite ? 'favorite_added' : 'favorite_removed';
+    $verb = $isFavorite ? 'Added' : 'Removed';
+    (new ActivityLog($dbh))->log($userId, $action, $verb . " '" . mb_substr(trim((string) $item['title']) ?: 'Untitled', 0, 140) . "' " . ($isFavorite ? 'to' : 'from') . ' favorites', 'favorite', $noteId);
     echo json_encode(['is_favorite' => $isFavorite]);
     exit;
 }

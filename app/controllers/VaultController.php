@@ -4,11 +4,13 @@ class VaultController
 {
     private Vault $vaultModel;
     private PDO $dbh;
+    private ActivityLog $activityLog;
 
-    public function __construct(Vault $vaultModel, PDO $dbh)
+    public function __construct(Vault $vaultModel, PDO $dbh, ActivityLog $activityLog)
     {
         $this->vaultModel = $vaultModel;
         $this->dbh = $dbh;
+        $this->activityLog = $activityLog;
     }
 
     // Load user vault entries
@@ -48,6 +50,10 @@ class VaultController
 
         if ($result['errors'] === [] && ($post['is_favorite'] ?? '0') === '1') {
             $this->markFavorite($userId, (int) $result['vault_id']);
+            $this->activityLog->log($userId, 'favorite_added', "Added '" . $this->activityTitle($post['title'] ?? '') . "' to favorites", 'favorite', (int) $result['vault_id']);
+        }
+        if ($result['errors'] === []) {
+            $this->activityLog->log($userId, 'vault_created', "Created credential '" . $this->activityTitle($post['title'] ?? '') . "'", 'vault', (int) $result['vault_id']);
         }
 
         return $result;
@@ -67,13 +73,24 @@ class VaultController
     // Update a vault entry
     public function update(int $vaultId, int $userId, array $post): array
     {
+        $existing = $this->vaultModel->find($vaultId, $userId);
+        $wasFavorite = $existing ? $this->isFavorite($userId, $vaultId) : false;
         $result = $this->vaultModel->update($vaultId, $userId, $this->extract($post));
 
         if ($result['errors'] === []) {
-            if (($post['is_favorite'] ?? '0') === '1') {
+            $shouldBeFavorite = ($post['is_favorite'] ?? '0') === '1';
+            if ($shouldBeFavorite) {
                 $this->markFavorite($userId, $vaultId);
             } else {
                 $this->unmarkFavorite($userId, $vaultId);
+            }
+            if ($existing) {
+                $this->activityLog->log($userId, 'vault_updated', "Updated credential '" . $this->activityTitle($post['title'] ?? $existing['title']) . "'", 'vault', $vaultId);
+                if ($shouldBeFavorite && !$wasFavorite) {
+                    $this->activityLog->log($userId, 'favorite_added', "Added '" . $this->activityTitle($post['title'] ?? $existing['title']) . "' to favorites", 'favorite', $vaultId);
+                } elseif (!$shouldBeFavorite && $wasFavorite) {
+                    $this->activityLog->log($userId, 'favorite_removed', "Removed '" . $this->activityTitle($post['title'] ?? $existing['title']) . "' from favorites", 'favorite', $vaultId);
+                }
             }
         }
 
@@ -83,7 +100,12 @@ class VaultController
     // Delete a vault entry
     public function destroy(int $vaultId, int $userId): bool
     {
-        return $this->vaultModel->delete($vaultId, $userId);
+        $existing = $this->vaultModel->find($vaultId, $userId);
+        $deleted = $this->vaultModel->delete($vaultId, $userId);
+        if ($deleted && $existing) {
+            $this->activityLog->log($userId, 'vault_deleted', "Deleted credential '" . $this->activityTitle($existing['title']) . "'", 'vault', $vaultId);
+        }
+        return $deleted;
     }
 
     // Move a vault entry to a folder
@@ -193,5 +215,10 @@ class VaultController
     {
         $stmt = $this->dbh->prepare('DELETE FROM favorites WHERE user_id = :uid AND vault_id = :vid');
         $stmt->execute(['uid' => $userId, 'vid' => $vaultId]);
+    }
+
+    private function activityTitle(string $title): string
+    {
+        return mb_substr(trim($title) !== '' ? trim($title) : 'Untitled', 0, 140);
     }
 }

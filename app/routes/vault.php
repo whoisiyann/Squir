@@ -1,13 +1,15 @@
 <?php
 
 require_once __DIR__ . '/../models/Vault.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../controllers/VaultController.php';
 require_once __DIR__ . '/../controllers/PinController.php';
 
 $userId = requireLogin();
 $vaultModel = new Vault($dbh);
-$controller = new VaultController($vaultModel, $dbh);
+$activityLog = new ActivityLog($dbh);
+$controller = new VaultController($vaultModel, $dbh, $activityLog);
 $pinController = new PinController(new UserPin($dbh));
 $csrfToken = csrfToken();
 
@@ -50,13 +52,39 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     }
     consumePinUnlock();
 
-    $password = $controller->revealPassword((int) ($_GET['id'] ?? 0), $userId);
+    $vaultId = (int) ($_GET['id'] ?? 0);
+    $item = $vaultModel->find($vaultId, $userId);
+    $password = $controller->revealPassword($vaultId, $userId);
     if ($password === null) {
         http_response_code(404);
         echo json_encode(['error' => 'Not found']);
         exit;
     }
+    $action = ($_GET['reason'] ?? 'view') === 'copy' ? 'password_copied' : 'password_viewed';
+    $activityLog->log($userId, $action, ucfirst(str_replace('_', ' ', $action)) . " '" . mb_substr(trim((string) $item['title']) ?: 'Untitled', 0, 140) . "'", 'vault', $vaultId);
     echo json_encode(['password' => $password]);
+    exit;
+}
+
+// Record a successful copy when the password was already visible in the page
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'log_password_copy') {
+    header('Content-Type: application/json');
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Invalid token']);
+        exit;
+    }
+
+    $vaultId = (int) ($_POST['vault_id'] ?? 0);
+    $item = $vaultModel->find($vaultId, $userId);
+    if (!$item) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Not found']);
+        exit;
+    }
+
+    $activityLog->log($userId, 'password_copied', "Copied password '" . mb_substr(trim((string) $item['title']) ?: 'Untitled', 0, 140) . "'", 'vault', $vaultId);
+    echo json_encode(['success' => true]);
     exit;
 }
 
@@ -69,12 +97,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
         echo json_encode(['error' => 'Invalid token']);
         exit;
     }
-    $isFavorite = $controller->toggleFavorite((int) ($_POST['vault_id'] ?? 0), $userId);
+    $vaultId = (int) ($_POST['vault_id'] ?? 0);
+    $item = $vaultModel->find($vaultId, $userId);
+    $isFavorite = $controller->toggleFavorite($vaultId, $userId);
     if ($isFavorite === null) {
         http_response_code(404);
         echo json_encode(['error' => 'Not found']);
         exit;
     }
+    $action = $isFavorite ? 'favorite_added' : 'favorite_removed';
+    $verb = $isFavorite ? 'Added' : 'Removed';
+    (new ActivityLog($dbh))->log($userId, $action, $verb . " '" . mb_substr(trim((string) $item['title']) ?: 'Untitled', 0, 140) . "' " . ($isFavorite ? 'to' : 'from') . ' favorites', 'favorite', $vaultId);
     echo json_encode(['is_favorite' => $isFavorite]);
     exit;
 }

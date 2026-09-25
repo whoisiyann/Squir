@@ -1,5 +1,12 @@
 <?php
 
+require_once __DIR__ . '/../models/ActivityLog.php';
+
+$userId = (int) ($_SESSION['user_id'] ?? 0);
+if ($userId > 0) {
+    (new ActivityLog($dbh))->log($userId, 'logged_out');
+}
+
 $_SESSION = [];
 // Clear the authenticated session
 if (ini_get('session.use_cookies')) {

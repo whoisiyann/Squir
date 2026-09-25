@@ -49,8 +49,18 @@ class SettingsController
             return ['errors' => $errors];
         }
 
+        $currentUser = $this->user->findById($userId);
         $this->user->updateProfile($userId, $fullName, $username, $email);
-        $this->activityLog->log($userId, 'profile_updated');
+
+        if ($currentUser && $currentUser['username'] !== $username) {
+            $this->activityLog->log($userId, 'username_changed');
+        }
+        if ($currentUser && strtolower((string) $currentUser['email']) !== $email) {
+            $this->activityLog->log($userId, 'email_changed');
+        }
+        if ($currentUser && $currentUser['full_name'] !== $fullName) {
+            $this->activityLog->log($userId, 'profile_updated');
+        }
 
         return ['errors' => [], 'user' => $this->user->findById($userId)];
     }

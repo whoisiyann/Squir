@@ -1,15 +1,18 @@
 <?php
 require_once __DIR__ . '/../models/Folder.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 
 class FolderController
 {
     private Folder $folderModel;
     private PDO $dbh;
+    private ActivityLog $activityLog;
 
-    public function __construct(Folder $folderModel, PDO $dbh)
+    public function __construct(Folder $folderModel, PDO $dbh, ActivityLog $activityLog)
     {
         $this->folderModel = $folderModel;
         $this->dbh = $dbh;
+        $this->activityLog = $activityLog;
     }
 
     // Load user folders
@@ -40,17 +43,26 @@ class FolderController
     {
         $type = ($post['folder_type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
 
-        return $this->folderModel->create($userId, [
+        $result = $this->folderModel->create($userId, [
             'folder_name' => trim((string) ($post['folder_name'] ?? '')),
             'folder_type' => $type,
             'color' => (string) ($post['color'] ?? 'blue'),
         ]);
+        if ($result['errors'] === []) {
+            $this->activityLog->log($userId, 'folder_created', "Created folder '" . $this->activityTitle($post['folder_name'] ?? '') . "'", 'folder', (int) $result['folder_id']);
+        }
+        return $result;
     }
 
     // Rename a folder
     public function rename(int $folderId, int $userId, string $name): array
     {
-        return $this->folderModel->rename($folderId, $userId, $name);
+        $existing = $this->folderModel->find($folderId, $userId);
+        $result = $this->folderModel->rename($folderId, $userId, $name);
+        if ($result['errors'] === [] && $existing) {
+            $this->activityLog->log($userId, 'folder_renamed', "Renamed folder '" . $this->activityTitle($name) . "'", 'folder', $folderId);
+        }
+        return $result;
     }
 
     // Update folder color
@@ -65,13 +77,19 @@ class FolderController
     // Delete a folder
     public function destroy(int $folderId, int $userId): bool
     {
-        return $this->folderModel->delete($folderId, $userId);
+        $existing = $this->folderModel->find($folderId, $userId);
+        $deleted = $this->folderModel->delete($folderId, $userId);
+        if ($deleted && $existing) {
+            $this->activityLog->log($userId, 'folder_deleted', "Deleted folder '" . $this->activityTitle($existing['folder_name']) . "'", 'folder', $folderId);
+        }
+        return $deleted;
     }
 
     // Toggle folder favorite state
     public function toggleFavorite(int $folderId, int $userId): ?bool
     {
-        if (!$this->folderModel->find($folderId, $userId)) {
+        $folder = $this->folderModel->find($folderId, $userId);
+        if (!$folder) {
             return null;
         }
 
@@ -117,5 +135,10 @@ class FolderController
     {
         $stmt = $this->dbh->prepare('DELETE FROM favorites WHERE user_id = :uid AND folder_id = :fid');
         $stmt->execute(['uid' => $userId, 'fid' => $folderId]);
+    }
+
+    private function activityTitle(string $title): string
+    {
+        return mb_substr(trim($title) !== '' ? trim($title) : 'Untitled', 0, 140);
     }
 }

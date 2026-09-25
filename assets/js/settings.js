@@ -470,7 +470,10 @@
             if (!result.ok) return;
 
             var list = document.getElementById('settingsActivityList');
-            if (list) list.innerHTML = '';
+            if (list) {
+                list.innerHTML = '';
+                list.classList.add('is-empty');
+            }
 
             var card = document.querySelector('.settings-activity-card');
             if (card && !document.getElementById('settingsActivityEmpty')) {

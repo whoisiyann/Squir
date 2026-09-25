@@ -112,7 +112,7 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
                             <span class="folder-date"><?= $escape(date('F j, g:i A', strtotime($folder['updated_at']))) ?></span>
 
                             <div class="folder-card-actions">
-                                <button type="button" class="folder-favorite-btn <?= $isFav ? 'is-fav' : '' ?>" aria-label="<?= $isFav ? 'Remove from favorites' : 'Add to favorites' ?>" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><i class="fa-regular fa-star"></i></button>
+                                <button type="button" class="folder-favorite-btn <?= $isFav ? 'is-fav' : '' ?>" aria-label="<?= $isFav ? 'Remove from favorites' : 'Add to favorites' ?>" aria-pressed="<?= $isFav ? 'true' : 'false' ?>"><i class="<?= $isFav ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i></button>
                                 <div class="folder-menu">
                                     <button type="button" class="folder-menu-btn" aria-label="More actions"><i class="ti ti-dots-vertical"></i></button>
                                     <div class="folder-menu-dropdown">

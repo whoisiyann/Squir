@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../controllers/PasswordResetController.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 
 // Require a verified reset code
 if (empty($_SESSION['pwreset_email']) || empty($_SESSION['pwreset_verified'])) {
@@ -17,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
     } else {
-        $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh));
+        $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh));
         $result = $controller->resetPassword($email, $_POST);
         $errors = $result['errors'];
 

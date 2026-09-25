@@ -331,7 +331,7 @@
         button.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
         button.setAttribute('aria-label', isFavorite ? 'Remove from favorites' : 'Add to favorites');
         var star = button.querySelector('i');
-        if (star) star.className = (isFavorite ? 'fa-solid' : 'fa-regular') + ' fa-star';
+        if (star) star.className = isFavorite ? 'fa-solid fa-star' : 'ti ti-star';
     }
 
     Array.prototype.forEach.call(document.querySelectorAll('.recent-star-btn'), function (button) {

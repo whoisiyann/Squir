@@ -1,15 +1,18 @@
 <?php
 require_once __DIR__ . '/../models/Note.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 
 class NoteController
 {
     private Note $noteModel;
     private PDO $dbh;
+    private ActivityLog $activityLog;
 
-    public function __construct(Note $noteModel, PDO $dbh)
+    public function __construct(Note $noteModel, PDO $dbh, ActivityLog $activityLog)
     {
         $this->noteModel = $noteModel;
         $this->dbh = $dbh;
+        $this->activityLog = $activityLog;
     }
 
     // Load user notes
@@ -53,19 +56,33 @@ class NoteController
     // Create a note
     public function store(int $userId, array $post): array
     {
-        return $this->noteModel->create($userId, $this->extract($post));
+        $result = $this->noteModel->create($userId, $this->extract($post));
+        if ($result['errors'] === []) {
+            $this->activityLog->log($userId, 'note_created', "Created note '" . $this->activityTitle($post['title'] ?? '') . "'", 'note', (int) $result['note_id']);
+        }
+        return $result;
     }
 
     // Update a note
     public function update(int $noteId, int $userId, array $post): array
     {
-        return $this->noteModel->update($noteId, $userId, $this->extract($post));
+        $existing = $this->noteModel->find($noteId, $userId);
+        $result = $this->noteModel->update($noteId, $userId, $this->extract($post));
+        if ($result['errors'] === [] && $existing) {
+            $this->activityLog->log($userId, 'note_updated', "Updated note '" . $this->activityTitle($post['title'] ?? $existing['title']) . "'", 'note', $noteId);
+        }
+        return $result;
     }
 
     // Delete a note
     public function destroy(int $noteId, int $userId): bool
     {
-        return $this->noteModel->delete($noteId, $userId);
+        $existing = $this->noteModel->find($noteId, $userId);
+        $deleted = $this->noteModel->delete($noteId, $userId);
+        if ($deleted && $existing) {
+            $this->activityLog->log($userId, 'note_deleted', "Deleted note '" . $this->activityTitle($existing['title']) . "'", 'note', $noteId);
+        }
+        return $deleted;
     }
 
     // Move a note to a folder
@@ -77,7 +94,14 @@ class NoteController
     // Duplicate a note
     public function duplicate(int $noteId, int $userId): ?int
     {
-        return $this->noteModel->duplicate($noteId, $userId);
+        $newNoteId = $this->noteModel->duplicate($noteId, $userId);
+        if ($newNoteId !== null) {
+            $created = $this->noteModel->find($newNoteId, $userId);
+            if ($created) {
+                $this->activityLog->log($userId, 'note_created', "Created note '" . $this->activityTitle($created['title']) . "'", 'note', $newNoteId);
+            }
+        }
+        return $newNoteId;
     }
 
     // Toggle note favorite state
@@ -177,5 +201,10 @@ class NoteController
     {
         $stmt = $this->dbh->prepare('DELETE FROM favorites WHERE user_id = :uid AND note_id = :nid');
         $stmt->execute(['uid' => $userId, 'nid' => $noteId]);
+    }
+
+    private function activityTitle(string $title): string
+    {
+        return mb_substr(trim($title) !== '' ? trim($title) : 'Untitled', 0, 140);
     }
 }

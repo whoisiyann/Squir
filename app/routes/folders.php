@@ -1,11 +1,12 @@
 <?php
 
 require_once __DIR__ . '/../models/Folder.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../controllers/FolderController.php';
 
 $userId = requireLogin();
 $folderModel = new Folder($dbh);
-$controller = new FolderController($folderModel, $dbh);
+$controller = new FolderController($folderModel, $dbh, new ActivityLog($dbh));
 $csrfToken = csrfToken();
 
 // Validate the return URL
@@ -47,12 +48,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
         echo json_encode(['error' => 'Invalid token']);
         exit;
     }
-    $isFavorite = $controller->toggleFavorite((int) ($_POST['folder_id'] ?? 0), $userId);
+    $folderId = (int) ($_POST['folder_id'] ?? 0);
+    $folder = $folderModel->find($folderId, $userId);
+    $isFavorite = $controller->toggleFavorite($folderId, $userId);
     if ($isFavorite === null) {
         http_response_code(404);
         echo json_encode(['error' => 'Not found']);
         exit;
     }
+    $action = $isFavorite ? 'favorite_added' : 'favorite_removed';
+    $verb = $isFavorite ? 'Added' : 'Removed';
+    (new ActivityLog($dbh))->log($userId, $action, $verb . " '" . mb_substr(trim((string) $folder['folder_name']) ?: 'Untitled', 0, 140) . "' " . ($isFavorite ? 'to' : 'from') . ' favorites', 'favorite', $folderId);
     echo json_encode(['is_favorite' => $isFavorite]);
     exit;
 }
@@ -93,7 +99,7 @@ if ($openFolderId !== null) {
         require_once __DIR__ . '/../models/Note.php';
         require_once __DIR__ . '/../controllers/NoteController.php';
 
-        $noteController = new NoteController(new Note($dbh), $dbh);
+        $noteController = new NoteController(new Note($dbh), $dbh, new ActivityLog($dbh));
         $notesData = $noteController->index($userId, ['folder' => $openFolderId]);
 
         $user = currentUserSummary($dbh, $userId);
@@ -108,7 +114,7 @@ if ($openFolderId !== null) {
     require_once __DIR__ . '/../controllers/VaultController.php';
 
     $vaultModel = new Vault($dbh);
-    $vaultController = new VaultController($vaultModel, $dbh);
+    $vaultController = new VaultController($vaultModel, $dbh, new ActivityLog($dbh));
 
     $returnTo = './folders?folder=' . $openFolderId;
     $closeUrl = $returnTo;

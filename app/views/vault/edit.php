@@ -91,7 +91,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
                 <div class="vault-field">
                     <label>Favorite</label>
                     <button type="button" class="vault-favorite-toggle <?= $editItem['is_favorite'] ? 'active' : '' ?>" id="editFavoriteToggle" aria-pressed="<?= $editItem['is_favorite'] ? 'true' : 'false' ?>" aria-label="Mark as favorite">
-                        <i class="fa-solid fa-star"></i>
+                        <i class="<?= $editItem['is_favorite'] ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i>
                     </button>
                 </div>
             </div>

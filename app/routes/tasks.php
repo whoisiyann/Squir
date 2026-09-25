@@ -1,10 +1,11 @@
 <?php
 
 require_once __DIR__ . '/../models/Task.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../controllers/TaskController.php';
 
 $userId = requireLogin();
-$controller = new TaskController(new Task($dbh));
+$controller = new TaskController(new Task($dbh), new ActivityLog($dbh));
 $csrfToken = csrfToken();
 
 // Send a task JSON response

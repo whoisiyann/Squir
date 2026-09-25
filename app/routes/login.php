@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../controllers/AuthController.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 
 $errors = [];
 $values = ['email' => ''];
@@ -21,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $values = array_merge($values, $result['values']);
 
     if ($errors === []) {
+        (new ActivityLog($dbh))->log((int) $result['values']['user_id'], 'logged_in');
         session_regenerate_id(true);
         unset($_SESSION['has_pin']);
         clearPinUnlock();

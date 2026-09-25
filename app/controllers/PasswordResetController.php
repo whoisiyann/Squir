@@ -1,11 +1,16 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/PasswordReset.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../../includes/mailer.php';
 
 class PasswordResetController
 {
-    public function __construct(private User $userModel, private PasswordReset $resetModel)
+    public function __construct(
+        private User $userModel,
+        private PasswordReset $resetModel,
+        private ActivityLog $activityLog
+    )
     {
     }
 
@@ -92,6 +97,7 @@ class PasswordResetController
 
         $this->userModel->updatePassword((int) $user['user_id'], password_hash($password, PASSWORD_DEFAULT));
         $this->resetModel->markUsed((int) $user['user_id']);
+        $this->activityLog->log((int) $user['user_id'], 'password_changed');
 
         return ['errors' => []];
     }

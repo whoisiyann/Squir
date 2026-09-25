@@ -183,11 +183,23 @@
     if (itemType === 'vault') {
         function revealById(id, reason) {
             return window.SquirPin.ensure(reason).then(function () {
-                return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
+                return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&reason=' + encodeURIComponent(reason) + '&token=' + encodeURIComponent(csrfToken))
                     .then(function (response) {
                         if (!response.ok) throw new Error('Failed to fetch password');
                         return response.json();
                     });
+            });
+        }
+
+        function logPasswordCopy(id) {
+            var body = new URLSearchParams();
+            body.set('ajax', 'log_password_copy');
+            body.set('csrf_token', csrfToken);
+            body.set('vault_id', id);
+            return fetch('./vault', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
             });
         }
 
@@ -254,15 +266,17 @@
                 var id = row.getAttribute('data-item-id');
                 var cell = row.querySelector('.vault-password');
                 var icon = btn.querySelector('i');
+                var usedReveal = !(cell && cell.getAttribute('data-revealed') === 'true');
 
                 var passwordPromise;
-                if (cell && cell.getAttribute('data-revealed') === 'true') {
+                if (!usedReveal) {
                     passwordPromise = Promise.resolve(cell.textContent);
                 } else {
                     passwordPromise = revealById(id, 'copy').then(function (json) { return json.password; });
                 }
 
                 copyPasswordToClipboard(passwordPromise, function () {
+                    if (!usedReveal) logPasswordCopy(id);
                     icon.className = 'ti ti-check';
                     btn.setAttribute('data-tooltip', 'Copied!');
                     setTimeout(function () {

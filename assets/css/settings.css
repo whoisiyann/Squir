@@ -404,13 +404,38 @@ button.settings-export-btn {
 
 /* Activity log */
 .settings-activity-card {
-  min-height: 200px;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .settings-activity-list {
+  flex: 1 1 auto;
+  min-height: 0;
   list-style: none;
   margin: 0;
   padding: 0;
+  max-height: none;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.settings-activity-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.settings-activity-list.is-empty {
+  display: none;
+}
+
+.settings-activity-card > .empty-state {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 32px 16px;
 }
 
 .settings-activity-item {
@@ -459,6 +484,37 @@ button.settings-export-btn {
   color: var(--muted);
   font-size: .76rem;
   white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .settings-activity-card {
+    padding: 16px;
+  }
+
+  .settings-activity-card > .empty-state {
+    padding: 24px 10px;
+  }
+
+  .settings-activity-item {
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px 0;
+  }
+
+  .settings-activity-icon {
+    width: 34px;
+    height: 34px;
+    font-size: .9rem;
+  }
+
+  .settings-activity-text strong {
+    font-size: .82rem;
+  }
+
+  .settings-activity-text small,
+  .settings-activity-time {
+    font-size: .68rem;
+  }
 }
 
 /* Password and PIN forms */

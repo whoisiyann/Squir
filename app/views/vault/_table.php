@@ -29,7 +29,7 @@ $emptyStateButtonLabel = $emptyStateButtonLabel ?? 'Add Vault';
                     <?php
                     $favicon     = Vault::faviconUrlFor($item['website_url']);
                     $isFav       = !empty($item['is_favorite']);
-                    $starClass   = 'fa-regular fa-star';
+                    $starClass   = $isFav ? 'fa-solid fa-star' : 'ti ti-star';
                     $itemTags    = array_filter(array_map('trim', explode(',', (string) ($item['tags'] ?? ''))));
                     $websiteHref = $item['website_url']
                         ? (preg_match('~^https?://~i', $item['website_url']) ? $item['website_url'] : 'https://' . $item['website_url'])

@@ -169,11 +169,23 @@
     // Reveal a vault password
     function revealById(id, reason) {
         return window.SquirPin.ensure(reason).then(function () {
-            return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(csrfToken))
+            return fetch('./vault?ajax=reveal&id=' + encodeURIComponent(id) + '&reason=' + encodeURIComponent(reason) + '&token=' + encodeURIComponent(csrfToken))
                 .then(function (response) {
                     if (!response.ok) throw new Error('Failed to fetch password');
                     return response.json();
                 });
+        });
+    }
+
+    function logPasswordCopy(id) {
+        var body = new URLSearchParams();
+        body.set('ajax', 'log_password_copy');
+        body.set('csrf_token', csrfToken);
+        body.set('vault_id', id);
+        return fetch('./vault', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString()
         });
     }
 
@@ -266,9 +278,10 @@
             var id = row.getAttribute('data-vault-id');
             var cell = row.querySelector('.vault-password');
             var icon = btn.querySelector('i');
+            var usedReveal = !(cell && cell.getAttribute('data-revealed') === 'true');
 
             var passwordPromise;
-            if (cell && cell.getAttribute('data-revealed') === 'true') {
+            if (!usedReveal) {
                 
                 // Copy the visible password
                 passwordPromise = Promise.resolve(cell.textContent);
@@ -277,6 +290,7 @@
             }
 
             copyPasswordToClipboard(passwordPromise, function () {
+                if (!usedReveal) logPasswordCopy(id);
                 icon.className = 'ti ti-check';
                 btn.setAttribute('data-tooltip', 'Copied!');
                 setTimeout(function () {
@@ -292,9 +306,10 @@
         editCopyBtn.addEventListener('click', function () {
             var id = editCopyBtn.getAttribute('data-vault-id');
             var passwordInput = document.getElementById('e_password');
+            var usedReveal = !(passwordInput && passwordInput.type === 'text' && passwordInput.value !== '');
 
             var passwordPromise;
-            if (passwordInput && passwordInput.type === 'text' && passwordInput.value !== '') {
+            if (!usedReveal) {
                     // Copy the visible password
                 passwordPromise = Promise.resolve(passwordInput.value);
             } else {
@@ -302,6 +317,7 @@
             }
 
             copyPasswordToClipboard(passwordPromise, function () {
+                if (!usedReveal) logPasswordCopy(id);
                 var original = editCopyBtn.textContent;
                 editCopyBtn.textContent = 'Copied!';
                 setTimeout(function () { editCopyBtn.textContent = original; }, 1200);
@@ -405,6 +421,8 @@
             el.setAttribute('aria-pressed', isFavorite ? 'true' : 'false');
             el.setAttribute('aria-label', isFavorite ? 'Remove from favorites' : 'Add to favorites');
             el.setAttribute('data-tooltip', isFavorite ? 'Unfavorite' : 'Favorite');
+            var star = el.querySelector('i');
+            if (star) star.className = isFavorite ? 'fa-solid fa-star' : 'ti ti-star';
         });
     }
 

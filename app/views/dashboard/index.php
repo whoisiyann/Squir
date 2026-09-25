@@ -214,7 +214,7 @@ $pageData = [
                                         </span>
                                     </a>
                                     <button type="button" class="recent-star-btn<?= $item['is_favorite'] ? ' is-favorite' : '' ?>" data-vault-id="<?= (int) $item['vault_id'] ?>" aria-pressed="<?= $item['is_favorite'] ? 'true' : 'false' ?>" aria-label="<?= $item['is_favorite'] ? 'Remove from favorites' : 'Add to favorites' ?>">
-                                        <i class="<?= $item['is_favorite'] ? 'fa-solid' : 'fa-regular' ?> fa-star"></i>
+                                        <i class="<?= $item['is_favorite'] ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i>
                                     </button>
                                 </li>
                             <?php endforeach; ?>

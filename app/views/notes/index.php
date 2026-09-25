@@ -106,7 +106,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                             <span class="note-card-top">
                                                 <strong><?= $escape(Note::titleOrDefault($item['title'])) ?></strong>
                                                 <button type="button" class="note-favorite-btn <?= $item['is_favorite'] ? 'is-fav' : '' ?>" data-tooltip="<?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>" aria-label="Favorite">
-                                                    <i class="fa-regular fa-star"></i>
+                                                    <i class="<?= $item['is_favorite'] ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i>
                                                 </button>
                                             </span>
                                             <small class="note-card-excerpt"><?= $escape(Note::excerptOf($item['content'])) ?></small>
@@ -131,7 +131,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                     <i class="ti ti-folder"></i> Move to folder
                                                 </button>
                                                 <button type="button" class="note-menu-favorite-item">
-                                                    <i class="fa-solid fa-star"></i> <?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
+                                                    <i class="<?= $item['is_favorite'] ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i> <?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
                                                 </button>
                                                 <form method="post" action="./notes">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
@@ -191,7 +191,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                     <i class="ti ti-folder"></i> Move to folder
                                                 </button>
                                                 <button type="button" class="note-menu-favorite">
-                                                    <i class="fa-solid fa-star"></i> <?= $activeNote['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
+                                                    <i class="<?= $activeNote['is_favorite'] ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i> <?= $activeNote['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
                                                 </button>
                                                 <form method="post" action="./notes">
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">

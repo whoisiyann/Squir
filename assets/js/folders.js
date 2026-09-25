@@ -302,10 +302,13 @@
 
             card.setAttribute('data-favorite', wasFav ? '0' : '1');
             btn.classList.toggle('is-fav', !wasFav);
+            var star = btn.querySelector('i');
+            if (star) star.className = !wasFav ? 'fa-solid fa-star' : 'ti ti-star';
 
             toggleFavorite(folderId).catch(function () {
                 card.setAttribute('data-favorite', wasFav ? '1' : '0');
                 btn.classList.toggle('is-fav', wasFav);
+                if (star) star.className = wasFav ? 'fa-solid fa-star' : 'ti ti-star';
             });
         });
     });

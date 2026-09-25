@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../controllers/PasswordResetController.php';
+require_once __DIR__ . '/../models/ActivityLog.php';
 
 $errors = [];
 $values = ['email' => $_SESSION['pwreset_email'] ?? ''];
@@ -18,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['form'] = 'Please wait a bit before requesting another code.';
             $values['email'] = trim((string) ($_POST['email'] ?? ''));
         } else {
-            $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh));
+            $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh));
             $result = $controller->requestCode($_POST);
             $errors = $result['errors'];
             $values['email'] = $result['email'];
