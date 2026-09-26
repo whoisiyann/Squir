@@ -665,7 +665,7 @@
 }
 
 .tap-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .task-columns {
@@ -791,6 +791,21 @@ a.mini-task:focus-visible {
   flex-direction: column;
   min-height: 520px;
   padding: 16px 18px 18px;
+}
+
+.recent-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: .8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.recent-view-all:hover {
+  text-decoration: none;
 }
 
 .recent-list {

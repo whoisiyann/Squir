@@ -188,6 +188,7 @@ $pageData = [
                 <section class="dash-card dash-recent" id="recent" aria-labelledby="recentTitle">
                     <div class="dash-card-head">
                         <h2 id="recentTitle">Recent Credentials</h2>
+                        <a class="recent-view-all" href="./vault">View all <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
                     </div>
 
                     <?php if (empty($dashboard['recentItems'])): ?>
@@ -219,9 +220,6 @@ $pageData = [
                                 </li>
                             <?php endforeach; ?>
                         </ul>
-                        <?php if (count($dashboard['recentItems']) >= 10): ?>
-                            <a class="recent-see-more" href="./vault">See more <i class="ti ti-arrow-right"></i></a>
-                        <?php endif; ?>
                     <?php endif; ?>
                 </section>
             </div>

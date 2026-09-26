@@ -107,10 +107,6 @@ CREATE INDEX idx_pin_resets_user ON pin_resets (user_id);
 
 
 
-
-
-
-
 -- 3. FOLDERS — 
 CREATE TABLE folders (
     folder_id   INT AUTO_INCREMENT PRIMARY KEY,
