@@ -84,6 +84,33 @@ CREATE INDEX idx_password_resets_user ON password_resets (user_id);
 
 
 
+
+-- 2c. PIN_RESETS — forgot-PIN verification codes
+CREATE TABLE pin_resets (
+    reset_id    INT AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT NOT NULL,
+    code_hash   VARCHAR(255) NOT NULL,
+    attempts    TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    expires_at  DATETIME NOT NULL,
+    verified_at DATETIME NULL,
+    used_at     DATETIME NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_pin_resets_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_pin_resets_user ON pin_resets (user_id);
+
+
+
+
+
+
+
+
+
 -- 3. FOLDERS — 
 CREATE TABLE folders (
     folder_id   INT AUTO_INCREMENT PRIMARY KEY,

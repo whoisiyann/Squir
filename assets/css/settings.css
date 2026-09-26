@@ -744,7 +744,7 @@ button.settings-export-btn {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: var(--backdrop);
+  background: rgba(30, 22, 16, .45);
 }
 
 .sq-da-backdrop.open {
@@ -754,7 +754,7 @@ button.settings-export-btn {
 .sq-da-modal {
   --da-bg: #f8f1ea;
   --da-text: #a48f85;
-  --da-red: #ff1414;
+  --da-red: #c0392b;
   --da-brown: #6b3f2a;
 
   width: 100%;
@@ -795,7 +795,7 @@ html.dashboard-dark-preload .sq-da-modal {
   justify-content: center;
   gap: 10px;
   margin: 0 0 10px;
-  color: var(--da-red);
+  color: var(--da-brown);
   font-size: 1.65rem;
   font-weight: 700;
   line-height: 1.2;
@@ -853,10 +853,20 @@ html.dashboard-dark-preload .sq-da-modal {
 }
 
 .sq-da-btn-danger {
-  border: 1px solid var(--da-red);
-  background: var(--da-red);
+  border: 1px solid var(--da-brown);
+  background: var(--da-brown);
   color: #fff;
   font-weight: 600;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sq-da-btn-cancel:hover {
+    background: rgba(107, 63, 42, .08);
+  }
+
+  .sq-da-btn-danger:hover {
+    filter: brightness(.92);
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {

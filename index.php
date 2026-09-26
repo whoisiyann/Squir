@@ -32,6 +32,18 @@ switch ($route) {
         require __DIR__ . '/app/routes/reset-password.php';
         break;
 
+    case 'forgot-pin':
+        require __DIR__ . '/app/routes/forgot-pin.php';
+        break;
+
+    case 'verify-pin-code':
+        require __DIR__ . '/app/routes/verify-pin-code.php';
+        break;
+
+    case 'reset-pin-new':
+        require __DIR__ . '/app/routes/reset-pin-new.php';
+        break;
+
     case 'pin':
         require __DIR__ . '/app/routes/pin.php';
         break;

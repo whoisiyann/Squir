@@ -63,6 +63,7 @@ $pinLength = $pinLength ?? 6;
                                 <input type="password" id="currentPin" name="current_pin" inputmode="numeric" pattern="[0-9]*" maxlength="<?= (int) $pinLength ?>" placeholder="Enter your current PIN" autocomplete="off">
                                 <button type="button" class="settings-password-toggle" data-target="currentPin" aria-label="Show PIN"><i class="ti ti-eye"></i></button>
                             </div>
+                            <a class="settings-forgot-password-link" href="./forgot-pin?from=settings&email=<?= urlencode($user['email'] ?? '') ?>">Forgot your current PIN?</a>
                             <p class="settings-form-error" data-error-for="current_pin"></p>
                         </div>
 
@@ -112,5 +113,21 @@ $pinLength = $pinLength ?? 6;
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/settings.js"></script>
+<?php if (($_GET['pin_reset'] ?? '') === '1'): ?>
+<script>
+    if (window.Swal) {
+        Swal.fire({
+            title: 'PIN Reset!',
+            text: 'Your PIN has been successfully reset. Use it the next time you unlock your vault.',
+            icon: 'success',
+            confirmButtonText: 'Done',
+            confirmButtonColor: '#6b3f2a'
+        });
+    }
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', './settings?panel=reset-pin');
+    }
+</script>
+<?php endif; ?>
 </body>
 </html>

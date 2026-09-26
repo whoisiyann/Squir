@@ -27,7 +27,7 @@ class ActivityLog
         'username_changed' => ['label' => 'Updated username',            'detail' => null,                             'icon' => 'ti-user',          'entity' => 'user'],
         'email_changed'    => ['label' => 'Updated email',               'detail' => null,                             'icon' => 'ti-mail',          'entity' => 'user'],
         'password_changed' => ['label' => 'Changed password',             'detail' => null,                             'icon' => 'ti-shield-check',  'entity' => 'user'],
-        'pin_updated'      => ['label' => 'Changed vault PIN',            'detail' => null,                             'icon' => 'fa fa-shield',         'entity' => 'user'],
+        'pin_updated'      => ['label' => 'Changed vault PIN',            'detail' => null,                             'icon' => 'ti ti-shield-lock','entity' => 'user'],
         'favorite_added'   => ['label' => 'Added favorite',              'detail' => null,                             'icon' => 'ti-star',          'entity' => 'favorite'],
         'favorite_removed' => ['label' => 'Removed favorite',            'detail' => null,                             'icon' => 'ti-star',          'entity' => 'favorite'],
         'activity_cleared' => ['label' => 'Activity log cleared',        'detail' => null,                             'icon' => 'ti-trash',         'entity' => 'system'],
