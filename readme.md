@@ -1,5 +1,16 @@
 # 🐿️ Squir — Your Personal Digital Vault and Productivity Companion
 
+![PHP](https://img.shields.io/badge/PHP-8+-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Styling-06B6D4?logo=tailwindcss&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=black)
+![PHPMailer](https://img.shields.io/badge/PHPMailer-OTP_Email-blue)
+![Dompdf](https://img.shields.io/badge/Dompdf-PDF_Export-orange)
+![Composer](https://img.shields.io/badge/Composer-Dependency_Manager-885630?logo=composer&logoColor=white)
+![Encryption](https://img.shields.io/badge/Encryption-AES--256-red)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+![License](https://img.shields.io/badge/License-Academic-blue)
+
 Squir is a web-based system that helps individuals keep their passwords, notes, tasks, and personal information organized in one secure, easy-to-use platform. It combines an **encrypted password vault**, **notes**, **task management**, and **folder organization** into a single dashboard, so users no longer need to juggle multiple apps to stay on top of their digital life.
 
 ---
@@ -15,6 +26,7 @@ Squir is a web-based system that helps individuals keep their passwords, notes, 
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
 - [Roadmap](#-roadmap)
+- [Team](#-team)
 
 ---
 
@@ -219,6 +231,16 @@ Squir/
 - [ ] Full administrator dashboard (user management, moderation, system-wide activity log)
 - [ ] Two-factor authentication for login
 - [ ] Shared/collaborative folders
+
+---
+
+## 👨‍💻 Team
+
+- Junio, Ian Christopher L.
+- Andaya, Eilis Mae S.
+- Estrada, Nash Basti M.
+- Biacan, Tiffany Quenn D.
+- Gozo, Ace B.
 
 ---
 
