@@ -2,8 +2,6 @@
 
 Squir is a web-based system that helps individuals keep their passwords, notes, tasks, and personal information organized in one secure, easy-to-use platform. It combines an **encrypted password vault**, **notes**, **task management**, and **folder organization** into a single dashboard, so users no longer need to juggle multiple apps to stay on top of their digital life.
 
-This project was developed as part of the requirements for **ITE 298 – Information Management** (Section BSIT2-03), under the guidance of **Instructor Joy Chrisky Vinluan Lobendino**.
-
 ---
 
 ## 📋 Table of Contents
@@ -17,7 +15,6 @@ This project was developed as part of the requirements for **ITE 298 – Informa
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
 - [Roadmap](#-roadmap)
-- [Course Information](#-course-information)
 
 ---
 
@@ -225,16 +222,6 @@ Squir/
 
 ---
 
-## 🎓 Course Information
-
-| | |
-|---|---|
-| **Course** | ITE 298 – Information Management |
-| **Section** | BSIT2-03 |
-| **Instructor** | Joy Chrisky Vinluan Lobendino |
-
----
-
 ## 📄 License
 
-This project was developed for academic purposes as part of the ITE 298 course requirements.
+This project was developed for academic purposes.
