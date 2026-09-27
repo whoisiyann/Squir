@@ -137,4 +137,25 @@
             if (event.key === 'Escape') setProfileMenu(false);
         });
     }
+
+    // "See more" reveal: show the link under a scrollable dashboard panel
+    // (Recent Users / Recent Activity) once it's scrolled to the bottom.
+    // Short lists that don't need scrolling reveal it right away.
+    function setupScrollReveal(scrollId, moreId) {
+        var scrollArea = document.getElementById(scrollId);
+        var moreBlock = document.getElementById(moreId);
+        if (!scrollArea || !moreBlock) return;
+
+        function check() {
+            var atBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight <= 4;
+            moreBlock.classList.toggle('is-visible', atBottom);
+        }
+
+        scrollArea.addEventListener('scroll', check);
+        window.addEventListener('resize', check);
+        check();
+    }
+
+    setupScrollReveal('recentUsersScroll', 'recentUsersMore');
+    setupScrollReveal('recentActivityScroll', 'recentActivityMore');
 })();

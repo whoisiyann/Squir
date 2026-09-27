@@ -59,8 +59,8 @@ class AdminDashboardController
 	{
 		return [
 			'stats'           => $this->loadStats(),
-			'recentUsers'     => $this->loadRecentUsers(5),
-			'recentActivity'  => $this->loadRecentActivity(8),
+			'recentUsers'     => $this->loadRecentUsers(10),
+			'recentActivity'  => $this->loadRecentActivity(10),
 		];
 	}
 

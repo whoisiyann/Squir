@@ -39,20 +39,24 @@
     text-transform:uppercase;
     letter-spacing:.04em;
 }
+
 .sidebar-collapsed .brand-text{ display:none; }
+.admin-page .sidebar-illustration img{ max-width:170px; }
 
-/* ---- page heading (reuses .page-heading from dashboard.css) ---- */
-.page-heading .squir-leaf{ color: var(--active-icon); margin-left: 2px; }
-
-/* ---- stat cards: same shell as the personal dashboard, coloured per card ---- */
+/* ---- stat cards: same shell as the personal dashboard, coloured per card.
+       container-type/-name matches .dash-stats so the shared "@container
+       stats (max-width: 730px)" rule in dashboard.css (which stacks each
+       card's icon above its text once space is tight) also kicks in here -
+       reacting to the actual space available, not just viewport width. ---- */
 .admin-stats{
     display:grid;
     grid-template-columns:repeat(4, minmax(0,1fr));
     gap:18px;
     margin-bottom:28px;
+    container-type:inline-size;
+    container-name:stats;
 }
 .admin-stats .stat-card{
-    grid-template-columns:auto minmax(0,1fr);
     cursor:default;
 }
 .admin-stats .stat-icon{ border-radius:12px; }
@@ -78,19 +82,103 @@
     min-height:0;
 }
 
+/* Tablet / small-laptop windows: give the "View all" links room to wrap
+   before the panels are narrow enough to fully stack (matches how
+   .dash-tasks handles its own header at this width). */
 @media (max-width:900px){
+    .admin-panel .dash-card-head{ flex-wrap:wrap; row-gap:6px; }
+}
+
+/* Stack Recent Users / Recent Activity into one column at the same width
+   .dash-layout does on the personal dashboard, so the two-column table +
+   activity feed never gets squeezed into an unreadably narrow strip on
+   in-between laptop/tablet widths. */
+@media (max-width:1180px){
     .admin-layout{ grid-template-columns:1fr; align-items:start; }
     .admin-layout .dash-card{ max-height:none; }
+}
+
+/* Match .dash-stats' own breakpoint for dropping to 2 columns. */
+@media (max-width:760px){
     .admin-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
 }
 
+/* ---- mobile view ---- */
+@media (max-width:700px){
+    .admin-panel{ padding:14px 14px 6px; }
+    .admin-panel.admin-panel--flush{ padding:14px 0 6px; }
+    .admin-panel .dash-card-head,
+    .admin-panel.admin-panel--flush .dash-card-head{ padding:0 14px 12px; }
+
+    .dash-card-head{ flex-wrap:wrap; row-gap:6px; }
+    .dash-card-head h2{ font-size:1.05rem; }
+    .dash-card-head a{ font-size:.76rem; }
+
+    .admin-stats{ gap:10px; }
+
+    /* Recent Users table becomes a stacked list of cards instead of a
+       side-scrolling table - easier to read and tap on a phone. */
+    .admin-table-wrap{ overflow-x:hidden; }
+    #recentUsersScroll .admin-table th{ position:static; }
+    .admin-table thead{ display:none; }
+    .admin-table, .admin-table tbody, .admin-table tr, .admin-table td{
+        display:block;
+        width:100%;
+    }
+    .admin-table tbody tr{
+        padding:12px 14px;
+        border-bottom:1px solid var(--border);
+    }
+    .admin-table tbody tr:hover{ background:transparent; }
+    .admin-table td{
+        padding:3px 0;
+        border-bottom:0;
+        font-size:.84rem;
+    }
+    .admin-table td:first-child{ padding-bottom:8px; }
+    .admin-table td:not(:first-child){
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        min-width:0;
+    }
+    .admin-table td:not(:first-child)::before{
+        content:attr(data-label);
+        flex-shrink:0;
+        color:var(--muted);
+        font-size:.68rem;
+        font-weight:600;
+        text-transform:uppercase;
+        letter-spacing:.04em;
+    }
+
+    .admin-activity-list{ padding:0 14px; }
+    .admin-activity-row{ flex-wrap:wrap; row-gap:2px; }
+    .admin-activity-row time{ margin-left:auto; }
+
+     /* Keep the mascot pinned while the nav links scroll internally. */
+    .admin-page .sidebar{ overflow-y:hidden; }
+    .admin-page .brand-row{ flex:0 0 auto; }
+    .admin-page .sidebar-nav{
+        flex:1 1 auto;
+        min-height:0;
+        overflow-y:auto;
+    }
+    .admin-page .sidebar-illustration{ flex:0 0 auto; }
+}
+
 .dash-card-head a{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
     color:var(--accent);
     font-size:.8rem;
     font-weight:600;
     text-decoration:none;
 }
 .dash-card-head a:hover{ text-decoration:underline; }
+.dash-card-head a i{ font-size:.9rem; }
 
 .admin-panel{ display:flex; flex-direction:column; flex:1; min-height:0; padding:18px 20px 8px; }
 .admin-panel.admin-panel--flush{ padding:18px 0 8px; }
@@ -103,12 +191,57 @@
     flex:1 1 auto;
     min-height:0;
     max-height:420px;
+    padding-right:6px;
     overflow:auto;
+    scrollbar-width:thin;
+    scrollbar-color:var(--border) transparent;
+}
+.admin-activity-list{
+    scrollbar-width:thin;
+    scrollbar-color:var(--border) transparent;
 }
 .admin-table-wrap::-webkit-scrollbar,
-.admin-activity-list::-webkit-scrollbar{ width:6px; }
+.admin-activity-list::-webkit-scrollbar{ width:8px; }
+.admin-table-wrap::-webkit-scrollbar-track,
+.admin-activity-list::-webkit-scrollbar-track{ background:transparent; }
 .admin-table-wrap::-webkit-scrollbar-thumb,
-.admin-activity-list::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; }
+.admin-activity-list::-webkit-scrollbar-thumb{
+    background:var(--border);
+    border-radius:99px;
+    border:2px solid var(--card);
+    background-clip:padding-box;
+}
+
+/* ---- "See more" reveal: hidden until the scroll area above it is
+       scrolled all the way down (see assets/js/admin/admin.js) ---- */
+.admin-panel-more{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 52px;
+    height:52px;
+    overflow:hidden;
+    opacity:0;
+    visibility:hidden;
+    text-align:center;
+    padding:10px 20px 16px;
+    transition:opacity .22s ease;
+}
+.admin-panel-more.is-visible{
+    opacity:1;
+    visibility:visible;
+}
+.admin-panel-more a{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    color:var(--accent);
+    font-size:.82rem;
+    font-weight:600;
+    text-decoration:none;
+}
+.admin-panel-more a:hover{ text-decoration:underline; }
+.admin-panel-more a i{ font-size:1rem; }
 
 /* ---- users table ---- */
 .admin-table{ width:100%; border-collapse:collapse; }
@@ -121,6 +254,12 @@
     letter-spacing:.05em;
     text-align:left;
     border-bottom:1px solid var(--border);
+}
+#recentUsersScroll .admin-table th{
+    position:sticky;
+    top:0;
+    z-index:1;
+    background:var(--card);
 }
 .admin-table td{
     padding:12px 20px;
@@ -211,48 +350,3 @@
 .admin-activity-row strong{ font-size:.86rem; font-weight:600; }
 .admin-activity-row time{ font-size:.72rem; color:var(--muted); flex-shrink:0; }
 .admin-activity-body p{ margin:2px 0 0; font-size:.8rem; color:var(--muted); }
-
-/* ---- sidebar account card (admin-only; the personal dashboard keeps
-       Logout as a plain nav link instead) ---- */
-.admin-account{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin:14px 10px 6px;
-    padding-top:14px;
-    border-top:1px solid var(--border);
-}
-.admin-account-avatar{ width:36px; height:36px; font-size:.78rem; flex-shrink:0; }
-.admin-account-info{
-    display:flex;
-    flex-direction:column;
-    min-width:0;
-    flex:1;
-}
-.admin-account-info strong{
-    font-size:.85rem;
-    font-weight:600;
-    color:var(--text);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-.admin-account-info small{ font-size:.72rem; color:var(--muted); }
-.admin-account-logout{
-    display:grid;
-    place-items:center;
-    width:30px;
-    height:30px;
-    border-radius:8px;
-    color:var(--muted);
-    flex-shrink:0;
-    transition:background-color .15s ease, color .15s ease;
-}
-.admin-account-logout:hover{ background:var(--admin-red-bg); color:var(--danger); }
-.admin-account-logout i{ font-size:1rem; }
-
-@media (min-width:701px){
-    .sidebar-collapsed .admin-account-info,
-    .sidebar-collapsed .admin-account-logout{ display:none; }
-    .sidebar-collapsed .admin-account{ justify-content:center; }
-}

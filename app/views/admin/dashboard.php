@@ -136,14 +136,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
     <main class="content-area">
       <div class="page-heading">
         <div>
-          <h1><?= $escape($greeting) ?>, <?= $escape($firstName) ?>.
-            <span class="squir-leaf" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 14C4 7 9 3 20 3C20 14 16 20 8 20C6.5 20 5 19.5 4 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M4 20C7 16 10 13 17 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-            </span>
-          </h1>
+          <h1><?= $escape($greeting) ?>, <?= $escape($firstName) ?>.</h1>
           <p><?= $escape(date('l, F j, Y')) ?> &middot; here's what's happening with Squir today.</p>
         </div>
       </div>
@@ -164,13 +157,13 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
         <section class="dash-card admin-panel admin-panel--flush">
           <div class="dash-card-head">
             <h2><i class="ti ti-users"></i> Recent Users</h2>
-            <a href="./admin/users">View all users &rarr;</a>
+            <a href="./admin/users">View all users <i class="ti ti-arrow-right"></i></a>
           </div>
 
           <?php if ($recentUsers === []): ?>
             <p class="admin-empty">No users have registered yet.</p>
           <?php else: ?>
-            <div class="admin-table-wrap">
+            <div class="admin-table-wrap" id="recentUsersScroll">
               <table class="admin-table">
                 <thead>
                   <tr>
@@ -189,13 +182,16 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
                           <span><?= $escape($user['full_name']) ?></span>
                         </div>
                       </td>
-                      <td class="is-muted"><?= $escape($user['email']) ?></td>
-                      <td><?= $statusBadge($user['status']) ?></td>
-                      <td class="is-muted"><?= $escape(date('M j, Y', strtotime((string) $user['created_at']))) ?></td>
+                      <td class="is-muted" data-label="Email"><?= $escape($user['email']) ?></td>
+                      <td data-label="Status"><?= $statusBadge($user['status']) ?></td>
+                      <td class="is-muted" data-label="Joined"><?= $escape(date('M j, Y', strtotime((string) $user['created_at']))) ?></td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
               </table>
+            </div>
+            <div class="admin-panel-more" id="recentUsersMore">
+              <a href="./admin/users">See more <i class="ti ti-arrow-down"></i></a>
             </div>
           <?php endif; ?>
         </section>
@@ -203,13 +199,13 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
         <section class="dash-card admin-panel">
           <div class="dash-card-head">
             <h2><i class="ti ti-history"></i> Recent Activity</h2>
-            <a href="./admin/activity-logs">View all &rarr;</a>
+            <a href="./admin/activity-logs">View all <i class="ti ti-arrow-right"></i></a>
           </div>
 
           <?php if ($recentActivity === []): ?>
             <p class="admin-empty">No activity recorded yet.</p>
           <?php else: ?>
-            <ul class="admin-activity-list">
+            <ul class="admin-activity-list" id="recentActivityScroll">
               <?php foreach ($recentActivity as $item): ?>
                 <li class="admin-activity-item">
                   <span class="admin-activity-icon <?= $activityColor($item['icon']) ?>">
@@ -225,6 +221,9 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
                 </li>
               <?php endforeach; ?>
             </ul>
+            <div class="admin-panel-more" id="recentActivityMore">
+              <a href="./admin/activity-logs">See more <i class="ti ti-arrow-down"></i></a>
+            </div>
           <?php endif; ?>
         </section>
       </div>

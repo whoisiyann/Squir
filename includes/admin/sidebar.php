@@ -1,10 +1,7 @@
 <?php
-// Expects $adminName (string) and $activeNav (string: 'dashboard' | 'users' | 'activity-logs' | 'settings')
+// Expects $activeNav (string: 'dashboard' | 'users' | 'activity-logs' | 'settings')
 // to already be set by the including view.
-$adminName = $adminName ?? 'Administrator';
 $activeNav = $activeNav ?? '';
-$escape = $escape ?? static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-$initials = function_exists('adminInitials') ? adminInitials($adminName) : 'AD';
 $isActive = static fn (string $key): string => $activeNav === $key ? ' active' : '';
 ?>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -27,16 +24,5 @@ $isActive = static fn (string $key): string => $activeNav === $key ? ' active' :
         <a class="nav-link<?= $isActive('settings') ?>" href="./admin/settings"<?= $activeNav === 'settings' ? ' aria-current="page"' : '' ?>><i class="ti ti-settings"></i><span>Settings</span></a>
     </nav>
 
-    <div class="sidebar-illustration"><img src="./assets/images/squirrel.gif" alt="Squir mascot"></div>
-
-    <div class="admin-account">
-        <span class="avatar admin-account-avatar"><?= $escape($initials) ?></span>
-        <span class="admin-account-info">
-            <strong><?= $escape($adminName) ?></strong>
-            <small>Super Admin</small>
-        </span>
-        <a class="admin-account-logout" href="./admin/logout" title="Log out" aria-label="Log out" data-logout-trigger onclick="return confirm('Log out of the admin panel?')">
-            <i class="ti ti-logout"></i>
-        </a>
-    </div>
+    <div class="sidebar-illustration"><img src="./assets/images/admin-squir.gif" alt="Squir mascot"></div>
 </aside>
