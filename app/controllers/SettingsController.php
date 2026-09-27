@@ -15,12 +15,11 @@ class SettingsController
     ) {
     }
 
-    // Update account information
+    // Update account information (full name and username — email changes have their own verification flow)
     public function updateProfile(int $userId, array $post): array
     {
         $fullName = trim((string) ($post['full_name'] ?? ''));
         $username = trim((string) ($post['username'] ?? ''));
-        $email = strtolower(trim((string) ($post['email'] ?? '')));
         $errors = [];
 
         if ($fullName === '') {
@@ -37,26 +36,15 @@ class SettingsController
             $errors['username'] = 'Username is already taken.';
         }
 
-        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Please enter a valid email address.';
-        } elseif (mb_strlen($email) > 100) {
-            $errors['email'] = 'Email address must be 100 characters or fewer.';
-        } elseif ($this->user->emailExists($email, $userId)) {
-            $errors['email'] = 'An account with this email already exists.';
-        }
-
         if ($errors !== []) {
             return ['errors' => $errors];
         }
 
         $currentUser = $this->user->findById($userId);
-        $this->user->updateProfile($userId, $fullName, $username, $email);
+        $this->user->updateProfile($userId, $fullName, $username);
 
         if ($currentUser && $currentUser['username'] !== $username) {
             $this->activityLog->log($userId, 'username_changed');
-        }
-        if ($currentUser && strtolower((string) $currentUser['email']) !== $email) {
-            $this->activityLog->log($userId, 'email_changed');
         }
         if ($currentUser && $currentUser['full_name'] !== $fullName) {
             $this->activityLog->log($userId, 'profile_updated');

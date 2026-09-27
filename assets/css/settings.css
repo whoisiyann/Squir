@@ -358,6 +358,76 @@ button.settings-export-btn {
   display: none;
 }
 
+.settings-field-hint {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+/* Edit Email — verification code step */
+.settings-email-code-panel {
+  text-align: center;
+  padding: 6px 4px 0;
+}
+
+.settings-email-code-panel .pin-lock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: rgba(107, 63, 42, .1);
+  color: var(--accent, #6b3f2a);
+  font-size: 1.4rem;
+}
+
+.settings-code-subtitle {
+  margin: 0 0 18px;
+  color: var(--text);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+.settings-form-note {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(34, 197, 94, .1);
+  color: #16803c;
+  font-size: .78rem;
+  text-align: left;
+}
+
+.settings-email-code-panel .pin-modal-inputs {
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.settings-code-resend {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: .82rem;
+  text-align: center;
+}
+
+.settings-code-resend .link-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--accent, #6b3f2a);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.settings-code-resend .link-button:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
 /* Settings subpage heading */
 .settings-subpage-heading {
   align-items: flex-start;

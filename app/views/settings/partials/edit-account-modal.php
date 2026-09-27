@@ -13,6 +13,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
 
         <form id="editAccountForm" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
+            <input type="hidden" id="editEmailOriginal" value="<?= $escape($user['email']) ?>">
 
             <div class="settings-modal-profile-row">
                 <span class="settings-avatar" id="editAccountAvatar"><?= $escape(userInitials($user['full_name'])) ?></span>
@@ -47,14 +48,45 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
                     <button type="button" class="settings-field-edit-link" data-edit-target="editEmail"><i class="ti ti-pencil"></i> Edit</button>
                 </div>
                 <input type="email" id="editEmail" name="email" maxlength="100" value="<?= $escape($user['email']) ?>" readonly>
+                <small class="settings-field-hint">Changing your email requires a verification code sent to the new address.</small>
             </div>
 
             <p class="settings-form-error" id="editAccountError" role="alert"></p>
 
-            <div class="vault-modal-actions">
+            <div class="vault-modal-actions" id="editAccountActions">
                 <button type="button" class="btn-outline-squir" data-close-modal="editAccount">Cancel</button>
                 <button type="submit" class="btn-squir" id="editAccountSubmit">Done</button>
             </div>
         </form>
+
+        <!-- Email verification step: shown after a new email is submitted -->
+        <div id="emailChangeCodePanel" class="settings-email-code-panel" hidden>
+            <span class="pin-lock" aria-hidden="true"><i class="ti ti-mail-opened"></i></span>
+            <p class="settings-code-subtitle">
+                We sent a 6-digit code to<br><strong id="emailChangeTargetEmail"></strong>
+            </p>
+
+            <p class="settings-form-note" id="emailChangeDevCode" hidden></p>
+
+            <div class="pin-modal-inputs" id="emailChangeCodeInputs" role="group" aria-label="Verification code digits">
+                <?php for ($i = 0; $i < 6; $i++): ?>
+                    <input class="pin-modal-box"
+                           type="text"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           maxlength="1"
+                           autocomplete="off"
+                           aria-label="Digit <?= $i + 1 ?>">
+                <?php endfor; ?>
+            </div>
+
+            <p class="settings-form-error" id="emailChangeCodeError" role="alert"></p>
+
+            <div class="vault-modal-actions">
+                <button type="button" class="btn-outline-squir" id="emailChangeCancelBtn">Cancel</button>
+                <button type="button" class="btn-squir" id="emailChangeVerifyBtn">Verify</button>
+            </div>
+            <p class="auth-switch settings-code-resend">Didn't get a code? <button type="button" class="link-button" id="emailChangeResendBtn">Resend</button></p>
+        </div>
     </div>
 </div>

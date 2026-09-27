@@ -55,7 +55,12 @@
     });
 
     var openEditBtn = document.getElementById('openEditAccountModal');
-    if (openEditBtn) openEditBtn.addEventListener('click', function () { openModal('editAccount'); });
+    if (openEditBtn) {
+        openEditBtn.addEventListener('click', function () {
+            resetEditAccountModal();
+            openModal('editAccount');
+        });
+    }
 
     /* Delete account */
     var deleteAccountBtn = document.getElementById('deleteAccountBtn');
@@ -153,22 +158,179 @@
         input.addEventListener('click', function () { makeEditable(input); });
     });
 
-    var editAccountForm = document.getElementById('editAccountForm');
-    if (editAccountForm) {
-        editAccountForm.addEventListener('submit', function (event) {
+    /* Edit Email — verification code step */
+    var editAccountFormEl = document.getElementById('editAccountForm');
+    var emailCodePanel = document.getElementById('emailChangeCodePanel');
+    var emailCodeBoxes = $all('#emailChangeCodeInputs .pin-modal-box');
+    var emailCodeError = document.getElementById('emailChangeCodeError');
+    var emailChangeDevCodeEl = document.getElementById('emailChangeDevCode');
+    var emailChangeVerifyBtn = document.getElementById('emailChangeVerifyBtn');
+    var emailChangeResendBtn = document.getElementById('emailChangeResendBtn');
+    var emailChangeCancelBtn = document.getElementById('emailChangeCancelBtn');
+    var pendingNewEmail = '';
+
+    // Show the code-entry step and hide the account-info form
+    function showEmailCodeStep(newEmail, devCode) {
+        pendingNewEmail = newEmail;
+        document.getElementById('emailChangeTargetEmail').textContent = newEmail;
+
+        if (devCode) {
+            emailChangeDevCodeEl.hidden = false;
+            emailChangeDevCodeEl.textContent = "Dev mode — email isn't configured yet, so here's your code: " + devCode;
+        } else {
+            emailChangeDevCodeEl.hidden = true;
+            emailChangeDevCodeEl.textContent = '';
+        }
+
+        emailCodeError.textContent = '';
+        emailCodeBoxes.forEach(function (box) { box.value = ''; box.classList.remove('filled'); });
+
+        editAccountFormEl.hidden = true;
+        emailCodePanel.hidden = false;
+        if (emailCodeBoxes[0]) emailCodeBoxes[0].focus();
+    }
+
+    // Back to the normal account-info form
+    function resetEditAccountModal() {
+        pendingNewEmail = '';
+        if (editAccountFormEl) editAccountFormEl.hidden = false;
+        if (emailCodePanel) emailCodePanel.hidden = true;
+        if (emailCodeError) emailCodeError.textContent = '';
+        if (emailChangeDevCodeEl) { emailChangeDevCodeEl.hidden = true; emailChangeDevCodeEl.textContent = ''; }
+        emailCodeBoxes.forEach(function (box) { box.value = ''; box.classList.remove('filled'); });
+        var errorEl = document.getElementById('editAccountError');
+        if (errorEl) errorEl.textContent = '';
+        var submitBtn = document.getElementById('editAccountSubmit');
+        if (submitBtn) submitBtn.disabled = false;
+        var emailInput = document.getElementById('editEmail');
+        var originalEmailInput = document.getElementById('editEmailOriginal');
+        if (emailInput && originalEmailInput) emailInput.value = originalEmailInput.value;
+    }
+
+    function currentEmailCode() {
+        return emailCodeBoxes.map(function (box) { return box.value; }).join('');
+    }
+
+    emailCodeBoxes.forEach(function (box, index) {
+        box.addEventListener('input', function () {
+            box.value = box.value.replace(/\D/g, '').slice(0, 1);
+            box.classList.toggle('filled', box.value !== '');
+            if (box.value !== '' && index < emailCodeBoxes.length - 1) {
+                emailCodeBoxes[index + 1].focus();
+            }
+            emailCodeError.textContent = '';
+        });
+
+        box.addEventListener('keydown', function (event) {
+            if (event.key === 'Backspace' && box.value === '' && index > 0) {
+                event.preventDefault();
+                emailCodeBoxes[index - 1].value = '';
+                emailCodeBoxes[index - 1].classList.remove('filled');
+                emailCodeBoxes[index - 1].focus();
+            }
+        });
+
+        box.addEventListener('paste', function (event) {
+            event.preventDefault();
+            var digits = (event.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+            emailCodeBoxes.forEach(function (b, i) {
+                b.value = digits[i] || '';
+                b.classList.toggle('filled', b.value !== '');
+            });
+            emailCodeBoxes[Math.min(digits.length, emailCodeBoxes.length - 1)].focus();
+        });
+
+        box.addEventListener('focus', function () { box.select(); });
+    });
+
+    if (emailChangeVerifyBtn) {
+        emailChangeVerifyBtn.addEventListener('click', function () {
+            var code = currentEmailCode();
+            if (code.length !== emailCodeBoxes.length) {
+                emailCodeError.textContent = 'Enter all ' + emailCodeBoxes.length + ' digits.';
+                return;
+            }
+
+            emailChangeVerifyBtn.disabled = true;
+            postAjax('verify_email_change', { code: code }).then(function (result) {
+                emailChangeVerifyBtn.disabled = false;
+
+                if (!result.ok) {
+                    emailCodeError.textContent = result.json.error || 'That code is incorrect or has expired.';
+                    return;
+                }
+
+                var newEmail = result.json.email;
+                document.getElementById('settingsEmailField').value = newEmail;
+                document.getElementById('editEmail').value = newEmail;
+                document.getElementById('editEmailOriginal').value = newEmail;
+
+                resetEditAccountModal();
+                closeModal('editAccount');
+
+                if (window.Swal) {
+                    Swal.fire({
+                        title: 'Email Updated!',
+                        text: 'Your login email has been changed to ' + newEmail + '.',
+                        icon: 'success',
+                        confirmButtonText: 'Done',
+                        confirmButtonColor: '#6b3f2a'
+                    });
+                }
+            }).catch(function () {
+                emailChangeVerifyBtn.disabled = false;
+                emailCodeError.textContent = 'Something went wrong. Please try again.';
+            });
+        });
+    }
+
+    if (emailChangeResendBtn) {
+        emailChangeResendBtn.addEventListener('click', function () {
+            emailChangeResendBtn.disabled = true;
+            postAjax('resend_email_change', {}).then(function (result) {
+                if (!result.ok) {
+                    emailCodeError.textContent = result.json.error || 'Could not resend the code.';
+                    emailChangeResendBtn.disabled = false;
+                    return;
+                }
+
+                emailCodeError.textContent = '';
+                if (result.json.dev_code) {
+                    emailChangeDevCodeEl.hidden = false;
+                    emailChangeDevCodeEl.textContent = "Dev mode — email isn't configured yet, so here's your code: " + result.json.dev_code;
+                }
+
+                setTimeout(function () { emailChangeResendBtn.disabled = false; }, 30000);
+            }).catch(function () {
+                emailCodeError.textContent = 'Something went wrong. Please try again.';
+                emailChangeResendBtn.disabled = false;
+            });
+        });
+    }
+
+    if (emailChangeCancelBtn) {
+        emailChangeCancelBtn.addEventListener('click', function () { resetEditAccountModal(); });
+    }
+
+    /* Edit account — full name, username, and (if changed) email */
+    if (editAccountFormEl) {
+        editAccountFormEl.addEventListener('submit', function (event) {
             event.preventDefault();
             var errorEl = document.getElementById('editAccountError');
             var submitBtn = document.getElementById('editAccountSubmit');
             errorEl.textContent = '';
             submitBtn.disabled = true;
 
+            var newEmail = document.getElementById('editEmail').value.trim();
+            var originalEmail = document.getElementById('editEmailOriginal').value.trim();
+            var emailChanged = newEmail !== '' && newEmail.toLowerCase() !== originalEmail.toLowerCase();
+
             postAjax('update_profile', {
                 full_name: document.getElementById('editFullName').value.trim(),
-                username: document.getElementById('editUsername').value.trim(),
-                email: document.getElementById('editEmail').value.trim()
+                username: document.getElementById('editUsername').value.trim()
             }).then(function (result) {
-                submitBtn.disabled = false;
                 if (!result.ok) {
+                    submitBtn.disabled = false;
                     errorEl.textContent = result.json.error || 'Could not save your changes.';
                     return;
                 }
@@ -177,11 +339,29 @@
                 document.getElementById('settingsFullNameDisplay').textContent = data.full_name;
                 document.getElementById('settingsFullNameField').value = data.full_name;
                 document.getElementById('settingsUsernameField').value = data.username;
-                document.getElementById('settingsEmailField').value = data.email;
                 var avatar = document.getElementById('settingsAvatar');
                 if (avatar) avatar.textContent = data.initials;
 
-                closeModal('editAccount');
+                if (!emailChanged) {
+                    submitBtn.disabled = false;
+                    closeModal('editAccount');
+                    return;
+                }
+
+                // Step 1-4: kick off the email-change verification flow
+                postAjax('request_email_change', { new_email: newEmail }).then(function (emailResult) {
+                    submitBtn.disabled = false;
+
+                    if (!emailResult.ok) {
+                        errorEl.textContent = emailResult.json.error || 'Could not send a verification code.';
+                        return;
+                    }
+
+                    showEmailCodeStep(emailResult.json.new_email, emailResult.json.dev_code);
+                }).catch(function () {
+                    submitBtn.disabled = false;
+                    errorEl.textContent = 'Something went wrong. Please try again.';
+                });
             }).catch(function () {
                 submitBtn.disabled = false;
                 errorEl.textContent = 'Something went wrong. Please try again.';

@@ -22,6 +22,9 @@ define('PASSWORD_RESET_RESEND_COOLDOWN_SECONDS', 60);
 define('PIN_RESET_CODE_TTL_MINUTES', 10);
 define('PIN_RESET_RESEND_COOLDOWN_SECONDS', 60);
 
+define('EMAIL_CHANGE_CODE_TTL_MINUTES', 10);
+define('EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS', 60);
+
 
 if (!function_exists('squirLoadEnv')) {
     function squirLoadEnv(string $path): void

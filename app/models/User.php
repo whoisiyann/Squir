@@ -89,16 +89,26 @@ class User
 		]);
 	}
 
-	// Update profile information
-	public function updateProfile(int $userId, string $fullName, string $username, string $email): bool
+	// Update profile information (name and username only — email changes go through updateEmail())
+	public function updateProfile(int $userId, string $fullName, string $username): bool
 	{
 		$statement = $this->db->prepare(
-			'UPDATE users SET full_name = :full_name, username = :username, email = :email WHERE user_id = :id'
+			'UPDATE users SET full_name = :full_name, username = :username WHERE user_id = :id'
 		);
 
 		return $statement->execute([
 			'full_name' => $fullName,
 			'username' => $username,
+			'id' => $userId,
+		]);
+	}
+
+	// Update the login email (called only after the new address is code-verified)
+	public function updateEmail(int $userId, string $email): bool
+	{
+		$statement = $this->db->prepare('UPDATE users SET email = :email WHERE user_id = :id');
+
+		return $statement->execute([
 			'email' => $email,
 			'id' => $userId,
 		]);

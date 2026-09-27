@@ -3,15 +3,19 @@
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
+require_once __DIR__ . '/../models/EmailChange.php';
 require_once __DIR__ . '/../controllers/SettingsController.php';
 require_once __DIR__ . '/../controllers/PinController.php';
+require_once __DIR__ . '/../controllers/EmailChangeController.php';
 
 $userId = requireLogin();
 $userModel = new User($dbh);
 $pinModel = new UserPin($dbh);
 $activityLogModel = new ActivityLog($dbh);
+$emailChangeModel = new EmailChange($dbh);
 $controller = new SettingsController($dbh, $userModel, $pinModel, $activityLogModel);
 $pinController = new PinController($pinModel);
+$emailChangeController = new EmailChangeController($userModel, $emailChangeModel, $activityLogModel);
 $csrfToken = csrfToken();
 
 // Send a settings JSON response
@@ -40,6 +44,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_
         'username'  => $result['user']['username'],
         'email'     => $result['user']['email'],
         'initials'  => userInitials($result['user']['full_name']),
+    ]);
+}
+
+// Step 1-4: request an email change — validates the new email, checks it's not
+// already registered, and (if available) sends the 6-digit verification code
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'request_email_change') {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
+    }
+
+    $cooldown = defined('EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS') ? (int) EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS : 60;
+    $lastSent = (int) ($_SESSION['email_change_last_sent'] ?? 0);
+    if (time() - $lastSent < $cooldown) {
+        settingsJson(['error' => 'Please wait a moment before requesting another code.'], 429);
+    }
+
+    $result = $emailChangeController->requestChange($userId, $_POST);
+    if ($result['errors'] !== []) {
+        settingsJson(['error' => reset($result['errors']), 'errors' => $result['errors']], 422);
+    }
+
+    $_SESSION['email_change_last_sent'] = time();
+
+    settingsJson([
+        'success'   => true,
+        'new_email' => $result['new_email'],
+        'dev_code'  => $result['dev_code'],
+    ]);
+}
+
+// Resend the pending email-change verification code
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'resend_email_change') {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
+    }
+
+    $cooldown = defined('EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS') ? (int) EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS : 60;
+    $lastSent = (int) ($_SESSION['email_change_last_sent'] ?? 0);
+    if (time() - $lastSent < $cooldown) {
+        settingsJson(['error' => 'Please wait a moment before requesting another code.'], 429);
+    }
+
+    $result = $emailChangeController->resendCode($userId);
+    if ($result['errors'] !== []) {
+        settingsJson(['error' => reset($result['errors']), 'errors' => $result['errors']], 422);
+    }
+
+    $_SESSION['email_change_last_sent'] = time();
+
+    settingsJson([
+        'success'   => true,
+        'new_email' => $result['new_email'],
+        'dev_code'  => $result['dev_code'],
+    ]);
+}
+
+// Step 5-9: verify the 6-digit code and, if correct, update the login email
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_email_change') {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
+    }
+
+    $result = $emailChangeController->verifyAndApply($userId, (string) ($_POST['code'] ?? ''));
+    if ($result['errors'] !== []) {
+        settingsJson(['error' => reset($result['errors']), 'errors' => $result['errors']], 422);
+    }
+
+    unset($_SESSION['email_change_last_sent']);
+
+    settingsJson([
+        'success' => true,
+        'email'   => $result['email'],
     ]);
 }
 
