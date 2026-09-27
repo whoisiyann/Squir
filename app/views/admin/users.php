@@ -120,7 +120,7 @@ $fmtLastLogin = static function (?string $value): string {
               <i class="ti ti-search"></i>
               <input type="search" id="usersSearch" placeholder="Search by name or email..." aria-label="Search by name or email" autocomplete="off">
             </div>
-            <button type="button" class="btn-admin btn-admin-primary" id="openAddUserModal"><i class="ti ti-plus"></i> Add User</button>
+            <button type="button" class="btn-admin btn-admin-primary" id="openAddUserModal"><i class="ti ti-plus"></i> <span>Add User</span></button>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ $fmtLastLogin = static function (?string $value): string {
                     </td>
                     <td class="is-muted" data-label="Email"><?= $escape($user['email']) ?></td>
                     <td data-label="Status"><?= $statusBadge($user['status']) ?></td>
-                    <td class="is-muted" data-label="Joined"><?= $escape($fmtJoined($user['created_at'])) ?></td>
+                    <td class="is-muted" data-label="Joined"><i class="ti ti-calendar-event" aria-hidden="true"></i><?= $escape($fmtJoined($user['created_at'])) ?></td>
                     <td class="is-muted" data-label="Last Login"><?= $escape($fmtLastLogin($user['last_login_at'])) ?></td>
                     <td data-label="Actions">
                       <div class="admin-row-actions">

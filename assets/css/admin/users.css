@@ -1,12 +1,12 @@
 /* Stat card accents */
 .admin-stats .stat-icon.is-red{ background:var(--admin-red-bg); color:var(--danger); }
 
-/* Keep the users header on one row when possible. */
+/* Users header. */
 .admin-panel .dash-card-head.admin-users-head{
     flex-wrap:nowrap;
 }
 
-/* ---- toolbar: page search + Add User ---- */
+/* Toolbar. */
 .admin-toolbar{
     display:flex;
     align-items:center;
@@ -34,14 +34,186 @@
     .admin-toolbar #openAddUserModal{ order:3; }
 }
 @media (max-width:560px){
-    .admin-toolbar{ flex-direction:column; align-items:stretch; }
+    .admin-toolbar{ flex-direction:column; flex-wrap:nowrap; align-items:stretch; }
+    .admin-toolbar .search-box,
     .admin-toolbar .admin-select,
-    .admin-toolbar #openAddUserModal{ width:100%; }
+    .admin-toolbar #openAddUserModal{ width:100%; max-width:none; flex:0 0 auto; }
 }
 
-/* Keep the users table header visible while scrolling. */
-.admin-users-table-wrap{
-    max-height:min(560px, 60vh);
+/* Mobile user list. */
+@media (max-width:700px){
+    .admin-panel.admin-panel--flush{ flex:0 0 auto; }
+
+    /* User list viewport. */
+    .admin-users-table-wrap{
+        max-height:600px;
+        overflow-y:auto;
+        overflow-x:hidden;
+        width:100%;
+        min-width:0;
+        flex:0 0 auto;
+        background:transparent;
+        border:0;
+        box-shadow:none;
+        padding:2px 2px 4px;
+        scroll-snap-type:y proximity;
+    }
+
+    /* Mobile header. */
+    .admin-panel .dash-card-head.admin-users-head{
+        flex-direction:column;
+        flex-wrap:nowrap;
+        align-items:stretch;
+        row-gap:12px;
+    }
+    .admin-panel .dash-card-head.admin-users-head .admin-toolbar{ order:2; }
+    .admin-panel .dash-card-head.admin-users-head h2{ order:1; }
+
+    /* Mobile toolbar. */
+    .admin-toolbar{
+        flex-direction:row;
+        flex-wrap:nowrap;
+        align-items:center;
+        gap:8px;
+    }
+    .admin-toolbar .search-box{
+        flex:1 1 auto;
+        width:auto;
+        min-width:0;
+        max-width:none;
+        order:1;
+    }
+    .admin-toolbar .admin-select{
+        flex:0 0 auto;
+        width:auto;
+        max-width:none;
+        order:2;
+        padding:10px 28px 10px 12px;
+        font-size:.8rem;
+    }
+    .admin-toolbar #openAddUserModal{
+        flex:0 0 auto;
+        width:40px;
+        height:40px;
+        padding:0;
+        justify-content:center;
+        border-radius:10px;
+        order:3;
+    }
+    .admin-toolbar #openAddUserModal span{ display:none; }
+
+    /* User cards. */
+    .admin-users-table-wrap .admin-table,
+    .admin-users-table-wrap .admin-table tbody{ display:block; width:100%; }
+
+    .admin-users-table-wrap .admin-table tbody tr{
+        display:flex;
+        flex-wrap:wrap;
+        align-items:center;
+        column-gap:10px;
+        row-gap:0;
+        padding:14px 14px 12px;
+        margin:0 2px 12px;
+        background:var(--card);
+        border:1px solid var(--border);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+        scroll-snap-align:start;
+    }
+    .admin-users-table-wrap .admin-table tbody tr:last-child{ margin-bottom:2px; }
+    .admin-users-table-wrap .admin-table tbody tr:hover{ background:var(--card); }
+
+    .admin-users-table-wrap .admin-table td{
+        display:block;
+        width:auto;
+        padding:0;
+        border-bottom:0;
+        font-size:.84rem;
+    }
+    .admin-users-table-wrap .admin-table td::before{ content:none; }
+
+    /* Name and avatar. */
+    .admin-users-table-wrap .admin-table td:nth-child(1){
+        order:1;
+        flex:0 1 auto;
+        min-width:0;
+        max-width:66%;
+    }
+    .admin-users-table-wrap .admin-name-cell{ min-width:0; }
+    .admin-users-table-wrap .admin-avatar-chip{ width:38px; height:38px; font-size:.8rem; }
+    .admin-users-table-wrap .admin-name-cell span:last-child{
+        display:block;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        font-weight:600;
+    }
+
+    /* Status badge. */
+    .admin-users-table-wrap .admin-table td:nth-child(3){
+        order:2;
+        flex:0 0 auto;
+        margin-left:auto;
+    }
+
+    /* Email. */
+    .admin-users-table-wrap .admin-table td:nth-child(2){
+        order:3;
+        flex:1 1 100%;
+        min-width:0;
+        margin-left:48px;
+        margin-top:2px;
+        color:var(--muted);
+        font-size:.78rem;
+        line-height:1.3;
+        overflow-wrap:anywhere;
+        word-break:break-word;
+    }
+
+    /* Card divider. */
+    .admin-users-table-wrap .admin-table tbody tr::after{
+        content:"";
+        order:4;
+        flex:1 1 100%;
+        border-top:1px solid var(--border);
+        margin:12px 0 10px;
+    }
+
+    /* Joined date. */
+    .admin-users-table-wrap .admin-table td:nth-child(4){
+        order:5;
+        flex:0 0 auto;
+        font-size:.8rem;
+        white-space:nowrap;
+    }
+    .admin-users-table-wrap .admin-table td:nth-child(4) i{
+        display:inline-block;
+        margin-right:6px;
+        color:var(--muted);
+        font-size:.9rem;
+    }
+
+    /* Row actions. */
+    .admin-users-table-wrap .admin-table td:nth-child(6){
+        order:6;
+        flex:0 0 auto;
+        margin-left:auto;
+    }
+    .admin-users-table-wrap .admin-row-actions{ justify-content:flex-end; gap:6px; }
+    .admin-users-table-wrap .btn-admin-sm{ padding:6px 12px; font-size:.76rem; }
+
+    /* Hide last login on mobile. */
+    .admin-users-table-wrap .admin-table td:nth-child(5){ display:none; }
+}
+
+/* Hide the calendar icon on desktop. */
+.admin-table td[data-label="Joined"] i{ display:none; }
+
+/* Desktop table scrolling. */
+@media (min-width:701px){
+    .admin-users-table-wrap{
+        max-height:min(560px, 60vh);
+    }
 }
 .admin-users-table-wrap .admin-table th{
     position:sticky;
@@ -50,7 +222,7 @@
     background:var(--card);
 }
 
-/* ---- buttons (scoped to admin pages; independent of the auth-page .btn-squir) ---- */
+/* Buttons. */
 .btn-admin{
     display:inline-flex;
     align-items:center;
@@ -75,7 +247,7 @@
 .btn-admin-sm{ padding:6px 12px; font-size:.78rem; }
 .btn-admin-icon{ padding:6px 9px; }
 
-/* ---- row actions + dropdown menu ---- */
+/* Row actions. */
 .admin-row-actions{
     display:flex;
     align-items:center;
@@ -120,7 +292,7 @@
     .admin-row-actions{ justify-content:flex-start; }
 }
 
-/* ---- status filter select ---- */
+/* Status filter. */
 .admin-select{
     appearance:none;
     -webkit-appearance:none;
@@ -135,7 +307,7 @@
 }
 .admin-select:focus{ outline:none; border-color:var(--accent); }
 
-/* ---- Add / Edit / View modals ---- */
+/* User modals. */
 .admin-modal-backdrop{
     position:fixed;
     inset:0;
@@ -216,7 +388,7 @@
     margin-top:18px;
 }
 
-/* ---- View User modal ---- */
+/* View user modal. */
 .admin-view-profile{
     display:flex;
     align-items:center;
@@ -254,5 +426,5 @@
 .admin-view-row span:first-child{ color:var(--muted); }
 .admin-view-row span:last-child{ font-weight:600; text-align:right; }
 
-/* ---- empty search result state ---- */
+/* Empty search state. */
 .admin-table tbody tr.is-hidden{ display:none; }

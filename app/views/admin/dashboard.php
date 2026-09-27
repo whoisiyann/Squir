@@ -190,7 +190,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
                       </td>
                       <td class="is-muted" data-label="Email"><?= $escape($user['email']) ?></td>
                       <td data-label="Status"><?= $statusBadge($user['status']) ?></td>
-                      <td class="is-muted" data-label="Joined"><?= $escape(date('M j, Y', strtotime((string) $user['created_at']))) ?></td>
+                      <td class="is-muted" data-label="Joined"><i class="ti ti-calendar-event" aria-hidden="true"></i><?= $escape(date('M j, Y', strtotime((string) $user['created_at']))) ?></td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
