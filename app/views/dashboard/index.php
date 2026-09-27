@@ -59,6 +59,7 @@ $pageData = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Squir - Dashboard</title>
+    <link rel="icon" href="./assets/images/squir.png" type="image/x-icon" />
     <script>
         (function () {
             try {

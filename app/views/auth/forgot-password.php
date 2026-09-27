@@ -14,6 +14,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
     <meta name="description" content="Reset your Squir account password.">
     <title>Squir - Forgot password</title>
+    <link rel="icon" href="./assets/images/squir.png" type="image/x-icon" />
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/login.css?v=2">
     <link rel="stylesheet" href="./assets/css/forgot-password.css?v=1">

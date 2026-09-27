@@ -59,6 +59,26 @@ class ActivityLog
         ]);
     }
 
+    // Record an activity entry for an admin (admin_id column instead of user_id)
+    public function logAdmin(int $adminId, string $action, ?string $description = null): void
+    {
+        $meta = self::META[$action] ?? null;
+
+        $statement = $this->db->prepare(
+            'INSERT INTO activity_logs (admin_id, action, entity_type, description, ip_address, user_agent)
+             VALUES (:admin_id, :action, :entity_type, :description, :ip_address, :user_agent)'
+        );
+
+        $statement->execute([
+            'admin_id'    => $adminId,
+            'action'      => $action,
+            'entity_type' => $meta['entity'] ?? 'admin',
+            'description' => $description ?? ($meta['detail'] ?? $meta['label'] ?? $action),
+            'ip_address'  => $_SERVER['REMOTE_ADDR'] ?? null,
+            'user_agent'  => isset($_SERVER['HTTP_USER_AGENT']) ? substr((string) $_SERVER['HTTP_USER_AGENT'], 0, 255) : null,
+        ]);
+    }
+
     // Load recent activity for a user, formatted for display
     public function listForUser(int $userId, int $limit = 50): array
     {

@@ -314,33 +314,9 @@ CREATE INDEX idx_logs_action       ON activity_logs (action);
 
 
 
--- -- 11. PASSWORD_RESETS — one-time reset tokens
--- CREATE TABLE password_resets (
---     reset_id   INT AUTO_INCREMENT PRIMARY KEY,
---     user_id    INT NOT NULL,
---     token_hash VARCHAR(255) NOT NULL,
---     expires_at DATETIME NOT NULL,
---     used_at    DATETIME NULL,
---     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
---     CONSTRAINT fk_password_resets_user
---         FOREIGN KEY (user_id) REFERENCES users(user_id)
---         ON DELETE CASCADE,
-
---     CONSTRAINT uq_password_resets_token UNIQUE (token_hash)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- CREATE INDEX idx_password_resets_user ON password_resets (user_id, expires_at);
-
-
-
-
--- 12. SEED: ADMINISTRATOR ACCOUNT
---   php database/create_admin.php "System Administrator" admin adminsquir@gmail.com "Admin@123"
---
--- O manual: 
-
---   php -r "echo password_hash('Admin@123', PASSWORD_DEFAULT), PHP_EOL;"
+-- -- 11. SEED: ADMINISTRATOR ACCOUNT
+--   php -r "echo password_hash('adminvault123', PASSWORD_DEFAULT), PHP_EOL;"
 
 -- INSERT INTO admins (full_name, username, email, password_hash)
--- VALUES ('System Administrator', 'admin', 'adminsquir@gmail.com', 'PALITAN_NG_HASH');
+-- VALUES ('System Administrator', 'admin', 'squirvault@gmail.com', '$2y$10$KWQz1tjq6CX3D5VhsWKdRuidaN390QjVy7BL3Iohezdq8sCxYz9hi');

@@ -76,6 +76,14 @@ switch ($route) {
         require __DIR__ . '/app/routes/settings.php';
         break;
 
+    case 'admin-logout':
+        require __DIR__ . '/app/routes/admin/logout.php';
+        break;
+
+    case 'admin-dashboard':
+        require __DIR__ . '/app/routes/admin/dashboard.php';
+        break;
+
     default:
         http_response_code(404);
         echo '404 — Page not found.';
