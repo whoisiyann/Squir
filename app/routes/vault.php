@@ -66,7 +66,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     exit;
 }
 
-// Record a successful copy when the password was already visible in the page
+// Record a password copy.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'log_password_copy') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {

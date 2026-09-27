@@ -1,14 +1,9 @@
 <?php
-/**
- * Move-to-folder dialog shared by Vault and Notes.
- *
- * Variables:
- * @var array  $moveFolders   list of ['folder_id', 'folder_name', 'color']
- * @var string $moveAction    form action URL
- * @var string $moveIdField   POST field name for the item ID
- * @var string $moveReturnTo  redirect target after moving
- * @var string $csrfToken
- */
+/** @var array $moveFolders */
+/** @var string $moveAction */
+/** @var string $moveIdField */
+/** @var string $moveReturnTo */
+/** @var string $csrfToken */
 $mfEsc = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 $moveReturnTo = $moveReturnTo ?? '';
 $folderImgDir = './assets/images/folderImages/';

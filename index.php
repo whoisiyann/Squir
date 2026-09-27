@@ -76,12 +76,19 @@ switch ($route) {
         require __DIR__ . '/app/routes/settings.php';
         break;
 
+    // Support both admin route formats.
     case 'admin-logout':
+    case 'admin/logout':
         require __DIR__ . '/app/routes/admin/logout.php';
         break;
 
     case 'admin-dashboard':
+    case 'admin/dashboard':
         require __DIR__ . '/app/routes/admin/dashboard.php';
+        break;
+
+    case 'admin/users':
+        require __DIR__ . '/app/routes/admin/users.php';
         break;
 
     default:

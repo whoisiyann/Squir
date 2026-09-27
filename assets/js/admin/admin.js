@@ -1,7 +1,4 @@
-// Squir Admin Panel - shared JS for admin pages.
-// Mirrors the collapse / mobile-menu / profile-dropdown behaviour used on
-// the main app shell (see assets/js/dashboard.js) so the admin panel feels
-// like the same product, just scoped to what the admin layout needs.
+// Shared admin panel behavior.
 (function () {
     var shell = document.getElementById('adminShell');
     var collapseButton = document.getElementById('collapseBtn');
@@ -11,8 +8,7 @@
     var storageKey = 'squir-admin-sidebar-collapsed';
     var themeStorageKey = 'squir-admin-theme';
 
-    // Dark mode toggle - same light/dark system used on the personal
-    // dashboard (assets/js/dashboard.js), just scoped to its own storage key.
+    // Apply the admin theme.
     function applyTheme(isDark) {
         document.body.classList.toggle('dashboard-dark', isDark);
         document.documentElement.classList.remove('dashboard-dark-preload');
@@ -66,7 +62,7 @@
         try {
             window.localStorage.setItem(themeStorageKey, pref);
         } catch (error) {
-            // Ignore storage errors (private browsing, etc.)
+            // Storage may be unavailable.
         }
     }
 
@@ -99,7 +95,7 @@
             try {
                 window.localStorage.setItem(storageKey, isCollapsed ? '1' : '0');
             } catch (error) {
-                // Ignore storage errors (private browsing, etc.)
+                // Storage may be unavailable.
             }
         });
     }
@@ -138,9 +134,7 @@
         });
     }
 
-    // "See more" reveal: show the link under a scrollable dashboard panel
-    // (Recent Users / Recent Activity) once it's scrolled to the bottom.
-    // Short lists that don't need scrolling reveal it right away.
+    // Reveal the link when the panel reaches the bottom.
     function setupScrollReveal(scrollId, moreId) {
         var scrollArea = document.getElementById(scrollId);
         var moreBlock = document.getElementById(moreId);

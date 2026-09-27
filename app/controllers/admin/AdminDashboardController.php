@@ -2,9 +2,7 @@
 
 class AdminDashboardController
 {
-	// Short, friendly labels for activity_logs.action values.
-	// Anything not listed here falls back to a title-cased version
-	// of the raw action string (see actionLabel()).
+	// Activity labels.
 	private const ACTION_LABELS = [
 		'logged_in'        => 'Logged in',
 		'logged_out'       => 'Logged out',
@@ -25,9 +23,15 @@ class AdminDashboardController
 		'pin_updated'      => 'Changed vault PIN',
 		'admin_logged_in'  => 'Admin login',
 		'admin_logged_out' => 'Admin logout',
+		'user_created'     => 'Added a user',
+		'user_updated'     => 'Updated a user',
+		'user_activated'   => 'Activated a user',
+		'user_deactivated' => 'Deactivated a user',
+		'user_suspended'   => 'Suspended a user',
+		'user_deleted'     => 'Deleted a user',
 	];
 
-	// Feather icon per activity entity, used as a fallback per-action below.
+	// Activity icons.
 	private const ACTION_ICONS = [
 		'logged_in'        => 'log-in',
 		'logged_out'       => 'log-out',
@@ -48,6 +52,12 @@ class AdminDashboardController
 		'pin_updated'      => 'shield',
 		'admin_logged_in'  => 'settings',
 		'admin_logged_out' => 'settings',
+		'user_created'     => 'user-plus',
+		'user_updated'     => 'user',
+		'user_activated'   => 'user-check',
+		'user_deactivated' => 'user-x',
+		'user_suspended'   => 'slash',
+		'user_deleted'     => 'trash-2',
 	];
 
 	public function __construct(private PDO $db)
@@ -132,8 +142,7 @@ class AdminDashboardController
 				'actor'      => $actorName,
 				'is_admin'   => $row['admin_id'] !== null,
 				'label'      => $label,
-				// Skip the detail line when it just repeats the label (the
-				// common case, since ActivityLog::log() defaults to that).
+				// Hide duplicate detail text.
 				'detail'     => $description !== $label ? $description : '',
 				'icon'       => self::ACTION_ICONS[$row['action']] ?? 'activity',
 				'time_label' => self::timeAgo((string) $row['created_at']),

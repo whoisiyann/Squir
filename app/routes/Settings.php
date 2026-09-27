@@ -47,8 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_
     ]);
 }
 
-// Step 1-4: request an email change — validates the new email, checks it's not
-// already registered, and (if available) sends the 6-digit verification code
+// Request an email change.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'request_email_change') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -100,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'resend_
     ]);
 }
 
-// Step 5-9: verify the 6-digit code and, if correct, update the login email
+// Verify and apply the email change.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_email_change') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -194,9 +193,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_
     settingsJson(['ok' => false, 'error' => $result['error'] ?? 'That PIN is incorrect.'], 401);
 }
 
-// Export account data as a PIN-protected PDF download
+// Export account data as a PDF.
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['export'] ?? '') === 'pdf') {
-    // Keep warnings out of the PDF response
+    // Keep warnings out of the PDF.
     ini_set('display_errors', '0');
 
     // Consume the one-time unlock

@@ -11,7 +11,7 @@ if (!$admin) {
     // Admin account was deleted while the session was still active.
     session_unset();
     session_destroy();
-    header('Location: ./login');
+    header('Location: ' . url('login'));
     exit;
 }
 

@@ -14,7 +14,7 @@ class EmailChangeController
     ) {
     }
 
-    // Step 1-4: validate the new email, check it isn't already registered, send the code
+    // Request an email change.
     public function requestChange(int $userId, array $input): array
     {
         $newEmail = strtolower(trim((string) ($input['new_email'] ?? '')));
@@ -35,7 +35,7 @@ class EmailChangeController
             return ['errors' => ['new_email' => 'That is already your current email address.']];
         }
 
-        // Step 2-3: the new email must not already exist in the database
+        // Check email availability.
         if ($this->userModel->emailExists($newEmail, $userId)) {
             return ['errors' => ['new_email' => 'An account with this email already exists.']];
         }
@@ -61,7 +61,7 @@ class EmailChangeController
         return ['errors' => [], 'new_email' => $pending['new_email'], 'dev_code' => $devCode];
     }
 
-    // Step 5-9: verify the code, then update the user's login email
+    // Verify and apply the email change.
     public function verifyAndApply(int $userId, string $code): array
     {
         $code = trim($code);
@@ -77,7 +77,7 @@ class EmailChangeController
 
         $newEmail = $result['new_email'];
 
-        // Guard against a race where the email got taken while the code was pending
+        // Check email availability again.
         if ($this->userModel->emailExists($newEmail, $userId)) {
             $this->emailChangeModel->clearForUser($userId);
             return ['errors' => ['code' => 'An account with this email already exists.']];
@@ -90,7 +90,7 @@ class EmailChangeController
         return ['errors' => [], 'email' => $newEmail];
     }
 
-    // Issue and send a new code, returning the dev fallback code when mail isn't configured
+    // Send a verification code.
     private function issueAndSend(int $userId, string $newEmail, string $fullName): ?string
     {
         $change = $this->emailChangeModel->createForUser($userId, $newEmail);

@@ -1,5 +1,5 @@
 <?php
-// Expects $adminName and $adminEmail to already be set by the including view.
+// Admin account data.
 $adminName = $adminName ?? 'Administrator';
 $adminEmail = $adminEmail ?? '';
 $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
@@ -23,8 +23,8 @@ $initials = adminInitials($adminName);
                         <strong><?= $escape($adminName) ?></strong>
                         <small><?= $escape($adminEmail) ?></small>
                     </div>
-                    <a href="./admin/settings" role="menuitem"><i class="ti ti-settings"></i> Settings</a>
-                    <a href="./admin/logout" role="menuitem" data-logout-trigger onclick="return confirm('Log out of the admin panel?')"><i class="ti ti-logout"></i> Log Out</a>
+                    <a href="<?= url('admin/settings') ?>" role="menuitem"><i class="ti ti-settings"></i> Settings</a>
+                    <a href="<?= url('admin/logout') ?>" role="menuitem" data-logout-trigger onclick="return confirm('Log out of the admin panel?')"><i class="ti ti-logout"></i> Log Out</a>
                 </div>
             </div>
         </div>

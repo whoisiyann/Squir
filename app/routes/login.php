@@ -33,12 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // One login form for both users and admins: if the credentials didn't
-    // match a user account, the same email/password might belong to an
-    // administrator instead, so check that before giving up. We only try
-    // this when the failure was specifically "wrong email/password" (not a
-    // basic validation error like a malformed email, which is wrong either
-    // way) so we don't run an extra query for every empty-field submission.
+    // Check admin credentials after a failed user login.
     if (isset($errors['form']) && $errors['form'] === 'The email or password is incorrect.') {
         $adminResult = (new AdminAuthController(new Admin($dbh)))->login($_POST);
 
@@ -55,8 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Surface a more specific admin-side error (e.g. inactive account)
-        // instead of the generic "incorrect" message, when there is one.
+        // Show a specific admin error when available.
         if (isset($adminResult['errors']['form']) && $adminResult['errors']['form'] !== 'The email or password is incorrect.') {
             $errors = $adminResult['errors'];
         }

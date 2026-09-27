@@ -15,7 +15,7 @@ const { parallel } = require('gulp');
 var postcss = require('gulp-postcss');
 tailwindcss = require('tailwindcss');
 
-// Theme configuration
+// Theme settings.
 
 const caption_show = 'true'; // [ false , true ]
 const preset_theme = 'preset-1'; // [ preset-1 to preset-10 ]
@@ -63,11 +63,7 @@ const layout = {
   bodySetup: 'data-pc-preset="' + preset_theme + '" data-pc-sidebar-caption="' + caption_show + '" data-pc-direction="' + rtltemp + '" dir="' + rtltemp + '" data-pc-theme="' + darklayouttemp + '"',
 };
 
-// =======================================================
-// ----------- END: Theme Configuration -----------
-// =======================================================
-
-// all paths setup
+// Build paths.
 const path = {
   src: {
     html: 'src/html/**/*.html',
@@ -85,36 +81,24 @@ const path = {
   }
 };
 
-//  [ common ] task start
-//  [ browser reload ] start
 gulp.task('browserSync', function () {
   browsersync.init({
     server: 'dist/'
   });
 });
-//  [ browser reload ] end
-
 gulp.task('cleandist', function (callback) {
   del.sync(['dist/*/']);
   callback();
 });
-//  [ common ] task end
 
-// =======================================================
-// ----------- START: Development tasks -----------
-// =======================================================
-//  [ scss compiler ] start
 gulp.task('tailwind-scss', function () {
-  // main style css
   return gulp
     .src(path.src.css)
     .pipe(sass())
     .pipe(postcss(tailwindcss('./tailwind.config.js')))
     .pipe(gulp.dest(path.destination.css));
 });
-//  [ scss compiler ] end
 
-//  [ Copy assets ] start
 gulp.task('build-node-modules', function () {
   var required_libs = {
     js: [
@@ -138,9 +122,7 @@ gulp.task('build-node-modules', function () {
   var cpyassets = gulp.src(['src/assets/**/*.*', '!src/assets/scss/**/*.*']).pipe(gulp.dest('dist/assets'));
   return merge(cpyassets);
 });
-//  [ Copy assets ] end
 
-//  [ build html ] start
 gulp.task('build-html', function () {
   return gulp
     .src(path.src.html)
@@ -154,18 +136,14 @@ gulp.task('build-html', function () {
     )
     .pipe(gulp.dest(path.destination.html));
 });
-//  [ build html ] end
 
-//  [ build js ] start
 gulp.task('build-js', function () {
   var layoutjs = gulp.src(path.src.layoutjs).pipe(gulp.dest(path.destination.layoutjs));
   var pagesjs = gulp.src(path.src.pagesjs).pipe(gulp.dest(path.destination.pagesjs));
 
   return merge(layoutjs, pagesjs);
 });
-//  [ build js ] end
 
-//  [ watch ] start
 gulp.task('watch', function () {
   gulp.watch('tailwind.config.js', gulp.series('tailwind-scss')).on('change', browsersync.reload);
   gulp.watch('tailwind_plugins/**/*.js', gulp.series('tailwind-scss')).on('change', browsersync.reload);
@@ -174,40 +152,25 @@ gulp.task('watch', function () {
   gulp.watch('src/html/**/*.html', gulp.series('build-html')).on('change', browsersync.reload);
   gulp.watch('src/html/**/*.html', gulp.series('tailwind-scss')).on('change', browsersync.reload);
 });
-//  [ watch ] start
 const compile = parallel('browserSync', 'watch');
-//  [ Default task ] start
 gulp.task('default', gulp.series('cleandist', 'build-node-modules', 'tailwind-scss', 'build-js', 'build-html', compile));
-//  [ Default task ] end
 
-// =======================================================
-// ----------- END: Development tasks -----------
-// =======================================================
 
-// =======================================================
-// ----------- START: Production mode tasks -----------
-// =======================================================
 
-//  [ css minify ] start
 gulp.task('tailwind-min-scss', function () {
-  // main style css
   return gulp.src(path.src.css)
   .pipe(sass())
   .pipe(postcss(tailwindcss('./tailwind.config.js'), autoprefixer()))
   // .pipe(cssmin())
   .pipe(gulp.dest(path.destination.css));
 });
-//  [ css minify ] end
 
-//  [ min-js ] start
 gulp.task('min-js', function () {
   var layoutjs = gulp.src(path.src.layoutjs).pipe(uglify()).pipe(gulp.dest(path.destination.layoutjs));
   var pagesjs = gulp.src(path.src.pagesjs).pipe(babel()).pipe(uglify()).pipe(gulp.dest(path.destination.pagesjs));
   return merge(layoutjs, pagesjs);
 });
-//  [ min-js ] end
 
-//  [ minify html ] start
 gulp.task('min-html', function () {
   return gulp
     .src(path.src.html)
@@ -226,10 +189,8 @@ gulp.task('min-html', function () {
     )
     .pipe(gulp.dest(path.destination.html));
 });
-//  [ minify html ] end
 
-//  [ image optimizer ] start
-// Function to compress images with retry mechanism
+// Compress images with retries.
 function compressImagesWithRetry(src, dest, retries = 40) {
   return new Promise((resolve, reject) => {
     const stream = gulp
@@ -242,12 +203,10 @@ function compressImagesWithRetry(src, dest, retries = 40) {
       .on('error', function (err) {
         console.error('Error during image compression:', err.toString());
         if (retries > 0) {
-          // Retry by recursively calling the function with reduced number of retries
           compressImagesWithRetry(src, dest, retries - 1)
             .then(resolve)
             .catch(reject);
         } else {
-          // No more retries left, reject the promise
           reject(new Error('Max retries exceeded. Unable to compress image.'));
         }
       });
@@ -259,18 +218,11 @@ function compressImagesWithRetry(src, dest, retries = 40) {
 gulp.task('min-image', function () {
   return compressImagesWithRetry(path.src.images, path.destination.images);
 });
-//  [ image optimizer ] end
 
-//  [ watch minify ] start
 gulp.task('watch-minify', function () {
   gulp.watch('src/assets/scss/**/*.scss', gulp.series('tailwind-min-scss'));
   gulp.watch('src/assets/js/**/*.js', gulp.series('min-js'));
   gulp.watch('src/html/**/*.html', gulp.series('min-html'));
 });
-//  [ watch minify ] start
 
-// build in production mode
 gulp.task('build-prod', gulp.series('cleandist', 'build-node-modules', 'tailwind-min-scss', 'min-js', 'min-html'));
-// =======================================================
-// ----------- END: Production mode tasks -----------
-// =======================================================

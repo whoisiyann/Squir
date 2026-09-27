@@ -28,8 +28,7 @@ class AdminAuthController
 
 		$admin = $this->admin->findByEmail($email);
 
-		// Same generic error whether the email or the password was wrong,
-		// so we don't reveal which admin accounts exist.
+		// Use one error for unknown accounts and bad passwords.
 		if (!$admin || !password_verify($password, $admin['password_hash'])) {
 			return [
 				'errors' => ['form' => 'The email or password is incorrect.'],

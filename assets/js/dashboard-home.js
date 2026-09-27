@@ -6,8 +6,8 @@
     var clocks = (cfg.clocks || []).slice();
     var tzLabels = cfg.tzLabels || {};
 
-    // Normalize time zone names
-    // Allow the click action to complete
+    // Normalize time zones.
+    // Let the click finish first.
     var TZ_ALIASES = {
         'Asia/Calcutta': 'Asia/Kolkata',
         'Asia/Saigon': 'Asia/Ho_Chi_Minh',

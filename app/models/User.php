@@ -121,4 +121,52 @@ class User
 
 		return $statement->execute(['id' => $userId]);
 	}
+
+
+
+	// All users, newest first, for the admin Users table
+	public function allForAdmin(): array
+	{
+		$statement = $this->db->query(
+			'SELECT user_id, full_name, username, email, status, last_login_at, created_at
+			 FROM users
+			 ORDER BY created_at DESC'
+		);
+
+		return $statement->fetchAll();
+	}
+
+	// Card counts for the admin Users page: total / active / suspended / new this week
+	public function adminStats(): array
+	{
+		$total = (int) $this->db->query('SELECT COUNT(*) FROM users')->fetchColumn();
+		$active = (int) $this->db->query("SELECT COUNT(*) FROM users WHERE status = 'active'")->fetchColumn();
+		$suspended = (int) $this->db->query("SELECT COUNT(*) FROM users WHERE status = 'suspended'")->fetchColumn();
+		$newThisWeek = (int) $this->db->query(
+			'SELECT COUNT(*) FROM users WHERE created_at >= (NOW() - INTERVAL 7 DAY)'
+		)->fetchColumn();
+
+		return [
+			'total' => $total,
+			'active' => $active,
+			'suspended' => $suspended,
+			'new_this_week' => $newThisWeek,
+		];
+	}
+
+	// Change a user's account status (active / inactive / suspended)
+	public function updateStatus(int $userId, string $status): bool
+	{
+		$statement = $this->db->prepare('UPDATE users SET status = :status WHERE user_id = :id');
+
+		return $statement->execute(['status' => $status, 'id' => $userId]);
+	}
+
+	// Update a user from the admin panel.
+	public function adminUpdate(int $userId, string $fullName, string $username, string $email): bool
+	{
+		$ok = $this->updateProfile($userId, $fullName, $username);
+
+		return $this->updateEmail($userId, $email) && $ok;
+	}
 }

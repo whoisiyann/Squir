@@ -1,5 +1,5 @@
 <?php
-// Expects $admin, $stats, $recentUsers, $recentActivity (set by app/routes/admin/dashboard.php)
+// Admin dashboard data.
 $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 $adminName = $admin['full_name'] ?? 'Administrator';
 $adminEmail = $admin['email'] ?? '';
@@ -47,10 +47,7 @@ $statusBadge = static function (string $status) use ($escape): string {
     return '<span class="admin-badge ' . $class . '">' . $escape($status) . '</span>';
 };
 
-// Keep the Recent Users avatars the same letter-avatar shape as the rest
-// of the app, but give each user a stable color pulled from their name -
-// so it's varied across the list without flickering to a different color
-// on every page load.
+// Assign stable avatar colors.
 $avatarPalette = ['', 'is-purple', 'is-blue', 'is-amber', 'is-green'];
 $avatarColor = static function (array $user) use ($avatarPalette): string {
     $seed = (string) ($user['user_id'] ?? $user['full_name'] ?? '');
@@ -59,7 +56,7 @@ $avatarColor = static function (array $user) use ($avatarPalette): string {
     return $avatarPalette[$index];
 };
 
-// Color the activity icon by what kind of action it represents.
+// Assign activity icon colors.
 $activityColor = static function (string $icon): string {
     $map = [
         'lock'         => 'is-green',
@@ -71,13 +68,17 @@ $activityColor = static function (string $icon): string {
         'log-out'      => '',
         'settings'     => 'is-muted',
         'folder'       => 'is-amber',
+        'user-plus'    => 'is-green',
+        'user-check'   => 'is-green',
+        'user-x'       => 'is-muted',
+        'slash'        => '',
+        'trash-2'      => '',
     ];
 
     return $map[$icon] ?? 'is-muted';
 };
 
-// Feather icon names (from the controller) mapped to Tabler equivalents used
-// across the rest of the app.
+// Map activity icons to Tabler names.
 $activityIcon = static function (string $icon): string {
     $map = [
         'lock'         => 'ti-lock',
@@ -89,6 +90,11 @@ $activityIcon = static function (string $icon): string {
         'log-out'      => 'ti-logout',
         'settings'     => 'ti-settings',
         'folder'       => 'ti-folder',
+        'user-plus'    => 'ti-user-plus',
+        'user-check'   => 'ti-user-check',
+        'user-x'       => 'ti-user-x',
+        'slash'        => 'ti-ban',
+        'trash-2'      => 'ti-trash',
     ];
 
     return $map[$icon] ?? 'ti-activity';
@@ -104,7 +110,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Squir Admin - Dashboard</title>
-  <link rel="icon" href="./assets/images/squir.png" type="image/x-icon" />
+  <link rel="icon" href="<?= url('assets/images/squir.png') ?>" type="image/x-icon" />
   <script>
     (function () {
       try {
@@ -114,10 +120,10 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
       } catch (error) {}
     })();
   </script>
-  <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css" />
-  <link rel="stylesheet" href="./assets/css/style.css" />
-  <link rel="stylesheet" href="./assets/css/dashboard.css" />
-  <link rel="stylesheet" href="./assets/css/admin/admin.css" />
+  <link rel="stylesheet" href="<?= url('dist/assets/fonts/tabler-icons.min.css') ?>" />
+  <link rel="stylesheet" href="<?= url('assets/css/style.css') ?>" />
+  <link rel="stylesheet" href="<?= url('assets/css/dashboard.css') ?>" />
+  <link rel="stylesheet" href="<?= url('assets/css/admin/admin.css') ?>" />
 </head>
 <body class="admin-page">
 <div class="app-shell" id="adminShell">
@@ -141,7 +147,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
         </div>
       </div>
 
-      <!-- [ Stat cards ] -->
+      <!-- Stat cards -->
       <div class="admin-stats">
         <?php foreach ($statCards as $card): ?>
           <div class="stat-card">
@@ -152,12 +158,12 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
         <?php endforeach; ?>
       </div>
 
-      <!-- [ Recent users / activity ] -->
+      <!-- Recent users and activity -->
       <div class="admin-layout">
         <section class="dash-card admin-panel admin-panel--flush">
           <div class="dash-card-head">
             <h2><i class="ti ti-users"></i> Recent Users</h2>
-            <a href="./admin/users">View all users <i class="ti ti-arrow-right"></i></a>
+            <a href="<?= url('admin/users') ?>">View all users <i class="ti ti-arrow-right"></i></a>
           </div>
 
           <?php if ($recentUsers === []): ?>
@@ -191,7 +197,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
               </table>
             </div>
             <div class="admin-panel-more" id="recentUsersMore">
-              <a href="./admin/users">See more <i class="ti ti-arrow-down"></i></a>
+              <a href="<?= url('admin/users') ?>">See more <i class="ti ti-arrow-down"></i></a>
             </div>
           <?php endif; ?>
         </section>
@@ -199,7 +205,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
         <section class="dash-card admin-panel">
           <div class="dash-card-head">
             <h2><i class="ti ti-history"></i> Recent Activity</h2>
-            <a href="./admin/activity-logs">View all <i class="ti ti-arrow-right"></i></a>
+            <a href="<?= url('admin/activity-logs') ?>">View all <i class="ti ti-arrow-right"></i></a>
           </div>
 
           <?php if ($recentActivity === []): ?>
@@ -222,7 +228,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
               <?php endforeach; ?>
             </ul>
             <div class="admin-panel-more" id="recentActivityMore">
-              <a href="./admin/activity-logs">See more <i class="ti ti-arrow-down"></i></a>
+              <a href="<?= url('admin/activity-logs') ?>">See more <i class="ti ti-arrow-down"></i></a>
             </div>
           <?php endif; ?>
         </section>
@@ -231,6 +237,6 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
 
   <?php require __DIR__ . '/../../../includes/admin/footer.php'; ?>
 
-  <script src="./assets/js/admin/admin.js"></script>
+  <script src="<?= url('assets/js/admin/admin.js') ?>"></script>
 </body>
 </html>

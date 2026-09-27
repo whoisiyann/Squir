@@ -2,7 +2,7 @@
 
 class ActivityLog
 {
-    // Known action codes -> display label / default detail line / icon
+    // Activity metadata.
     private const META = [
         'logged_in'        => ['label' => 'Logged in',                   'detail' => null,                             'icon' => 'ti-login',         'entity' => 'user'],
         'logged_out'       => ['label' => 'Logged out',                  'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'user'],
@@ -32,6 +32,14 @@ class ActivityLog
         'favorite_removed' => ['label' => 'Removed favorite',            'detail' => null,                             'icon' => 'ti-star',          'entity' => 'favorite'],
         'activity_cleared' => ['label' => 'Activity log cleared',        'detail' => null,                             'icon' => 'ti-trash',         'entity' => 'system'],
         'data_exported'    => ['label' => 'Data exported',               'detail' => 'Downloaded a copy of your data', 'icon' => 'ti-download',      'entity' => 'system'],
+        'admin_logged_in'  => ['label' => 'Admin login',                 'detail' => null,                             'icon' => 'ti-login',         'entity' => 'admin'],
+        'admin_logged_out' => ['label' => 'Admin logout',                'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'admin'],
+        'user_created'     => ['label' => 'Added a user',                'detail' => null,                             'icon' => 'ti-user-plus',     'entity' => 'user'],
+        'user_updated'     => ['label' => 'Updated a user',              'detail' => null,                             'icon' => 'ti-user-edit',     'entity' => 'user'],
+        'user_activated'   => ['label' => 'Activated a user',            'detail' => null,                             'icon' => 'ti-user-check',    'entity' => 'user'],
+        'user_deactivated' => ['label' => 'Deactivated a user',          'detail' => null,                             'icon' => 'ti-user-off',      'entity' => 'user'],
+        'user_suspended'   => ['label' => 'Suspended a user',            'detail' => null,                             'icon' => 'ti-user-off',      'entity' => 'user'],
+        'user_deleted'     => ['label' => 'Deleted a user',              'detail' => null,                             'icon' => 'ti-user-x',        'entity' => 'user'],
     ];
 
     public function __construct(private PDO $db)
@@ -59,7 +67,7 @@ class ActivityLog
         ]);
     }
 
-    // Record an activity entry for an admin (admin_id column instead of user_id)
+    // Record admin activity.
     public function logAdmin(int $adminId, string $action, ?string $description = null): void
     {
         $meta = self::META[$action] ?? null;
@@ -79,7 +87,7 @@ class ActivityLog
         ]);
     }
 
-    // Load recent activity for a user, formatted for display
+    // Get user activity logs.
     public function listForUser(int $userId, int $limit = 50): array
     {
         $statement = $this->db->prepare(
@@ -111,7 +119,7 @@ class ActivityLog
         return $items;
     }
 
-    // Whether a user has any activity recorded
+    // Check for activity.
     public function hasEntries(int $userId): bool
     {
         $statement = $this->db->prepare('SELECT 1 FROM activity_logs WHERE user_id = :user_id LIMIT 1');
@@ -120,7 +128,7 @@ class ActivityLog
         return (bool) $statement->fetchColumn();
     }
 
-    // Remove all activity entries for a user
+    // Clear user activity.
     public function clearForUser(int $userId): bool
     {
         $statement = $this->db->prepare('DELETE FROM activity_logs WHERE user_id = :user_id');
@@ -128,7 +136,7 @@ class ActivityLog
         return $statement->execute(['user_id' => $userId]);
     }
 
-    // Format a timestamp as a short relative label ("15m ago", "2d ago", ...)
+    // Format a relative time.
     public static function timeAgo(string $datetime): string
     {
         $seconds = time() - strtotime($datetime);

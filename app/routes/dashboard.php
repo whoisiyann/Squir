@@ -60,7 +60,7 @@ if ($dashboard === []) {
     exit;
 }
 
-// "Password saved to your vault." after adding a credential from the dashboard popup
+// Return the saved-password message.
 $flashSuccess = $_SESSION['vault_flash_success'] ?? null;
 unset($_SESSION['vault_flash_success']);
 

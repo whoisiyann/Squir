@@ -6,6 +6,20 @@ require_once __DIR__ . '/dbconnect.php';
 require_once __DIR__ . '/../config/config.php';
 
 
+// Resolve the app base path.
+if (!defined('BASE_URL')) {
+    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+    define('BASE_URL', $scriptDir === '/' ? '' : rtrim($scriptDir, '/'));
+}
+
+if (!function_exists('url')) {
+    // Build a base-aware URL.
+    function url(string $path = ''): string
+    {
+        return BASE_URL . '/' . ltrim($path, '/');
+    }
+}
+
 
 function requireLogin(bool $requirePin = true): int
 {

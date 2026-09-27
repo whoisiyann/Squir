@@ -35,10 +35,10 @@
   </script>
 </head>
 <body onload="preventBack();">
-  <!-- [ Main Content ] start -->
+  <!-- Main content -->
   <div class="pc-container">
     <div class="pc-content">
-      <!-- [ Main Content ] start -->
+      <!-- Main content -->
         <div class="col-span-12">
           <div class="card">
             <div class="card-header">
@@ -49,11 +49,11 @@
             </div>
           </div>
         </div>
-       <!-- [ Main Content ] end -->
+      <!-- End main content -->
     </div>
   </div>
-<!-- [ Main Content ] end -->
-    <!-- Required Js -->
+<!-- End main content -->
+    <!-- Scripts -->
     <script src="../dist/assets/js/plugins/simplebar.min.js"></script>
     <script src="../dist/assets/js/plugins/popper.min.js"></script>
     <script src="../dist/assets/js/icon/custom-icon.js"></script>

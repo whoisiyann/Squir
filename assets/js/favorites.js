@@ -48,7 +48,7 @@
     var noResultsEl = null;
     var lastSearchTerm = (searchInput && searchInput.value) ? searchInput.value.trim().toLowerCase() : '';
 
-    // Build (once) the "no matches" placeholder shown when a search has zero hits
+    // Build the empty search state.
     function ensureNoResultsEl() {
         if (noResultsEl) return noResultsEl;
         noResultsEl = document.createElement('div');
@@ -59,7 +59,7 @@
         return noResultsEl;
     }
 
-    // Show/hide each favorite row based on whether its text matches the search term
+    // Filter favorite rows.
     function applySearch(term) {
         lastSearchTerm = (term || '').trim().toLowerCase();
         var rows = $all(cfg.rowSelector, wrap);
@@ -86,7 +86,7 @@
             applySearch(searchInput.value);
         });
 
-        // Enter/submit just re-applies the same live filter instead of reloading the page
+        // Reapply the live filter on submit.
         if (searchForm) {
             searchForm.addEventListener('submit', function (event) {
                 event.preventDefault();

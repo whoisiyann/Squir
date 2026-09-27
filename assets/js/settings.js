@@ -348,7 +348,7 @@
                     return;
                 }
 
-                // Step 1-4: kick off the email-change verification flow
+                // Start email verification.
                 postAjax('request_email_change', { new_email: newEmail }).then(function (emailResult) {
                     submitBtn.disabled = false;
 

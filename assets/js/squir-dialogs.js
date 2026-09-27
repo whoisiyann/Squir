@@ -164,7 +164,7 @@
     }
 
     // Forms with data-confirm-delete
-    /* Delete confirmation forms */
+    /* Delete forms */
     // Handle protected delete forms
     document.addEventListener('submit', function (event) {
         var form = event.target;

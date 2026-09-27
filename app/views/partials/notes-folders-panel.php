@@ -1,11 +1,7 @@
 <?php
-/**
- * Notes folder management dialog.
- *
- * @var array  $data         folder counts from NoteController::index
- * @var int    $totalNotes   total notes for the user
- * @var string $csrfToken
- */
+/** @var array $data */
+/** @var int $totalNotes */
+/** @var string $csrfToken */
 $nfEsc = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 ?>
  <!-- Folders panel -->

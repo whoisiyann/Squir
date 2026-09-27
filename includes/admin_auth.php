@@ -1,16 +1,12 @@
 <?php
 
-// Admin-side session helpers.
-// Kept separate from requireLogin()/csrf helpers in bootstrap.php on purpose:
-// an admin session (admin_id) and a user session (user_id) are independent,
-// so a person can never end up "logged in" as both from the same session.
+// Admin session helpers.
 
 // Require an authenticated admin, or redirect to the admin login page
 function requireAdminLogin(): int
 {
 	if (empty($_SESSION['admin_id'])) {
-		// One shared login form for both users and admins - see ./login.
-		header('Location: ./login');
+		header('Location: ' . url('login'));
 		exit;
 	}
 
