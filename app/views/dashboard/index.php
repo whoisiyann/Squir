@@ -73,7 +73,7 @@ $pageData = [
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap">
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
-    <link rel="stylesheet" href="./assets/css/dashboard.css?v=3">
+    <link rel="stylesheet" href="./assets/css/dashboard.css?v=5">
     <link rel="stylesheet" href="./assets/css/vault.css">
 </head>
 <body class="dashboard-page">
@@ -221,6 +221,7 @@ $pageData = [
                                 </li>
                             <?php endforeach; ?>
                         </ul>
+                        <a class="recent-see-more" href="./vault">See more</a>
                     <?php endif; ?>
                 </section>
             </div>
@@ -251,6 +252,6 @@ $pageData = [
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/vault.js?v=2"></script>
-<script src="./assets/js/dashboard-home.js?v=1"></script>
+<script src="./assets/js/dashboard-home.js?v=2"></script>
 </body>
 </html>

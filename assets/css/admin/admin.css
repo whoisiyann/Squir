@@ -1,73 +1,258 @@
-/* Squir Admin Panel - small overrides layered on top of dist/assets/css/style.css */
-
-.stat-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    flex-shrink: 0;
+:root{
+    /* Extra accent tokens for the admin stat cards, alongside --peach/--mint
+       already defined in style.css. */
+    --admin-green-bg:#dff3e2;
+    --admin-green:#2f8f52;
+    --admin-purple-bg:#eae2fb;
+    --admin-purple:#7c5cd8;
+    --admin-amber-bg:#fbecc9;
+    --admin-amber:#c9861f;
+    --admin-red-bg:#fbe1e1;
+    --admin-blue-bg:#e6f2fa;
 }
 
-.stat-icon svg,
-.stat-icon i {
-    width: 20px;
-    height: 20px;
+.admin-page .content-area{
+    padding-top: calc(var(--topbar-h) + 24px);
 }
 
-.stat-card:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-    transition: box-shadow 0.2s ease;
+/* ---- sidebar brand: "Squir" + role subtitle, like the rest of the admin
+       account card (sidebar-illustration area) ---- */
+.admin-page .brand,
+.brand:has(.brand-text){
+    max-width:180px;
+}
+.brand-text{
+    display:flex;
+    flex-direction:column;
+    line-height:1.18;
+    min-width:0;
+}
+.brand-name{
+    font-size:1.3rem;
+    font-weight:700;
+    color:var(--accent);
+}
+.brand-role{
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+.sidebar-collapsed .brand-text{ display:none; }
+
+/* ---- page heading (reuses .page-heading from dashboard.css) ---- */
+.page-heading .squir-leaf{ color: var(--active-icon); margin-left: 2px; }
+
+/* ---- stat cards: same shell as the personal dashboard, coloured per card ---- */
+.admin-stats{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:18px;
+    margin-bottom:28px;
+}
+.admin-stats .stat-card{
+    grid-template-columns:auto minmax(0,1fr);
+    cursor:default;
+}
+.admin-stats .stat-icon{ border-radius:12px; }
+.admin-stats .stat-icon.is-orange{ background:var(--peach); color:var(--accent); }
+.admin-stats .stat-icon.is-green{ background:var(--admin-green-bg); color:var(--admin-green); }
+.admin-stats .stat-icon.is-purple{ background:var(--admin-purple-bg); color:var(--admin-purple); }
+.admin-stats .stat-icon.is-amber{ background:var(--admin-amber-bg); color:var(--admin-amber); }
+
+/* ---- two-column panel layout ---- */
+.admin-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);
+    gap:20px;
+    align-items:stretch;
 }
 
-.avatar-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    flex-shrink: 0;
+/* Both panels stretch to the same height; each one's own body (table or
+   activity list) scrolls internally once it's taller than that shared
+   height, so the two cards always line up. */
+.admin-layout .dash-card{
+    display:flex;
+    flex-direction:column;
+    min-height:0;
 }
 
-.activity-feed {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+@media (max-width:900px){
+    .admin-layout{ grid-template-columns:1fr; align-items:start; }
+    .admin-layout .dash-card{ max-height:none; }
+    .admin-stats{ grid-template-columns:repeat(2, minmax(0,1fr)); }
 }
 
-.activity-feed-item {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+.dash-card-head a{
+    color:var(--accent);
+    font-size:.8rem;
+    font-weight:600;
+    text-decoration:none;
 }
+.dash-card-head a:hover{ text-decoration:underline; }
 
-.activity-feed-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
+.admin-panel{ display:flex; flex-direction:column; flex:1; min-height:0; padding:18px 20px 8px; }
+.admin-panel.admin-panel--flush{ padding:18px 0 8px; }
+.admin-panel .dash-card-head{ padding:0 20px 14px; margin-bottom:0; flex:0 0 auto; }
+.admin-panel.admin-panel--flush .dash-card-head{ padding:0 20px 14px; }
+
+/* ---- shared scroll area so Recent Users / Recent Activity cap at the
+       same height and scroll internally instead of growing the card ---- */
+.admin-table-wrap{
+    flex:1 1 auto;
+    min-height:0;
+    max-height:420px;
+    overflow:auto;
 }
+.admin-table-wrap::-webkit-scrollbar,
+.admin-activity-list::-webkit-scrollbar{ width:6px; }
+.admin-table-wrap::-webkit-scrollbar-thumb,
+.admin-activity-list::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; }
 
-.activity-feed-item:first-child {
-    padding-top: 0;
+/* ---- users table ---- */
+.admin-table{ width:100%; border-collapse:collapse; }
+.admin-table th{
+    padding:10px 20px;
+    color:var(--muted);
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    text-align:left;
+    border-bottom:1px solid var(--border);
 }
-
-.activity-feed-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 999px;
-    flex-shrink: 0;
+.admin-table td{
+    padding:12px 20px;
+    border-bottom:1px solid var(--border);
+    font-size:.86rem;
+    color:var(--text);
+    vertical-align:middle;
 }
+.admin-table tbody tr:last-child td{ border-bottom:0; }
+.admin-table tbody tr:hover{ background:var(--soft); }
+.admin-table td.is-muted{ color:var(--muted); }
 
-.activity-feed-icon svg,
-.activity-feed-icon i {
-    width: 16px;
-    height: 16px;
+.admin-avatar-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    font-size:.72rem;
+    font-weight:700;
+    flex-shrink:0;
+    background:var(--peach);
+    color:var(--accent);
+}
+.admin-avatar-chip.is-green{ background:var(--admin-green-bg); color:var(--admin-green); }
+.admin-avatar-chip.is-purple{ background:var(--admin-purple-bg); color:var(--admin-purple); }
+.admin-avatar-chip.is-amber{ background:var(--admin-amber-bg); color:var(--admin-amber); }
+.admin-avatar-chip.is-blue{ background:var(--admin-blue-bg); color:var(--chip-blue); }
+
+.admin-name-cell{ display:flex; align-items:center; gap:10px; }
+
+.admin-badge{
+    display:inline-flex;
+    align-items:center;
+    padding:3px 12px;
+    border-radius:999px;
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:capitalize;
+    background:var(--soft);
+    color:var(--muted);
+}
+.admin-badge.is-active{ background:var(--admin-green-bg); color:var(--admin-green); }
+.admin-badge.is-suspended{ background:var(--admin-red-bg); color:var(--danger); }
+
+.admin-empty{ padding:32px 20px; text-align:center; color:var(--muted); font-size:.88rem; }
+
+/* ---- activity feed ---- */
+.admin-activity-list{
+    list-style:none;
+    margin:0;
+    padding:0 20px;
+    flex:1 1 auto;
+    min-height:0;
+    max-height:420px;
+    overflow-y:auto;
+}
+.admin-activity-item{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    padding:13px 0;
+    border-bottom:1px solid var(--border);
+}
+.admin-activity-item:last-child{ border-bottom:0; padding-bottom:0; }
+.admin-activity-item:first-child{ padding-top:0; }
+
+.admin-activity-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    flex-shrink:0;
+    background:var(--peach);
+    color:var(--accent);
+}
+.admin-activity-icon i{ font-size:1rem; }
+.admin-activity-icon.is-green{ background:var(--admin-green-bg); color:var(--admin-green); }
+.admin-activity-icon.is-purple{ background:var(--admin-purple-bg); color:var(--admin-purple); }
+.admin-activity-icon.is-amber{ background:var(--admin-amber-bg); color:var(--admin-amber); }
+.admin-activity-icon.is-muted{ background:var(--soft); color:var(--muted); }
+
+.admin-activity-body{ flex:1; min-width:0; }
+.admin-activity-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.admin-activity-row strong{ font-size:.86rem; font-weight:600; }
+.admin-activity-row time{ font-size:.72rem; color:var(--muted); flex-shrink:0; }
+.admin-activity-body p{ margin:2px 0 0; font-size:.8rem; color:var(--muted); }
+
+/* ---- sidebar account card (admin-only; the personal dashboard keeps
+       Logout as a plain nav link instead) ---- */
+.admin-account{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:14px 10px 6px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+}
+.admin-account-avatar{ width:36px; height:36px; font-size:.78rem; flex-shrink:0; }
+.admin-account-info{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    flex:1;
+}
+.admin-account-info strong{
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.admin-account-info small{ font-size:.72rem; color:var(--muted); }
+.admin-account-logout{
+    display:grid;
+    place-items:center;
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    color:var(--muted);
+    flex-shrink:0;
+    transition:background-color .15s ease, color .15s ease;
+}
+.admin-account-logout:hover{ background:var(--admin-red-bg); color:var(--danger); }
+.admin-account-logout i{ font-size:1rem; }
+
+@media (min-width:701px){
+    .sidebar-collapsed .admin-account-info,
+    .sidebar-collapsed .admin-account-logout{ display:none; }
+    .sidebar-collapsed .admin-account{ justify-content:center; }
 }

@@ -10,196 +10,228 @@ $statCards = [
         'label'    => 'Total Users',
         'value'    => $stats['total_users'],
         'subtitle' => 'Registered accounts',
-        'icon'     => 'users',
-        'color'    => 'primary',
+        'icon'     => 'ti-users',
+        'color'    => 'orange',
     ],
     [
         'label'    => 'Total Password Entries',
         'value'    => $stats['total_passwords'],
         'subtitle' => 'Saved in vault',
-        'icon'     => 'lock',
-        'color'    => 'success',
+        'icon'     => 'ti-lock',
+        'color'    => 'green',
     ],
     [
         'label'    => 'Total Notes',
         'value'    => $stats['total_notes'],
         'subtitle' => 'Personal notes',
-        'icon'     => 'file-text',
-        'color'    => 'secondary',
+        'icon'     => 'ti-notes',
+        'color'    => 'purple',
     ],
     [
         'label'    => 'Total Tasks',
         'value'    => $stats['total_tasks'],
         'subtitle' => 'To do / In progress / Completed',
-        'icon'     => 'check-square',
-        'color'    => 'warning',
+        'icon'     => 'ti-checkbox',
+        'color'    => 'amber',
     ],
 ];
 
 $statusBadge = static function (string $status) use ($escape): string {
     $map = [
-        'active'    => 'bg-success-100 text-success-600',
-        'inactive'  => 'bg-secondary-100 text-secondary-600',
-        'suspended' => 'bg-danger-100 text-danger-600',
+        'active'    => 'is-active',
+        'inactive'  => '',
+        'suspended' => 'is-suspended',
     ];
-    $classes = $map[$status] ?? 'bg-secondary-100 text-secondary-600';
+    $class = $map[$status] ?? '';
 
-    return '<span class="badge rounded-pill ' . $classes . ' capitalize">' . $escape($status) . '</span>';
+    return '<span class="admin-badge ' . $class . '">' . $escape($status) . '</span>';
 };
+
+// Keep the Recent Users avatars the same letter-avatar shape as the rest
+// of the app, but give each user a stable color pulled from their name -
+// so it's varied across the list without flickering to a different color
+// on every page load.
+$avatarPalette = ['', 'is-purple', 'is-blue', 'is-amber', 'is-green'];
+$avatarColor = static function (array $user) use ($avatarPalette): string {
+    $seed = (string) ($user['user_id'] ?? $user['full_name'] ?? '');
+    $index = crc32($seed) % count($avatarPalette);
+
+    return $avatarPalette[$index];
+};
+
+// Color the activity icon by what kind of action it represents.
+$activityColor = static function (string $icon): string {
+    $map = [
+        'lock'         => 'is-green',
+        'file-text'    => 'is-purple',
+        'check-square' => 'is-amber',
+        'user'         => '',
+        'shield'       => 'is-muted',
+        'log-in'       => '',
+        'log-out'      => '',
+        'settings'     => 'is-muted',
+        'folder'       => 'is-amber',
+    ];
+
+    return $map[$icon] ?? 'is-muted';
+};
+
+// Feather icon names (from the controller) mapped to Tabler equivalents used
+// across the rest of the app.
+$activityIcon = static function (string $icon): string {
+    $map = [
+        'lock'         => 'ti-lock',
+        'file-text'    => 'ti-notes',
+        'check-square' => 'ti-checkbox',
+        'user'         => 'ti-user',
+        'shield'       => 'ti-shield-lock',
+        'log-in'       => 'ti-login',
+        'log-out'      => 'ti-logout',
+        'settings'     => 'ti-settings',
+        'folder'       => 'ti-folder',
+    ];
+
+    return $map[$icon] ?? 'ti-activity';
+};
+
+$hour = (int) date('G');
+$greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
+$firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
 ?>
 <!doctype html>
-<html lang="en" data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" dir="ltr" data-pc-theme="light">
+<html lang="en">
 <head>
-  <title>Squir Admin - Dashboard</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="description" content="Squir Admin Panel" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Squir Admin - Dashboard</title>
   <link rel="icon" href="./assets/images/squir.png" type="image/x-icon" />
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./dist/assets/fonts/phosphor/duotone/style.css" />
+  <script>
+    (function () {
+      try {
+        if (window.localStorage.getItem('squir-admin-theme') === 'dark') {
+          document.documentElement.classList.add('dashboard-dark-preload');
+        }
+      } catch (error) {}
+    })();
+  </script>
   <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css" />
-  <link rel="stylesheet" href="./dist/assets/fonts/feather.css" />
-  <link rel="stylesheet" href="./dist/assets/fonts/fontawesome.css" />
-  <link rel="stylesheet" href="./dist/assets/fonts/material.css" />
-  <link rel="stylesheet" href="./dist/assets/css/style.css" id="main-style-link" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
+  <link rel="stylesheet" href="./assets/css/dashboard.css" />
   <link rel="stylesheet" href="./assets/css/admin/admin.css" />
 </head>
-<body>
-  <!-- [ Pre-loader ] start -->
-  <div class="loader-bg fixed inset-0 bg-white dark:bg-themedark-cardbg z-[1034]">
-    <div class="loader-track h-[5px] w-full inline-block absolute overflow-hidden top-0">
-      <div class="loader-fill w-[300px] h-[5px] bg-primary-500 absolute top-0 left-0 animate-[hitZak_0.6s_ease-in-out_infinite_alternate]"></div>
-    </div>
-  </div>
-  <!-- [ Pre-loader ] End -->
-
+<body class="admin-page">
+<div class="app-shell" id="adminShell">
+<script>
+  try {
+    if (window.localStorage.getItem('squir-admin-sidebar-collapsed') === '1') {
+      document.getElementById('adminShell').classList.add('sidebar-collapsed');
+    }
+  } catch (error) {}
+</script>
   <?php require __DIR__ . '/../../../includes/admin/sidebar.php'; ?>
-  <?php require __DIR__ . '/../../../includes/admin/header.php'; ?>
 
-  <div class="pc-container">
-    <div class="pc-content">
-      <!-- [ breadcrumb ] start -->
-      <div class="page-header">
-        <div class="page-block">
-          <div class="page-header-title">
-            <h5 class="mb-0 font-medium">Dashboard</h5>
-          </div>
-          <p class="text-muted mb-0">Overview of your system</p>
+  <div class="main-area">
+    <?php require __DIR__ . '/../../../includes/admin/header.php'; ?>
+
+    <main class="content-area">
+      <div class="page-heading">
+        <div>
+          <h1><?= $escape($greeting) ?>, <?= $escape($firstName) ?>.
+            <span class="squir-leaf" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 14C4 7 9 3 20 3C20 14 16 20 8 20C6.5 20 5 19.5 4 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 20C7 16 10 13 17 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </h1>
+          <p><?= $escape(date('l, F j, Y')) ?> &middot; here's what's happening with Squir today.</p>
         </div>
       </div>
-      <!-- [ breadcrumb ] end -->
 
-      <!-- [ Stat cards ] start -->
-      <div class="grid grid-cols-12 gap-x-6 gap-y-6">
+      <!-- [ Stat cards ] -->
+      <div class="admin-stats">
         <?php foreach ($statCards as $card): ?>
-          <div class="col-span-12 sm:col-span-6 xl:col-span-3">
-            <div class="card stat-card mb-0">
-              <div class="card-body">
-                <div class="flex items-center gap-3 mb-4">
-                  <span class="stat-icon bg-<?= $card['color'] ?>-100 text-<?= $card['color'] ?>-600">
-                    <i data-feather="<?= $escape($card['icon']) ?>"></i>
-                  </span>
-                  <span class="text-muted text-[13px]"><?= $escape($card['label']) ?></span>
-                </div>
-                <h3 class="font-semibold mb-1"><?= (int) $card['value'] ?></h3>
-                <p class="text-muted text-[12px] mb-0"><?= $escape($card['subtitle']) ?></p>
-              </div>
-            </div>
+          <div class="stat-card">
+            <span class="stat-icon is-<?= $card['color'] ?>"><i class="ti <?= $escape($card['icon']) ?>"></i></span>
+            <span class="stat-text"><strong><?= $escape($card['label']) ?></strong><b><?= (int) $card['value'] ?></b></span>
+            <small><?= $escape($card['subtitle']) ?></small>
           </div>
         <?php endforeach; ?>
       </div>
-      <!-- [ Stat cards ] end -->
 
-      <!-- [ Recent users / activity ] start -->
-      <div class="grid grid-cols-12 gap-x-6 gap-y-6 mt-6">
-        <div class="col-span-12 xl:col-span-7">
-          <div class="card mb-0 h-full">
-            <div class="card-header flex items-center justify-between">
-              <h5>Recent Users</h5>
-              <a href="./admin-users" class="text-primary-500 text-[13px]">View all users &rarr;</a>
-            </div>
-            <div class="card-body !p-0">
-              <?php if ($recentUsers === []): ?>
-                <p class="text-muted text-center py-6 mb-0">No users have registered yet.</p>
-              <?php else: ?>
-                <div class="table-responsive">
-                  <table class="table align-middle mb-0">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Joined</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php foreach ($recentUsers as $user): ?>
-                        <tr>
-                          <td>
-                            <div class="flex items-center gap-2">
-                              <span class="avatar-chip bg-primary-100 text-primary-600"><?= $escape(userInitials($user['full_name'])) ?></span>
-                              <span><?= $escape($user['full_name']) ?></span>
-                            </div>
-                          </td>
-                          <td class="text-muted"><?= $escape($user['email']) ?></td>
-                          <td><?= $statusBadge($user['status']) ?></td>
-                          <td class="text-muted"><?= $escape(date('M j, Y', strtotime((string) $user['created_at']))) ?></td>
-                        </tr>
-                      <?php endforeach; ?>
-                    </tbody>
-                  </table>
-                </div>
-              <?php endif; ?>
-            </div>
+      <!-- [ Recent users / activity ] -->
+      <div class="admin-layout">
+        <section class="dash-card admin-panel admin-panel--flush">
+          <div class="dash-card-head">
+            <h2><i class="ti ti-users"></i> Recent Users</h2>
+            <a href="./admin/users">View all users &rarr;</a>
           </div>
-        </div>
 
-        <div class="col-span-12 xl:col-span-5">
-          <div class="card mb-0 h-full">
-            <div class="card-header flex items-center justify-between">
-              <h5>Recent Activity</h5>
-              <a href="./admin-activity-logs" class="text-primary-500 text-[13px]">View all &rarr;</a>
-            </div>
-            <div class="card-body">
-              <?php if ($recentActivity === []): ?>
-                <p class="text-muted text-center py-6 mb-0">No activity recorded yet.</p>
-              <?php else: ?>
-                <ul class="activity-feed">
-                  <?php foreach ($recentActivity as $item): ?>
-                    <li class="activity-feed-item">
-                      <span class="activity-feed-icon <?= $item['is_admin'] ? 'bg-secondary-100 text-secondary-600' : 'bg-primary-100 text-primary-600' ?>">
-                        <i data-feather="<?= $escape($item['icon']) ?>"></i>
-                      </span>
-                      <div class="grow">
-                        <div class="flex items-center justify-between gap-2">
-                          <span class="font-medium text-[14px]"><?= $escape($item['label']) ?></span>
-                          <span class="text-muted text-[12px] shrink-0"><?= $escape($item['time_label']) ?></span>
+          <?php if ($recentUsers === []): ?>
+            <p class="admin-empty">No users have registered yet.</p>
+          <?php else: ?>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($recentUsers as $i => $user): ?>
+                    <tr>
+                      <td>
+                        <div class="admin-name-cell">
+                          <span class="admin-avatar-chip <?= $avatarColor($user) ?>"><?= $escape(userInitials($user['full_name'])) ?></span>
+                          <span><?= $escape($user['full_name']) ?></span>
                         </div>
-                        <p class="text-muted text-[13px] mb-0"><?= $escape($item['actor']) ?><?= $item['detail'] !== '' ? ' &middot; ' . $escape($item['detail']) : '' ?></p>
-                      </div>
-                    </li>
+                      </td>
+                      <td class="is-muted"><?= $escape($user['email']) ?></td>
+                      <td><?= $statusBadge($user['status']) ?></td>
+                      <td class="is-muted"><?= $escape(date('M j, Y', strtotime((string) $user['created_at']))) ?></td>
+                    </tr>
                   <?php endforeach; ?>
-                </ul>
-              <?php endif; ?>
+                </tbody>
+              </table>
             </div>
+          <?php endif; ?>
+        </section>
+
+        <section class="dash-card admin-panel">
+          <div class="dash-card-head">
+            <h2><i class="ti ti-history"></i> Recent Activity</h2>
+            <a href="./admin/activity-logs">View all &rarr;</a>
           </div>
-        </div>
+
+          <?php if ($recentActivity === []): ?>
+            <p class="admin-empty">No activity recorded yet.</p>
+          <?php else: ?>
+            <ul class="admin-activity-list">
+              <?php foreach ($recentActivity as $item): ?>
+                <li class="admin-activity-item">
+                  <span class="admin-activity-icon <?= $activityColor($item['icon']) ?>">
+                    <i class="ti <?= $escape($activityIcon($item['icon'])) ?>"></i>
+                  </span>
+                  <div class="admin-activity-body">
+                    <div class="admin-activity-row">
+                      <strong><?= $escape($item['label']) ?></strong>
+                      <time><?= $escape($item['time_label']) ?></time>
+                    </div>
+                    <p><?= $escape($item['actor']) ?><?= $item['detail'] !== '' ? ' &middot; ' . $escape($item['detail']) : '' ?></p>
+                  </div>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          <?php endif; ?>
+        </section>
       </div>
-      <!-- [ Recent users / activity ] end -->
-    </div>
-  </div>
+    </main>
 
   <?php require __DIR__ . '/../../../includes/admin/footer.php'; ?>
 
-  <!-- Required Js -->
-  <script src="./dist/assets/js/plugins/simplebar.min.js"></script>
-  <script src="./dist/assets/js/plugins/popper.min.js"></script>
-  <script src="./dist/assets/js/icon/custom-icon.js"></script>
-  <script src="./dist/assets/js/plugins/feather.min.js"></script>
-  <script src="./dist/assets/js/component.js"></script>
-  <script src="./dist/assets/js/theme.js"></script>
-  <script src="./dist/assets/js/script.js"></script>
   <script src="./assets/js/admin/admin.js"></script>
 </body>
 </html>

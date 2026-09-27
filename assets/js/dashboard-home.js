@@ -368,10 +368,14 @@
 
     if (recentList && seeMore) {
         var checkScrollEnd = function () {
-            var reachedEnd = recentList.scrollTop + recentList.clientHeight >= recentList.scrollHeight - 4;
+            var hasOverflow = recentList.scrollHeight > recentList.clientHeight + 1;
+            var reachedEnd = hasOverflow
+                && recentList.scrollTop > 0
+                && recentList.scrollTop + recentList.clientHeight >= recentList.scrollHeight - 4;
             seeMore.classList.toggle('is-visible', reachedEnd);
         };
         recentList.addEventListener('scroll', checkScrollEnd);
+        window.addEventListener('resize', checkScrollEnd);
         checkScrollEnd();
     }
 })();

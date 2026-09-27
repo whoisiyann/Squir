@@ -819,12 +819,17 @@ a.mini-task:focus-visible {
   padding: 0;
   overflow-y: auto;
   list-style: none;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 .recent-list::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+}
+
+.recent-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
 }
 
 .recent-item {
@@ -1198,26 +1203,27 @@ a.mini-task:focus-visible {
 
 .clock-row { min-height: 42px; }
 
-/* World clock scrollbar */
-.clock-list,
+/* World clock catalog scrollbar */
 .clock-catalog {
   --scroll-track: var(--peach);
   --scroll-thumb: #d6b79f;
 }
 
-body.dashboard-dark .clock-list,
 body.dashboard-dark .clock-catalog {
   --scroll-track: #2a2119;
   --scroll-thumb: #7a5a34;
 }
 
+.clock-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
 /* Webkit scrollbar */
-.clock-list::-webkit-scrollbar,
 .clock-catalog::-webkit-scrollbar {
   width: 10px;
 }
 
-.clock-list::-webkit-scrollbar-track,
 .clock-catalog::-webkit-scrollbar-track {
   margin: 2px 0;
   border: 2px solid transparent;
@@ -1226,7 +1232,6 @@ body.dashboard-dark .clock-catalog {
   background-clip: padding-box;
 }
 
-.clock-list::-webkit-scrollbar-thumb,
 .clock-catalog::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
@@ -1235,17 +1240,23 @@ body.dashboard-dark .clock-catalog {
   transition: background-color .15s ease;
 }
 
-.clock-list::-webkit-scrollbar-thumb:hover,
-.clock-list::-webkit-scrollbar-thumb:active,
 .clock-catalog::-webkit-scrollbar-thumb:hover,
 .clock-catalog::-webkit-scrollbar-thumb:active {
   background: var(--accent);
   background-clip: padding-box;
 }
 
+.clock-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.clock-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+
 /* Firefox */
 @supports not selector(::-webkit-scrollbar) {
-  .clock-list,
   .clock-catalog {
     scrollbar-width: thin;
     scrollbar-color: var(--scroll-thumb) var(--scroll-track);
