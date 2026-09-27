@@ -1203,47 +1203,9 @@ a.mini-task:focus-visible {
 
 .clock-row { min-height: 42px; }
 
-/* World clock catalog scrollbar */
-.clock-catalog {
-  --scroll-track: var(--peach);
-  --scroll-thumb: #d6b79f;
-}
-
-body.dashboard-dark .clock-catalog {
-  --scroll-track: #2a2119;
-  --scroll-thumb: #7a5a34;
-}
-
 .clock-list {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
-}
-
-/* Webkit scrollbar */
-.clock-catalog::-webkit-scrollbar {
-  width: 10px;
-}
-
-.clock-catalog::-webkit-scrollbar-track {
-  margin: 2px 0;
-  border: 2px solid transparent;
-  border-radius: 999px;
-  background: var(--scroll-track);
-  background-clip: padding-box;
-}
-
-.clock-catalog::-webkit-scrollbar-thumb {
-  border: 2px solid transparent;
-  border-radius: 999px;
-  background: var(--scroll-thumb);
-  background-clip: padding-box;
-  transition: background-color .15s ease;
-}
-
-.clock-catalog::-webkit-scrollbar-thumb:hover,
-.clock-catalog::-webkit-scrollbar-thumb:active {
-  background: var(--accent);
-  background-clip: padding-box;
 }
 
 .clock-list::-webkit-scrollbar {
@@ -1255,12 +1217,18 @@ body.dashboard-dark .clock-catalog {
   border-radius: 99px;
 }
 
-/* Firefox */
-@supports not selector(::-webkit-scrollbar) {
-  .clock-catalog {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
-  }
+.clock-catalog {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.clock-catalog::-webkit-scrollbar {
+  width: 6px;
+}
+
+.clock-catalog::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
 }
 
 .clock-add-btn {

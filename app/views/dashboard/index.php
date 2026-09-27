@@ -73,7 +73,7 @@ $pageData = [
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap">
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
-    <link rel="stylesheet" href="./assets/css/dashboard.css?v=5">
+    <link rel="stylesheet" href="./assets/css/dashboard.css?v=6">
     <link rel="stylesheet" href="./assets/css/vault.css">
 </head>
 <body class="dashboard-page">

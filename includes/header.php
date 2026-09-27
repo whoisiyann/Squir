@@ -15,7 +15,7 @@
                 <div class="profile-dropdown" role="menu">
                     <div class="profile-dropdown-head">
                         <strong><?= htmlspecialchars($user['full_name'], ENT_QUOTES, 'UTF-8') ?></strong>
-                        <small>@<?= htmlspecialchars($user['username'] ?? '', ENT_QUOTES, 'UTF-8') ?></small>
+                        <small><?= htmlspecialchars($user['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></small>
                     </div>
                     <a href="./settings" role="menuitem"><i class="ti ti-settings"></i> Profile Settings</a>
                     <a href="./logout" role="menuitem" data-logout-trigger><i class="ti ti-logout"></i> Logout</a>
