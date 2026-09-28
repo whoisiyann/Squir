@@ -43,6 +43,42 @@ class ActivityLog
         'user_force_logout'=> ['label' => 'Forced a user logout',        'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'user'],
     ];
 
+    // Action categories.
+    private const CATEGORIES = [
+        'auth'      => ['label' => 'Sign in & out',   'actions' => ['logged_in', 'logged_out']],
+        'vault'     => ['label' => 'Vault',           'actions' => ['vault_unlocked', 'vault_created', 'vault_updated', 'vault_deleted', 'password_viewed', 'password_copied']],
+        'notes'     => ['label' => 'Notes',           'actions' => ['note_created', 'note_updated', 'note_deleted']],
+        'tasks'     => ['label' => 'Tasks',           'actions' => ['task_created', 'task_updated', 'task_deleted', 'task_completed', 'task_reopened']],
+        'folders'   => ['label' => 'Folders',         'actions' => ['folder_created', 'folder_renamed', 'folder_deleted']],
+        'favorites' => ['label' => 'Favorites',       'actions' => ['favorite_added', 'favorite_removed']],
+        'account'   => ['label' => 'Account',         'actions' => ['profile_updated', 'username_changed', 'email_changed', 'password_changed', 'pin_updated', 'data_exported', 'activity_cleared']],
+    ];
+
+    // Activity labels.
+    private const ADMIN_LABELS = [
+        'logged_in'         => 'Log in',
+        'logged_out'        => 'Log out',
+        'admin_logged_in'   => 'Admin log in',
+        'admin_logged_out'  => 'Admin log out',
+        'favorite_added'    => 'Added to favorites',
+        'favorite_removed'  => 'Removed from favorites',
+        'user_created'      => 'Account created',
+        'user_updated'      => 'Account updated',
+        'user_activated'    => 'Activated',
+        'user_deactivated'  => 'Deactivated',
+        'user_suspended'    => 'Suspended',
+        'user_deleted'      => 'Deleted',
+        'user_force_logout' => 'Forced logout',
+    ];
+
+    // Admin log page: text color of the Activity column.
+    private const TONES = [
+        'danger'  => ['user_suspended', 'user_deleted', 'user_deactivated', 'user_force_logout', 'vault_deleted', 'note_deleted', 'task_deleted', 'folder_deleted', 'activity_cleared'],
+        'warning' => ['favorite_added', 'favorite_removed', 'password_viewed', 'password_copied', 'vault_unlocked', 'pin_updated', 'password_changed', 'data_exported'],
+        'info'    => ['logged_in', 'logged_out', 'admin_logged_in', 'admin_logged_out'],
+        'success' => ['user_created', 'user_activated', 'vault_created', 'note_created', 'task_created', 'task_completed', 'folder_created'],
+    ];
+
     public function __construct(private PDO $db)
     {
     }
@@ -100,7 +136,7 @@ class ActivityLog
         $statement = $this->db->prepare(
             'SELECT action, description, created_at
              FROM activity_logs
-             WHERE user_id = :user_id
+             WHERE user_id = :user_id AND user_cleared_at IS NULL
              ORDER BY created_at DESC
              LIMIT :limit'
         );
@@ -165,6 +201,169 @@ class ActivityLog
         }
 
         return $items;
+    }
+
+    // Admin activity log helpers.
+
+    // Label for the Activity column / dropdown.
+    public static function adminLabel(string $action): string
+    {
+        if (isset(self::ADMIN_LABELS[$action])) {
+            return self::ADMIN_LABELS[$action];
+        }
+
+        return self::META[$action]['label'] ?? ucfirst(str_replace('_', ' ', $action));
+    }
+
+    // Action color group.
+    public static function tone(string $action): string
+    {
+        foreach (self::TONES as $tone => $actions) {
+            if (in_array($action, $actions, true)) {
+                return $tone;
+            }
+        }
+
+        return 'neutral';
+    }
+
+    // Action groups.
+    public static function actionGroups(): array
+    {
+        $groups = [];
+        foreach (self::CATEGORIES as $key => $category) {
+            $actions = [];
+            foreach ($category['actions'] as $action) {
+                $actions[$action] = self::adminLabel($action);
+            }
+            $groups[$key] = ['label' => $category['label'], 'actions' => $actions];
+        }
+
+        return $groups;
+    }
+
+    public static function isKnownAction(string $action): bool
+    {
+        foreach (self::CATEGORIES as $category) {
+            if (in_array($action, $category['actions'], true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function isKnownCategory(string $key): bool
+    {
+        return isset(self::CATEGORIES[$key]);
+    }
+
+    // Show the IP the same way as the rest of the admin pages.
+    public static function displayIp(?string $ip): string
+    {
+        $ip = self::normalizeIp($ip);
+
+        return $ip !== null && $ip !== '' ? $ip : '—';
+    }
+
+    // Build shared filters.
+    // Supported filters: action, dates, search, and user ID.
+    private function adminWhere(array $filters, array &$params): string
+    {
+        // Users only. Admin activity will get its own page.
+        $where = ['al.user_id IS NOT NULL', 'al.admin_id IS NULL'];
+
+        $action = (string) ($filters['action'] ?? 'all');
+        if (str_starts_with($action, 'cat:')) {
+            $key = substr($action, 4);
+            if (isset(self::CATEGORIES[$key])) {
+                $names = [];
+                foreach (self::CATEGORIES[$key]['actions'] as $i => $code) {
+                    $names[] = ':cat' . $i;
+                    $params['cat' . $i] = $code;
+                }
+                $where[] = 'al.action IN (' . implode(', ', $names) . ')';
+            }
+        } elseif ($action !== '' && $action !== 'all') {
+            $where[] = 'al.action = :action';
+            $params['action'] = $action;
+        }
+
+        if (!empty($filters['date_from'])) {
+            $where[] = 'al.created_at >= :date_from';
+            $params['date_from'] = $filters['date_from'] . ' 00:00:00';
+        }
+        if (!empty($filters['date_to'])) {
+            // Include the whole end day.
+            $where[] = 'al.created_at < :date_to';
+            $params['date_to'] = date('Y-m-d', strtotime($filters['date_to'] . ' +1 day')) . ' 00:00:00';
+        }
+
+        if (!empty($filters['user_id'])) {
+            $where[] = 'al.user_id = :user_id';
+            $params['user_id'] = (int) $filters['user_id'];
+        }
+
+        $q = trim((string) ($filters['q'] ?? ''));
+        if ($q !== '') {
+            // Escape LIKE wildcards.
+            $like = '%' . addcslashes($q, '\\%_') . '%';
+            $columns = ['u.full_name', 'u.username', 'u.email'];
+            $parts = [];
+            foreach ($columns as $i => $column) {
+                $parts[] = $column . ' LIKE :q' . $i;
+                $params['q' . $i] = $like;
+            }
+            $where[] = '(' . implode(' OR ', $parts) . ')';
+        }
+
+        return 'WHERE ' . implode(' AND ', $where);
+    }
+
+    // Search admin logs.
+    public function searchForAdmin(array $filters, int $limit = 30, int $offset = 0): array
+    {
+        $params = [];
+        $where = $this->adminWhere($filters, $params);
+
+        $statement = $this->db->prepare(
+            "SELECT al.log_id, al.action, al.description, al.ip_address, al.device, al.user_agent, al.created_at,
+                    al.user_id, al.admin_id,
+                    u.full_name AS user_name
+             FROM activity_logs al
+             LEFT JOIN users  u ON u.user_id  = al.user_id
+             $where
+             ORDER BY al.created_at DESC, al.log_id DESC
+             LIMIT :limit OFFSET :offset"
+        );
+        foreach ($params as $name => $value) {
+            $statement->bindValue(':' . $name, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Total rows for the same filters.
+    public function countForAdmin(array $filters): int
+    {
+        $params = [];
+        $where = $this->adminWhere($filters, $params);
+
+        $statement = $this->db->prepare(
+            "SELECT COUNT(*)
+             FROM activity_logs al
+             LEFT JOIN users  u ON u.user_id  = al.user_id
+             $where"
+        );
+        foreach ($params as $name => $value) {
+            $statement->bindValue(':' . $name, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $statement->execute();
+
+        return (int) $statement->fetchColumn();
     }
 
     // Get the client IP
@@ -345,16 +544,18 @@ class ActivityLog
     // Check for activity.
     public function hasEntries(int $userId): bool
     {
-        $statement = $this->db->prepare('SELECT 1 FROM activity_logs WHERE user_id = :user_id LIMIT 1');
+        $statement = $this->db->prepare('SELECT 1 FROM activity_logs WHERE user_id = :user_id AND user_cleared_at IS NULL LIMIT 1');
         $statement->execute(['user_id' => $userId]);
 
         return (bool) $statement->fetchColumn();
     }
 
-    // Clear user activity.
+    // Hide activity from the user.
     public function clearForUser(int $userId): bool
     {
-        $statement = $this->db->prepare('DELETE FROM activity_logs WHERE user_id = :user_id');
+        $statement = $this->db->prepare(
+            'UPDATE activity_logs SET user_cleared_at = NOW() WHERE user_id = :user_id AND user_cleared_at IS NULL'
+        );
 
         return $statement->execute(['user_id' => $userId]);
     }

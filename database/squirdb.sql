@@ -319,6 +319,7 @@ CREATE TABLE activity_logs (
     ip_address  VARCHAR(45)  NULL,
     device      VARCHAR(60)  NULL,   -- hal. "Windows (Chrome)", "iOS (Safari)"
     user_agent  VARCHAR(255) NULL,
+    user_cleared_at DATETIME NULL,   -- set when the user clears their log (hidden from the user, kept for admin)
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_activity_logs_user

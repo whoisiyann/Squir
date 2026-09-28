@@ -104,7 +104,11 @@
                 var dropdown = menuToggle.parentElement.querySelector('.admin-action-dropdown');
                 var isOpen = dropdown.classList.contains('open');
                 $all('.admin-action-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
-                if (!isOpen) dropdown.classList.add('open');
+                if (!isOpen) {
+                    dropdown.classList.add('open');
+                    placeDropdown(dropdown, menuToggle);
+                }
+                menuToggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
                 event.stopPropagation();
                 return;
             }
@@ -175,9 +179,26 @@
         });
     }
 
-    document.addEventListener('click', function () {
+    // Keep the menu above the scroll area.
+    function placeDropdown(dropdown, button) {
+        var rect = button.getBoundingClientRect();
+        var width = dropdown.offsetWidth;
+        var height = dropdown.offsetHeight;
+        var left = Math.min(Math.max(8, rect.right - width), window.innerWidth - width - 8);
+        var top = rect.bottom + 6;
+        if (top + height > window.innerHeight - 8) top = Math.max(8, rect.top - height - 6);
+        dropdown.style.left = left + 'px';
+        dropdown.style.top = top + 'px';
+        dropdown.style.right = 'auto';
+    }
+
+    function closeDropdowns() {
         $all('.admin-action-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
-    });
+        $all('[data-toggle-menu][aria-expanded="true"]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
+    }
+    document.addEventListener('click', closeDropdowns);
+    window.addEventListener('resize', closeDropdowns);
+    document.addEventListener('scroll', closeDropdowns, true); // scrolling any list or the page
 
     function fillEditModal(row) {
         var form = document.getElementById('editUserForm');

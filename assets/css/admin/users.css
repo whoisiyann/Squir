@@ -29,7 +29,7 @@
 @media (max-width:1100px){
     .admin-panel .dash-card-head.admin-users-head{ flex-wrap:wrap; row-gap:12px; align-items:stretch; }
     .admin-toolbar{ flex:1 1 100%; flex-wrap:wrap; justify-content:flex-start; }
-    .admin-toolbar .search-box{ flex:1 1 100%; max-width:none; order:2; }
+    .admin-toolbar .search-box{ flex:1 1 240px; max-width:none; order:2; }
     .admin-toolbar .admin-select{ order:1; }
     .admin-toolbar #openAddUserModal{ order:3; }
 }
@@ -46,9 +46,8 @@
 
     /* User list viewport. */
     .admin-users-table-wrap{
-        max-height:600px;
-        overflow-y:auto;
-        overflow-x:hidden;
+        max-height:none;
+        overflow:visible;
         width:100%;
         min-width:0;
         flex:0 0 auto;
@@ -56,7 +55,6 @@
         border:0;
         box-shadow:none;
         padding:2px 2px 4px;
-        scroll-snap-type:y proximity;
     }
 
     /* Mobile header. */
@@ -118,7 +116,6 @@
         border:1px solid var(--border);
         border-radius:var(--radius);
         box-shadow:var(--shadow);
-        scroll-snap-align:start;
     }
     .admin-users-table-wrap .admin-table tbody tr:last-child{ margin-bottom:2px; }
     .admin-users-table-wrap .admin-table tbody tr:hover{ background:var(--card); }
@@ -170,10 +167,24 @@
         word-break:break-word;
     }
 
+    /* Last login. */
+    .admin-users-table-wrap .admin-table td:nth-child(5){
+        display:block;
+        order:4;
+        flex:1 1 100%;
+        margin:4px 0 0 48px;
+        color:var(--muted);
+        font-size:.74rem;
+    }
+    .admin-users-table-wrap .admin-table td:nth-child(5)::before{
+        content:"Last login: ";
+        font-weight:600;
+    }
+
     /* Card divider. */
     .admin-users-table-wrap .admin-table tbody tr::after{
         content:"";
-        order:4;
+        order:5;
         flex:1 1 100%;
         border-top:1px solid var(--border);
         margin:12px 0 10px;
@@ -181,7 +192,7 @@
 
     /* Joined date. */
     .admin-users-table-wrap .admin-table td:nth-child(4){
-        order:5;
+        order:6;
         flex:0 0 auto;
         font-size:.8rem;
         white-space:nowrap;
@@ -195,15 +206,17 @@
 
     /* Row actions. */
     .admin-users-table-wrap .admin-table td:nth-child(6){
-        order:6;
+        order:7;
         flex:0 0 auto;
         margin-left:auto;
     }
     .admin-users-table-wrap .admin-row-actions{ justify-content:flex-end; gap:6px; }
     .admin-users-table-wrap .btn-admin-sm{ padding:6px 12px; font-size:.76rem; }
 
-    /* Hide last login on mobile. */
-    .admin-users-table-wrap .admin-table td:nth-child(5){ display:none; }
+
+    /* Bigger touch targets. */
+    .admin-users-table-wrap .btn-admin-sm{ padding:8px 14px; }
+    .admin-users-table-wrap .btn-admin-icon{ padding:8px 10px; }
 }
 
 /* Hide the calendar icon on desktop. */
@@ -213,6 +226,18 @@
 @media (min-width:701px){
     .admin-users-table-wrap{
         max-height:min(560px, 60vh);
+    }
+}
+
+/* Keep table columns readable on tablets. */
+@media (min-width:701px) and (max-width:1100px){
+    .admin-users-table-wrap .admin-table{ min-width:760px; }
+    .admin-users-table-wrap .admin-table th,
+    .admin-users-table-wrap .admin-table td{ padding-left:14px; padding-right:14px; white-space:nowrap; }
+    .admin-users-table-wrap .admin-table td.is-muted[data-label="Email"]{
+        max-width:220px;
+        overflow:hidden;
+        text-overflow:ellipsis;
     }
 }
 .admin-users-table-wrap .admin-table th{
@@ -269,7 +294,7 @@ a.btn-admin{ text-decoration:none; }
     display:none;
     z-index:30;
 }
-.admin-action-dropdown.open{ display:block; }
+.admin-action-dropdown.open{ display:block; position:fixed; z-index:60; }
 .admin-action-dropdown button{
     display:flex;
     width:100%;
@@ -429,3 +454,37 @@ a.btn-admin{ text-decoration:none; }
 
 /* Empty search state. */
 .admin-table tbody tr.is-hidden{ display:none; }
+
+/* Keep the phone toolbar visible while scrolling. */
+@media (max-width:700px){
+    .admin-panel.admin-panel--flush{
+        padding:0;
+        background:transparent;
+        border:0;
+        box-shadow:none;
+        overflow:visible;
+    }
+    .admin-panel.admin-panel--flush .dash-card-head.admin-users-head{ display:contents; }
+    .admin-panel.admin-panel--flush .dash-card-head.admin-users-head h2{ order:-2; margin-bottom:12px; }
+    .admin-panel.admin-panel--flush .dash-card-head.admin-users-head .admin-toolbar{
+        order:-1;
+        position:sticky;
+        top:-24px;
+        z-index:12;
+        margin:0 calc(-1 * var(--content-gutter)) 12px;
+        padding:8px var(--content-gutter) 10px;
+        background:var(--bg);
+        border-bottom:1px solid var(--border);
+    }
+    .admin-toolbar .search-box input,
+    .admin-toolbar .admin-select{ font-size:16px; } /* Prevent iOS zoom. */
+    .admin-empty{ padding:24px 12px; }
+}
+
+/* Very small phones. */
+@media (max-width:380px){
+    .admin-users-table-wrap .admin-table td:nth-child(1){ max-width:58%; }
+    .admin-users-table-wrap .admin-table td:nth-child(2),
+    .admin-users-table-wrap .admin-table td:nth-child(5){ margin-left:0; }
+    .admin-toolbar .admin-select{ max-width:110px; }
+}

@@ -39,11 +39,32 @@
             var open = !dropdown.classList.contains('open');
             dropdown.classList.toggle('open', open);
             menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) placeDropdown(dropdown, menuToggle);
         });
         document.addEventListener('click', function () {
             dropdown.classList.remove('open');
             menuToggle.setAttribute('aria-expanded', 'false');
         });
+        window.addEventListener('resize', closeMenu);
+        window.addEventListener('scroll', closeMenu, true);
+    }
+
+    function closeMenu() {
+        if (!dropdown || !dropdown.classList.contains('open')) return;
+        dropdown.classList.remove('open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    function placeDropdown(dropdown, button) {
+        var rect = button.getBoundingClientRect();
+        var width = dropdown.offsetWidth;
+        var height = dropdown.offsetHeight;
+        var left = Math.min(Math.max(8, rect.right - width), window.innerWidth - width - 8);
+        var top = rect.bottom + 6;
+        if (top + height > window.innerHeight - 8) top = Math.max(8, rect.top - height - 6);
+        dropdown.style.left = left + 'px';
+        dropdown.style.top = top + 'px';
+        dropdown.style.right = 'auto';
     }
 
     /* ---- Suspend / Activate ---- */

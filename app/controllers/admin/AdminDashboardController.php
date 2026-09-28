@@ -123,6 +123,7 @@ class AdminDashboardController
 			 FROM activity_logs al
 			 LEFT JOIN users  u ON u.user_id  = al.user_id
 			 LEFT JOIN admins a ON a.admin_id = al.admin_id
+			 WHERE al.user_id IS NOT NULL AND al.admin_id IS NULL
 			 ORDER BY al.created_at DESC
 			 LIMIT :limit"
 		);

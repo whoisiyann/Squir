@@ -1,7 +1,16 @@
-/* Admin - User Details page.
-   Everything here is minimalist: icons stay gray (var(--muted) on var(--soft)). */
+/* Admin user details page. */
 
 /* Heading + back link. */
+.admin-user-details .content-area{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+}
+.admin-user-details .content-area::-webkit-scrollbar{
+    display:none !important;
+    width:0;
+    height:0;
+}
+
 .ud-back{
     display:inline-flex;
     align-items:center;
@@ -136,8 +145,12 @@
 .ud-stat-text em{ display:block; margin-top:2px; color:var(--muted); font-size:.8rem; font-style:normal; }
 
 /* Recent activity table. */
-.ud-activity{ margin-bottom:8px; }
-.ud-activity-wrap{ max-height:none; overflow-x:auto; padding-right:0; }
+/* Let the page scroll to the activity panel. */
+.ud-activity{ flex:0 1 auto; min-height:auto; margin-bottom:8px; }
+.ud-activity-wrap{ flex:0 1 auto; min-height:auto; max-height:none; overflow-x:auto; padding-right:0; }
+/* Hide the scrollbar indicator. */
+.ud-activity-wrap{ scrollbar-width:none; }
+.ud-activity-wrap::-webkit-scrollbar{ display:none; }
 .ud-activity-table th,
 .ud-activity-table td{ padding-left:20px; padding-right:20px; }
 .ud-activity-table td{ white-space:nowrap; }
@@ -200,15 +213,66 @@
     .ud-stats{ padding:0 14px; gap:10px; }
     .ud-stat{ flex-direction:column; gap:10px; padding:12px; }
 
-    /* Stack activity rows on mobile */
-    .ud-activity-wrap{ overflow-x:hidden; padding:0 14px; }
-    .ud-activity-table td{ white-space:normal; }
-    .ud-activity-table tbody tr{ padding:12px 0; }
-    .ud-activity-table td:first-child{ padding-bottom:3px; }
-    .ud-activity-table td:not(:first-child){ padding:6px 0; }
-    .ud-activity-table td .ud-cell{ text-align:right; justify-content:flex-end; }
-    .ud-device{ align-items:flex-end; }
+    /* Keep the activity header visible while scrolling. */
+    .admin-panel.admin-panel--flush.ud-activity .dash-card-head{
+        position:sticky;
+        top:-24px;
+        z-index:12;
+        margin:0 calc(-1 * var(--content-gutter)) 12px;
+        padding:10px var(--content-gutter);
+        background:var(--bg);
+        border-bottom:1px solid var(--border);
+    }
+
+    /* Stack activity details on phones. */
+    .ud-activity-wrap{ overflow:visible; padding:0 14px; }
+    .ud-activity-table, .ud-activity-table tbody{ display:block; width:100%; }
+    .ud-activity-table tbody tr{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+        width:100%;
+        margin:0 0 12px;
+        padding:16px;
+        background:var(--card);
+        border:1px solid var(--border);
+        border-radius:var(--radius);
+        box-shadow:var(--shadow);
+    }
+    .ud-activity-table tbody tr:last-child{ margin-bottom:0; }
+    .ud-activity-table tbody tr:hover{ background:var(--card); }
+    .ud-activity-table td{
+        display:block;
+        width:auto;
+        padding:0;
+        border:0;
+        font-size:.86rem;
+        white-space:normal;
+    }
+    .ud-activity-table td::before{ content:none; }
+
+    /* Date & time */
+    .ud-activity-table td:nth-child(1) .ud-cell{ font-size:1rem; font-weight:700; color:var(--text); }
+    .ud-activity-table td:nth-child(1) .ud-cell i{ font-size:1.05rem; }
+
+    /* Align the mobile activity action. */
+    .ud-activity-table td:nth-child(2){ margin-top:-6px; }
+    .ud-activity-table td:nth-child(2) .ud-cell{ padding-left:25px; color:var(--muted); font-size:.92rem; }
+    .ud-activity-table td:nth-child(2) .ud-action-icon{ display:none; }
+
+    /* Device & IP */
+    .ud-activity-table td:nth-child(3) .ud-action-icon{ width:26px; height:26px; }
+    .ud-activity-table td:nth-child(3) .ud-action-icon i{ font-size:.9rem; }
+    .ud-device{ align-items:flex-start; }
     .ud-useragent{ max-width:200px; }
+}
+
+/* Very small phones. */
+@media (max-width:380px){
+    .ud-avatar{ width:56px; height:56px; font-size:1.1rem; }
+    .ud-profile-text strong{ font-size:1.05rem; }
+    .ud-actions{ flex-wrap:wrap; }
+    .ud-actions .btn-admin-primary span{ white-space:normal; }
 }
 
 /* Top actions */

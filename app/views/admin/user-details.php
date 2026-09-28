@@ -48,7 +48,7 @@ $statCards = [
   <link rel="stylesheet" href="<?= url('assets/css/admin/users.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/user-details.css') ?>" />
 </head>
-<body class="admin-page">
+<body class="admin-page admin-user-details">
 <div class="app-shell" id="adminShell">
 <script>
   try {
