@@ -64,7 +64,7 @@ class AdminDashboardController
 	{
 	}
 
-	// Load every piece of data the admin dashboard view needs
+	// Load admin dashboard data
 	public function index(): array
 	{
 		return [
@@ -74,7 +74,7 @@ class AdminDashboardController
 		];
 	}
 
-	// Card counts: total users, saved passwords, notes, and a task status breakdown
+	// Dashboard stats
 	private function loadStats(): array
 	{
 		$countUsers = (int) $this->db->query('SELECT COUNT(*) FROM users')->fetchColumn();
@@ -112,7 +112,7 @@ class AdminDashboardController
 		return $statement->fetchAll();
 	}
 
-	// Most recent activity across both users and admins
+	// Load user and admin activity
 	private function loadRecentActivity(int $limit): array
 	{
 		$statement = $this->db->prepare(
@@ -152,13 +152,13 @@ class AdminDashboardController
 		return $items;
 	}
 
-	// Fall back to a readable label built from the raw action string
+	// Format unknown action labels
 	private static function actionLabel(string $action): string
 	{
 		return self::ACTION_LABELS[$action] ?? ucfirst(str_replace('_', ' ', $action));
 	}
 
-	// Short relative time label ("12 minutes ago", "2 hours ago", ...)
+	// Format relative time
 	private static function timeAgo(string $datetime): string
 	{
 		$seconds = max(0, time() - strtotime($datetime));

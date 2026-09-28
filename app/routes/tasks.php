@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $taskId = (int) ($_POST['task_id'] ?? 0);
 
     try {
-        // Dispatch the requested task action
+        // Run task action
         switch ($_POST['ajax'] ?? '') {
             // Create a task
             case 'create':

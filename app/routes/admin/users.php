@@ -10,7 +10,7 @@ $adminId = requireAdminLogin();
 
 $admin = (new Admin($dbh))->findById($adminId);
 if (!$admin) {
-    // Admin account was deleted while the session was still active.
+    // Handle deleted admin session
     session_unset();
     session_destroy();
     header('Location: ' . url('login'));
@@ -19,7 +19,7 @@ if (!$admin) {
 
 $userModel = new User($dbh);
 $activityLog = new ActivityLog($dbh);
-$controller = new AdminUserController($userModel);
+$controller = new AdminUserController($userModel, $activityLog);
 
 // Send a JSON response and stop
 function adminUsersJson(array $payload, int $status = 200): void
@@ -39,16 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         adminUsersJson(['error' => 'Your session expired. Please refresh the page and try again.'], 403);
-    }
-
-    if ($action === 'add_user') {
-        $result = $controller->create($_POST);
-        if ($result['errors'] !== []) {
-            adminUsersJson(['error' => reset($result['errors']), 'errors' => $result['errors']], 422);
-        }
-
-        $activityLog->logAdmin($adminId, 'user_created', 'Added ' . ($result['values']['fullName'] ?? 'a new user'));
-        adminUsersJson(['success' => true]);
     }
 
     if ($action === 'update_user') {
@@ -72,6 +62,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $actionCode = $status === 'suspended' ? 'user_suspended' : ($status === 'active' ? 'user_activated' : 'user_deactivated');
         $activityLog->logAdmin($adminId, $actionCode, ucfirst($status) . ' ' . $result['user']['full_name']);
+        adminUsersJson(['success' => true]);
+    }
+
+    if ($action === 'force_logout') {
+        $userId = (int) ($_POST['user_id'] ?? 0);
+        $result = $controller->forceLogout($userId);
+        if ($result['errors'] !== []) {
+            adminUsersJson(['error' => reset($result['errors'])], 422);
+        }
+
+        $activityLog->logAdmin($adminId, 'user_force_logout', 'Forced logout for ' . $result['user']['full_name']);
         adminUsersJson(['success' => true]);
     }
 

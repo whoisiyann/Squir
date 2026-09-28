@@ -18,7 +18,7 @@
         });
     });
 
-    // Apply the selected theme (isDark: resolved light/dark state, not the raw preference)
+    // Apply the selected theme
     function applyTheme(isDark) {
         document.body.classList.toggle('dashboard-dark', isDark);
         document.documentElement.classList.remove('dashboard-dark-preload');
@@ -33,7 +33,7 @@
 
     var systemDarkQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-    // Resolve a stored preference ('light' | 'dark' | 'auto') to an actual light/dark state
+    // Resolve the theme preference
     function resolveIsDark(pref) {
         if (pref === 'dark') return true;
         if (pref === 'light') return false;
@@ -83,7 +83,7 @@
         try {
             window.localStorage.setItem(themeStorageKey, pref);
         } catch (error) {
-            // Ignore storage errors (private browsing, etc.)
+            // Ignore storage errors
         }
     }
 

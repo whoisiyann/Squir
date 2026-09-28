@@ -94,7 +94,7 @@
             if (!addMenu.contains(event.target)) {
                 setAddMenu(false);
             } else if (event.target.closest('.add-menu-item')) {
-                // let the click finish first (Vault opens the popup, Note submits the form)
+                // Let existing actions finish first
                 setTimeout(function () { setAddMenu(false); }, 0);
             }
         });

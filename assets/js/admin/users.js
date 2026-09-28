@@ -1,4 +1,4 @@
-// Squir Admin - Users page (search/filter, row actions, Add/Edit/View modals).
+// Admin user list actions
 (function () {
     function $(selector, scope) { return (scope || document).querySelector(selector); }
     function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
@@ -96,38 +96,7 @@
         }
     }
 
-    /* ---- Add User ---- */
-    var addBtn = document.getElementById('openAddUserModal');
-    if (addBtn) addBtn.addEventListener('click', function () { openModal('addUser'); });
-
-    var addForm = document.getElementById('addUserForm');
-    if (addForm) {
-        addForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            var submitBtn = $('button[type="submit"]', addForm);
-            if (submitBtn) submitBtn.disabled = true;
-
-            postAjax('add_user', {
-                full_name: addForm.full_name.value,
-                username: addForm.username.value,
-                email: addForm.email.value,
-                password: addForm.password.value,
-                password_confirmation: addForm.password_confirmation.value
-            }).then(function (result) {
-                if (submitBtn) submitBtn.disabled = false;
-                if (!result.ok) {
-                    showErrors(addForm, result.json.errors, result.json.error);
-                    return;
-                }
-                window.location.reload();
-            }).catch(function () {
-                if (submitBtn) submitBtn.disabled = false;
-                showErrors(addForm, {}, 'Could not reach the server. Please try again.');
-            });
-        });
-    }
-
-    /* ---- row-level: view / edit / status toggle / delete ---- */
+    /* Row actions */
     if (tableBody) {
         tableBody.addEventListener('click', function (event) {
             var menuToggle = event.target.closest('[data-toggle-menu]');
@@ -144,37 +113,63 @@
             if (!row) return;
             var userId = row.getAttribute('data-id');
 
-            if (event.target.closest('[data-view-user]')) {
-                fillViewModal(row);
-                openModal('viewUser');
-                return;
-            }
-
             if (event.target.closest('[data-edit-user]')) {
                 fillEditModal(row);
                 openModal('editUser');
                 return;
             }
 
+            var userName = row.getAttribute('data-name');
+
             if (event.target.closest('[data-toggle-status]')) {
                 var button = event.target.closest('[data-toggle-status]');
                 var nextStatus = button.getAttribute('data-next-status');
-                var label = nextStatus === 'suspended' ? 'suspend' : 'activate';
-                if (!window.confirm('Are you sure you want to ' + label + ' ' + row.getAttribute('data-name') + '?')) return;
+                var suspending = nextStatus === 'suspended';
 
-                postAjax('update_status', { user_id: userId, status: nextStatus }).then(function (result) {
-                    if (!result.ok) { window.alert(result.json.error || 'Something went wrong.'); return; }
-                    window.location.reload();
+                AdminAlert.confirm({
+                    title: suspending ? 'Suspend account?' : 'Activate account?',
+                    text: 'Are you sure you want to ' + (suspending ? 'suspend ' : 'activate ') + userName + '?',
+                    confirmText: suspending ? 'Suspend' : 'Activate',
+                    danger: suspending
+                }).then(function (ok) {
+                    if (!ok) return;
+                    postAjax('update_status', { user_id: userId, status: nextStatus }).then(function (result) {
+                        if (!result.ok) { AdminAlert.error(result.json.error); return; }
+                        window.location.reload();
+                    }).catch(function () { AdminAlert.error('Could not reach the server. Please try again.'); });
+                });
+                return;
+            }
+
+            if (event.target.closest('[data-force-logout]')) {
+                AdminAlert.confirm({
+                    title: 'Force logout?',
+                    text: 'Sign ' + userName + ' out of all devices?',
+                    confirmText: 'Force Logout'
+                }).then(function (ok) {
+                    if (!ok) return;
+                    postAjax('force_logout', { user_id: userId }).then(function (result) {
+                        if (!result.ok) { AdminAlert.error(result.json.error); return; }
+                        AdminAlert.success('Logged out', userName + ' has been signed out of all devices.');
+                    }).catch(function () { AdminAlert.error('Could not reach the server. Please try again.'); });
                 });
                 return;
             }
 
             if (event.target.closest('[data-delete-user]')) {
-                if (!window.confirm('Delete ' + row.getAttribute('data-name') + '? This cannot be undone.')) return;
-
-                postAjax('delete_user', { user_id: userId }).then(function (result) {
-                    if (!result.ok) { window.alert(result.json.error || 'Something went wrong.'); return; }
-                    window.location.reload();
+                AdminAlert.confirm({
+                    title: 'Delete user?',
+                    text: 'Delete ' + userName + '? This cannot be undone.',
+                    confirmText: 'Delete',
+                    danger: true
+                }).then(function (ok) {
+                    if (!ok) return;
+                    postAjax('delete_user', { user_id: userId }).then(function (result) {
+                        if (!result.ok) { AdminAlert.error(result.json.error); return; }
+                        AdminAlert.success('User deleted', userName + ' has been deleted.').then(function () {
+                            window.location.reload();
+                        });
+                    }).catch(function () { AdminAlert.error('Could not reach the server. Please try again.'); });
                 });
             }
         });
@@ -183,16 +178,6 @@
     document.addEventListener('click', function () {
         $all('.admin-action-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
     });
-
-    function fillViewModal(row) {
-        $('#viewUserAvatar').textContent = initials(row.getAttribute('data-name'));
-        $('#viewUserName').textContent = row.getAttribute('data-name');
-        $('#viewUserUsername').textContent = '@' + row.getAttribute('data-username');
-        $('#viewUserEmail').textContent = row.getAttribute('data-email');
-        $('#viewUserStatus').textContent = capitalize(row.getAttribute('data-status'));
-        $('#viewUserJoined').textContent = row.getAttribute('data-joined');
-        $('#viewUserLastLogin').textContent = row.getAttribute('data-lastlogin');
-    }
 
     function fillEditModal(row) {
         var form = document.getElementById('editUserForm');

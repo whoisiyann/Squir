@@ -2,6 +2,11 @@
 
 session_start();
 
+// Request phone model hints
+if (!headers_sent()) {
+    header('Accept-CH: Sec-CH-UA-Model');
+}
+
 require_once __DIR__ . '/dbconnect.php';
 require_once __DIR__ . '/../config/config.php';
 
@@ -28,11 +33,27 @@ function requireLogin(bool $requirePin = true): int
         exit;
     }
 
+    global $dbh;
+
     $userId = (int) $_SESSION['user_id'];
 
-    if ($requirePin && empty($_SESSION['has_pin'])) {
-        global $dbh;
+    // Enforce account and session status
+    $check = $dbh->prepare('SELECT status, UNIX_TIMESTAMP(force_logout_at) AS force_logout_at FROM users WHERE user_id = :uid');
+    $check->execute(['uid' => $userId]);
+    $account = $check->fetch(PDO::FETCH_ASSOC);
 
+    if (
+        !$account
+        || $account['status'] !== 'active'
+        || ($account['force_logout_at'] !== null && (int) $account['force_logout_at'] >= (int) ($_SESSION['login_at'] ?? 0))
+    ) {
+        session_unset();
+        session_destroy();
+        header('Location: ./login');
+        exit;
+    }
+
+    if ($requirePin && empty($_SESSION['has_pin'])) {
         $stmt = $dbh->prepare('SELECT 1 FROM user_pins WHERE user_id = :uid');
         $stmt->execute(['uid' => $userId]);
 

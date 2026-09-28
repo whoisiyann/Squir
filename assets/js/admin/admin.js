@@ -134,7 +134,7 @@
         });
     }
 
-    // Reveal the link when the panel reaches the bottom.
+    // Reveal link at panel bottom
     function setupScrollReveal(scrollId, moreId) {
         var scrollArea = document.getElementById(scrollId);
         var moreBlock = document.getElementById(moreId);

@@ -8,7 +8,7 @@ $adminId = requireAdminLogin();
 
 $admin = (new Admin($dbh))->findById($adminId);
 if (!$admin) {
-    // Admin account was deleted while the session was still active.
+    // Handle deleted admin session
     session_unset();
     session_destroy();
     header('Location: ' . url('login'));

@@ -91,6 +91,10 @@ switch ($route) {
         require __DIR__ . '/app/routes/admin/users.php';
         break;
 
+    case 'admin/user-details':
+        require __DIR__ . '/app/routes/admin/user-details.php';
+        break;
+
     default:
         http_response_code(404);
         echo '404 — Page not found.';

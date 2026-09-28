@@ -181,8 +181,7 @@
         deleteConfirm.disabled = true;
 
         request({ ajax: 'folder_delete', folder_id: selectedId }).then(function () {
-            // Reset the filter when its folder is deleted
-            // Reset the filter when its folder is deleted
+            // Reset filter after folder deletion
             reloadWithPanelOpen(selectedId === activeFolder ? './notes' : null);
         }).catch(function (error) {
             deleteError.textContent = error.message;

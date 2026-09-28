@@ -27,7 +27,7 @@ function settingsJson(array $payload, int $status = 200): void
     exit;
 }
 
-// Update account information (Edit modal)
+// Update account info
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_profile') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'request
     ]);
 }
 
-// Resend the pending email-change verification code
+// Resend email verification code
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'resend_email_change') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -229,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['export'] ?? '') === 'pdf') {
     exit;
 }
 
-// Determine which settings panel to render
+// Select settings panel
 $panel = $_GET['panel'] ?? 'index';
 $allowedPanels = ['index', 'activity-log', 'change-password', 'reset-pin'];
 if (!in_array($panel, $allowedPanels, true)) {

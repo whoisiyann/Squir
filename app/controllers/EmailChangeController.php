@@ -46,7 +46,7 @@ class EmailChangeController
         return ['errors' => [], 'new_email' => $newEmail, 'dev_code' => $devCode];
     }
 
-    // Resend the verification code for the pending request
+    // Resend email verification code
     public function resendCode(int $userId): array
     {
         $pending = $this->emailChangeModel->findPendingForUser($userId);
@@ -61,7 +61,7 @@ class EmailChangeController
         return ['errors' => [], 'new_email' => $pending['new_email'], 'dev_code' => $devCode];
     }
 
-    // Verify and apply the email change.
+    // Verify email change
     public function verifyAndApply(int $userId, string $code): array
     {
         $code = trim($code);

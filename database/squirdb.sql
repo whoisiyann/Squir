@@ -16,6 +16,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,   -- bcrypt (password_hash)
     status        ENUM('active','inactive','suspended') NOT NULL DEFAULT 'active',
     last_login_at DATETIME  NULL,
+    force_logout_at DATETIME NULL,          -- admin "Force Logout": older sessions are signed out
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                                           ON UPDATE CURRENT_TIMESTAMP,
@@ -51,7 +52,7 @@ CREATE TABLE user_pins (
     user_id          INT NOT NULL PRIMARY KEY,
     pin_hash         VARCHAR(255)     NOT NULL,
     failed_attempts  TINYINT UNSIGNED NOT NULL DEFAULT 0,
-    locked_until     DATETIME NULL,   -- temporary lockout matapos ang maling PIN
+    locked_until     DATETIME NULL,
     last_verified_at DATETIME NULL,
     created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -64,7 +65,7 @@ CREATE TABLE user_pins (
 
 
 
--- 2b. PASSWORD_RESETS — forgot-password verification codes
+-- 2b. PASSWORD_RESETS
 CREATE TABLE password_resets (
     reset_id    INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
@@ -85,7 +86,7 @@ CREATE INDEX idx_password_resets_user ON password_resets (user_id);
 
 
 
--- 2b-2. EMAIL_CHANGES — Settings > Edit Email verification codes
+-- 2b-2. EMAIL_CHANGES
 CREATE TABLE email_changes (
     change_id   INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
@@ -107,7 +108,7 @@ CREATE INDEX idx_email_changes_user ON email_changes (user_id);
 
 
 
--- 2c. PIN_RESETS — forgot-PIN verification codes
+-- 2c. PIN_RESETS
 CREATE TABLE pin_resets (
     reset_id    INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
@@ -129,7 +130,7 @@ CREATE INDEX idx_pin_resets_user ON pin_resets (user_id);
 
 
 
--- 3. FOLDERS — 
+-- 3. FOLDERS
 CREATE TABLE folders (
     folder_id   INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
@@ -155,7 +156,7 @@ CREATE INDEX idx_folders_user_type ON folders (user_id, folder_type);
 
 
 
--- 4. VAULT — naka-encrypt na account credentials
+-- 4. VAULT
 CREATE TABLE vault (
     vault_id         INT AUTO_INCREMENT PRIMARY KEY,
     user_id          INT NOT NULL,
@@ -183,7 +184,7 @@ CREATE INDEX idx_vault_user_title  ON vault (user_id, title);
 
 
 
--- 5. NOTES — personal notes (rich text)
+-- 5. NOTES
 CREATE TABLE notes (
     note_id    INT AUTO_INCREMENT PRIMARY KEY,
     user_id    INT NOT NULL,
@@ -225,7 +226,7 @@ CREATE TABLE tags (
 
 
 
--- 7. VAULT_TAGS — bridge/associative entity (M:N resolution)
+-- 7. VAULT_TAGS
 CREATE TABLE vault_tags (
     vault_id   INT NOT NULL,
     tag_id     INT NOT NULL,
@@ -305,7 +306,7 @@ CREATE TABLE favorites (
 
 
 
--- 10. ACTIVITY_LOGS — 
+-- 10. ACTIVITY_LOGS
 CREATE TABLE activity_logs (
     log_id      BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NULL,
@@ -316,6 +317,7 @@ CREATE TABLE activity_logs (
     entity_id   INT NULL,
     description VARCHAR(255) NOT NULL,
     ip_address  VARCHAR(45)  NULL,
+    device      VARCHAR(60)  NULL,   -- hal. "Windows (Chrome)", "iOS (Safari)"
     user_agent  VARCHAR(255) NULL,
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -337,7 +339,7 @@ CREATE INDEX idx_logs_action       ON activity_logs (action);
 
 
 
--- -- 11. SEED: ADMINISTRATOR ACCOUNT
+-- 11. SEED: ADMINISTRATOR ACCOUNT
 --   php -r "echo password_hash('adminvault123', PASSWORD_DEFAULT), PHP_EOL;"
 
 -- INSERT INTO admins (full_name, username, email, password_hash)

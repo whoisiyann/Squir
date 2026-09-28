@@ -24,16 +24,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($errors === []) {
         // Matched a regular user account.
+        (new User($dbh))->touchLastLogin((int) $result['values']['user_id']);
         (new ActivityLog($dbh))->log((int) $result['values']['user_id'], 'logged_in');
         session_regenerate_id(true);
         unset($_SESSION['has_pin']);
         clearPinUnlock();
         $_SESSION['user_id'] = (int) $result['values']['user_id'];
+        $_SESSION['login_at'] = time();
         header('Location: ./dashboard');
         exit;
     }
 
-    // Check admin credentials after a failed user login.
+    // Check admin login
     if (isset($errors['form']) && $errors['form'] === 'The email or password is incorrect.') {
         $adminResult = (new AdminAuthController(new Admin($dbh)))->login($_POST);
 
@@ -50,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Show a specific admin error when available.
+        // Show admin login error
         if (isset($adminResult['errors']['form']) && $adminResult['errors']['form'] !== 'The email or password is incorrect.') {
             $errors = $adminResult['errors'];
         }

@@ -121,7 +121,7 @@
             countEl.innerHTML = '<i class="ti ti-star"></i> ' + remaining + ' favorite ' + cfg.label + (remaining === 1 ? '' : 's');
         }
         if (rows.length === 0) {
-            // Let the server render the correct empty state for this type
+            // Let the server render the empty state
             window.location.reload();
         } else if (lastSearchTerm && remaining === 0) {
             ensureNoResultsEl().style.display = '';

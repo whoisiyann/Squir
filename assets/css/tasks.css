@@ -460,7 +460,7 @@ html.dashboard-dark-preload {
   background: var(--card);
 }
 
-/* Status flyout ("Mark task as >" / "Move all to >") */
+/* Status flyout */
 .task-submenu {
   min-width: 190px;
   border-radius: 16px;

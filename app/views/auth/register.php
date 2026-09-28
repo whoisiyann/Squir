@@ -90,7 +90,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
                 <p class="auth-switch">Already have an account? <a href="./login">Log in</a></p>
             </div>
 
-            <!-- Swaps in over the sign-up form when "Terms of Service" / "Privacy Policy" is clicked -->
+            <!-- Show terms and privacy -->
             <div class="terms-view" id="termsView" hidden>
                 <button type="button" class="terms-view-close" id="termsViewClose" aria-label="Back to sign up"><i class="ti ti-arrow-left"></i></button>
 

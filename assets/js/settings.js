@@ -91,7 +91,7 @@
             if (deleteBackdrop && deleteConfirmBtn && deleteCancelBtn && deleteErrorEl) {
                 openDeleteAccountModal();
             } else if (window.confirm('Are you sure you want to delete your account? This will permanently remove your vault, notes, tasks, and all related data. This cannot be undone.')) {
-                // Use a browser prompt when the modal is unavailable
+                // Fallback to browser prompt
                 postAjax('delete_account', {}).then(function (result) {
                     if (result.ok) window.location.href = './login';
                 });
@@ -158,7 +158,7 @@
         input.addEventListener('click', function () { makeEditable(input); });
     });
 
-    /* Edit Email — verification code step */
+    /* Email verification */
     var editAccountFormEl = document.getElementById('editAccountForm');
     var emailCodePanel = document.getElementById('emailChangeCodePanel');
     var emailCodeBoxes = $all('#emailChangeCodeInputs .pin-modal-box');
@@ -169,7 +169,7 @@
     var emailChangeCancelBtn = document.getElementById('emailChangeCancelBtn');
     var pendingNewEmail = '';
 
-    // Show the code-entry step and hide the account-info form
+    // Show email verification step
     function showEmailCodeStep(newEmail, devCode) {
         pendingNewEmail = newEmail;
         document.getElementById('emailChangeTargetEmail').textContent = newEmail;
@@ -190,7 +190,7 @@
         if (emailCodeBoxes[0]) emailCodeBoxes[0].focus();
     }
 
-    // Back to the normal account-info form
+    // Return to account form
     function resetEditAccountModal() {
         pendingNewEmail = '';
         if (editAccountFormEl) editAccountFormEl.hidden = false;
@@ -312,7 +312,7 @@
         emailChangeCancelBtn.addEventListener('click', function () { resetEditAccountModal(); });
     }
 
-    /* Edit account — full name, username, and (if changed) email */
+    /* Edit account */
     if (editAccountFormEl) {
         editAccountFormEl.addEventListener('submit', function (event) {
             event.preventDefault();

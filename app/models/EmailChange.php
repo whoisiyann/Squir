@@ -43,7 +43,7 @@ class EmailChange
         return ['code' => $code, 'ttl_minutes' => $ttl];
     }
 
-    // Fetch the pending (unused) request for a user, if any
+    // Get pending user request
     public function findPendingForUser(int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -114,7 +114,7 @@ class EmailChange
         $stmt->execute(['uid' => $userId]);
     }
 
-    // Clear any pending request for a user (e.g. on cancel)
+    // Clear pending request
     public function clearForUser(int $userId): void
     {
         $stmt = $this->dbh->prepare('DELETE FROM email_changes WHERE user_id = :uid');

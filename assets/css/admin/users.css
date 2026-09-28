@@ -245,6 +245,7 @@
 .btn-admin-danger{ background:var(--danger); color:#fff; }
 .btn-admin-danger:hover{ opacity:.9; }
 .btn-admin-sm{ padding:6px 12px; font-size:.78rem; }
+a.btn-admin{ text-decoration:none; }
 .btn-admin-icon{ padding:6px 9px; }
 
 /* Row actions. */

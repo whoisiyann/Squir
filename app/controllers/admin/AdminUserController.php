@@ -1,20 +1,38 @@
 <?php
 require_once __DIR__ . '/../../models/User.php';
+require_once __DIR__ . '/../../models/ActivityLog.php';
 
 class AdminUserController
 {
 	private const STATUSES = ['active', 'inactive', 'suspended'];
 
-	public function __construct(private User $user)
+	private const RECENT_ACTIVITY_LIMIT = 5;
+
+	public function __construct(private User $user, private ?ActivityLog $activityLog = null)
 	{
 	}
 
-	// Data for the Users page: stat cards + the full user list
+	// Load user list data
 	public function index(): array
 	{
 		return [
 			'stats' => $this->user->adminStats(),
 			'users' => $this->user->allForAdmin(),
+		];
+	}
+
+	// Load user details
+	public function show(int $userId): ?array
+	{
+		$user = $this->user->findById($userId);
+		if (!$user) {
+			return null;
+		}
+
+		return [
+			'user'     => $user,
+			'stats'    => $this->user->adminDetailStats($userId),
+			'activity' => $this->activityLog ? $this->activityLog->recentForAdmin($userId, self::RECENT_ACTIVITY_LIMIT) : [],
 		];
 	}
 
@@ -80,7 +98,7 @@ class AdminUserController
 		return ['errors' => [], 'values' => [], 'user_id' => $userId];
 	}
 
-	// Handle "Edit User" form submission
+	// Update user
 	public function update(int $userId, array $input): array
 	{
 		$fullName = trim((string) ($input['full_name'] ?? ''));
@@ -130,7 +148,7 @@ class AdminUserController
 		return ['errors' => [], 'values' => compact('fullName', 'username', 'email')];
 	}
 
-	// Activate / suspend / deactivate a user account
+	// Update user status
 	public function updateStatus(int $userId, string $status): array
 	{
 		if (!in_array($status, self::STATUSES, true)) {
@@ -143,6 +161,19 @@ class AdminUserController
 		}
 
 		$this->user->updateStatus($userId, $status);
+
+		return ['errors' => [], 'user' => $user];
+	}
+
+	// Force user logout
+	public function forceLogout(int $userId): array
+	{
+		$user = $this->user->findById($userId);
+		if (!$user) {
+			return ['errors' => ['form' => 'That user could not be found.']];
+		}
+
+		$this->user->forceLogout($userId);
 
 		return ['errors' => [], 'user' => $user];
 	}

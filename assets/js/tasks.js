@@ -876,7 +876,7 @@
         for (var i = 0; i < closers.length; i++) closers[i].addEventListener('click', modal.close);
     });
 
-    // Close only the active dialog on Escape
+    // Close active dialog on Escape
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
         if (menu) { closeMenu(); return; }
@@ -897,7 +897,7 @@
 
     render();
 
-    // Open task dialogs from URL parameters
+    // Open task from URL
     (function () {
         var params = new URLSearchParams(window.location.search);
         var wantsNew = params.get('new') === '1';

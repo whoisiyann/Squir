@@ -11,7 +11,7 @@ $controller = new PinController($pinModel);
 $csrfToken = csrfToken();
 
 
-// Redirect users who already have a PIN
+// Redirect users with a PIN
 if ($controller->hasPin($userId)) {
     $_SESSION['has_pin'] = true;
     header('Location: ./dashboard');

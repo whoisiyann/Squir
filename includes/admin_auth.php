@@ -2,7 +2,7 @@
 
 // Admin session helpers.
 
-// Require an authenticated admin, or redirect to the admin login page
+// Require admin login
 function requireAdminLogin(): int
 {
 	if (empty($_SESSION['admin_id'])) {
@@ -13,13 +13,13 @@ function requireAdminLogin(): int
 	return (int) $_SESSION['admin_id'];
 }
 
-// Whether the current session belongs to a logged-in admin
+// Check admin session
 function adminLoggedIn(): bool
 {
 	return !empty($_SESSION['admin_id']);
 }
 
-// Initials for the admin avatar bubble in the header/sidebar
+// Get admin initials
 function adminInitials(string $fullName): string
 {
 	$parts = preg_split('/\s+/', trim($fullName), -1, PREG_SPLIT_NO_EMPTY) ?: [];

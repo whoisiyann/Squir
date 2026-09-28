@@ -16,7 +16,7 @@ class PinResetController
     ) {
     }
 
-    // Handle "forgot PIN" code requests for the logged-in user
+    // Request a PIN reset code
     public function requestCode(int $userId, array $input): array
     {
         $email = strtolower(trim((string) ($input['email'] ?? '')));
@@ -30,7 +30,7 @@ class PinResetController
         $user = $this->userModel->findById($userId);
 
         if (!$user || strtolower((string) $user['email']) !== $email) {
-            // Don't confirm/deny which part was wrong — just that it doesn't match this account
+            // Avoid revealing account details
             $errors['email'] = 'That email does not match the one on your account.';
             return ['errors' => $errors, 'dev_code' => null];
         }
@@ -40,7 +40,7 @@ class PinResetController
         return ['errors' => [], 'dev_code' => $devCode];
     }
 
-    // Resend the reset code to the account's own email
+    // Resend PIN reset code
     public function resendCode(int $userId): ?string
     {
         $user = $this->userModel->findById($userId);
@@ -63,7 +63,7 @@ class PinResetController
         return $this->resetModel->verify($userId, $code);
     }
 
-    // Apply the new PIN once the code has been verified
+    // Apply verified PIN
     public function applyNewPin(int $userId, array $input): array
     {
         $new = trim((string) ($input['new_pin'] ?? ''));

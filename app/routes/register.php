@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($errors === []) {
             session_regenerate_id(true);
             $_SESSION['user_id'] = (int) $result['user_id'];
+            $_SESSION['login_at'] = time();
             unset($_SESSION['has_pin']);
             clearPinUnlock();
 

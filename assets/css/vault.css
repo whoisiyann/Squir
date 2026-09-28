@@ -18,7 +18,7 @@
   margin-left: auto;
 }
 
-/* grid / list view toggle (segmented control) */
+ /* Grid/list toggle */
 .vault-view-toggle {
   display: flex;
   align-items: center;
@@ -258,7 +258,7 @@
 .vault-table th.col-password,
 .vault-table td.col-password { text-align: left; }
 
-/* item cell (icon + title + website/username + tags) */
+ /* Vault item details */
 .vault-item-cell {
   display: flex;
   align-items: center;
@@ -634,7 +634,7 @@
   min-height: 78px;
 }
 
-/* 2-column field row (Name/Website, Username/Password on edit modal) */
+ /* Two-column form fields */
 .vault-field-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -655,7 +655,7 @@
 }
 
 
-/* password field with reveal + generate icons */
+ /* Password field actions */
 .vault-password-field {
   position: relative;
 }
@@ -835,7 +835,7 @@
   }
 }
 
-/* ---- Mobile: stack toolbar, turn table into cards ---- */
+ /* Mobile table cards */
 @media (max-width: 700px) {
   .vault-toolbar {
     flex-direction: column;
@@ -940,7 +940,7 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* show a label before value, using data-label attribute from HTML */
+   /* Show data labels on mobile */
   .vault-table td.col-user::before,
   .vault-table td.col-password::before {
     content: attr(data-label);
@@ -962,7 +962,7 @@
     margin-top: 8px;
   }
 
-  /* Mobile stacked-card view acts like grid view, so show tags/notes there too */
+  /* Show tags and notes on mobile */
   .vault-table-wrap:not(.grid-view) .vault-tag-chips {
     display: flex;
   }

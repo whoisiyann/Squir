@@ -66,7 +66,7 @@ html.dashboard-dark-preload {
   --card-shadow: 0 1px 3px rgba(0, 0, 0, .5);
 }
 
-/* Dark/light mode slide transition — used by the themeToggle button (see dashboard.js) */
+/* Theme transition */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -217,7 +217,7 @@ button, input {
   transition: opacity .24s ease;
 }
 
-/* Collapsed: swap the hamburger icon for the Squir mark, same button re-expands */
+/* Collapsed sidebar icon */
 .sidebar-collapsed .sidebar-collapse-btn .collapse-icon-menu {
   opacity: 0;
 }

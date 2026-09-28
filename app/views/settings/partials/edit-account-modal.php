@@ -59,7 +59,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
             </div>
         </form>
 
-        <!-- Email verification step: shown after a new email is submitted -->
+        <!-- Email verification step -->
         <div id="emailChangeCodePanel" class="settings-email-code-panel" hidden>
             <span class="pin-lock" aria-hidden="true"><i class="ti ti-mail-opened"></i></span>
             <p class="settings-code-subtitle">

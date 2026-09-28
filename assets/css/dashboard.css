@@ -972,7 +972,7 @@ a.mini-task:focus-visible {
   transform: translate(-50%, 0);
 }
 
-/* "New Credential" popup on the dashboard: primary button colour */
+/* New credential popup button */
 .dashboard-page .vault-modal-actions .btn-squir {
   color: var(--button-text);
   background: var(--dark);
@@ -1193,7 +1193,7 @@ a.mini-task:focus-visible {
   container-name: clocks;
 }
 
-/* shows 3 clocks (Local + 2 added); the 4th one scrolls */
+/* Show three clocks; scroll the rest */
 .clock-list {
   min-height: 142px;
   max-height: 142px;

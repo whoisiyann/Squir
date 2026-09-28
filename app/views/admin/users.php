@@ -120,7 +120,6 @@ $fmtLastLogin = static function (?string $value): string {
               <i class="ti ti-search"></i>
               <input type="search" id="usersSearch" placeholder="Search by name or email..." aria-label="Search by name or email" autocomplete="off">
             </div>
-            <button type="button" class="btn-admin btn-admin-primary" id="openAddUserModal"><i class="ti ti-plus"></i> <span>Add User</span></button>
           </div>
         </div>
 
@@ -151,9 +150,7 @@ $fmtLastLogin = static function (?string $value): string {
                       data-name="<?= $escape($user['full_name']) ?>"
                       data-username="<?= $escape($user['username']) ?>"
                       data-email="<?= $escape($user['email']) ?>"
-                      data-status="<?= $escape($user['status']) ?>"
-                      data-joined="<?= $escape($fmtJoined($user['created_at'])) ?>"
-                      data-lastlogin="<?= $escape($fmtLastLogin($user['last_login_at'])) ?>">
+                      data-status="<?= $escape($user['status']) ?>">
                     <td>
                       <div class="admin-name-cell">
                         <span class="admin-avatar-chip <?= $avatarColor($user) ?>"><?= $escape(userInitials($user['full_name'])) ?></span>
@@ -166,13 +163,13 @@ $fmtLastLogin = static function (?string $value): string {
                     <td class="is-muted" data-label="Last Login"><?= $escape($fmtLastLogin($user['last_login_at'])) ?></td>
                     <td data-label="Actions">
                       <div class="admin-row-actions">
-                        <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" data-view-user><i class="ti ti-eye"></i> View</button>
+                        <a class="btn-admin btn-admin-outline btn-admin-sm" href="<?= url('admin/user-details?id=' . (int) $user['user_id']) ?>"><i class="ti ti-eye"></i> View</a>
                         <div class="admin-action-menu">
                           <button type="button" class="btn-admin btn-admin-outline btn-admin-icon" data-toggle-menu aria-haspopup="menu" aria-expanded="false" aria-label="More actions"><i class="ti ti-chevron-down"></i></button>
                           <div class="admin-action-dropdown" role="menu">
-                            <button type="button" role="menuitem" data-edit-user><i class="ti ti-pencil"></i> Edit</button>
                             <button type="button" role="menuitem" data-toggle-status data-next-status="<?= $escape($nextStatus) ?>"><i class="ti <?= $toggleIcon ?>"></i> <?= $escape($toggleLabel) ?></button>
-                            <button type="button" role="menuitem" class="is-danger" data-delete-user><i class="ti ti-trash"></i> Delete</button>
+                            <button type="button" role="menuitem" data-force-logout><i class="ti ti-logout"></i> Force Logout</button>
+                            <button type="button" role="menuitem" class="is-danger" data-delete-user><i class="ti ti-trash"></i> Delete User</button>
                           </div>
                         </div>
                       </div>
@@ -190,54 +187,6 @@ $fmtLastLogin = static function (?string $value): string {
     </main>
 
   <?php require __DIR__ . '/../../../includes/admin/footer.php'; ?>
-
-  <!-- Add user modal -->
-  <div class="admin-modal-backdrop" id="addUserModalBackdrop">
-    <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="addUserModalTitle">
-      <div class="admin-modal-header">
-        <h2 id="addUserModalTitle">Add User</h2>
-        <button type="button" class="icon-btn" data-close-modal="addUser" aria-label="Close"><i class="ti ti-x"></i></button>
-      </div>
-      <form id="addUserForm" autocomplete="off">
-        <p class="admin-form-alert"></p>
-
-        <div class="admin-field">
-          <label for="addFullName">Full Name</label>
-          <input type="text" id="addFullName" name="full_name" maxlength="100" required>
-          <p class="admin-field-error" data-error-for="full_name"></p>
-        </div>
-
-        <div class="admin-field">
-          <label for="addUsername">Username</label>
-          <input type="text" id="addUsername" name="username" maxlength="50" placeholder="Leave blank to auto-generate">
-          <p class="admin-field-error" data-error-for="username"></p>
-        </div>
-
-        <div class="admin-field">
-          <label for="addEmail">Email</label>
-          <input type="email" id="addEmail" name="email" maxlength="100" required>
-          <p class="admin-field-error" data-error-for="email"></p>
-        </div>
-
-        <div class="admin-field">
-          <label for="addPassword">Password</label>
-          <input type="password" id="addPassword" name="password" autocomplete="new-password" required>
-          <p class="admin-field-error" data-error-for="password"></p>
-        </div>
-
-        <div class="admin-field">
-          <label for="addPasswordConfirmation">Confirm Password</label>
-          <input type="password" id="addPasswordConfirmation" name="password_confirmation" autocomplete="new-password" required>
-          <p class="admin-field-error" data-error-for="password_confirmation"></p>
-        </div>
-
-        <div class="admin-modal-actions">
-          <button type="button" class="btn-admin btn-admin-outline" data-close-modal="addUser">Cancel</button>
-          <button type="submit" class="btn-admin btn-admin-primary">Add User</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- Edit user modal -->
   <div class="admin-modal-backdrop" id="editUserModalBackdrop">
@@ -276,35 +225,10 @@ $fmtLastLogin = static function (?string $value): string {
     </div>
   </div>
 
-  <!-- View user modal -->
-  <div class="admin-modal-backdrop" id="viewUserModalBackdrop">
-    <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="viewUserModalTitle">
-      <div class="admin-modal-header">
-        <h2 id="viewUserModalTitle">User Details</h2>
-        <button type="button" class="icon-btn" data-close-modal="viewUser" aria-label="Close"><i class="ti ti-x"></i></button>
-      </div>
-
-      <div class="admin-view-profile">
-        <span class="admin-view-avatar" id="viewUserAvatar"></span>
-        <div class="admin-view-profile-text">
-          <strong id="viewUserName"></strong>
-          <small id="viewUserUsername"></small>
-        </div>
-      </div>
-
-      <div class="admin-view-row"><span>Email</span><span id="viewUserEmail"></span></div>
-      <div class="admin-view-row"><span>Status</span><span id="viewUserStatus"></span></div>
-      <div class="admin-view-row"><span>Joined</span><span id="viewUserJoined"></span></div>
-      <div class="admin-view-row"><span>Last Login</span><span id="viewUserLastLogin"></span></div>
-
-      <div class="admin-modal-actions">
-        <button type="button" class="btn-admin btn-admin-outline" data-close-modal="viewUser">Close</button>
-      </div>
-    </div>
-  </div>
-
   <script>window.ADMIN_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;</script>
   <script src="<?= url('assets/js/admin/admin.js') ?>"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="<?= url('assets/js/admin/admin-alert.js') ?>"></script>
   <script src="<?= url('assets/js/admin/users.js') ?>"></script>
 </body>
 </html>

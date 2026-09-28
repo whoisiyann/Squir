@@ -89,7 +89,7 @@ class User
 		]);
 	}
 
-	// Update profile information (name and username only — email changes go through updateEmail())
+	// Update profile name and username
 	public function updateProfile(int $userId, string $fullName, string $username): bool
 	{
 		$statement = $this->db->prepare(
@@ -103,7 +103,7 @@ class User
 		]);
 	}
 
-	// Update the login email (called only after the new address is code-verified)
+	// Update verified login email
 	public function updateEmail(int $userId, string $email): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET email = :email WHERE user_id = :id');
@@ -112,6 +112,13 @@ class User
 			'email' => $email,
 			'id' => $userId,
 		]);
+	}
+
+	// Record last login
+	public function touchLastLogin(int $userId): void
+	{
+		$statement = $this->db->prepare('UPDATE users SET last_login_at = NOW() WHERE user_id = :id');
+		$statement->execute(['id' => $userId]);
 	}
 
 	// Delete the account and related data
@@ -124,7 +131,7 @@ class User
 
 
 
-	// All users, newest first, for the admin Users table
+	// List users for admin
 	public function allForAdmin(): array
 	{
 		$statement = $this->db->query(
@@ -136,7 +143,7 @@ class User
 		return $statement->fetchAll();
 	}
 
-	// Card counts for the admin Users page: total / active / suspended / new this week
+	// Get admin user stats
 	public function adminStats(): array
 	{
 		$total = (int) $this->db->query('SELECT COUNT(*) FROM users')->fetchColumn();
@@ -154,7 +161,7 @@ class User
 		];
 	}
 
-	// Change a user's account status (active / inactive / suspended)
+	// Update user status
 	public function updateStatus(int $userId, string $status): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET status = :status WHERE user_id = :id');
@@ -162,7 +169,41 @@ class User
 		return $statement->execute(['status' => $status, 'id' => $userId]);
 	}
 
-	// Update a user from the admin panel.
+	// Invalidate existing sessions
+	public function forceLogout(int $userId): bool
+	{
+		$statement = $this->db->prepare('UPDATE users SET force_logout_at = NOW() WHERE user_id = :id');
+
+		return $statement->execute(['id' => $userId]);
+	}
+
+	// Get user detail stats
+	public function adminDetailStats(int $userId): array
+	{
+		$statement = $this->db->prepare(
+			"SELECT
+				(SELECT COUNT(*) FROM vault   WHERE user_id = :vault_user)   AS credentials,
+				(SELECT COUNT(*) FROM notes   WHERE user_id = :notes_user)   AS notes,
+				(SELECT COUNT(*) FROM tasks   WHERE user_id = :tasks_user AND status <> 'done') AS tasks,
+				(SELECT COUNT(*) FROM folders WHERE user_id = :folders_user) AS folders"
+		);
+		$statement->execute([
+			'vault_user'   => $userId,
+			'notes_user'   => $userId,
+			'tasks_user'   => $userId,
+			'folders_user' => $userId,
+		]);
+		$row = $statement->fetch() ?: [];
+
+		return [
+			'credentials' => (int) ($row['credentials'] ?? 0),
+			'notes'       => (int) ($row['notes'] ?? 0),
+			'tasks'       => (int) ($row['tasks'] ?? 0),
+			'folders'     => (int) ($row['folders'] ?? 0),
+		];
+	}
+
+	// Update user from admin panel
 	public function adminUpdate(int $userId, string $fullName, string $username, string $email): bool
 	{
 		$ok = $this->updateProfile($userId, $fullName, $username);

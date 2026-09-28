@@ -15,7 +15,7 @@ class SettingsController
     ) {
     }
 
-    // Update account information (full name and username — email changes have their own verification flow)
+    // Update profile details
     public function updateProfile(int $userId, array $post): array
     {
         $fullName = trim((string) ($post['full_name'] ?? ''));
@@ -123,13 +123,13 @@ class SettingsController
         return ['errors' => []];
     }
 
-    // Load recent activity for the activity log panel
+    // Load recent activity
     public function listActivity(int $userId, int $limit = 50): array
     {
         return $this->activityLog->listForUser($userId, $limit);
     }
 
-    // Clear all activity log entries for the user
+    // Clear user activity log
     public function clearActivityLog(int $userId): bool
     {
         return $this->activityLog->clearForUser($userId);

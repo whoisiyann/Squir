@@ -465,8 +465,7 @@
     try { savedView = window.localStorage.getItem(VIEW_KEY); } catch (error) {}
     if (savedView === 'grid') setView('grid');
 
-    // ---- Auto-highlight vault item in dashboard "Recent Credentials" click ----
-    // Highlight a vault item opened from the dashboard
+    // Highlight dashboard vault item
     (function () {
         var params = new URLSearchParams(window.location.search);
         var highlightId = params.get('highlight');
@@ -569,7 +568,7 @@
             setTimeout(function () { row.classList.remove('vault-item-highlight'); }, 1700);
         }
 
-        // Open a vault result from a dashboard link
+        // Open dashboard vault link
         function jumpToVaultId(id, title) {
             if (title !== undefined) input.value = title; // autocomplete search bar
             var row = tableWrap.querySelector('tr[data-vault-id="' + id + '"]');

@@ -118,7 +118,7 @@ window.SquirPin = (function () {
 
         sendPin(pin).then(function (json) {
             if (json && json.ok) {
-                // Export verification does not unlock vault passwords
+                // Export check does not unlock the vault
                 if (ttlSeconds > 0 && currentReason !== 'export') {
                     unlockedUntil = Date.now() + ttlSeconds * 1000;
                 }
