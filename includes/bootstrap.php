@@ -82,7 +82,7 @@ function cleanPreferences(array $input): array
 }
 
 
-function requireLogin(bool $requirePin = true): int
+function requireLogin(bool $requirePin = true, bool $requireUsername = true): int
 {
     if (empty($_SESSION['user_id'])) {
         header('Location: ./login');
@@ -94,7 +94,7 @@ function requireLogin(bool $requirePin = true): int
     $userId = (int) $_SESSION['user_id'];
 
     // Enforce account and session status
-    $check = $dbh->prepare('SELECT status, UNIX_TIMESTAMP(force_logout_at) AS force_logout_at FROM users WHERE user_id = :uid');
+    $check = $dbh->prepare('SELECT status, username, UNIX_TIMESTAMP(force_logout_at) AS force_logout_at FROM users WHERE user_id = :uid');
     $check->execute(['uid' => $userId]);
     $account = $check->fetch(PDO::FETCH_ASSOC);
 
@@ -119,6 +119,12 @@ function requireLogin(bool $requirePin = true): int
             header('Location: ./pin');
             exit;
         }
+    }
+
+    // New accounts pick their username right after creating a PIN
+    if ($requirePin && $requireUsername && trim((string) $account['username']) === '') {
+        header('Location: ./username');
+        exit;
     }
 
     return $userId;

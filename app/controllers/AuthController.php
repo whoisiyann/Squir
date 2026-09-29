@@ -11,7 +11,6 @@ class AuthController
 	public function register(array $input): array
 	{
 		$fullName = trim((string) ($input['full_name'] ?? ''));
-		$username = trim((string) ($input['username'] ?? ''));
 		$email = strtolower(trim((string) ($input['email'] ?? '')));
 		$password = (string) ($input['password'] ?? '');
 		$passwordConfirmation = (string) ($input['password_confirmation'] ?? '');
@@ -21,18 +20,6 @@ class AuthController
 			$errors['full_name'] = 'Full name is required.';
 		} elseif (mb_strlen($fullName) > 100) {
 			$errors['full_name'] = 'Full name must be 100 characters or fewer.';
-		}
-
-		if ($username === '' && $fullName !== '') {
-			$username = $this->createUsernameFromName($fullName);
-		}
-
-		if ($username === '') {
-			$errors['username'] = 'Username is required.';
-		} elseif (!preg_match('/^[A-Za-z0-9_.-]{3,50}$/', $username)) {
-			$errors['username'] = 'Username must be 3-50 letters, numbers, dots, dashes, or underscores.';
-		} elseif ($this->user->usernameExists($username)) {
-			$errors['username'] = 'Username is already taken.';
 		}
 
 		if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -60,21 +47,21 @@ class AuthController
 		}
 
 		if ($errors !== []) {
-			return ['errors' => $errors, 'values' => compact('fullName', 'username', 'email')];
+			return ['errors' => $errors, 'values' => compact('fullName', 'email')];
 		}
 
 		try {
 
 			$userId = $this->user->create(
 				$fullName,
-				$username,
+				null, // Username is asked after the PIN step
 				$email,
 				password_hash($password, PASSWORD_DEFAULT)
 			);
 		} catch (PDOException $exception) {
 			return [
 				'errors' => ['form' => 'We could not create your account right now. Please try again.'],
-				'values' => compact('fullName', 'username', 'email'),
+				'values' => compact('fullName', 'email'),
 			];
 		}
 
@@ -118,19 +105,33 @@ class AuthController
 		return ['errors' => [], 'values' => $user];
 	}
 
-	// Generate an available username
-	private function createUsernameFromName(string $fullName): string
+	// Save the name Squir uses to greet the user
+	public function setUsername(int $userId, array $input): array
 	{
-		$base = strtolower(trim((string) preg_replace('/[^A-Za-z0-9]+/', '-', $fullName), '-'));
-		$base = substr($base ?: 'user', 0, 44);
-		$username = $base;
-		$suffix = 1;
+		$username = trim((string) ($input['username'] ?? ''));
+		$errors = [];
 
-		while ($this->user->usernameExists($username)) {
-			$username = $base . '-' . $suffix;
-			$suffix++;
+		if ($username === '') {
+			$errors['username'] = 'Please tell Squir what to call you.';
+		} elseif (!preg_match('/^[A-Za-z0-9_.-]{3,50}$/', $username)) {
+			$errors['username'] = 'Use 3-50 letters, numbers, dots, dashes, or underscores.';
+		} elseif ($this->user->usernameExists($username, $userId)) {
+			$errors['username'] = 'That name is already taken. Try another one.';
 		}
 
-		return $username;
+		if ($errors !== []) {
+			return ['errors' => $errors, 'values' => ['username' => $username]];
+		}
+
+		try {
+			$this->user->updateUsername($userId, $username);
+		} catch (PDOException $exception) {
+			return [
+				'errors' => ['username' => 'We could not save that name right now. Please try again.'],
+				'values' => ['username' => $username],
+			];
+		}
+
+		return ['errors' => [], 'values' => ['username' => $username]];
 	}
 }

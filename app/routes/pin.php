@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($errors === []) {
             $_SESSION['has_pin'] = true;
             $_SESSION['flash_success'] = 'Your PIN is ready.';
-            header('Location: ./dashboard');
+            header('Location: ./username');
             exit;
         }
     }

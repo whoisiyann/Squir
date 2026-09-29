@@ -69,7 +69,7 @@ class User
 	}
 
 	// Create user
-	public function create(string $fullName, string $username, string $email, string $passwordHash): int
+	public function create(string $fullName, ?string $username, string $email, string $passwordHash): int
 	{
 		$statement = $this->db->prepare(
 			'INSERT INTO users (full_name, username, email, password_hash, status)
@@ -84,6 +84,17 @@ class User
 		]);
 
 		return (int) $this->db->lastInsertId();
+	}
+
+	// Save the name Squir calls the user
+	public function updateUsername(int $userId, string $username): bool
+	{
+		$statement = $this->db->prepare('UPDATE users SET username = :username WHERE user_id = :id');
+
+		return $statement->execute([
+			'username' => $username,
+			'id' => $userId,
+		]);
 	}
 
 	// Update password hash

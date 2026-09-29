@@ -13,7 +13,8 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 $user = $dashboard['user'];
 $counts = $dashboard['counts'];
 $board = $dashboard['taskBoard'];
-$firstName = explode(' ', trim($user['full_name']))[0] ?: $user['username'];
+$username = trim((string) ($user['username'] ?? ''));
+$firstName = $username !== '' ? $username : (explode(' ', trim($user['full_name']))[0] ?: 'there');
 $initials = userInitials($user['full_name']);
 
 $hour = (int) date('G');

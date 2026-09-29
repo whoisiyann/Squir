@@ -11,7 +11,7 @@ USE squirdb;
 CREATE TABLE users (
     user_id       INT AUTO_INCREMENT PRIMARY KEY,
     full_name     VARCHAR(100) NOT NULL,
-    username      VARCHAR(50)  NOT NULL,
+    username      VARCHAR(50)  NULL,
     email         VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,   -- bcrypt (password_hash)
     status        ENUM('active','inactive','suspended') NOT NULL DEFAULT 'active',
@@ -389,10 +389,8 @@ CREATE INDEX idx_logs_action       ON activity_logs (action);
 --   php -r "echo password_hash('adminvault123', PASSWORD_DEFAULT), PHP_EOL;"
 
 
-
-
--- INSERT INTO admins (full_name, username, email, password_hash)
--- VALUES ('Admin', 'admin', 'squirvault@gmail.com', '$2y$10$KWQz1tjq6CX3D5VhsWKdRuidaN390QjVy7BL3Iohezdq8sCxYz9hi');
+INSERT INTO admins (full_name, username, email, password_hash)
+VALUES ('Admin', 'Admin', 'squirvault@gmail.com', '$2y$10$KWQz1tjq6CX3D5VhsWKdRuidaN390QjVy7BL3Iohezdq8sCxYz9hi');
 
 
 -- email: squirvault@gmail.com

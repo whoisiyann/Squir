@@ -48,6 +48,10 @@ switch ($route) {
         require __DIR__ . '/app/routes/pin.php';
         break;
 
+    case 'username':
+        require __DIR__ . '/app/routes/username.php';
+        break;
+
     case 'dashboard':
         require __DIR__ . '/app/routes/dashboard.php';
         break;
