@@ -469,7 +469,8 @@ a.btn-admin{ text-decoration:none; }
     .admin-panel.admin-panel--flush .dash-card-head.admin-users-head .admin-toolbar{
         order:-1;
         position:sticky;
-        top:-24px;
+        top:var(--stick-top, -24px);
+        transition:top .28s cubic-bezier(.2,.8,.2,1);
         z-index:12;
         margin:0 calc(-1 * var(--content-gutter)) 12px;
         padding:8px var(--content-gutter) 10px;

@@ -85,7 +85,7 @@ $titles = [
               <span class="as-role-chip">Administrator</span>
             </div>
             <button type="button" class="btn-admin btn-admin-outline" id="asOpenEdit">
-              <i class="ti ti-pencil" aria-hidden="true"></i> Edit Profile
+              <i class="ti ti-pencil" aria-hidden="true"></i> Edit
             </button>
           </div>
 

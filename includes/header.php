@@ -1,9 +1,12 @@
 <header class="topbar">
     <div class="topbar-inner">
         <button class="mobile-toggle-btn" id="mobileBtn" type="button" aria-label="Open menu"><i class="ti ti-menu-2"></i></button>
+        <a class="topbar-brand" href="./dashboard" aria-label="Squir dashboard"><img src="./assets/images/squir.png" alt=""><span class="topbar-brand-text">Squir</span></a>
+        <button class="search-toggle-btn" id="searchToggle" type="button" aria-label="Open search" aria-expanded="false"><i class="ti ti-search"></i></button>
         <div class="search-box" id="globalSearch">
             <i class="ti ti-search"></i>
             <input type="search" id="globalSearchInput" placeholder="Search anything..." aria-label="Search" autocomplete="off" aria-controls="globalSearchResults" aria-expanded="false">
+            <button class="search-close-btn" id="searchClose" type="button" aria-label="Close search"><i class="ti ti-x"></i></button>
             <div class="search-results" id="globalSearchResults" role="listbox" aria-label="Search results"></div>
         </div>
         <div class="topbar-actions">

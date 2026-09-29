@@ -386,3 +386,84 @@
         if (event.key === 'Escape' && backdrop.classList.contains('open')) closeLogoutModal();
     });
 })();
+
+// Mobile topbar: hide on scroll down, show on scroll up, tap search icon to search
+(function () {
+    var topbar = document.querySelector('.topbar');
+    if (!topbar) return;
+
+    var mobileQuery = window.matchMedia('(max-width: 700px)');
+    var lastY = 0;
+
+    function showTopbar() {
+        topbar.classList.remove('topbar-hidden');
+    }
+
+    function hideTopbar() {
+        var profileMenu = document.getElementById('profileMenu');
+        // Keep the header visible while a menu, the sidebar or search is open
+        if (topbar.classList.contains('search-open')) return;
+        if (profileMenu && profileMenu.classList.contains('open')) return;
+        if (document.querySelector('.mobile-open')) return;
+        topbar.classList.add('topbar-hidden');
+    }
+
+    // Scroll events do not bubble, so listen in the capture phase
+    document.addEventListener('scroll', function (event) {
+        var target = event.target;
+        var isPage = target === document;
+        if (!isPage && !(target.classList && target.classList.contains('content-area'))) return;
+
+        if (!mobileQuery.matches) {
+            showTopbar();
+            return;
+        }
+
+        var y = Math.max(0, isPage ? (window.pageYOffset || 0) : target.scrollTop);
+        var delta = y - lastY;
+        if (Math.abs(delta) < 8) return; // ignore tiny movements
+
+        if (y <= 0 || delta < 0) {
+            showTopbar();
+        } else if (y > topbar.offsetHeight) {
+            hideTopbar();
+        }
+        lastY = y;
+    }, { passive: true, capture: true });
+
+    if (mobileQuery.addEventListener) {
+        mobileQuery.addEventListener('change', showTopbar);
+    }
+
+    // Search icon opens the search bar, X closes it
+    var searchToggle = document.getElementById('searchToggle');
+    var searchClose = document.getElementById('searchClose');
+    var searchBox = topbar.querySelector('.search-box');
+    var searchInput = searchBox ? searchBox.querySelector('input') : null;
+
+    function setSearchOpen(open) {
+        topbar.classList.toggle('search-open', open);
+        if (searchToggle) searchToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) {
+            showTopbar();
+            if (searchInput) searchInput.focus();
+        } else if (searchInput) {
+            searchInput.value = '';
+            searchInput.blur();
+            // let the existing search code clear its results panel
+            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }
+
+    if (searchToggle) {
+        searchToggle.addEventListener('click', function () { setSearchOpen(true); });
+    }
+    if (searchClose) {
+        searchClose.addEventListener('click', function () { setSearchOpen(false); });
+    }
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && topbar.classList.contains('search-open')) setSearchOpen(false);
+        });
+    }
+})();

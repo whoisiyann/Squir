@@ -518,7 +518,8 @@ body.dashboard-dark .al-date-fields input{ color-scheme:dark; }
     .al-heading > div:first-child{ margin-bottom:14px; }
     .al-toolbar{
         position:sticky;
-        top:-24px;
+        top:var(--stick-top, -24px);
+        transition:top .28s cubic-bezier(.2,.8,.2,1);
         z-index:12;
         width:auto;
         margin:0 calc(-1 * var(--content-gutter)) 14px;
