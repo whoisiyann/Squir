@@ -38,7 +38,8 @@
         exportLinkTop: $('#alExportTop'),
         userChip: $('#alUserChip'),
         userChipName: $('#alUserChipName'),
-        userChipClear: $('#alUserChipClear')
+        userChipClear: $('#alUserChipClear'),
+        clearBtns: document.querySelectorAll('[data-al-clear]')
     };
 
     var initial = {};
@@ -500,6 +501,99 @@
                 els.refresh.classList.remove('is-spinning');
             }, wait);
         });
+    });
+
+    /* ---------- Clear activity logs ---------- */
+    var clearRanges = {};
+    try { clearRanges = JSON.parse(root.getAttribute('data-clear-ranges') || '{}'); } catch (e) { clearRanges = {}; }
+    var csrfToken = window.ADMIN_CSRF_TOKEN || '';
+
+    function setClearBusy(on) {
+        Array.prototype.forEach.call(els.clearBtns, function (btn) { btn.disabled = on; });
+    }
+
+    // Step 1: pick which date range to clear.
+    function chooseClearRange() {
+        return Swal.fire({
+            title: 'Clear activity logs',
+            text: 'Choose which logs to delete.',
+            input: 'radio',
+            inputOptions: clearRanges,
+            inputValue: 'today',
+            inputValidator: function (value) { return value ? undefined : 'Please choose a date range.'; },
+            showCancelButton: true,
+            confirmButtonText: 'Continue',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#6b3f2a',
+            reverseButtons: true,
+            customClass: { popup: 'al-swal' }
+        }).then(function (result) { return result.isConfirmed ? result.value : null; });
+    }
+
+    function postClear(range) {
+        var body = new URLSearchParams();
+        body.set('ajax', 'clear_logs');
+        body.set('csrf_token', csrfToken);
+        body.set('range', range);
+
+        return fetch(endpoint, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: body.toString()
+        }).then(function (response) {
+            return response.json().then(function (json) {
+                return { ok: response.ok, json: json };
+            });
+        });
+    }
+
+    function startClear() {
+        if (!window.Swal || !window.AdminAlert) {
+            window.alert('The dialog could not load. Please refresh the page and try again.');
+            return;
+        }
+
+        chooseClearRange().then(function (range) {
+            if (!range) return;
+            var label = clearRanges[range] || range;
+
+            return AdminAlert.confirm({
+                title: 'Delete these logs?',
+                text: 'This will permanently delete the user activity logs for: ' + label + '. This cannot be undone.',
+                confirmText: 'Yes, delete',
+                danger: true
+            }).then(function (confirmed) {
+                if (!confirmed) return;
+
+                setClearBusy(true);
+                return postClear(range).then(function (result) {
+                    if (!result.ok) {
+                        throw new Error(result.json && result.json.error ? result.json.error : 'Could not clear the activity logs.');
+                    }
+
+                    var deleted = result.json.deleted || 0;
+                    reload();
+                    if (deleted === 0) {
+                        return Swal.fire({
+                            icon: 'info',
+                            title: 'Nothing to clear',
+                            text: 'There are no logs for: ' + label + '.',
+                            confirmButtonColor: '#6b3f2a'
+                        });
+                    }
+                    return AdminAlert.success('Logs cleared', deleted + ' log' + (deleted === 1 ? '' : 's') + ' deleted.');
+                });
+            });
+        }).catch(function (error) {
+            AdminAlert.error(error && error.message ? error.message : 'Could not reach the server. Please try again.');
+        }).then(function () {
+            setClearBusy(false);
+        });
+    }
+
+    Array.prototype.forEach.call(els.clearBtns, function (btn) {
+        btn.addEventListener('click', startClear);
     });
 
     /* ---------- Clear filters and retry ---------- */

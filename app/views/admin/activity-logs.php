@@ -60,7 +60,8 @@ $filtersJson = json_encode([
           data-endpoint="<?= $escape(url('admin/activity-logs')) ?>"
           data-filters="<?= $escape($filtersJson) ?>"
           data-has-more="<?= $hasMore ? '1' : '0' ?>"
-          data-user-name="<?= $escape($filterUser ?? '') ?>">
+          data-user-name="<?= $escape($filterUser ?? '') ?>"
+          data-clear-ranges="<?= $escape(json_encode(ActivityLog::clearRanges())) ?>">
 
       <div class="page-heading al-heading">
         <div>
@@ -159,6 +160,12 @@ $filtersJson = json_encode([
                    value="<?= $escape($filters['q']) ?>" autocomplete="off" maxlength="100">
           </div>
 
+          <!-- Mobile clear action -->
+          <button type="button" class="al-clear al-clear-top" id="alClearTop" data-al-clear
+                  aria-label="Clear activity logs" title="Clear activity logs">
+            <i class="ti ti-trash" aria-hidden="true"></i><span>Clear Activity Logs</span>
+          </button>
+
           <!-- Mobile export action -->
           <a class="al-export al-export-top" id="alExportTop" href="<?= $escape(url('admin/activity-logs?export=csv')) ?>"
              aria-label="Export CSV" title="Export CSV">
@@ -218,6 +225,9 @@ $filtersJson = json_encode([
       </section>
 
       <div class="al-export-row">
+        <button type="button" class="al-clear" id="alClear" data-al-clear>
+          <i class="ti ti-trash" aria-hidden="true"></i> Clear Activity Logs
+        </button>
         <a class="al-export" id="alExport" href="<?= $escape(url('admin/activity-logs?export=csv')) ?>">
           <i class="ti ti-download" aria-hidden="true"></i> Export
         </a>
@@ -226,6 +236,9 @@ $filtersJson = json_encode([
 
   <?php require __DIR__ . '/../../../includes/admin/footer.php'; ?>
 
+  <script>window.ADMIN_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;</script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="<?= url('assets/js/admin/admin-alert.js') ?>"></script>
   <script src="<?= url('assets/js/admin/admin.js') ?>"></script>
   <script src="<?= url('assets/js/admin/activity-logs.js') ?>"></script>
 </body>

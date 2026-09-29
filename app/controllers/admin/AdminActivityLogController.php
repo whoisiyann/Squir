@@ -99,6 +99,21 @@ class AdminActivityLogController
 		return $rows;
 	}
 
+	// Delete logs in a date range.
+	public function clear(string $range): array
+	{
+		$ranges = ActivityLog::clearRanges();
+		if (!isset($ranges[$range])) {
+			return ['errors' => ['Please choose a valid date range.'], 'deleted' => 0, 'label' => ''];
+		}
+
+		return [
+			'errors'  => [],
+			'deleted' => $this->activityLog->clearForAdmin($range),
+			'label'   => $ranges[$range],
+		];
+	}
+
 	// Format a table row.
 	private function present(array $row): array
 	{

@@ -17,7 +17,8 @@ if (!$admin) {
     exit;
 }
 
-$controller = new AdminActivityLogController(new ActivityLog($dbh), new User($dbh));
+$activityLog = new ActivityLog($dbh);
+$controller = new AdminActivityLogController($activityLog, new User($dbh));
 
 // Send a JSON response and stop
 function adminLogsJson(array $payload, int $status = 200): void
@@ -38,6 +39,37 @@ function adminLogsCsvCell(mixed $value): string
     }
 
     return $text;
+}
+
+// Clear logs (POST)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ((string) ($_POST['ajax'] ?? '') !== 'clear_logs') {
+        adminLogsJson(['error' => 'Unknown request.'], 400);
+    }
+
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        adminLogsJson(['error' => 'Your session expired. Please refresh the page and try again.'], 403);
+    }
+
+    try {
+        $result = $controller->clear((string) ($_POST['range'] ?? ''));
+    } catch (PDOException $exception) {
+        adminLogsJson(['error' => 'Could not clear the activity logs. Please try again.'], 500);
+    }
+
+    if ($result['errors'] !== []) {
+        adminLogsJson(['error' => reset($result['errors'])], 422);
+    }
+
+    if ($result['deleted'] > 0) {
+        $activityLog->logAdmin(
+            $adminId,
+            'logs_cleared',
+            'Cleared ' . $result['deleted'] . ' user activity log' . ($result['deleted'] === 1 ? '' : 's') . ' (' . $result['label'] . ')'
+        );
+    }
+
+    adminLogsJson(['success' => true, 'deleted' => $result['deleted'], 'label' => $result['label']]);
 }
 
 $filters = $controller->filters($_GET);
@@ -89,5 +121,6 @@ $hasMore = $data['has_more'];
 $filters = $data['filters'];
 $actionGroups = $data['actionGroups'];
 $filterUser = $data['filterUser'];
+$csrfToken = csrfToken();
 
 require __DIR__ . '/../../views/admin/activity-logs.php';

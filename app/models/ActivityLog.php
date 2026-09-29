@@ -41,6 +41,7 @@ class ActivityLog
         'user_suspended'   => ['label' => 'Suspended a user',            'detail' => null,                             'icon' => 'ti-user-off',      'entity' => 'user'],
         'user_deleted'     => ['label' => 'Deleted a user',              'detail' => null,                             'icon' => 'ti-user-x',        'entity' => 'user'],
         'user_force_logout'=> ['label' => 'Forced a user logout',        'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'user'],
+        'logs_cleared'     => ['label' => 'Cleared activity logs',       'detail' => null,                             'icon' => 'ti-trash',         'entity' => 'system'],
     ];
 
     // Action categories.
@@ -364,6 +365,62 @@ class ActivityLog
         $statement->execute();
 
         return (int) $statement->fetchColumn();
+    }
+
+    // Date ranges the admin can clear.
+    public static function clearRanges(): array
+    {
+        return [
+            'today'     => 'Today',
+            'yesterday' => 'Yesterday',
+            'last7'     => 'Last 7 days',
+            'last30'    => 'Last 30 days',
+            'older30'   => 'Older than 30 days',
+            'all'       => 'All logs',
+        ];
+    }
+
+    // Permanently delete user logs in a date range. Returns the number deleted.
+    public function clearForAdmin(string $range): int
+    {
+        // Same base filter as the admin list: user activity only.
+        $where = ['user_id IS NOT NULL', 'admin_id IS NULL'];
+        $params = [];
+        $startOfDay = static fn (int $daysAgo): string => date('Y-m-d', strtotime('-' . $daysAgo . ' day')) . ' 00:00:00';
+
+        switch ($range) {
+            case 'today':
+                $where[] = 'created_at >= :from';
+                $params['from'] = $startOfDay(0);
+                break;
+            case 'yesterday':
+                $where[] = 'created_at >= :from';
+                $where[] = 'created_at < :to';
+                $params['from'] = $startOfDay(1);
+                $params['to'] = $startOfDay(0);
+                break;
+            case 'last7':
+                $where[] = 'created_at >= :from';
+                $params['from'] = $startOfDay(6);
+                break;
+            case 'last30':
+                $where[] = 'created_at >= :from';
+                $params['from'] = $startOfDay(29);
+                break;
+            case 'older30':
+                $where[] = 'created_at < :to';
+                $params['to'] = $startOfDay(29);
+                break;
+            case 'all':
+                break;
+            default:
+                throw new InvalidArgumentException('Unknown date range.');
+        }
+
+        $statement = $this->db->prepare('DELETE FROM activity_logs WHERE ' . implode(' AND ', $where));
+        $statement->execute($params);
+
+        return $statement->rowCount();
     }
 
     // Get the client IP
