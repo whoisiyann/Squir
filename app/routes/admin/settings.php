@@ -44,6 +44,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         adminSettingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
     }
 
+    // Save theme + accent color
+    if ($ajax === 'save_preferences') {
+        $clean = cleanPreferences($_POST);
+
+        try {
+            $adminModel->updatePreferences($adminId, $clean['theme'], $clean['accent']);
+        } catch (PDOException $exception) {
+            adminSettingsJson(['error' => 'Could not save your appearance.'], 500);
+        }
+
+        $current = sessionPreferences('admin');
+        $_SESSION['prefs_admin'] = [
+            'theme'  => $clean['theme'] ?? $current['theme'],
+            'accent' => $clean['accent'] ?? $current['accent'],
+        ];
+
+        adminSettingsJson(['success' => true]);
+    }
+
     // Profile update
     if ($ajax === 'update_profile') {
         try {

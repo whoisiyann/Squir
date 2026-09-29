@@ -218,4 +218,26 @@ class User
 
 		return $this->updateEmail($userId, $email) && $ok;
 	}
+
+	// Save theme and accent color
+	public function updatePreferences(int $userId, ?string $theme, ?string $accent): void
+	{
+		$sets = [];
+		$params = ['id' => $userId];
+
+		if ($theme !== null) {
+			$sets[] = 'theme_pref = :theme';
+			$params['theme'] = $theme;
+		}
+		if ($accent !== null) {
+			$sets[] = 'accent_color = :accent';
+			$params['accent'] = $accent;
+		}
+		if ($sets === []) {
+			return;
+		}
+
+		$statement = $this->db->prepare('UPDATE users SET ' . implode(', ', $sets) . ' WHERE user_id = :id');
+		$statement->execute($params);
+	}
 }

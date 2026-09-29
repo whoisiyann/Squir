@@ -27,6 +27,29 @@ function settingsJson(array $payload, int $status = 200): void
     exit;
 }
 
+// Save theme + accent color
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save_preferences') {
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
+    }
+
+    $clean = cleanPreferences($_POST);
+
+    try {
+        $userModel->updatePreferences($userId, $clean['theme'], $clean['accent']);
+    } catch (PDOException $exception) {
+        settingsJson(['error' => 'Could not save your appearance.'], 500);
+    }
+
+    $current = sessionPreferences('user');
+    $_SESSION['prefs_user'] = [
+        'theme'  => $clean['theme'] ?? $current['theme'],
+        'accent' => $clean['accent'] ?? $current['accent'],
+    ];
+
+    settingsJson(['success' => true]);
+}
+
 // Profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_profile') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {

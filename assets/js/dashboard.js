@@ -73,6 +73,24 @@
     }
 
 
+    // Save the choice to the account so it survives logout and other browsers
+    function savePrefsToServer(fields) {
+        var token = window.VAULT_CSRF_TOKEN || '';
+        if (!token || !window.fetch) return;
+
+        var body = new URLSearchParams();
+        body.set('ajax', 'save_preferences');
+        body.set('csrf_token', token);
+        Object.keys(fields).forEach(function (key) { body.set(key, fields[key]); });
+
+        fetch('./settings', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: body.toString()
+        }).catch(function () {});
+    }
+
     function setThemePreference(pref, animate) {
         var isDark = resolveIsDark(pref);
         if (animate) {
@@ -85,6 +103,8 @@
         } catch (error) {
             // Ignore storage errors
         }
+        // Only user actions pass animate
+        if (animate) savePrefsToServer({ theme: pref });
     }
 
     setThemePreference(getThemePreference());
@@ -108,9 +128,48 @@
     }
 
 
+    /* Accent color */
+    var accentStorageKey = 'squir-accent';
+    var accentSwal = {
+        brown: '#6b3f2a', blue: '#2b5c9e', green: '#2f7a5b',
+        purple: '#7a4bc0', orange: '#c77700', rose: '#c2345f'
+    };
+
+    function getAccentPreference() {
+        try {
+            var saved = window.localStorage.getItem(accentStorageKey);
+            return accentSwal[saved] ? saved : 'brown';
+        } catch (error) {
+            return 'brown';
+        }
+    }
+
+    function applyAccent(name) {
+        var root = document.documentElement;
+        if (!accentSwal[name] || name === 'brown') {
+            root.removeAttribute('data-accent');
+        } else {
+            root.setAttribute('data-accent', name);
+        }
+    }
+
+    function setAccentPreference(name) {
+        if (!accentSwal[name]) name = 'brown';
+        applyAccent(name);
+        try {
+            window.localStorage.setItem(accentStorageKey, name);
+        } catch (error) {}
+        savePrefsToServer({ accent: name });
+    }
+
+    applyAccent(getAccentPreference());
+
     window.SquirTheme = {
         get: getThemePreference,
-        set: function (pref) { setThemePreference(pref, true); }
+        set: function (pref) { setThemePreference(pref, true); },
+        getAccent: getAccentPreference,
+        setAccent: setAccentPreference,
+        swalColor: function () { return accentSwal[getAccentPreference()]; }
     };
 
     function syncCollapseButtonLabel(isCollapsed) {

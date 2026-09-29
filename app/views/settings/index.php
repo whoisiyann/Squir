@@ -16,9 +16,14 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
     <script>
         (function () {
             try {
+                var serverPrefs = <?= preferencesJson() ?>;
+                if (serverPrefs.theme) window.localStorage.setItem('squir-dashboard-theme', serverPrefs.theme);
+                if (serverPrefs.accent) window.localStorage.setItem('squir-accent', serverPrefs.accent);
                 if (window.localStorage.getItem('squir-dashboard-theme') === 'dark') {
                     document.documentElement.classList.add('dashboard-dark-preload');
                 }
+                var savedAccent = window.localStorage.getItem('squir-accent');
+                if (savedAccent && savedAccent !== 'brown') document.documentElement.setAttribute('data-accent', savedAccent);
             } catch (error) {}
         })();
     </script>
@@ -101,6 +106,58 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
                             <button type="button" class="settings-theme-btn" data-theme="auto">
                                 <i class="fa fa-adjust"></i><span>Auto</span>
                             </button>
+                        </div>
+
+                        <div class="settings-advanced" id="settingsAdvanced">
+                            <button type="button" class="settings-advanced-toggle" id="settingsAdvancedToggle" aria-expanded="false" aria-controls="settingsAdvancedPanel">
+                                <span class="settings-advanced-icon"><i class="ti ti-adjustments-horizontal"></i></span>
+                                <span class="settings-advanced-text">
+                                    <strong>Advanced appearance</strong>
+                                    <small>More customization options</small>
+                                </span>
+                                <i class="ti ti-chevron-down settings-advanced-chevron"></i>
+                            </button>
+
+                            <div class="settings-advanced-panel" id="settingsAdvancedPanel">
+                                <div class="settings-advanced-inner">
+                                <div class="settings-advanced-content">
+                                <span class="settings-label">Accent color</span>
+                                <p class="settings-help">Choose a color for buttons, highlights, and active items.</p>
+                                <div class="settings-accent-options" id="settingsAccentOptions" role="radiogroup" aria-label="Accent color">
+                                    <button type="button" class="settings-accent-btn" data-accent="brown" role="radio" aria-checked="false" style="--swatch: #6b3f2a;">
+                                        <span class="settings-accent-swatch"></span>
+                                        <span>Brown</span>
+                                        <i class="ti ti-check settings-accent-check"></i>
+                                    </button>
+                                    <button type="button" class="settings-accent-btn" data-accent="blue" role="radio" aria-checked="false" style="--swatch: #2b5c9e;">
+                                        <span class="settings-accent-swatch"></span>
+                                        <span>Blue</span>
+                                        <i class="ti ti-check settings-accent-check"></i>
+                                    </button>
+                                    <button type="button" class="settings-accent-btn" data-accent="green" role="radio" aria-checked="false" style="--swatch: #2f7a5b;">
+                                        <span class="settings-accent-swatch"></span>
+                                        <span>Green</span>
+                                        <i class="ti ti-check settings-accent-check"></i>
+                                    </button>
+                                    <button type="button" class="settings-accent-btn" data-accent="purple" role="radio" aria-checked="false" style="--swatch: #7a4bc0;">
+                                        <span class="settings-accent-swatch"></span>
+                                        <span>Purple</span>
+                                        <i class="ti ti-check settings-accent-check"></i>
+                                    </button>
+                                    <button type="button" class="settings-accent-btn" data-accent="orange" role="radio" aria-checked="false" style="--swatch: #c77700;">
+                                        <span class="settings-accent-swatch"></span>
+                                        <span>Orange</span>
+                                        <i class="ti ti-check settings-accent-check"></i>
+                                    </button>
+                                    <button type="button" class="settings-accent-btn" data-accent="rose" role="radio" aria-checked="false" style="--swatch: #c2345f;">
+                                        <span class="settings-accent-swatch"></span>
+                                        <span>Rose</span>
+                                        <i class="ti ti-check settings-accent-check"></i>
+                                    </button>
+                                </div>
+                                </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
 

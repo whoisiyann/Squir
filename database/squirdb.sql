@@ -15,6 +15,8 @@ CREATE TABLE users (
     email         VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,   -- bcrypt (password_hash)
     status        ENUM('active','inactive','suspended') NOT NULL DEFAULT 'active',
+    theme_pref    ENUM('light','dark','auto') NULL DEFAULT NULL,
+    accent_color  ENUM('brown','blue','green','purple','orange','rose') NULL DEFAULT NULL,
     last_login_at DATETIME  NULL,
     force_logout_at DATETIME NULL,          -- admin "Force Logout": older sessions are signed out
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -36,6 +38,8 @@ CREATE TABLE admins (
     email         VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,   -- bcrypt (password_hash)
     status        ENUM('active','inactive') NOT NULL DEFAULT 'active',
+    theme_pref    ENUM('light','dark','auto') NULL DEFAULT NULL,
+    accent_color  ENUM('brown','blue','green','purple','orange','rose') NULL DEFAULT NULL,
     last_login_at DATETIME  NULL,
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -384,5 +388,12 @@ CREATE INDEX idx_logs_action       ON activity_logs (action);
 -- 11. SEED: ADMINISTRATOR ACCOUNT
 --   php -r "echo password_hash('adminvault123', PASSWORD_DEFAULT), PHP_EOL;"
 
+
+
+
 -- INSERT INTO admins (full_name, username, email, password_hash)
 -- VALUES ('Admin', 'admin', 'squirvault@gmail.com', '$2y$10$KWQz1tjq6CX3D5VhsWKdRuidaN390QjVy7BL3Iohezdq8sCxYz9hi');
+
+
+-- email: squirvault@gmail.com
+-- pass :  adminvault123

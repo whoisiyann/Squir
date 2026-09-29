@@ -113,9 +113,14 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
   <script>
     (function () {
       try {
+        var serverPrefs = <?= preferencesJson('admin') ?>;
+        if (serverPrefs.theme) window.localStorage.setItem('squir-admin-theme', serverPrefs.theme);
+        if (serverPrefs.accent) window.localStorage.setItem('squir-admin-accent', serverPrefs.accent);
         if (window.localStorage.getItem('squir-admin-theme') === 'dark') {
           document.documentElement.classList.add('dashboard-dark-preload');
         }
+        var savedAccent = window.localStorage.getItem('squir-admin-accent');
+        if (savedAccent && savedAccent !== 'brown') document.documentElement.setAttribute('data-accent', savedAccent);
       } catch (error) {}
     })();
   </script>
@@ -236,6 +241,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
 
   <?php require __DIR__ . '/../../../includes/admin/footer.php'; ?>
 
+  <script>window.ADMIN_CSRF_TOKEN = <?= json_encode(csrfToken()) ?>;</script>
   <script src="<?= url('assets/js/admin/admin.js') ?>"></script>
 </body>
 </html>

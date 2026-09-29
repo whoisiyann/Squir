@@ -523,7 +523,7 @@
             showCancelButton: true,
             confirmButtonText: 'Continue',
             cancelButtonText: 'Cancel',
-            confirmButtonColor: '#6b3f2a',
+            confirmButtonColor: (window.SquirAdminTheme && window.SquirAdminTheme.swalColor) ? window.SquirAdminTheme.swalColor() : '#6b3f2a',
             reverseButtons: true,
             customClass: { popup: 'al-swal' }
         }).then(function (result) { return result.isConfirmed ? result.value : null; });
@@ -578,7 +578,7 @@
                             icon: 'info',
                             title: 'Nothing to clear',
                             text: 'There are no logs for: ' + label + '.',
-                            confirmButtonColor: '#6b3f2a'
+                            confirmButtonColor: (window.SquirAdminTheme && window.SquirAdminTheme.swalColor) ? window.SquirAdminTheme.swalColor() : '#6b3f2a'
                         });
                     }
                     return AdminAlert.success('Logs cleared', deleted + ' log' + (deleted === 1 ? '' : 's') + ' deleted.');

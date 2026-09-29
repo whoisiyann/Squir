@@ -1,7 +1,9 @@
 // Alert helpers
 // Use browser dialogs as fallback
 window.AdminAlert = (function () {
-    var BROWN = '#6b3f2a';
+    function accentColor() {
+        return (window.SquirAdminTheme && window.SquirAdminTheme.swalColor) ? window.SquirAdminTheme.swalColor() : '#6b3f2a';
+    }
     var RED = '#c0392b';
 
     // Confirm admin action
@@ -16,7 +18,7 @@ window.AdminAlert = (function () {
             showCancelButton: true,
             confirmButtonText: options.confirmText || 'Yes',
             cancelButtonText: 'Cancel',
-            confirmButtonColor: options.danger ? RED : BROWN,
+            confirmButtonColor: options.danger ? RED : accentColor(),
             reverseButtons: true,
             focusCancel: true
         }).then(function (result) { return result.isConfirmed; });
@@ -32,7 +34,7 @@ window.AdminAlert = (function () {
             icon: 'success',
             title: title,
             text: text,
-            confirmButtonColor: BROWN,
+            confirmButtonColor: accentColor(),
             timer: 2000,
             timerProgressBar: true
         });
@@ -47,7 +49,7 @@ window.AdminAlert = (function () {
             icon: 'error',
             title: 'Oops',
             text: message || 'Something went wrong.',
-            confirmButtonColor: BROWN
+            confirmButtonColor: accentColor()
         });
     }
 

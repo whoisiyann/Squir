@@ -892,3 +892,118 @@ html.dashboard-dark-preload .sq-lo-modal {
     font-size: 1.3rem;
   }
 }
+
+/*Accent colors */
+/* Blue */
+html[data-accent="blue"] {
+  --accent: #2b5c9e;
+  --dark: #1a3a66;
+  --hover: #234b82;
+  --peach: #e3edf9;
+  --active-text: #f2f7fd;
+  --active-icon: #8fbcf0;
+  --task-drop-bg: color-mix(in srgb, #2b5c9e 7%, transparent);
+}
+
+html[data-accent="blue"] body.dashboard-dark,
+html[data-accent="blue"].dashboard-dark-preload {
+  --accent: #5aa2f0;
+  --dark: #4a90e2;
+  --hover: #6aaef0;
+  --peach: #16222f;
+  --active-text: #08090B;
+  --active-icon: #08090B;
+  --task-drop-bg: color-mix(in srgb, #5aa2f0 8%, transparent);
+}
+/* Green */
+html[data-accent="green"] {
+  --accent: #2f7a5b;
+  --dark: #1b4d3a;
+  --hover: #256348;
+  --peach: #e2f2ea;
+  --active-text: #f1faf5;
+  --active-icon: #8fd4b0;
+  --task-drop-bg: color-mix(in srgb, #2f7a5b 7%, transparent);
+}
+
+html[data-accent="green"] body.dashboard-dark,
+html[data-accent="green"].dashboard-dark-preload {
+  --accent: #43c08a;
+  --dark: #34b27b;
+  --hover: #5bcf9c;
+  --peach: #14261e;
+  --active-text: #08090B;
+  --active-icon: #08090B;
+  --task-drop-bg: color-mix(in srgb, #43c08a 8%, transparent);
+}
+/* Purple */
+html[data-accent="purple"] {
+  --accent: #7a4bc0;
+  --dark: #4a2a80;
+  --hover: #62399e;
+  --peach: #eee6f9;
+  --active-text: #f7f2fd;
+  --active-icon: #c4a3f0;
+  --task-drop-bg: color-mix(in srgb, #7a4bc0 7%, transparent);
+}
+
+html[data-accent="purple"] body.dashboard-dark,
+html[data-accent="purple"].dashboard-dark-preload {
+  --accent: #b085f5;
+  --dark: #9f6ff0;
+  --hover: #bb95f7;
+  --peach: #221830;
+  --active-text: #08090B;
+  --active-icon: #08090B;
+  --task-drop-bg: color-mix(in srgb, #b085f5 8%, transparent);
+}
+/* Orange */
+html[data-accent="orange"] {
+  --accent: #c77700;
+  --dark: #8f5400;
+  --hover: #a86500;
+  --peach: #fff1d6;
+  --active-text: #fff8ea;
+  --active-icon: #ffcf7a;
+  --task-drop-bg: color-mix(in srgb, #c77700 7%, transparent);
+}
+
+html[data-accent="orange"] body.dashboard-dark,
+html[data-accent="orange"].dashboard-dark-preload {
+  --accent: #ffc233;
+  --dark: #ffb300;
+  --hover: #ffca4d;
+  --peach: #2b2410;
+  --active-text: #08090B;
+  --active-icon: #08090B;
+  --task-drop-bg: color-mix(in srgb, #ffc233 8%, transparent);
+}
+/* Rose */
+html[data-accent="rose"] {
+  --accent: #c2345f;
+  --dark: #8a1f42;
+  --hover: #a32a51;
+  --peach: #fde4ec;
+  --active-text: #fff1f5;
+  --active-icon: #f5a3bd;
+  --task-drop-bg: color-mix(in srgb, #c2345f 7%, transparent);
+}
+
+html[data-accent="rose"] body.dashboard-dark,
+html[data-accent="rose"].dashboard-dark-preload {
+  --accent: #f472a0;
+  --dark: #ec5c8e;
+  --hover: #f58cb2;
+  --peach: #2d1720;
+  --active-text: #08090B;
+  --active-icon: #08090B;
+  --task-drop-bg: color-mix(in srgb, #f472a0 8%, transparent);
+}
+/* Parts that were hard-coded brown */
+html[data-accent] .nav-link.active {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--dark) 12%, transparent);
+}
+
+html[data-accent] .sq-lo-modal {
+  --lo-brown: var(--accent);
+}

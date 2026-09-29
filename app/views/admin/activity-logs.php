@@ -28,9 +28,14 @@ $filtersJson = json_encode([
   <script>
     (function () {
       try {
+        var serverPrefs = <?= preferencesJson('admin') ?>;
+        if (serverPrefs.theme) window.localStorage.setItem('squir-admin-theme', serverPrefs.theme);
+        if (serverPrefs.accent) window.localStorage.setItem('squir-admin-accent', serverPrefs.accent);
         if (window.localStorage.getItem('squir-admin-theme') === 'dark') {
           document.documentElement.classList.add('dashboard-dark-preload');
         }
+        var savedAccent = window.localStorage.getItem('squir-admin-accent');
+        if (savedAccent && savedAccent !== 'brown') document.documentElement.setAttribute('data-accent', savedAccent);
       } catch (error) {}
     })();
   </script>

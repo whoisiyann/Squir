@@ -26,6 +26,62 @@ if (!function_exists('url')) {
 }
 
 
+if (!defined('PREF_THEMES')) {
+    define('PREF_THEMES', ['light', 'dark', 'auto']);
+    define('PREF_ACCENTS', ['brown', 'blue', 'green', 'purple', 'orange', 'rose']);
+}
+
+// Saved appearance (theme + accent), cached in the session.
+function sessionPreferences(string $role = 'user'): array
+{
+    global $dbh;
+
+    $key = 'prefs_' . $role;
+    if (isset($_SESSION[$key]) && is_array($_SESSION[$key])) {
+        return $_SESSION[$key];
+    }
+
+    $prefs = ['theme' => null, 'accent' => null];
+    $idKey = $role === 'admin' ? 'admin_id' : 'user_id';
+    $table = $role === 'admin' ? 'admins' : 'users';
+
+    if (empty($_SESSION[$idKey])) {
+        return $prefs;
+    }
+
+    try {
+        $statement = $dbh->prepare("SELECT theme_pref, accent_color FROM {$table} WHERE {$idKey} = :id LIMIT 1");
+        $statement->execute(['id' => (int) $_SESSION[$idKey]]);
+        $row = $statement->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        $prefs['theme'] = in_array($row['theme_pref'] ?? null, PREF_THEMES, true) ? $row['theme_pref'] : null;
+        $prefs['accent'] = in_array($row['accent_color'] ?? null, PREF_ACCENTS, true) ? $row['accent_color'] : null;
+        $_SESSION[$key] = $prefs;
+    } catch (Throwable $exception) {
+        // Columns missing until the migration is run. Keep the choice saved in the browser.
+    }
+
+    return $prefs;
+}
+
+function preferencesJson(string $role = 'user'): string
+{
+    return json_encode(sessionPreferences($role), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+}
+
+// Validate submitted appearance values.
+function cleanPreferences(array $input): array
+{
+    $theme = $input['theme'] ?? null;
+    $accent = $input['accent'] ?? null;
+
+    return [
+        'theme'  => in_array($theme, PREF_THEMES, true) ? $theme : null,
+        'accent' => in_array($accent, PREF_ACCENTS, true) ? $accent : null,
+    ];
+}
+
+
 function requireLogin(bool $requirePin = true): int
 {
     if (empty($_SESSION['user_id'])) {

@@ -304,7 +304,7 @@
                         text: 'Your login email has been changed to ' + newEmail + '.',
                         icon: 'success',
                         confirmButtonText: 'Done',
-                        confirmButtonColor: '#6b3f2a'
+                        confirmButtonColor: (window.SquirTheme && window.SquirTheme.swalColor) ? window.SquirTheme.swalColor() : '#6b3f2a'
                     });
                 }
             }).catch(function () {
@@ -425,6 +425,69 @@
         });
     }
 
+    /* Advanced appearance + accent color */
+    var advancedBox = document.getElementById('settingsAdvanced');
+    var advancedToggle = document.getElementById('settingsAdvancedToggle');
+    var advancedPanel = document.getElementById('settingsAdvancedPanel');
+
+    if (advancedBox && advancedToggle && advancedPanel) {
+        var accountCard = document.querySelector('.settings-grid > .settings-card');
+        var lockTimer = null;
+
+        // Keep Account Information at its closed height while the dropdown is open
+        function lockAccountHeight() {
+            if (!accountCard || !window.matchMedia('(min-width: 1001px)').matches) return;
+            accountCard.style.height = accountCard.offsetHeight + 'px';
+        }
+
+        function unlockAccountHeight() {
+            if (accountCard) accountCard.style.height = '';
+        }
+
+        advancedToggle.addEventListener('click', function () {
+            var willOpen = !advancedBox.classList.contains('open');
+            window.clearTimeout(lockTimer);
+
+            if (willOpen) {
+                lockAccountHeight();
+            } else {
+                // Release after the close animation so both cards match again
+                lockTimer = window.setTimeout(unlockAccountHeight, 450);
+            }
+
+            advancedBox.classList.toggle('open', willOpen);
+            advancedToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            advancedPanel.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+        });
+        advancedPanel.setAttribute('aria-hidden', 'true');
+
+        window.addEventListener('resize', function () {
+            if (!advancedBox.classList.contains('open')) return;
+            unlockAccountHeight();
+        });
+    }
+
+    var accentButtons = $all('#settingsAccentOptions .settings-accent-btn');
+    if (accentButtons.length) {
+        function highlightAccent(name) {
+            accentButtons.forEach(function (btn) {
+                var isActive = btn.getAttribute('data-accent') === name;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+            });
+        }
+
+        highlightAccent((window.SquirTheme && window.SquirTheme.getAccent()) || 'brown');
+
+        accentButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var name = btn.getAttribute('data-accent');
+                if (window.SquirTheme) window.SquirTheme.setAccent(name);
+                highlightAccent(name);
+            });
+        });
+    }
+
     /* Password and PIN visibility */
     $all('.settings-password-toggle').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -499,7 +562,7 @@
                         text: 'Your Password has been changed successfully. For your security, please use your new password the next time you log in.',
                         icon: 'success',
                         confirmButtonText: 'Done',
-                        confirmButtonColor: '#6b3f2a'
+                        confirmButtonColor: (window.SquirTheme && window.SquirTheme.swalColor) ? window.SquirTheme.swalColor() : '#6b3f2a'
                     }).then(function () { window.location.href = './settings'; });
                 } else {
                     window.location.href = './settings';
@@ -556,7 +619,7 @@
                         text: 'Your PIN has been successfully updated.',
                         icon: 'success',
                         confirmButtonText: 'Done',
-                        confirmButtonColor: '#6b3f2a'
+                        confirmButtonColor: (window.SquirTheme && window.SquirTheme.swalColor) ? window.SquirTheme.swalColor() : '#6b3f2a'
                     }).then(function () { window.location.href = './settings'; });
                 } else {
                     window.location.href = './settings';
@@ -593,7 +656,7 @@
                     text: message,
                     icon: 'error',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#6b3f2a'
+                    confirmButtonColor: (window.SquirTheme && window.SquirTheme.swalColor) ? window.SquirTheme.swalColor() : '#6b3f2a'
                 });
             } else {
                 window.alert(message);
@@ -640,7 +703,7 @@
                             text: 'Your data was downloaded as a PDF.',
                             icon: 'success',
                             confirmButtonText: 'Done',
-                            confirmButtonColor: '#6b3f2a'
+                            confirmButtonColor: (window.SquirTheme && window.SquirTheme.swalColor) ? window.SquirTheme.swalColor() : '#6b3f2a'
                         });
                     }
                 });

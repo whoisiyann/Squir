@@ -61,6 +61,25 @@
         return pref === 'dark';
     }
 
+    // Save the choice to the account so it survives logout and other browsers
+    function savePrefsToServer(fields) {
+        var token = window.ADMIN_CSRF_TOKEN || '';
+        var link = document.querySelector('a[href*="admin/settings"]');
+        if (!token || !link || !window.fetch) return;
+
+        var body = new URLSearchParams();
+        body.set('ajax', 'save_preferences');
+        body.set('csrf_token', token);
+        Object.keys(fields).forEach(function (key) { body.set(key, fields[key]); });
+
+        fetch(link.getAttribute('href').split('?')[0], {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+            body: body.toString()
+        }).catch(function () {});
+    }
+
     function setThemePreference(pref, animate) {
         var isDark = resolveDark(pref);
         if (animate) {
@@ -74,6 +93,8 @@
             // Storage may be unavailable.
         }
         document.dispatchEvent(new CustomEvent('squir-admin-theme', { detail: pref }));
+        // Only user actions pass animate
+        if (animate) savePrefsToServer({ theme: pref });
     }
 
     setThemePreference(getThemePreference());
@@ -87,10 +108,51 @@
         else if (systemDark.addListener) systemDark.addListener(onSystemThemeChange);
     }
 
+    /* Accent color */
+    var accentStorageKey = 'squir-admin-accent';
+    var accentSwal = {
+        brown: '#6b3f2a', blue: '#2b5c9e', green: '#2f7a5b',
+        purple: '#7a4bc0', orange: '#c77700', rose: '#c2345f'
+    };
+
+    function getAccentPreference() {
+        try {
+            var saved = window.localStorage.getItem(accentStorageKey);
+            return accentSwal[saved] ? saved : 'brown';
+        } catch (error) {
+            return 'brown';
+        }
+    }
+
+    function applyAccent(name) {
+        var root = document.documentElement;
+        if (!accentSwal[name] || name === 'brown') {
+            root.removeAttribute('data-accent');
+        } else {
+            root.setAttribute('data-accent', name);
+        }
+    }
+
+    function setAccentPreference(name) {
+        if (!accentSwal[name]) name = 'brown';
+        applyAccent(name);
+        try {
+            window.localStorage.setItem(accentStorageKey, name);
+        } catch (error) {
+            // Storage may be unavailable.
+        }
+        savePrefsToServer({ accent: name });
+    }
+
+    applyAccent(getAccentPreference());
+
     // Used by the Settings page.
     window.SquirAdminTheme = {
         get: getThemePreference,
-        set: function (pref) { setThemePreference(pref, true); }
+        set: function (pref) { setThemePreference(pref, true); },
+        getAccent: getAccentPreference,
+        setAccent: setAccentPreference,
+        swalColor: function () { return accentSwal[getAccentPreference()]; }
     };
 
     if (themeButton) {

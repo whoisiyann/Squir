@@ -18,9 +18,14 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
     <script>
         (function () {
             try {
+                var serverPrefs = <?= preferencesJson() ?>;
+                if (serverPrefs.theme) window.localStorage.setItem('squir-dashboard-theme', serverPrefs.theme);
+                if (serverPrefs.accent) window.localStorage.setItem('squir-accent', serverPrefs.accent);
                 if (window.localStorage.getItem('squir-dashboard-theme') === 'dark') {
                     document.documentElement.classList.add('dashboard-dark-preload');
                 }
+                var savedAccent = window.localStorage.getItem('squir-accent');
+                if (savedAccent && savedAccent !== 'brown') document.documentElement.setAttribute('data-accent', savedAccent);
 
                 if (window.localStorage.getItem('squir-folder-view') === 'list') {
                     document.documentElement.classList.add('folders-list-view-preload');

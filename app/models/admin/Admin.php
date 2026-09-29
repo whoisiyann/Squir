@@ -100,4 +100,26 @@ class Admin
 		$statement = $this->db->prepare('UPDATE admins SET last_login_at = NOW() WHERE admin_id = :id');
 		$statement->execute(['id' => $adminId]);
 	}
+
+	// Save theme and accent color
+	public function updatePreferences(int $adminId, ?string $theme, ?string $accent): void
+	{
+		$sets = [];
+		$params = ['id' => $adminId];
+
+		if ($theme !== null) {
+			$sets[] = 'theme_pref = :theme';
+			$params['theme'] = $theme;
+		}
+		if ($accent !== null) {
+			$sets[] = 'accent_color = :accent';
+			$params['accent'] = $accent;
+		}
+		if ($sets === []) {
+			return;
+		}
+
+		$statement = $this->db->prepare('UPDATE admins SET ' . implode(', ', $sets) . ' WHERE admin_id = :id');
+		$statement->execute($params);
+	}
 }

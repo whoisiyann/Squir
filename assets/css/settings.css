@@ -971,3 +971,195 @@ html.dashboard-dark-preload .sq-da-modal {
     gap: 12px;
   }
 }
+
+/* Advanced appearance */
+.settings-advanced {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  overflow: hidden;
+}
+
+.settings-advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-advanced-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.settings-advanced-icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+  font-size: 1.3rem;
+}
+
+.settings-advanced-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-advanced-text strong {
+  font-size: .86rem;
+}
+
+.settings-advanced-text small {
+  color: var(--muted);
+  font-size: .74rem;
+}
+
+.settings-advanced-chevron {
+  flex: 0 0 auto;
+  color: var(--text);
+  transition: transform .35s cubic-bezier(.2, .8, .2, 1);
+}
+
+.settings-advanced.open .settings-advanced-chevron {
+  transform: rotate(180deg);
+}
+
+.settings-advanced-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows .4s cubic-bezier(.2, .8, .2, 1),
+              opacity .3s ease,
+              visibility 0s linear .4s;
+}
+
+.settings-advanced.open .settings-advanced-panel {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition: grid-template-rows .4s cubic-bezier(.2, .8, .2, 1),
+              opacity .3s ease .05s,
+              visibility 0s;
+}
+
+.settings-advanced-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.settings-advanced-content {
+  padding: 4px 14px 16px;
+  transform: translateY(-6px);
+  transition: transform .4s cubic-bezier(.2, .8, .2, 1);
+}
+
+.settings-advanced.open .settings-advanced-content {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-advanced-panel,
+  .settings-advanced.open .settings-advanced-panel,
+  .settings-advanced-content,
+  .settings-advanced-chevron {
+    transition: none;
+  }
+}
+
+.settings-help {
+  margin: -4px 0 12px;
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+/* Accent color */
+.settings-accent-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.settings-accent-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+
+.settings-accent-btn:hover {
+  border-color: var(--accent);
+}
+
+.settings-accent-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.settings-accent-swatch {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12);
+}
+
+.settings-accent-check {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  display: none;
+  color: var(--accent);
+  font-size: .8rem;
+}
+
+.settings-accent-btn.active {
+  border-color: var(--accent);
+  background: var(--peach);
+}
+
+.settings-accent-btn.active .settings-accent-check {
+  display: block;
+}
+
+@media (max-width: 520px) {
+  .settings-accent-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Hidden scrollbar (same as admin) */
+.settings-page .content-area {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.settings-page .content-area::-webkit-scrollbar {
+  display: none !important;
+  width: 0;
+  height: 0;
+}
