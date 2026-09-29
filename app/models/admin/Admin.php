@@ -26,6 +26,68 @@ class Admin
 		return $admin ?: null;
 	}
 
+	// Check if a username is taken by another admin
+	public function usernameExists(string $username, ?int $excludeAdminId = null): bool
+	{
+		$sql = 'SELECT admin_id FROM admins WHERE username = :username';
+		$params = ['username' => $username];
+
+		if ($excludeAdminId !== null) {
+			$sql .= ' AND admin_id != :exclude_id';
+			$params['exclude_id'] = $excludeAdminId;
+		}
+
+		$statement = $this->db->prepare($sql . ' LIMIT 1');
+		$statement->execute($params);
+
+		return (bool) $statement->fetchColumn();
+	}
+
+	// Check if an email is taken by another admin or by any user
+	public function emailExists(string $email, ?int $excludeAdminId = null): bool
+	{
+		$sql = 'SELECT admin_id FROM admins WHERE email = :email';
+		$params = ['email' => $email];
+
+		if ($excludeAdminId !== null) {
+			$sql .= ' AND admin_id != :exclude_id';
+			$params['exclude_id'] = $excludeAdminId;
+		}
+
+		$statement = $this->db->prepare($sql . ' LIMIT 1');
+		$statement->execute($params);
+		if ($statement->fetchColumn()) {
+			return true;
+		}
+
+		// Login checks users first, so an email must not exist there.
+		$userStatement = $this->db->prepare('SELECT user_id FROM users WHERE email = :email LIMIT 1');
+		$userStatement->execute(['email' => $email]);
+
+		return (bool) $userStatement->fetchColumn();
+	}
+
+	// Update name, username, and email
+	public function updateProfile(int $adminId, string $fullName, string $username, string $email): void
+	{
+		$statement = $this->db->prepare(
+			'UPDATE admins SET full_name = :full_name, username = :username, email = :email WHERE admin_id = :id'
+		);
+		$statement->execute([
+			'full_name' => $fullName,
+			'username'  => $username,
+			'email'     => $email,
+			'id'        => $adminId,
+		]);
+	}
+
+	// Save a new password hash
+	public function updatePassword(int $adminId, string $passwordHash): void
+	{
+		$statement = $this->db->prepare('UPDATE admins SET password_hash = :hash WHERE admin_id = :id');
+		$statement->execute(['hash' => $passwordHash, 'id' => $adminId]);
+	}
+
 	// Record a successful login
 	public function touchLastLogin(int $adminId): void
 	{

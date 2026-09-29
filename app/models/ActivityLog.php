@@ -35,13 +35,16 @@ class ActivityLog
         'admin_logged_in'  => ['label' => 'Admin login',                 'detail' => null,                             'icon' => 'ti-login',         'entity' => 'admin'],
         'admin_logged_out' => ['label' => 'Admin logout',                'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'admin'],
         'user_created'     => ['label' => 'Added a user',                'detail' => null,                             'icon' => 'ti-user-plus',     'entity' => 'user'],
-        'user_updated'     => ['label' => 'Updated a user',              'detail' => null,                             'icon' => 'ti-user-edit',     'entity' => 'user'],
+        'user_updated'     => ['label' => 'Updated a user',              'detail' => null,                             'icon' => 'ti-user',          'entity' => 'user'],
         'user_activated'   => ['label' => 'Activated a user',            'detail' => null,                             'icon' => 'ti-user-check',    'entity' => 'user'],
         'user_deactivated' => ['label' => 'Deactivated a user',          'detail' => null,                             'icon' => 'ti-user-off',      'entity' => 'user'],
         'user_suspended'   => ['label' => 'Suspended a user',            'detail' => null,                             'icon' => 'ti-user-off',      'entity' => 'user'],
         'user_deleted'     => ['label' => 'Deleted a user',              'detail' => null,                             'icon' => 'ti-user-x',        'entity' => 'user'],
         'user_force_logout'=> ['label' => 'Forced a user logout',        'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'user'],
         'logs_cleared'     => ['label' => 'Cleared activity logs',       'detail' => null,                             'icon' => 'ti-trash',         'entity' => 'system'],
+        'admin_profile_updated'  => ['label' => 'Updated profile',       'detail' => null,                             'icon' => 'ti-user',          'entity' => 'admin'],
+        'admin_password_changed' => ['label' => 'Changed password',      'detail' => null,                             'icon' => 'ti-shield-check',  'entity' => 'admin'],
+        'admin_logs_exported'    => ['label' => 'Exported activity logs', 'detail' => null,                            'icon' => 'ti-download',      'entity' => 'system'],
     ];
 
     // Action categories.
@@ -365,6 +368,74 @@ class ActivityLog
         $statement->execute();
 
         return (int) $statement->fetchColumn();
+    }
+
+    // The signed-in admin's own recent activity.
+    public function listForAdminActor(int $adminId, int $limit = 50): array
+    {
+        $statement = $this->db->prepare(
+            'SELECT action, description, created_at
+             FROM activity_logs
+             WHERE admin_id = :admin_id AND user_cleared_at IS NULL
+             ORDER BY created_at DESC, log_id DESC
+             LIMIT :limit'
+        );
+        $statement->bindValue(':admin_id', $adminId, PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->execute();
+
+        $items = [];
+        foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $meta = self::META[$row['action']] ?? [
+                'label' => ucfirst(str_replace('_', ' ', (string) $row['action'])),
+                'icon'  => 'ti-activity',
+            ];
+
+            $items[] = [
+                'label'      => $meta['label'],
+                'detail'     => (string) $row['description'],
+                'icon'       => $meta['icon'],
+                'time_label' => self::timeAgo($row['created_at']),
+            ];
+        }
+
+        return $items;
+    }
+
+    // Hide the admin's own activity from their Activity Log page.
+    // Rows are kept, so the export still includes them.
+    public function clearForAdminActor(int $adminId): bool
+    {
+        $statement = $this->db->prepare(
+            'UPDATE activity_logs SET user_cleared_at = NOW() WHERE admin_id = :admin_id AND user_cleared_at IS NULL'
+        );
+
+        return $statement->execute(['admin_id' => $adminId]);
+    }
+
+    // One batch of logs for the Settings export.
+    // $userOnly = true: user activity only. false: users and admins.
+    public function exportBatch(bool $userOnly, int $limit, int $offset): array
+    {
+        $where = $userOnly ? 'WHERE al.user_id IS NOT NULL AND al.admin_id IS NULL' : '';
+
+        $statement = $this->db->prepare(
+            "SELECT al.log_id, al.action, al.description, al.ip_address, al.device, al.user_agent, al.created_at,
+                    al.user_id, al.admin_id,
+                    u.full_name AS user_name,
+                    a.full_name AS admin_name
+             FROM activity_logs al
+             LEFT JOIN users  u ON u.user_id  = al.user_id
+             LEFT JOIN admins a ON a.admin_id = al.admin_id
+             $where
+             ORDER BY al.created_at DESC, al.log_id DESC
+             LIMIT :limit OFFSET :offset"
+        );
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Date ranges the admin can clear.

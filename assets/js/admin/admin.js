@@ -44,16 +44,25 @@
         }).catch(function () {});
     }
 
+    var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+    // Saved choice: light, dark, or auto (follow the device).
     function getThemePreference() {
         try {
-            return window.localStorage.getItem(themeStorageKey) === 'dark' ? 'dark' : 'light';
+            var stored = window.localStorage.getItem(themeStorageKey);
+            return stored === 'dark' || stored === 'auto' ? stored : 'light';
         } catch (error) {
             return 'light';
         }
     }
 
+    function resolveDark(pref) {
+        if (pref === 'auto') return !!(systemDark && systemDark.matches);
+        return pref === 'dark';
+    }
+
     function setThemePreference(pref, animate) {
-        var isDark = pref === 'dark';
+        var isDark = resolveDark(pref);
         if (animate) {
             runThemeTransition(function () { applyTheme(isDark); });
         } else {
@@ -64,9 +73,25 @@
         } catch (error) {
             // Storage may be unavailable.
         }
+        document.dispatchEvent(new CustomEvent('squir-admin-theme', { detail: pref }));
     }
 
     setThemePreference(getThemePreference());
+
+    // Follow the device theme while set to Auto.
+    if (systemDark) {
+        var onSystemThemeChange = function () {
+            if (getThemePreference() === 'auto') applyTheme(resolveDark('auto'));
+        };
+        if (systemDark.addEventListener) systemDark.addEventListener('change', onSystemThemeChange);
+        else if (systemDark.addListener) systemDark.addListener(onSystemThemeChange);
+    }
+
+    // Used by the Settings page.
+    window.SquirAdminTheme = {
+        get: getThemePreference,
+        set: function (pref) { setThemePreference(pref, true); }
+    };
 
     if (themeButton) {
         themeButton.addEventListener('click', function () {

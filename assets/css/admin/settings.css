@@ -1,0 +1,88 @@
+/* Admin > Settings */
+.as-page{ gap:0; }
+
+/* Profile row */
+.as-profile .settings-avatar{
+    width:84px;
+    height:84px;
+    font-size:1.9rem;
+}
+.as-profile .settings-profile-text strong{ font-size:1.15rem; }
+.as-profile .btn-admin{ align-self:flex-start; flex:0 0 auto; }
+.as-role-chip{
+    display:inline-block;
+    margin-top:6px;
+    padding:3px 12px;
+    border-radius:999px;
+    background:var(--soft);
+    color:var(--muted);
+    font-size:.78rem;
+    font-weight:600;
+}
+
+/* Clear activity log button */
+.as-clear-btn{
+    flex:0 0 auto;
+    color:var(--danger);
+    border-color:var(--danger);
+}
+.as-clear-btn:hover{ background:rgba(208, 49, 45, .08); }
+.as-clear-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+/* Rows with a button or switch */
+.as-page .settings-row-export .btn-admin{ flex:0 0 auto; }
+
+/* Switch */
+.as-switch{
+    position:relative;
+    display:inline-block;
+    flex:0 0 auto;
+    width:46px;
+    height:26px;
+    cursor:pointer;
+}
+.as-switch input{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    margin:0;
+    opacity:0;
+    cursor:pointer;
+}
+.as-switch-track{
+    position:absolute;
+    inset:0;
+    border-radius:999px;
+    background:var(--border);
+    transition:background .15s ease;
+}
+.as-switch-track::after{
+    content:'';
+    position:absolute;
+    top:3px;
+    left:3px;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(0, 0, 0, .3);
+    transition:transform .15s ease;
+}
+.as-switch input:checked + .as-switch-track{ background:#1f5eff; }
+.as-switch input:checked + .as-switch-track::after{ transform:translateX(20px); }
+.as-switch input:focus-visible + .as-switch-track{ outline:2px solid var(--accent); outline-offset:2px; }
+
+/* Edit modal */
+.admin-modal .settings-editable-field[hidden]{ display:none; }
+.admin-modal .settings-form-error{ margin:0 0 4px; }
+
+@media (max-width:480px){
+    .as-profile .btn-admin{ margin-left:auto; }
+    .as-profile .settings-avatar{ width:64px; height:64px; font-size:1.4rem; }
+}
+
+@media (prefers-reduced-motion:reduce){
+    .as-switch-track,
+    .as-switch-track::after{ transition:none; }
+}
