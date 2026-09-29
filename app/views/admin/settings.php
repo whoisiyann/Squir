@@ -1,11 +1,16 @@
 <?php
-// Admin settings.
 $escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 $adminName = $admin['full_name'] ?? 'Administrator';
 $adminEmail = $admin['email'] ?? '';
 $adminUsername = $admin['username'] ?? '';
 $initials = adminInitials($adminName);
 $activeNav = 'settings';
+
+// a***@gmail.com (shown in the forgot password panel)
+$maskedEmail = $adminEmail;
+if (($atPos = strpos($adminEmail, '@')) !== false && $atPos > 0) {
+  $maskedEmail = mb_substr($adminEmail, 0, 1) . str_repeat('*', max(2, min($atPos - 1, 6))) . substr($adminEmail, $atPos);
+}
 
 $titles = [
     'index'           => 'Settings',
@@ -232,6 +237,7 @@ $titles = [
                 <input type="password" id="currentPassword" name="current_password" placeholder="Enter your current password" autocomplete="current-password">
                 <button type="button" class="settings-password-toggle" data-target="currentPassword" aria-label="Show password"><i class="ti ti-eye"></i></button>
               </div>
+              <a class="settings-forgot-password-link" href="#" id="asForgotOpen" role="button">Forgot your current password?</a>
               <p class="settings-form-error" data-error-for="current_password"></p>
             </div>
 
@@ -263,6 +269,72 @@ $titles = [
 
             <button type="submit" class="btn-admin btn-admin-primary settings-submit-btn" id="changePasswordSubmit">Update Password</button>
           </form>
+
+          <div class="as-forgot" id="asForgotPanel" hidden>
+            <div class="as-forgot-head">
+              <h2>Reset your password</h2>
+              <p>Verify it's you with a code sent to your email, then choose a new password. You won't need your current password.</p>
+            </div>
+
+            <!-- Step 1: send code -->
+            <div class="as-forgot-step" data-step="send">
+              <p class="as-forgot-text">We'll send a 6-digit verification code to <strong><?= $escape($maskedEmail) ?></strong>.</p>
+              <p class="settings-form-error" id="asForgotSendError" role="alert"></p>
+              <button type="button" class="btn-admin btn-admin-primary settings-submit-btn" id="asForgotSend">Send Code</button>
+            </div>
+
+            <!-- Step 2: enter code -->
+            <div class="as-forgot-step" data-step="verify" hidden>
+              <p class="as-forgot-text">Enter the 6-digit code we sent to <strong><?= $escape($maskedEmail) ?></strong>.</p>
+
+              <div class="as-dev-code" id="asDevCode" hidden>
+                Dev mode &mdash; email isn't configured yet, so here's your code: <strong id="asDevCodeValue"></strong>
+              </div>
+
+              <div class="as-code-inputs" id="asCodeInputs" role="group" aria-label="Verification code digits">
+                <?php for ($i = 0; $i < 6; $i++): ?>
+                  <input class="as-code-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit <?= $i + 1 ?>">
+                <?php endfor; ?>
+              </div>
+              <p class="settings-form-error" id="asCodeError" role="alert"></p>
+
+              <button type="button" class="btn-admin btn-admin-primary settings-submit-btn" id="asVerifyBtn" disabled>Verify Code</button>
+              <p class="as-forgot-resend">Didn't get a code? <button type="button" class="as-link-btn" id="asResend">Resend</button></p>
+            </div>
+
+            <!-- Step 3: new password -->
+            <form class="as-forgot-step" data-step="reset" id="asResetForm" autocomplete="off" novalidate hidden>
+              <div class="settings-field settings-field-password">
+                <label for="resetNewPassword">New Password</label>
+                <div class="settings-password-wrap">
+                  <input type="password" id="resetNewPassword" name="new_password" placeholder="Enter your new password" autocomplete="new-password">
+                  <button type="button" class="settings-password-toggle" data-target="resetNewPassword" aria-label="Show password"><i class="ti ti-eye"></i></button>
+                </div>
+
+                <ul class="settings-password-checklist" id="resetChecklist">
+                  <li data-rule="length"><i class="ti ti-circle-check"></i> At least 8 characters</li>
+                  <li data-rule="number"><i class="ti ti-circle-check"></i> Include a number</li>
+                  <li data-rule="special"><i class="ti ti-circle-check"></i> Include a special character</li>
+                </ul>
+                <p class="settings-form-error" data-error-for="new_password"></p>
+              </div>
+
+              <div class="settings-field settings-field-password">
+                <label for="resetConfirmPassword">Confirm New Password</label>
+                <div class="settings-password-wrap">
+                  <input type="password" id="resetConfirmPassword" name="confirm_password" placeholder="Re-enter your new password" autocomplete="new-password">
+                  <button type="button" class="settings-password-toggle" data-target="resetConfirmPassword" aria-label="Show password"><i class="ti ti-eye"></i></button>
+                </div>
+                <p class="settings-form-error" data-error-for="confirm_password"></p>
+              </div>
+
+              <p class="settings-form-error" id="asResetFormError" role="alert"></p>
+
+              <button type="submit" class="btn-admin btn-admin-primary settings-submit-btn" id="asResetSubmit">Reset Password</button>
+            </form>
+
+            <a class="settings-forgot-password-link as-forgot-back" href="#" id="asForgotBack" role="button">&larr; Back to Change Password</a>
+          </div>
         </section>
 
         <aside class="settings-security-aside">
@@ -308,14 +380,7 @@ $titles = [
             <button type="button" class="settings-field-edit-link" data-edit-target="asEditEmail"><i class="ti ti-pencil"></i> Edit</button>
           </div>
           <input type="email" id="asEditEmail" name="email" maxlength="100" value="<?= $escape($adminEmail) ?>" readonly>
-        </div>
-
-        <div class="settings-editable-field" id="asPasswordField" hidden>
-          <div class="settings-editable-field-head">
-            <label for="asEditPassword">Current Password</label>
-          </div>
-          <input type="password" id="asEditPassword" name="current_password" placeholder="Enter your current password" autocomplete="current-password">
-          <small class="settings-field-hint">Changing your email requires your current password.</small>
+          <small class="settings-field-hint">Changing your email requires a verification code sent to the new address.</small>
         </div>
 
         <p class="settings-form-error" id="asEditError" role="alert"></p>
@@ -325,6 +390,29 @@ $titles = [
           <button type="submit" class="btn-admin btn-admin-primary" id="asEditSubmit">Done</button>
         </div>
       </form>
+
+      <!-- Email verification step -->
+      <div class="as-email-code-panel" id="asEmailCodePanel" hidden>
+        <span class="as-email-code-icon" aria-hidden="true"><i class="ti ti-mail-opened"></i></span>
+        <p class="as-email-code-subtitle">
+          We sent a 6-digit code to<br><strong id="asEmailTarget"></strong>
+        </p>
+
+        <div class="as-dev-code" id="asEmailDevCode" hidden></div>
+
+        <div class="as-code-inputs" id="asEmailCodeInputs" role="group" aria-label="Verification code digits">
+          <?php for ($i = 0; $i < 6; $i++): ?>
+            <input class="as-code-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit <?= $i + 1 ?>">
+          <?php endfor; ?>
+        </div>
+        <p class="settings-form-error" id="asEmailCodeError" role="alert"></p>
+
+        <div class="admin-modal-actions">
+          <button type="button" class="btn-admin btn-admin-outline" id="asEmailCancelBtn">Cancel</button>
+          <button type="button" class="btn-admin btn-admin-primary" id="asEmailVerifyBtn" disabled>Verify</button>
+        </div>
+        <p class="as-forgot-resend">Didn't get a code? <button type="button" class="as-link-btn" id="asEmailResendBtn">Resend</button></p>
+      </div>
     </div>
   </div>
 <?php endif; ?>

@@ -1,5 +1,4 @@
 <?php
-// Admin users data.
 $escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 $adminName = $admin['full_name'] ?? 'Administrator';
 $adminEmail = $admin['email'] ?? '';

@@ -13,7 +13,7 @@ class VaultController
         $this->activityLog = $activityLog;
     }
 
-    // Load user vault entries
+    // Vault entries
     public function index(int $userId, array $query): array
     {
         $folderId = isset($query['folder']) && $query['folder'] !== '' ? (int) $query['folder'] : null;
@@ -43,7 +43,7 @@ class VaultController
         ];
     }
 
-    // Create a vault entry
+    // Vault entry
     public function store(int $userId, array $post): array
     {
         $result = $this->vaultModel->create($userId, $this->extract($post));
@@ -59,7 +59,7 @@ class VaultController
         return $result;
     }
 
-    // Load a vault entry for editing
+    // Vault edit
     public function edit(int $vaultId, int $userId): ?array
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -70,7 +70,7 @@ class VaultController
         return $item;
     }
 
-    // Update a vault entry
+    // Vault update
     public function update(int $vaultId, int $userId, array $post): array
     {
         $existing = $this->vaultModel->find($vaultId, $userId);
@@ -171,7 +171,7 @@ class VaultController
         ];
     }
 
-    // Load vault folders
+    // Vault folders
     private function getFolders(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -189,7 +189,7 @@ class VaultController
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
-    // Check vault favorite state
+    // Favorite state
     private function isFavorite(int $userId, int $vaultId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM favorites WHERE user_id = :uid AND vault_id = :vid');

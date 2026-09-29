@@ -8,7 +8,7 @@ $userId = requireLogin();
 $controller = new TaskController(new Task($dbh), new ActivityLog($dbh));
 $csrfToken = csrfToken();
 
-// Send a task JSON response
+// JSON response
 function tasksRespond(array $payload, int $status = 200): void
 {
     http_response_code($status);
@@ -16,13 +16,13 @@ function tasksRespond(array $payload, int $status = 200): void
     exit;
 }
 
-// Return the refreshed task board
+// Task board refresh
 function tasksOk(TaskController $controller, int $userId, array $extra = []): void
 {
     tasksRespond($extra + ['tasks' => $controller->index($userId)]);
 }
 
-// Process task actions
+// Task actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
 
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId, ['task' => $result['task']]);
 
-            // Update a task
+            // Task update
             case 'update':
                 $result = $controller->update($taskId, $userId, $_POST);
                 if (!empty($result['not_found'])) {
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Load the task board
+// Task board
 $tasks = $controller->index($userId);
 
 $user = currentUserSummary($dbh, $userId);

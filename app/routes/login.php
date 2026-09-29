@@ -11,7 +11,7 @@ unset($_SESSION['flash_success']);
 
 $csrfToken = csrfToken();
 
-// Process login submission
+// Login submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Check admin login
+    // Admin login
     if (isset($errors['form']) && $errors['form'] === 'The email or password is incorrect.') {
         $adminResult = (new AdminAuthController(new Admin($dbh)))->login($_POST);
 
@@ -59,5 +59,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Render the login form
+// Login form
 require __DIR__ . '/../views/auth/login.php';

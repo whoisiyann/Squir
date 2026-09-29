@@ -13,7 +13,7 @@ $controller = new VaultController($vaultModel, $dbh, $activityLog);
 $pinController = new PinController(new UserPin($dbh));
 $csrfToken = csrfToken();
 
-// Verify the vault PIN
+// Vault PIN check
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_pin') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -131,7 +131,7 @@ function vaultSafeReturnTo(?string $value): string
     return $default;
 }
 
-// Process vault form submission
+// Vault form submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $returnTo = vaultSafeReturnTo($_POST['return_to'] ?? null);
 

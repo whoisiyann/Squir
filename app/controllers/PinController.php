@@ -10,14 +10,13 @@ class PinController
         $this->pinModel = $pinModel;
     }
 
-    // Check whether a user has a PIN
+    // PIN check
     public function hasPin(int $userId): bool
     {
         return $this->pinModel->exists($userId);
     }
 
-    // Create a user PIN
-    // Create a user PIN
+    // Create PIN
     public function store(int $userId, array $post): array
     {
         $pin = trim((string) ($post['pin'] ?? ''));
@@ -48,7 +47,7 @@ class PinController
         return ['errors' => []];
     }
 
-    // Verify a user PIN
+    // PIN verification
     public function verify(int $userId, string $pin): array
     {
         $length = UserPin::length();

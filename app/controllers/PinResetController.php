@@ -51,7 +51,7 @@ class PinResetController
         return $this->issueAndSend($userId, $user['email'], $user['full_name']);
     }
 
-    // Verify the OTP code
+    // OTP check
     public function verifyCode(int $userId, string $code): array
     {
         $code = trim($code);

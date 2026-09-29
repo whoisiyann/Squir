@@ -13,12 +13,12 @@ $email = $_SESSION['pwreset_email'];
 $errors = [];
 $csrfToken = csrfToken();
 
-// Process the new password submission
+// Save password
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
     } else {
-        $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh));
+        $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh), new Admin($dbh), new AdminPasswordReset($dbh));
         $result = $controller->resetPassword($email, $_POST);
         $errors = $result['errors'];
 
@@ -36,5 +36,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Render the new-password form
+// New password form
 require __DIR__ . '/../views/auth/reset-password.php';

@@ -6,7 +6,7 @@ class User
 	{
 	}
 
-	// Check username availability
+	// Username check
 	public function usernameExists(string $username, ?int $excludeUserId = null): bool
 	{
 		$sql = 'SELECT user_id FROM users WHERE username = :username';
@@ -23,7 +23,7 @@ class User
 		return (bool) $statement->fetch();
 	}
 
-	// Check email availability
+	// Email check
 	public function emailExists(string $email, ?int $excludeUserId = null): bool
 	{
 		$sql = 'SELECT user_id FROM users WHERE email = :email';
@@ -37,10 +37,18 @@ class User
 		$statement = $this->db->prepare($sql . ' LIMIT 1');
 		$statement->execute($params);
 
-		return (bool) $statement->fetch();
+		if ($statement->fetch()) {
+			return true;
+		}
+
+		// Login checks users first, so an admin email must never belong to a user.
+		$adminStatement = $this->db->prepare('SELECT admin_id FROM admins WHERE email = :email LIMIT 1');
+		$adminStatement->execute(['email' => $email]);
+
+		return (bool) $adminStatement->fetch();
 	}
 
-	// Fetch a user by email
+	// Find user by email
 	public function findByEmail(string $email): ?array
 	{
 		$statement = $this->db->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
@@ -50,7 +58,7 @@ class User
 		return $user ?: null;
 	}
 
-	// Fetch a user by id
+	// Find user by id
 	public function findById(int $userId): ?array
 	{
 		$statement = $this->db->prepare('SELECT * FROM users WHERE user_id = :id LIMIT 1');
@@ -60,7 +68,7 @@ class User
 		return $user ?: null;
 	}
 
-	// Create a user record
+	// Create user
 	public function create(string $fullName, string $username, string $email, string $passwordHash): int
 	{
 		$statement = $this->db->prepare(
@@ -78,7 +86,7 @@ class User
 		return (int) $this->db->lastInsertId();
 	}
 
-	// Update the password hash
+	// Update password hash
 	public function updatePassword(int $userId, string $passwordHash): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET password_hash = :password_hash WHERE user_id = :id');
@@ -89,7 +97,7 @@ class User
 		]);
 	}
 
-	// Update profile name and username
+	// Update profile
 	public function updateProfile(int $userId, string $fullName, string $username): bool
 	{
 		$statement = $this->db->prepare(
@@ -103,7 +111,7 @@ class User
 		]);
 	}
 
-	// Update verified login email
+	// Update email
 	public function updateEmail(int $userId, string $email): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET email = :email WHERE user_id = :id');

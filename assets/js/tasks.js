@@ -116,7 +116,7 @@
     }
 
 
-    // Send a task request
+    // Task request
     function api(action, data) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -141,7 +141,7 @@
     }
 
 
-    // Apply the refreshed task board
+    // Refresh task board
     function applyServer(result) {
         if (result && Array.isArray(result.tasks)) tasks = result.tasks;
 
@@ -182,7 +182,7 @@
     }
 
 
-    // Render the task board
+    // Task board
     function render() {
         closeMenu();
         board.textContent = '';
@@ -400,7 +400,7 @@
     }
 
 
-    // Handle task drop placement
+    // Task drop placement
     function dropTask(id, statusKey, spot) {
         var task = findTask(id);
         if (!task) return;

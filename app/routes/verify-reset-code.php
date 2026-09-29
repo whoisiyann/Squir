@@ -15,12 +15,12 @@ $notice = null;
 $devCode = $_SESSION['pwreset_dev_code'] ?? null;
 $csrfToken = csrfToken();
 
-// Process code verification or a resend request
+// Verify or resend code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['code'] = 'Your session expired. Please refresh the page and try again.';
     } else {
-        $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh));
+        $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh), new Admin($dbh), new AdminPasswordReset($dbh));
         $intent = $_POST['intent'] ?? 'verify';
 
         if ($intent === 'resend') {
@@ -49,5 +49,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Render the code verification form
+// Code verification form
 require __DIR__ . '/../views/auth/verify-reset-code.php';

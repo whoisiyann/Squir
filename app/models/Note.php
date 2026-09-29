@@ -40,7 +40,7 @@ class Note
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-    // Fetch a user note
+    // Note lookup
     public function find(int $noteId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -78,7 +78,7 @@ class Note
     }
 
 
-    // Create a note
+    // Note
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data);
@@ -100,7 +100,7 @@ class Note
         return ['errors' => [], 'note_id' => (int) $this->dbh->lastInsertId()];
     }
 
-    // Update a note
+    // Note update
     public function update(int $noteId, int $userId, array $data): array
     {
         $errors = $this->validate($data);

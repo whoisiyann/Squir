@@ -1,4 +1,4 @@
-/* Admin > Settings */
+/* Settings */
 .as-page{ gap:0; }
 
 /* Profile row */
@@ -76,6 +76,92 @@
 /* Edit modal */
 .admin-modal .settings-editable-field[hidden]{ display:none; }
 .admin-modal .settings-form-error{ margin:0 0 4px; }
+.admin-modal [hidden]{ display:none !important; }
+
+/* Edit modal: email verification step */
+.as-email-code-panel{ text-align:center; }
+.as-email-code-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:54px;
+    height:54px;
+    margin-bottom:10px;
+    border-radius:50%;
+    background:var(--soft);
+    color:var(--accent);
+    font-size:1.6rem;
+}
+.as-email-code-subtitle{ margin:0 0 14px; font-size:.92rem; line-height:1.5; }
+.as-email-code-subtitle strong{ word-break:break-all; }
+.as-email-code-panel .as-dev-code{ text-align:left; }
+.as-email-code-panel .settings-form-error{ text-align:center; }
+.as-email-code-panel .admin-modal-actions{ justify-content:center; }
+
+/* Forgot password */
+.as-forgot [hidden]{ display:none !important; }
+.as-forgot-head h2{ margin:0 0 6px; font-size:1.1rem; }
+.as-forgot-head p{ margin:0 0 18px; color:var(--muted); font-size:.9rem; line-height:1.5; }
+.as-forgot-text{ margin:0 0 14px; font-size:.92rem; line-height:1.5; }
+.as-forgot .settings-submit-btn{ margin-top:6px; }
+.as-forgot-back{ margin-top:18px; text-align:left; }
+.as-forgot-resend{ margin:14px 0 0; font-size:.86rem; color:var(--muted); text-align:center; }
+
+.as-link-btn{
+    padding:0;
+    border:0;
+    background:none;
+    color:var(--accent);
+    font:inherit;
+    font-weight:600;
+    cursor:pointer;
+}
+.as-link-btn:hover:not(:disabled){ text-decoration:underline; }
+.as-link-btn:disabled{ color:var(--muted); cursor:not-allowed; }
+
+.as-code-inputs{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin:6px 0 10px;
+}
+.as-code-box{
+    width:46px;
+    height:54px;
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    background:var(--input-bg);
+    color:var(--text);
+    font-size:1.4rem;
+    font-weight:700;
+    text-align:center;
+}
+.as-code-box:focus{ outline:none; border-color:var(--accent); }
+.as-code-box.filled{ border-color:var(--accent); }
+.as-code-inputs.shake{ animation:as-shake .35s ease; }
+@keyframes as-shake{
+    0%, 100%{ transform:translateX(0); }
+    25%{ transform:translateX(-6px); }
+    75%{ transform:translateX(6px); }
+}
+
+.as-dev-code{
+    margin:0 0 14px;
+    padding:10px 12px;
+    border-radius:10px;
+    background:var(--soft);
+    color:var(--text);
+    font-size:.85rem;
+}
+
+@media (max-width:480px){
+    .as-code-inputs{ gap:6px; }
+    .as-code-box{ width:40px; height:48px; font-size:1.2rem; }
+}
+
+@media (prefers-reduced-motion:reduce){
+    .as-code-inputs.shake{ animation:none; }
+}
 
 @media (max-width:480px){
     .as-profile .btn-admin{ margin-left:auto; }

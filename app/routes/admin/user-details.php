@@ -10,7 +10,7 @@ $adminId = requireAdminLogin();
 
 $admin = (new Admin($dbh))->findById($adminId);
 if (!$admin) {
-    // Handle deleted admin session
+    // Session check
     session_unset();
     session_destroy();
     header('Location: ' . url('login'));

@@ -1,4 +1,4 @@
-// Admin user actions
+// User actions
 (function () {
     var actions = document.querySelector('.ud-actions');
     if (!actions) return;

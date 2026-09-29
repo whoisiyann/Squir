@@ -213,7 +213,7 @@
     .ud-stats{ padding:0 14px; gap:10px; }
     .ud-stat{ flex-direction:column; gap:10px; padding:12px; }
 
-    /* Keep the activity header visible while scrolling. */
+    /* Keep activity header visible */
     .admin-panel.admin-panel--flush.ud-activity .dash-card-head{
         position:sticky;
         top:-24px;

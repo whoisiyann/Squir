@@ -13,7 +13,7 @@ class EmailChange
         $this->dbh = $dbh;
     }
 
-    // Return the configured code lifetime, in minutes
+    // Code TTL
     public static function ttlMinutes(): int
     {
         return defined('EMAIL_CHANGE_CODE_TTL_MINUTES') ? (int) EMAIL_CHANGE_CODE_TTL_MINUTES : 10;
@@ -25,7 +25,7 @@ class EmailChange
         $code = str_pad((string) random_int(0, 999999), self::CODE_LENGTH, '0', STR_PAD_LEFT);
         $ttl = self::ttlMinutes();
 
-        // Keep one active code per user
+        // Keep one active code
         $clear = $this->dbh->prepare('DELETE FROM email_changes WHERE user_id = :uid');
         $clear->execute(['uid' => $userId]);
 
@@ -43,7 +43,7 @@ class EmailChange
         return ['code' => $code, 'ttl_minutes' => $ttl];
     }
 
-    // Get pending user request
+    // Pending request
     public function findPendingForUser(int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -103,7 +103,7 @@ class EmailChange
         ];
     }
 
-    // Mark the verified request as used
+    // Mark code used
     public function markUsed(int $userId): void
     {
         $stmt = $this->dbh->prepare(
@@ -114,7 +114,7 @@ class EmailChange
         $stmt->execute(['uid' => $userId]);
     }
 
-    // Clear pending request
+    // Clear request
     public function clearForUser(int $userId): void
     {
         $stmt = $this->dbh->prepare('DELETE FROM email_changes WHERE user_id = :uid');

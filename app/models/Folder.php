@@ -50,7 +50,7 @@ class Folder
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Fetch a user folder
+    // Folder lookup
     public function find(int $folderId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare('SELECT * FROM folders WHERE folder_id = :id AND user_id = :uid');
@@ -71,7 +71,7 @@ class Folder
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Check for a duplicate folder name
+    // Duplicate check
     public function nameExists(int $userId, string $name, string $type, ?int $excludeId = null): bool
     {
         $sql = 'SELECT folder_id FROM folders WHERE user_id = :uid AND folder_name = :name AND folder_type = :type';
@@ -85,7 +85,7 @@ class Folder
         return (bool) $stmt->fetch();
     }
 
-    // Create a folder
+    // Folder
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data, $userId, null);
@@ -129,7 +129,7 @@ class Folder
         return ['errors' => []];
     }
 
-    // Update folder color
+    // Folder color
     public function updateColor(int $folderId, int $userId, string $color): bool
     {
         if (!in_array($color, self::COLORS, true)) {

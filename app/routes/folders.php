@@ -9,7 +9,7 @@ $folderModel = new Folder($dbh);
 $controller = new FolderController($folderModel, $dbh, new ActivityLog($dbh));
 $csrfToken = csrfToken();
 
-// Validate the return URL
+// Return URL
 function foldersSafeReturnTo(?string $value): ?string
 {
     if (!is_string($value) || $value === '') {
@@ -22,7 +22,7 @@ function foldersSafeReturnTo(?string $value): ?string
 }
 
 
-// Update folder color
+// Color update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_color') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_
     exit;
 }
 
-// Toggle folder favorite
+// Toggle favorite
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_
     exit;
 }
 
-// Rename a folder
+// Rename folder
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'rename') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -83,10 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'rename'
 
 $errors = [];
 
-// Show folder details
+// Show folder
 $openFolderId = isset($_GET['folder']) && ctype_digit((string) $_GET['folder']) ? (int) $_GET['folder'] : null;
 
-// Load an open folder
+// Open folder
 if ($openFolderId !== null) {
     $folder = $folderModel->find($openFolderId, $userId);
     if (!$folder) {
@@ -94,7 +94,7 @@ if ($openFolderId !== null) {
         exit;
     }
 
-    // Load notes in the folder
+    // Folder notes
     if ($folder['folder_type'] === 'notes') {
         require_once __DIR__ . '/../models/Note.php';
         require_once __DIR__ . '/../controllers/NoteController.php';
@@ -140,7 +140,7 @@ if ($openFolderId !== null) {
     exit;
 }
 
-// Process folder form submission
+// Folder form
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
     }
 }
 
-// Load the folder list
+// Folders
 $data = $controller->index($userId, $_GET);
 
 $user = currentUserSummary($dbh, $userId);

@@ -40,7 +40,7 @@
     function show(el) { el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); }
     function hide(el) { el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); }
 
-    // Send a folder management request
+    // Folder request
     function request(params) {
         var body = new URLSearchParams();
         body.set('csrf_token', csrf);

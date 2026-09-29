@@ -119,7 +119,7 @@
         });
     });
 
-    // Update the favicon preview
+    // Favicon preview
     function wireFaviconPreview(inputId, previewId) {
         var input = document.getElementById(inputId);
         var preview = document.getElementById(previewId);
@@ -490,7 +490,7 @@
 
     var scrollHint = document.getElementById('vaultScrollHint');
 
-    // Update the table scroll hint
+    // Scroll hint
     function updateScrollHint() {
         if (!tableWrap || !scrollHint) return;
         var hasOverflow = tableWrap.scrollHeight > tableWrap.clientHeight + 2;

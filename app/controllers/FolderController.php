@@ -15,7 +15,7 @@ class FolderController
         $this->activityLog = $activityLog;
     }
 
-    // Load user folders
+    // Folders
     public function index(int $userId, array $query): array
     {
         $search = trim((string) ($query['q'] ?? ''));
@@ -38,7 +38,7 @@ class FolderController
         ];
     }
 
-    // Create a folder
+    // Folder
     public function store(int $userId, array $post): array
     {
         $type = ($post['folder_type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
@@ -65,7 +65,7 @@ class FolderController
         return $result;
     }
 
-    // Update folder color
+    // Folder color
     public function updateColor(int $folderId, int $userId, string $color): bool
     {
         if (!$this->folderModel->find($folderId, $userId)) {
@@ -110,7 +110,7 @@ class FolderController
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
-    // Check folder favorite state
+    // Favorite state
     private function isFavorite(int $userId, int $folderId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM favorites WHERE user_id = :uid AND folder_id = :fid');

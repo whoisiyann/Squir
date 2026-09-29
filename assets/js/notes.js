@@ -313,7 +313,7 @@
             });
         }
 
-        // Update the note list card
+        // Note list card
         function updateListCard(json) {
             if (!notesList) return;
             var card = notesList.querySelector('.note-card[data-note-id="' + noteId + '"]');

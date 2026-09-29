@@ -1,8 +1,6 @@
 <?php
 
-// Admin session helpers.
-
-// Require admin login
+// Admin login check
 function requireAdminLogin(): int
 {
 	if (empty($_SESSION['admin_id'])) {
@@ -13,13 +11,13 @@ function requireAdminLogin(): int
 	return (int) $_SESSION['admin_id'];
 }
 
-// Check admin session
+// Admin session check
 function adminLoggedIn(): bool
 {
 	return !empty($_SESSION['admin_id']);
 }
 
-// Get admin initials
+// Admin initials
 function adminInitials(string $fullName): string
 {
 	$parts = preg_split('/\s+/', trim($fullName), -1, PREG_SPLIT_NO_EMPTY) ?: [];

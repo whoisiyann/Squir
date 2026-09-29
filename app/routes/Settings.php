@@ -18,7 +18,7 @@ $pinController = new PinController($pinModel);
 $emailChangeController = new EmailChangeController($userModel, $emailChangeModel, $activityLogModel);
 $csrfToken = csrfToken();
 
-// Send a settings JSON response
+// JSON response
 function settingsJson(array $payload, int $status = 200): void
 {
     http_response_code($status);
@@ -27,7 +27,7 @@ function settingsJson(array $payload, int $status = 200): void
     exit;
 }
 
-// Update account info
+// Profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_profile') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -55,8 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'request
 
     $cooldown = defined('EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS') ? (int) EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS : 60;
     $lastSent = (int) ($_SESSION['email_change_last_sent'] ?? 0);
-    if (time() - $lastSent < $cooldown) {
-        settingsJson(['error' => 'Please wait a moment before requesting another code.'], 429);
+    $wait = $cooldown - (time() - $lastSent);
+    if ($wait > 0) {
+        settingsJson([
+            'error'       => 'A code was sent recently. Please wait ' . $wait . ' seconds before requesting another.',
+            'retry_after' => $wait,
+        ], 429);
     }
 
     $result = $emailChangeController->requestChange($userId, $_POST);
@@ -67,9 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'request
     $_SESSION['email_change_last_sent'] = time();
 
     settingsJson([
-        'success'   => true,
-        'new_email' => $result['new_email'],
-        'dev_code'  => $result['dev_code'],
+        'success'     => true,
+        'new_email'   => $result['new_email'],
+        'dev_code'    => $result['dev_code'],
+        'retry_after' => $cooldown,
     ]);
 }
 
@@ -81,8 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'resend_
 
     $cooldown = defined('EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS') ? (int) EMAIL_CHANGE_RESEND_COOLDOWN_SECONDS : 60;
     $lastSent = (int) ($_SESSION['email_change_last_sent'] ?? 0);
-    if (time() - $lastSent < $cooldown) {
-        settingsJson(['error' => 'Please wait a moment before requesting another code.'], 429);
+    $wait = $cooldown - (time() - $lastSent);
+    if ($wait > 0) {
+        settingsJson([
+            'error'       => 'A code was sent recently. Please wait ' . $wait . ' seconds before requesting another.',
+            'retry_after' => $wait,
+        ], 429);
     }
 
     $result = $emailChangeController->resendCode($userId);
@@ -93,13 +102,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'resend_
     $_SESSION['email_change_last_sent'] = time();
 
     settingsJson([
-        'success'   => true,
-        'new_email' => $result['new_email'],
-        'dev_code'  => $result['dev_code'],
+        'success'     => true,
+        'new_email'   => $result['new_email'],
+        'dev_code'    => $result['dev_code'],
+        'retry_after' => $cooldown,
     ]);
 }
 
-// Verify and apply the email change.
+// Apply email change
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_email_change') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -178,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'delete_
     settingsJson(['success' => true]);
 }
 
-// Verify the export PIN
+// Export PIN check
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_export_pin') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['ok' => false, 'error' => 'Your session expired. Please refresh the page.'], 403);

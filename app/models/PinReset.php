@@ -88,7 +88,7 @@ class PinReset
         ];
     }
 
-    // Check the verified code
+    // Verified code check
     public function isVerified(int $userId): bool
     {
         $stmt = $this->dbh->prepare(
@@ -101,7 +101,7 @@ class PinReset
         return (bool) $row && $row['verified_at'] !== null && $row['used_at'] === null;
     }
 
-    // Mark the verified code as used
+    // Mark code used
     public function markUsed(int $userId): void
     {
         $stmt = $this->dbh->prepare(

@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../controllers/PasswordResetController.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
 
-// Keep the Settings return path
+// Return path
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['from'] ?? '') === 'settings') {
     $_SESSION['pwreset_from'] = 'settings';
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['from'])) {
@@ -19,7 +19,7 @@ if ($prefillEmail === '' && $_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET
 $values = ['email' => $prefillEmail];
 $csrfToken = csrfToken();
 
-// Process the "forgot password" email submission
+// Send reset email
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['form'] = 'Please wait a bit before requesting another code.';
             $values['email'] = trim((string) ($_POST['email'] ?? ''));
         } else {
-            $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh));
+            $controller = new PasswordResetController(new User($dbh), new PasswordReset($dbh), new ActivityLog($dbh), new Admin($dbh), new AdminPasswordReset($dbh));
             $result = $controller->requestCode($_POST);
             $errors = $result['errors'];
             $values['email'] = $result['email'];
@@ -48,5 +48,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Render the "forgot password" form
+// Forgot password form
 require __DIR__ . '/../views/auth/forgot-password.php';

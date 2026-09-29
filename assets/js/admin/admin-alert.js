@@ -1,4 +1,4 @@
-// Admin alert helpers
+// Alert helpers
 // Use browser dialogs as fallback
 window.AdminAlert = (function () {
     var BROWN = '#6b3f2a';

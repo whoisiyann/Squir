@@ -6,7 +6,7 @@ class Admin
 	{
 	}
 
-	// Fetch an admin by email
+	// Admin by email
 	public function findByEmail(string $email): ?array
 	{
 		$statement = $this->db->prepare('SELECT * FROM admins WHERE email = :email LIMIT 1');
@@ -16,7 +16,7 @@ class Admin
 		return $admin ?: null;
 	}
 
-	// Fetch an admin by id
+	// Admin by id
 	public function findById(int $adminId): ?array
 	{
 		$statement = $this->db->prepare('SELECT * FROM admins WHERE admin_id = :id LIMIT 1');
@@ -26,7 +26,7 @@ class Admin
 		return $admin ?: null;
 	}
 
-	// Check if a username is taken by another admin
+	// Username check
 	public function usernameExists(string $username, ?int $excludeAdminId = null): bool
 	{
 		$sql = 'SELECT admin_id FROM admins WHERE username = :username';
@@ -43,7 +43,7 @@ class Admin
 		return (bool) $statement->fetchColumn();
 	}
 
-	// Check if an email is taken by another admin or by any user
+	// Email check
 	public function emailExists(string $email, ?int $excludeAdminId = null): bool
 	{
 		$sql = 'SELECT admin_id FROM admins WHERE email = :email';
@@ -67,18 +67,24 @@ class Admin
 		return (bool) $userStatement->fetchColumn();
 	}
 
-	// Update name, username, and email
-	public function updateProfile(int $adminId, string $fullName, string $username, string $email): void
+	// Update profile
+	public function updateProfile(int $adminId, string $fullName, string $username): void
 	{
 		$statement = $this->db->prepare(
-			'UPDATE admins SET full_name = :full_name, username = :username, email = :email WHERE admin_id = :id'
+			'UPDATE admins SET full_name = :full_name, username = :username WHERE admin_id = :id'
 		);
 		$statement->execute([
 			'full_name' => $fullName,
 			'username'  => $username,
-			'email'     => $email,
 			'id'        => $adminId,
 		]);
+	}
+
+	// Save a verified new email
+	public function updateEmail(int $adminId, string $email): void
+	{
+		$statement = $this->db->prepare('UPDATE admins SET email = :email WHERE admin_id = :id');
+		$statement->execute(['email' => $email, 'id' => $adminId]);
 	}
 
 	// Save a new password hash

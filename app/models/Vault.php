@@ -14,7 +14,7 @@ class Vault
     }
 
 
-    // Encrypt a vault secret
+    // Encrypt secret
     private function encryptSecret(string $plain): string
     {   
         $key = $this->encryptionKey();
@@ -23,7 +23,7 @@ class Vault
         return base64_encode($iv . $cipherText);
     }
 
-    // Decrypt a vault secret
+    // Decrypt secret
     public function decryptSecret(string $encoded): string
     {
         $key = $this->encryptionKey();
@@ -34,7 +34,7 @@ class Vault
         return $plain === false ? '' : $plain;
     }
 
-    // Load the encryption key
+    // Get key
     private function encryptionKey(): string
     {
         $key = defined('VAULT_ENCRYPTION_KEY') ? VAULT_ENCRYPTION_KEY : '';
@@ -45,7 +45,7 @@ class Vault
     }
 
 
-    // Build a favicon URL
+    // Build favicon URL
     public static function faviconUrlFor(?string $websiteUrl): ?string
     {
         $websiteUrl = trim((string) $websiteUrl);
@@ -88,7 +88,7 @@ class Vault
         return implode(', ', array_filter(array_map('trim', explode(',', $stored))));
     }
 
-    // Count user tags
+    // Count tags
     public function tagCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -109,7 +109,7 @@ class Vault
     }
 
 
-    // Synchronize vault tags
+    // Sync tags
     private function syncTags(int $vaultId, int $userId, array $tags): void
     {
         $clear = $this->dbh->prepare('DELETE FROM vault_tags WHERE vault_id = :vid');
@@ -204,7 +204,7 @@ class Vault
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Fetch a vault entry
+    // Vault lookup
     public function find(int $vaultId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -222,7 +222,7 @@ class Vault
     }
 
 
-    // Create a vault entry
+    // Vault entry
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data, false);
@@ -260,7 +260,7 @@ class Vault
         return ['errors' => [], 'vault_id' => $vaultId];
     }
 
-    // Update a vault entry
+    // Vault update
     public function update(int $vaultId, int $userId, array $data): array
     {
         $errors = $this->validate($data, true);

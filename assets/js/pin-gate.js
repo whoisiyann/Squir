@@ -88,7 +88,7 @@ window.SquirPin = (function () {
     }
 
 
-    // Verify the entered PIN
+    // PIN check
     function sendPin(pin) {
         var endpoint = ENDPOINTS[currentReason] || { url: './vault', action: 'verify_pin' };
         var body = new URLSearchParams();

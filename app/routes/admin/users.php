@@ -10,7 +10,7 @@ $adminId = requireAdminLogin();
 
 $admin = (new Admin($dbh))->findById($adminId);
 if (!$admin) {
-    // Handle deleted admin session
+    // Session check
     session_unset();
     session_destroy();
     header('Location: ' . url('login'));
@@ -21,7 +21,7 @@ $userModel = new User($dbh);
 $activityLog = new ActivityLog($dbh);
 $controller = new AdminUserController($userModel, $activityLog);
 
-// Send a JSON response and stop
+// JSON response
 function adminUsersJson(array $payload, int $status = 200): void
 {
     http_response_code($status);

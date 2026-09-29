@@ -44,7 +44,7 @@
 @media (max-width:700px){
     .admin-panel.admin-panel--flush{ flex:0 0 auto; }
 
-    /* User list viewport. */
+    /* User list viewport */
     .admin-users-table-wrap{
         max-height:none;
         overflow:visible;
@@ -100,7 +100,7 @@
     }
     .admin-toolbar #openAddUserModal span{ display:none; }
 
-    /* User cards. */
+    /* User cards */
     .admin-users-table-wrap .admin-table,
     .admin-users-table-wrap .admin-table tbody{ display:block; width:100%; }
 
@@ -333,7 +333,7 @@ a.btn-admin{ text-decoration:none; }
 }
 .admin-select:focus{ outline:none; border-color:var(--accent); }
 
-/* User modals. */
+/* User modals */
 .admin-modal-backdrop{
     position:fixed;
     inset:0;
@@ -455,7 +455,7 @@ a.btn-admin{ text-decoration:none; }
 /* Empty search state. */
 .admin-table tbody tr.is-hidden{ display:none; }
 
-/* Keep the phone toolbar visible while scrolling. */
+/* Keep phone toolbar visible */
 @media (max-width:700px){
     .admin-panel.admin-panel--flush{
         padding:0;

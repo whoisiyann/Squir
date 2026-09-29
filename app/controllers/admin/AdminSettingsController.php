@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../../models/admin/Admin.php';
 require_once __DIR__ . '/../../models/ActivityLog.php';
+require_once __DIR__ . '/../../models/admin/AdminPasswordReset.php';
+require_once __DIR__ . '/../../models/admin/AdminEmailChange.php';
+require_once __DIR__ . '/../../../includes/mailer.php';
 
 class AdminSettingsController
 {
@@ -8,11 +11,15 @@ class AdminSettingsController
 
 	private const EXPORT_MAX = 50000;
 
-	public function __construct(private Admin $admin, private ActivityLog $activityLog)
-	{
+	public function __construct(
+		private Admin $admin,
+		private ActivityLog $activityLog,
+		private ?AdminPasswordReset $passwordReset = null,
+		private ?AdminEmailChange $emailChange = null
+	) {
 	}
 
-	// Update name, username, and email
+	// Profile update
 	public function updateProfile(int $adminId, array $post): array
 	{
 		$current = $this->admin->findById($adminId);
@@ -22,8 +29,6 @@ class AdminSettingsController
 
 		$fullName = trim((string) ($post['full_name'] ?? ''));
 		$username = trim((string) ($post['username'] ?? ''));
-		$email = strtolower(trim((string) ($post['email'] ?? '')));
-		$password = (string) ($post['current_password'] ?? '');
 		$errors = [];
 
 		if ($fullName === '') {
@@ -40,27 +45,6 @@ class AdminSettingsController
 			$errors['username'] = 'Username is already taken.';
 		}
 
-		$emailChanged = false;
-		if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			$errors['email'] = 'Please enter a valid email address.';
-		} elseif (mb_strlen($email) > 100) {
-			$errors['email'] = 'Email address must be 100 characters or fewer.';
-		} elseif (strtolower((string) $current['email']) !== $email) {
-			$emailChanged = true;
-			if ($this->admin->emailExists($email, $adminId)) {
-				$errors['email'] = 'An account with this email already exists.';
-			}
-		}
-
-		// Admins sign in with email, so changing it needs the password.
-		if ($emailChanged && !isset($errors['email'])) {
-			if ($password === '') {
-				$errors['current_password'] = 'Enter your current password to change your email.';
-			} elseif (!password_verify($password, (string) $current['password_hash'])) {
-				$errors['current_password'] = 'Your current password is incorrect.';
-			}
-		}
-
 		if ($errors !== []) {
 			return ['errors' => $errors];
 		}
@@ -72,19 +56,121 @@ class AdminSettingsController
 		if ($current['username'] !== $username) {
 			$changes[] = 'username';
 		}
-		if ($emailChanged) {
-			$changes[] = 'email';
-		}
 
 		if ($changes !== []) {
-			$this->admin->updateProfile($adminId, $fullName, $username, $email);
+			$this->admin->updateProfile($adminId, $fullName, $username);
 			$this->activityLog->logAdmin($adminId, 'admin_profile_updated', 'Updated ' . implode(', ', $changes));
 		}
 
 		return ['errors' => [], 'admin' => $this->admin->findById($adminId)];
 	}
 
-	// Change the admin password
+	// Send email code
+	public function requestEmailChange(int $adminId, array $post): array
+	{
+		if ($this->emailChange === null) {
+			return ['errors' => ['form' => 'Email change is not available right now.']];
+		}
+
+		$newEmail = strtolower(trim((string) ($post['new_email'] ?? '')));
+
+		if ($newEmail === '' || !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+			return ['errors' => ['new_email' => 'Please enter a valid email address.']];
+		}
+		if (mb_strlen($newEmail) > 100) {
+			return ['errors' => ['new_email' => 'Email address must be 100 characters or fewer.']];
+		}
+
+		$current = $this->admin->findById($adminId);
+		if (!$current) {
+			return ['errors' => ['form' => 'Your admin account could not be found.']];
+		}
+		if (strtolower((string) $current['email']) === $newEmail) {
+			return ['errors' => ['new_email' => 'That is already your current email address.']];
+		}
+		if ($this->admin->emailExists($newEmail, $adminId)) {
+			return ['errors' => ['new_email' => 'An account with this email already exists.']];
+		}
+
+		return $this->issueEmailChangeCode($adminId, $newEmail, (string) $current['full_name']);
+	}
+
+	// Resend email code
+	public function resendEmailChange(int $adminId): array
+	{
+		if ($this->emailChange === null) {
+			return ['errors' => ['form' => 'Email change is not available right now.']];
+		}
+
+		$pending = $this->emailChange->findPendingForAdmin($adminId);
+		if (!$pending || $pending['used_at'] !== null) {
+			return ['errors' => ['form' => 'There is no pending email change. Please start again.']];
+		}
+
+		$current = $this->admin->findById($adminId);
+		if (!$current) {
+			return ['errors' => ['form' => 'Your admin account could not be found.']];
+		}
+
+		// Email may be taken.
+		if ($this->admin->emailExists((string) $pending['new_email'], $adminId)) {
+			$this->emailChange->clearForAdmin($adminId);
+			return ['errors' => ['form' => 'An account with this email already exists.']];
+		}
+
+		return $this->issueEmailChangeCode($adminId, (string) $pending['new_email'], (string) $current['full_name']);
+	}
+
+	// Email code
+	public function verifyEmailChange(int $adminId, string $code): array
+	{
+		$code = trim($code);
+
+		if ($this->emailChange === null || !preg_match('/^\d{' . AdminEmailChange::CODE_LENGTH . '}$/', $code)) {
+			return ['errors' => ['code' => 'Enter all ' . AdminEmailChange::CODE_LENGTH . ' digits.']];
+		}
+
+		$result = $this->emailChange->verify($adminId, $code);
+		if (!$result['ok']) {
+			return ['errors' => ['code' => $result['error'] ?? 'That code is incorrect.']];
+		}
+
+		$newEmail = (string) $result['new_email'];
+
+		// Recheck email.
+		if ($this->admin->emailExists($newEmail, $adminId)) {
+			$this->emailChange->clearForAdmin($adminId);
+			return ['errors' => ['code' => 'An account with this email already exists.']];
+		}
+
+		$this->admin->updateEmail($adminId, $newEmail);
+		$this->emailChange->markUsed($adminId);
+		$this->activityLog->logAdmin($adminId, 'admin_email_changed', 'Updated email');
+
+		return ['errors' => [], 'email' => $newEmail];
+	}
+
+	// Create email code
+	private function issueEmailChangeCode(int $adminId, string $newEmail, string $fullName): array
+	{
+		$change = $this->emailChange->createForAdmin($adminId, $newEmail);
+		$sent = sendEmailChangeVerificationEmail($newEmail, $fullName, $change['code'], $change['ttl_minutes']);
+
+		$devCode = null;
+		if (!$sent) {
+			if (defined('MAIL_DEV_FALLBACK') && MAIL_DEV_FALLBACK) {
+				// Show dev code when mail is off.
+				$devCode = $change['code'];
+			} else {
+				$this->emailChange->clearForAdmin($adminId);
+				return ['errors' => ['form' => 'We could not send the email. Please try again later.']];
+			}
+		}
+
+		return ['errors' => [], 'new_email' => $newEmail, 'dev_code' => $devCode];
+	}
+
+	// Change password
 	public function changePassword(int $adminId, array $post): array
 	{
 		$currentPassword = (string) ($post['current_password'] ?? '');
@@ -117,13 +203,106 @@ class AdminSettingsController
 		return ['errors' => []];
 	}
 
-	// Recent activity of this admin
+	// Send reset code
+	public function sendResetCode(int $adminId): array
+	{
+		$admin = $this->admin->findById($adminId);
+		if (!$admin || $this->passwordReset === null) {
+			return ['errors' => ['form' => 'Your admin account could not be found.']];
+		}
+
+		$reset = $this->passwordReset->createForAdmin($adminId);
+		$sent = sendPasswordResetEmail(
+			(string) $admin['email'],
+			(string) $admin['full_name'],
+			$reset['code'],
+			$reset['ttl_minutes']
+		);
+
+		$devCode = null;
+		if (!$sent) {
+			if (defined('MAIL_DEV_FALLBACK') && MAIL_DEV_FALLBACK) {
+				// Show dev code when mail is off.
+				$devCode = $reset['code'];
+			} else {
+				return ['errors' => ['form' => 'We could not send the email. Please try again later.']];
+			}
+		}
+
+		return [
+			'errors'   => [],
+			'email'    => self::maskEmail((string) $admin['email']),
+			'dev_code' => $devCode,
+		];
+	}
+
+	// Reset code
+	public function verifyResetCode(int $adminId, string $code): array
+	{
+		$code = trim($code);
+
+		if ($this->passwordReset === null || !preg_match('/^\d{' . AdminPasswordReset::CODE_LENGTH . '}$/', $code)) {
+			return ['ok' => false, 'error' => 'Enter all ' . AdminPasswordReset::CODE_LENGTH . ' digits.'];
+		}
+
+		return $this->passwordReset->verify($adminId, $code);
+	}
+
+	// Reset password
+	public function resetPassword(int $adminId, array $post): array
+	{
+		$new = (string) ($post['new_password'] ?? '');
+		$confirm = (string) ($post['confirm_password'] ?? '');
+		$errors = [];
+
+		if ($this->passwordReset === null || !$this->passwordReset->isVerified($adminId)) {
+			return ['errors' => ['form' => 'Your reset session has expired. Please start again.']];
+		}
+
+		$admin = $this->admin->findById($adminId);
+		if (!$admin) {
+			return ['errors' => ['form' => 'Your admin account could not be found.']];
+		}
+
+		if (!preg_match('/^(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/', $new)) {
+			$errors['new_password'] = 'Password must be at least 8 characters and include a number and a special character.';
+		} elseif (password_verify($new, (string) $admin['password_hash'])) {
+			$errors['new_password'] = 'Your new password must be different from your current password.';
+		}
+
+		if ($confirm === '' || $confirm !== $new) {
+			$errors['confirm_password'] = 'Passwords do not match.';
+		}
+
+		if ($errors !== []) {
+			return ['errors' => $errors];
+		}
+
+		$this->admin->updatePassword($adminId, password_hash($new, PASSWORD_DEFAULT));
+		$this->passwordReset->markUsed($adminId);
+		$this->activityLog->logAdmin($adminId, 'admin_password_reset', 'Reset password using an email code');
+
+		return ['errors' => []];
+	}
+
+	// Mask email
+	private static function maskEmail(string $email): string
+	{
+		$at = strpos($email, '@');
+		if ($at === false || $at < 1) {
+			return $email;
+		}
+
+		return mb_substr($email, 0, 1) . str_repeat('*', max(2, min($at - 1, 6))) . substr($email, $at);
+	}
+
+	// Recent admin activity
 	public function listActivity(int $adminId, int $limit = 50): array
 	{
 		return $this->activityLog->listForAdminActor($adminId, $limit);
 	}
 
-	// Clear this admin's own activity log
+	// Clear admin activity
 	public function clearActivity(int $adminId): bool
 	{
 		return $this->activityLog->clearForAdminActor($adminId);
@@ -134,7 +313,7 @@ class AdminSettingsController
 		return ['Type', 'Name', 'Date & Time', 'Activity', 'Details', 'Device', 'IP Address'];
 	}
 
-	// Yield CSV rows in batches so large exports stay light.
+	// Export CSV rows
 	public function exportBatches(bool $userOnly): Generator
 	{
 		$offset = 0;
@@ -157,7 +336,7 @@ class AdminSettingsController
 		}
 	}
 
-	// Format one CSV row
+	// Format CSV row
 	private function exportRow(array $row): array
 	{
 		$action = (string) $row['action'];

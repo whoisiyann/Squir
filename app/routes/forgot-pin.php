@@ -8,7 +8,7 @@ require_once __DIR__ . '/../controllers/PinResetController.php';
 
 $userId = requireLogin();
 
-// Keep the Settings return path
+// Return path
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['from'] ?? '') === 'settings') {
     $_SESSION['pinreset_from'] = 'settings';
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['from'])) {
@@ -24,7 +24,7 @@ if ($prefillEmail === '' && $_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET
 $values = ['email' => $prefillEmail];
 $csrfToken = csrfToken();
 
-// Process the "forgot PIN" email submission
+// Send PIN email
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -53,5 +53,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Render the "forgot PIN" form
+// Forgot PIN form
 require __DIR__ . '/../views/settings/forgot-pin.php';

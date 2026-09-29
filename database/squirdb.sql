@@ -84,6 +84,25 @@ CREATE TABLE password_resets (
 CREATE INDEX idx_password_resets_user ON password_resets (user_id);
 
 
+-- 2b-1. ADMIN_PASSWORD_RESETS (forgot password codes for admins)
+CREATE TABLE admin_password_resets (
+    reset_id    INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id    INT NOT NULL,
+    code_hash   VARCHAR(255) NOT NULL,
+    attempts    TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    expires_at  DATETIME NOT NULL,
+    verified_at DATETIME NULL,
+    used_at     DATETIME NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_admin_password_resets_admin
+        FOREIGN KEY (admin_id) REFERENCES admins(admin_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_admin_password_resets_admin ON admin_password_resets (admin_id);
+
+
 
 
 -- 2b-2. EMAIL_CHANGES
@@ -104,6 +123,28 @@ CREATE TABLE email_changes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX idx_email_changes_user ON email_changes (user_id);
+
+
+
+
+-- 2b-3. ADMIN_EMAIL_CHANGES (verification codes for admin email changes)
+CREATE TABLE admin_email_changes (
+    change_id   INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id    INT NOT NULL,
+    new_email   VARCHAR(100) NOT NULL,
+    code_hash   VARCHAR(255) NOT NULL,
+    attempts    TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    expires_at  DATETIME NOT NULL,
+    verified_at DATETIME NULL,
+    used_at     DATETIME NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_admin_email_changes_admin
+        FOREIGN KEY (admin_id) REFERENCES admins(admin_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_admin_email_changes_admin ON admin_email_changes (admin_id);
 
 
 

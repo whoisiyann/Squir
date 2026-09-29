@@ -165,7 +165,7 @@
 
     // Forms with data-confirm-delete
     /* Delete forms */
-    // Handle protected delete forms
+    // Protected delete forms
     document.addEventListener('submit', function (event) {
         var form = event.target;
         if (!form || !form.matches || !form.matches('form[data-confirm-delete]')) return;

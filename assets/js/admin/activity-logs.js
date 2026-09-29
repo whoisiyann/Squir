@@ -1,4 +1,3 @@
-// Admin activity log controls.
 (function () {
     var root = document.getElementById('alRoot');
     if (!root) return;

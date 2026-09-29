@@ -803,7 +803,7 @@
     display: none;
   }
 
-  /* Active note view */
+  /* Active note */
   body.notes-detail-active .notes-list-panel {
     display: none;
   }

@@ -37,7 +37,7 @@ class Task
         return array_map([$this, 'normalize'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    // Fetch a user task
+    // Task lookup
     public function find(int $taskId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -97,7 +97,7 @@ class Task
     }
 
 
-    // Create a task
+    // Task
     public function create(int $userId, array $input): array
     {
         [$errors, $clean] = $this->validate($input);
@@ -130,7 +130,7 @@ class Task
     }
 
 
-    // Update a task
+    // Task update
     public function update(int $taskId, int $userId, array $input): array
     {
         $before = $this->find($taskId, $userId);
@@ -177,7 +177,7 @@ class Task
         return ['errors' => [], 'task' => $this->find($taskId, $userId)];
     }
 
-    // Update task status
+    // Status update
     public function setStatus(int $taskId, int $userId, string $status): ?array
     {
         $before = $this->find($taskId, $userId);
@@ -413,7 +413,7 @@ class Task
     }
 
 
-    // Load tasks in a status column
+    // Status column
     private function columnRows(int $userId, string $status, ?int $excludeId = null): array
     {
         $sql = 'SELECT task_id, priority, due_date, position, created_at

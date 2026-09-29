@@ -20,7 +20,7 @@ $notice = null;
 $devCode = $_SESSION['pinreset_dev_code'] ?? null;
 $csrfToken = csrfToken();
 
-// Process code verification or a resend request
+// Verify or resend code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['code'] = 'Your session expired. Please refresh the page and try again.';
@@ -54,5 +54,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Render the code verification form
+// Code verification form
 require __DIR__ . '/../views/settings/verify-pin-code.php';

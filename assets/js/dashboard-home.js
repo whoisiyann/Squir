@@ -6,8 +6,7 @@
     var clocks = (cfg.clocks || []).slice();
     var tzLabels = cfg.tzLabels || {};
 
-    // Normalize time zones.
-    // Let the click finish first.
+    // Time zone aliases.
     var TZ_ALIASES = {
         'Asia/Calcutta': 'Asia/Kolkata',
         'Asia/Saigon': 'Asia/Ho_Chi_Minh',
@@ -33,7 +32,7 @@
         return node;
     }
 
-    // Send a dashboard request
+    // Dashboard request
     function api(action, data) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -94,7 +93,7 @@
             if (!addMenu.contains(event.target)) {
                 setAddMenu(false);
             } else if (event.target.closest('.add-menu-item')) {
-                // Let existing actions finish first
+                // Close menu after click
                 setTimeout(function () { setAddMenu(false); }, 0);
             }
         });
@@ -262,7 +261,7 @@
         return row;
     }
 
-    // Render the clock city catalog
+    // Clock catalog
     function renderCatalog() {
         var term = modal.search.value.trim().toLowerCase();
         var added = {};

@@ -1,4 +1,3 @@
-// Admin settings.
 (function () {
     var root = document.getElementById('asRoot');
     if (!root) return;
@@ -9,7 +8,7 @@
     var endpoint = root.getAttribute('data-endpoint');
     var csrfToken = window.ADMIN_CSRF_TOKEN || '';
 
-    // Send a settings request
+    // Settings request
     function postAjax(action, fields) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -69,10 +68,20 @@
         var fullNameInput = document.getElementById('asEditFullName');
         var usernameInput = document.getElementById('asEditUsername');
         var emailInput = document.getElementById('asEditEmail');
-        var passwordField = document.getElementById('asPasswordField');
-        var passwordInput = document.getElementById('asEditPassword');
         var errorEl = document.getElementById('asEditError');
         var submitBtn = document.getElementById('asEditSubmit');
+
+        // Email verification step
+        var emailPanel = document.getElementById('asEmailCodePanel');
+        var emailTarget = document.getElementById('asEmailTarget');
+        var emailDevCode = document.getElementById('asEmailDevCode');
+        var emailCodeWrap = document.getElementById('asEmailCodeInputs');
+        var emailCodeBoxes = $all('.as-code-box', emailCodeWrap);
+        var emailCodeError = document.getElementById('asEmailCodeError');
+        var emailVerifyBtn = document.getElementById('asEmailVerifyBtn');
+        var emailResendBtn = document.getElementById('asEmailResendBtn');
+        var emailCancelBtn = document.getElementById('asEmailCancelBtn');
+        var emailCooldownTimer = null;
 
         var saved = {
             full_name: fullNameInput.value,
@@ -81,24 +90,95 @@
         };
 
         function emailChanged() {
-            return emailInput.value.trim().toLowerCase() !== saved.email.toLowerCase();
+            var value = emailInput.value.trim().toLowerCase();
+            return value !== '' && value !== saved.email.toLowerCase();
         }
 
-        function syncPasswordField() {
-            var show = emailChanged();
-            passwordField.hidden = !show;
-            if (!show) passwordInput.value = '';
+        function emailCodeValue() {
+            return emailCodeBoxes.map(function (box) { return box.value; }).join('');
         }
 
+        function refreshEmailCode() {
+            emailCodeBoxes.forEach(function (box) { box.classList.toggle('filled', box.value !== ''); });
+            emailVerifyBtn.disabled = emailCodeValue().length !== emailCodeBoxes.length;
+        }
+
+        function clearEmailCode() {
+            emailCodeBoxes.forEach(function (box) { box.value = ''; });
+            refreshEmailCode();
+        }
+
+        function shakeEmailCode() {
+            emailCodeWrap.classList.remove('shake');
+            void emailCodeWrap.offsetWidth;
+            emailCodeWrap.classList.add('shake');
+        }
+
+        function showEmailDevCode(code) {
+            emailDevCode.textContent = '';
+            if (!code) {
+                emailDevCode.hidden = true;
+                return;
+            }
+            emailDevCode.appendChild(document.createTextNode("Dev mode \u2014 email isn't configured yet, so here's your code: "));
+            var strong = document.createElement('strong');
+            strong.textContent = code;
+            emailDevCode.appendChild(strong);
+            emailDevCode.hidden = false;
+        }
+
+        // Count down before the code can be sent again
+        function startEmailCooldown(seconds) {
+            clearInterval(emailCooldownTimer);
+            var left = Math.max(0, parseInt(seconds, 10) || 0);
+
+            function paint() {
+                if (left > 0) {
+                    emailResendBtn.disabled = true;
+                    emailResendBtn.textContent = 'Resend in ' + left + 's';
+                } else {
+                    clearInterval(emailCooldownTimer);
+                    emailResendBtn.disabled = false;
+                    emailResendBtn.textContent = 'Resend';
+                }
+            }
+
+            paint();
+            if (left > 0) {
+                emailCooldownTimer = setInterval(function () { left -= 1; paint(); }, 1000);
+            }
+        }
+
+        // Show the "enter the code" step
+        function showEmailCodeStep(newEmail, devCode, retryAfter) {
+            emailTarget.textContent = newEmail;
+            showEmailDevCode(devCode);
+            emailCodeError.textContent = '';
+            clearEmailCode();
+
+            editForm.hidden = true;
+            emailPanel.hidden = false;
+            startEmailCooldown(retryAfter);
+            emailCodeBoxes[0].focus();
+        }
+
+        // Back to the account form
         function resetEditForm() {
+            clearInterval(emailCooldownTimer);
+            clearEmailCode();
+            showEmailDevCode('');
+            emailCodeError.textContent = '';
+            emailResendBtn.disabled = false;
+            emailResendBtn.textContent = 'Resend';
+            emailPanel.hidden = true;
+            editForm.hidden = false;
+
             fullNameInput.value = saved.full_name;
             usernameInput.value = saved.username;
             emailInput.value = saved.email;
             [fullNameInput, usernameInput, emailInput].forEach(function (input) {
                 input.setAttribute('readonly', 'readonly');
             });
-            passwordInput.value = '';
-            passwordField.hidden = true;
             errorEl.textContent = '';
             submitBtn.disabled = false;
         }
@@ -140,55 +220,186 @@
             input.addEventListener('focus', function () { makeEditable(input); });
             input.addEventListener('click', function () { makeEditable(input); });
         });
-        emailInput.addEventListener('input', syncPasswordField);
 
-        // Refresh the top bar after saving.
+        // Refresh top bar
         function updateTopbar(data) {
             var name = $('.topbar .profile-name');
             var avatar = $('.topbar .profile .avatar');
             var dropdownName = $('.topbar .profile-dropdown-head strong');
-            var dropdownEmail = $('.topbar .profile-dropdown-head small');
             if (name) name.textContent = data.full_name;
             if (avatar) avatar.textContent = data.initials;
             if (dropdownName) dropdownName.textContent = data.full_name;
-            if (dropdownEmail) dropdownEmail.textContent = data.email;
         }
 
+        function updateTopbarEmail(email) {
+            var dropdownEmail = $('.topbar .profile-dropdown-head small');
+            if (dropdownEmail) dropdownEmail.textContent = email;
+        }
+
+        // Save profile
         editForm.addEventListener('submit', function (event) {
             event.preventDefault();
             errorEl.textContent = '';
+
+            var fullName = fullNameInput.value.trim();
+            var username = usernameInput.value.trim();
+            var newEmail = emailInput.value.trim();
+
+            var profileChanged = fullName !== saved.full_name || username !== saved.username;
+            var wantsEmailChange = emailChanged();
+
+            // Nothing was edited: just close the modal, no request and no notification.
+            if (!profileChanged && !wantsEmailChange) {
+                closeEdit();
+                return;
+            }
+
             submitBtn.disabled = true;
 
-            postAjax('update_profile', {
-                full_name: fullNameInput.value.trim(),
-                username: usernameInput.value.trim(),
-                email: emailInput.value.trim(),
-                current_password: passwordInput.value
-            }).then(function (result) {
-                submitBtn.disabled = false;
+            // Only save name/username when one of them changed.
+            var saveProfile = profileChanged
+                ? postAjax('update_profile', { full_name: fullName, username: username })
+                : Promise.resolve(null);
 
-                if (!result.ok) {
-                    errorEl.textContent = result.json.error || 'Could not save your changes.';
+            saveProfile.then(function (result) {
+                if (result) {
+                    if (!result.ok) {
+                        submitBtn.disabled = false;
+                        errorEl.textContent = result.json.error || 'Could not save your changes.';
+                        return;
+                    }
+
+                    var data = result.json;
+                    saved.full_name = data.full_name;
+                    saved.username = data.username;
+
+                    $('#asNameDisplay').textContent = data.full_name;
+                    $('#asFullNameField').value = data.full_name;
+                    $('#asUsernameField').value = data.username;
+                    $('#asAvatar').textContent = data.initials;
+                    updateTopbar(data);
+                }
+
+                if (!wantsEmailChange) {
+                    submitBtn.disabled = false;
+                    closeEdit();
+                    notifySuccess('Profile Updated!', 'Your account information has been saved.');
                     return;
                 }
 
-                var data = result.json;
-                saved = { full_name: data.full_name, username: data.username, email: data.email };
+                // Start email verification.
+                return postAjax('request_email_change', { new_email: newEmail }).then(function (emailResult) {
+                    submitBtn.disabled = false;
 
-                $('#asNameDisplay').textContent = data.full_name;
-                $('#asFullNameField').value = data.full_name;
-                $('#asUsernameField').value = data.username;
-                $('#asEmailField').value = data.email;
-                $('#asAvatar').textContent = data.initials;
-                updateTopbar(data);
+                    if (!emailResult.ok) {
+                        errorEl.textContent = emailResult.json.error || 'Could not send a verification code.';
+                        return;
+                    }
 
-                closeEdit();
-                notifySuccess('Profile Updated!', 'Your account information has been saved.');
+                    showEmailCodeStep(emailResult.json.new_email, emailResult.json.dev_code, emailResult.json.retry_after);
+                });
             }).catch(function () {
                 submitBtn.disabled = false;
                 errorEl.textContent = 'Something went wrong. Please try again.';
             });
         });
+
+        // 6 digit boxes
+        emailCodeBoxes.forEach(function (box, index) {
+            box.addEventListener('input', function () {
+                box.value = box.value.replace(/\D/g, '').slice(0, 1);
+                if (box.value !== '' && index < emailCodeBoxes.length - 1) emailCodeBoxes[index + 1].focus();
+                emailCodeError.textContent = '';
+                refreshEmailCode();
+            });
+
+            box.addEventListener('keydown', function (event) {
+                if (event.key === 'Backspace' && box.value === '' && index > 0) {
+                    event.preventDefault();
+                    emailCodeBoxes[index - 1].value = '';
+                    emailCodeBoxes[index - 1].focus();
+                    refreshEmailCode();
+                } else if (event.key === 'ArrowLeft' && index > 0) {
+                    event.preventDefault();
+                    emailCodeBoxes[index - 1].focus();
+                } else if (event.key === 'ArrowRight' && index < emailCodeBoxes.length - 1) {
+                    event.preventDefault();
+                    emailCodeBoxes[index + 1].focus();
+                } else if (event.key === 'Enter' && !emailVerifyBtn.disabled) {
+                    event.preventDefault();
+                    emailVerifyBtn.click();
+                }
+            });
+
+            box.addEventListener('paste', function (event) {
+                event.preventDefault();
+                var digits = (event.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+                emailCodeBoxes.forEach(function (b, i) { b.value = digits[i] || ''; });
+                refreshEmailCode();
+                emailCodeBoxes[Math.min(digits.length, emailCodeBoxes.length - 1)].focus();
+            });
+
+            box.addEventListener('focus', function () { box.select(); });
+        });
+
+        emailVerifyBtn.addEventListener('click', function () {
+            var code = emailCodeValue();
+            if (code.length !== emailCodeBoxes.length) {
+                shakeEmailCode();
+                emailCodeError.textContent = 'Enter all ' + emailCodeBoxes.length + ' digits.';
+                return;
+            }
+
+            emailVerifyBtn.disabled = true;
+            emailCodeError.textContent = '';
+
+            postAjax('verify_email_change', { code: code }).then(function (result) {
+                if (!result.ok) {
+                    emailCodeError.textContent = result.json.error || 'That code is incorrect or has expired.';
+                    shakeEmailCode();
+                    refreshEmailCode();
+                    return;
+                }
+
+                var newEmail = result.json.email;
+                saved.email = newEmail;
+                $('#asEmailField').value = newEmail;
+                emailInput.value = newEmail;
+                updateTopbarEmail(newEmail);
+
+                closeEdit();
+                notifySuccess('Email Updated!', 'Your login email has been changed to ' + newEmail + '.');
+            }).catch(function () {
+                emailCodeError.textContent = 'Something went wrong. Please try again.';
+                refreshEmailCode();
+            });
+        });
+
+        emailResendBtn.addEventListener('click', function () {
+            if (emailResendBtn.disabled) return;
+            emailCodeError.textContent = '';
+            emailResendBtn.disabled = true;
+
+            postAjax('resend_email_change', {}).then(function (result) {
+                if (!result.ok) {
+                    emailCodeError.textContent = result.json.error || 'Could not resend the code.';
+                    // A code went out a moment ago: keep the timer honest.
+                    startEmailCooldown(result.json.retry_after || 0);
+                    return;
+                }
+
+                clearEmailCode();
+                showEmailDevCode(result.json.dev_code);
+                startEmailCooldown(result.json.retry_after);
+                emailCodeBoxes[0].focus();
+                notifySuccess('Code sent', 'We sent a new code to ' + result.json.new_email + '.');
+            }).catch(function () {
+                emailCodeError.textContent = 'Something went wrong. Please try again.';
+                startEmailCooldown(0);
+            });
+        });
+
+        emailCancelBtn.addEventListener('click', resetEditForm);
     }
 
     /* Password visibility */
@@ -273,6 +484,276 @@
             }).catch(function () {
                 submit.disabled = false;
                 document.getElementById('changePasswordFormError').textContent = 'Something went wrong. Please try again.';
+            });
+        });
+    }
+
+    /* Forgot password (email code, then set a new password) */
+    var forgotOpen = document.getElementById('asForgotOpen');
+    var forgotPanel = document.getElementById('asForgotPanel');
+    if (forgotOpen && forgotPanel && passwordForm) {
+        var steps = {
+            send: $('[data-step="send"]', forgotPanel),
+            verify: $('[data-step="verify"]', forgotPanel),
+            reset: $('[data-step="reset"]', forgotPanel)
+        };
+        var sendBtn = document.getElementById('asForgotSend');
+        var sendError = document.getElementById('asForgotSendError');
+        var codeWrap = document.getElementById('asCodeInputs');
+        var codeBoxes = $all('.as-code-box', codeWrap);
+        var codeError = document.getElementById('asCodeError');
+        var verifyBtn = document.getElementById('asVerifyBtn');
+        var resendBtn = document.getElementById('asResend');
+        var devBox = document.getElementById('asDevCode');
+        var devValue = document.getElementById('asDevCodeValue');
+        var resetForm = document.getElementById('asResetForm');
+        var resetPasswordInput = document.getElementById('resetNewPassword');
+        var resetChecklist = document.getElementById('resetChecklist');
+        var resetError = document.getElementById('asResetFormError');
+        var cooldownTimer = null;
+
+        function showStep(name) {
+            Object.keys(steps).forEach(function (key) { steps[key].hidden = key !== name; });
+        }
+
+        function codeValue() {
+            return codeBoxes.map(function (box) { return box.value; }).join('');
+        }
+
+        function refreshCode() {
+            codeBoxes.forEach(function (box) { box.classList.toggle('filled', box.value !== ''); });
+            verifyBtn.disabled = codeValue().length !== codeBoxes.length;
+        }
+
+        function clearCode() {
+            codeBoxes.forEach(function (box) { box.value = ''; });
+            refreshCode();
+        }
+
+        function shakeCode() {
+            codeWrap.classList.remove('shake');
+            void codeWrap.offsetWidth;
+            codeWrap.classList.add('shake');
+        }
+
+        function showDevCode(code) {
+            if (code) {
+                devValue.textContent = code;
+                devBox.hidden = false;
+            } else {
+                devBox.hidden = true;
+            }
+        }
+
+        function startCooldown(seconds) {
+            clearInterval(cooldownTimer);
+            var left = Math.max(0, parseInt(seconds, 10) || 0);
+
+            function paint() {
+                if (left > 0) {
+                    resendBtn.disabled = true;
+                    resendBtn.textContent = 'Resend in ' + left + 's';
+                } else {
+                    clearInterval(cooldownTimer);
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'Resend';
+                }
+            }
+
+            paint();
+            if (left > 0) {
+                cooldownTimer = setInterval(function () { left -= 1; paint(); }, 1000);
+            }
+        }
+
+        function evaluateReset(value) {
+            var rules = {
+                length: value.length >= 8,
+                number: /\d/.test(value),
+                special: /[^A-Za-z0-9]/.test(value)
+            };
+            Object.keys(rules).forEach(function (rule) {
+                var item = resetChecklist.querySelector('[data-rule="' + rule + '"]');
+                if (item) item.classList.toggle('is-valid', rules[rule]);
+            });
+        }
+
+        function resetForgotState() {
+            clearInterval(cooldownTimer);
+            clearCode();
+            showDevCode('');
+            sendError.textContent = '';
+            codeError.textContent = '';
+            resetError.textContent = '';
+            $all('.settings-form-error', resetForm).forEach(function (el) { el.textContent = ''; });
+            resetForm.reset();
+            evaluateReset('');
+            sendBtn.disabled = false;
+            resendBtn.disabled = false;
+            resendBtn.textContent = 'Resend';
+            showStep('send');
+        }
+
+        forgotOpen.addEventListener('click', function (event) {
+            event.preventDefault();
+            passwordForm.hidden = true;
+            forgotPanel.hidden = false;
+            resetForgotState();
+        });
+
+        document.getElementById('asForgotBack').addEventListener('click', function (event) {
+            event.preventDefault();
+            forgotPanel.hidden = true;
+            passwordForm.hidden = false;
+            resetForgotState();
+        });
+
+        // Ask the server to email a code (also used by Resend)
+        function requestCode(isResend) {
+            var trigger = isResend ? resendBtn : sendBtn;
+            var errorEl = isResend ? codeError : sendError;
+            errorEl.textContent = '';
+            trigger.disabled = true;
+
+            return postAjax('forgot_send_code', {}).then(function (result) {
+                if (result.ok) {
+                    clearCode();
+                    codeError.textContent = '';
+                    showDevCode(result.json.dev_code);
+                    showStep('verify');
+                    startCooldown(result.json.retry_after);
+                    codeBoxes[0].focus();
+                    if (isResend) notifySuccess('Code sent', 'We sent a new code to your email.');
+                    return;
+                }
+
+                // A code went out a moment ago: let the admin enter it.
+                if (result.json.retry_after) {
+                    showStep('verify');
+                    startCooldown(result.json.retry_after);
+                    codeError.textContent = result.json.error || '';
+                    codeBoxes[0].focus();
+                    return;
+                }
+
+                trigger.disabled = false;
+                errorEl.textContent = result.json.error || 'Could not send the code.';
+            }).catch(function () {
+                trigger.disabled = false;
+                errorEl.textContent = 'Something went wrong. Please try again.';
+            });
+        }
+
+        sendBtn.addEventListener('click', function () { requestCode(false); });
+        resendBtn.addEventListener('click', function () { if (!resendBtn.disabled) requestCode(true); });
+
+        // 6 digit boxes
+        codeBoxes.forEach(function (box, index) {
+            box.addEventListener('input', function () {
+                box.value = box.value.replace(/\D/g, '').slice(0, 1);
+                if (box.value !== '' && index < codeBoxes.length - 1) codeBoxes[index + 1].focus();
+                codeError.textContent = '';
+                refreshCode();
+            });
+
+            box.addEventListener('keydown', function (event) {
+                if (event.key === 'Backspace' && box.value === '' && index > 0) {
+                    event.preventDefault();
+                    codeBoxes[index - 1].value = '';
+                    codeBoxes[index - 1].focus();
+                    refreshCode();
+                } else if (event.key === 'ArrowLeft' && index > 0) {
+                    event.preventDefault();
+                    codeBoxes[index - 1].focus();
+                } else if (event.key === 'ArrowRight' && index < codeBoxes.length - 1) {
+                    event.preventDefault();
+                    codeBoxes[index + 1].focus();
+                } else if (event.key === 'Enter' && !verifyBtn.disabled) {
+                    event.preventDefault();
+                    verifyBtn.click();
+                }
+            });
+
+            box.addEventListener('paste', function (event) {
+                event.preventDefault();
+                var digits = (event.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+                codeBoxes.forEach(function (b, i) { b.value = digits[i] || ''; });
+                refreshCode();
+                codeBoxes[Math.min(digits.length, codeBoxes.length - 1)].focus();
+            });
+
+            box.addEventListener('focus', function () { box.select(); });
+        });
+
+        verifyBtn.addEventListener('click', function () {
+            var code = codeValue();
+            if (code.length !== codeBoxes.length) {
+                shakeCode();
+                codeError.textContent = 'Enter all ' + codeBoxes.length + ' digits.';
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            codeError.textContent = '';
+
+            postAjax('forgot_verify_code', { code: code }).then(function (result) {
+                if (!result.ok) {
+                    codeError.textContent = result.json.error || 'That code is incorrect.';
+                    shakeCode();
+                    verifyBtn.disabled = false;
+                    return;
+                }
+
+                showStep('reset');
+                resetPasswordInput.focus();
+            }).catch(function () {
+                verifyBtn.disabled = false;
+                codeError.textContent = 'Something went wrong. Please try again.';
+            });
+        });
+
+        resetPasswordInput.addEventListener('input', function () { evaluateReset(resetPasswordInput.value); });
+
+        resetForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            $all('.settings-form-error', resetForm).forEach(function (el) { el.textContent = ''; });
+
+            var submit = document.getElementById('asResetSubmit');
+            submit.disabled = true;
+
+            postAjax('forgot_reset_password', {
+                new_password: resetPasswordInput.value,
+                confirm_password: document.getElementById('resetConfirmPassword').value
+            }).then(function (result) {
+                submit.disabled = false;
+
+                if (!result.ok) {
+                    var errors = result.json.errors || {};
+                    Object.keys(errors).forEach(function (field) {
+                        var el = resetForm.querySelector('[data-error-for="' + field + '"]');
+                        if (el) el.textContent = errors[field];
+                    });
+                    if (!errors.new_password && !errors.confirm_password) {
+                        resetError.textContent = result.json.error || 'Could not reset your password.';
+                    }
+                    return;
+                }
+
+                var done = function () { window.location.href = endpoint; };
+                if (window.Swal) {
+                    Swal.fire({
+                        title: 'Password Reset!',
+                        text: 'Your password has been changed successfully. Please use your new password the next time you log in.',
+                        icon: 'success',
+                        confirmButtonText: 'Done',
+                        confirmButtonColor: '#6b3f2a'
+                    }).then(done);
+                } else {
+                    done();
+                }
+            }).catch(function () {
+                submit.disabled = false;
+                resetError.textContent = 'Something went wrong. Please try again.';
             });
         });
     }

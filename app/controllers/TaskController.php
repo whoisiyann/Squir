@@ -13,13 +13,13 @@ class TaskController
         $this->activityLog = $activityLog;
     }
 
-    // Load user tasks
+    // Tasks
     public function index(int $userId): array
     {
         return $this->taskModel->allForUser($userId);
     }
 
-    // Create a task
+    // Task
     public function store(int $userId, array $post): array
     {
         $result = $this->taskModel->create($userId, $post);
@@ -29,7 +29,7 @@ class TaskController
         return $result;
     }
 
-    // Update a task
+    // Task update
     public function update(int $taskId, int $userId, array $post): array
     {
         $before = $this->taskModel->find($taskId, $userId);

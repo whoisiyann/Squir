@@ -7,7 +7,7 @@ class AuthController
 	{
 	}
 
-	// Handle user registration
+	// Registration
 	public function register(array $input): array
 	{
 		$fullName = trim((string) ($input['full_name'] ?? ''));
@@ -81,7 +81,7 @@ class AuthController
 		return ['errors' => [], 'values' => [], 'user_id' => $userId];
 	}
 
-	// Handle user login
+	// Login
 	public function login(array $input): array
 	{
 		$email = strtolower(trim((string) ($input['email'] ?? '')));

@@ -98,7 +98,7 @@ class AdminUserController
 		return ['errors' => [], 'values' => [], 'user_id' => $userId];
 	}
 
-	// Update user
+	// User update
 	public function update(int $userId, array $input): array
 	{
 		$fullName = trim((string) ($input['full_name'] ?? ''));

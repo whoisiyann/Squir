@@ -15,7 +15,7 @@ class NoteController
         $this->activityLog = $activityLog;
     }
 
-    // Load user notes
+    // Notes
     public function index(int $userId, array $query): array
     {
         $folderId = isset($query['folder']) && $query['folder'] !== '' ? (int) $query['folder'] : null;
@@ -42,7 +42,7 @@ class NoteController
         ];
     }
 
-    // Fetch a user note
+    // Note lookup
     public function find(int $noteId, int $userId): ?array
     {
         $item = $this->noteModel->find($noteId, $userId);
@@ -53,7 +53,7 @@ class NoteController
         return $item;
     }
 
-    // Create a note
+    // Note
     public function store(int $userId, array $post): array
     {
         $result = $this->noteModel->create($userId, $this->extract($post));
@@ -63,7 +63,7 @@ class NoteController
         return $result;
     }
 
-    // Update a note
+    // Note update
     public function update(int $noteId, int $userId, array $post): array
     {
         $existing = $this->noteModel->find($noteId, $userId);
@@ -158,7 +158,7 @@ class NoteController
         return trim($clean);
     }
 
-    // Load note folders
+    // Note folders
     private function getFolders(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -176,7 +176,7 @@ class NoteController
         return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
-    // Check note favorite state
+    // Favorite state
     private function isFavorite(int $userId, int $noteId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM favorites WHERE user_id = :uid AND note_id = :nid');

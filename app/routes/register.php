@@ -6,7 +6,7 @@ $csrfToken = csrfToken();
 $errors = [];
 $values = ['fullName' => '', 'username' => '', 'email' => ''];
 
-// Process registration submission
+// Registration submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['form'] = 'Your session expired. Please refresh the page and try again.';
@@ -33,5 +33,5 @@ $fieldError = static fn (string $field): string => isset($errors[$field])
     ? '<p class="invalid-feedback-squir" id="' . $field . '-error">' . $escape($errors[$field]) . '</p>'
     : '';
 
-// Render the registration form
+// Registration form
 require __DIR__ . '/../views/auth/register.php';

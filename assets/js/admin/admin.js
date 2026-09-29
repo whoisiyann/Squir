@@ -1,4 +1,4 @@
-// Shared admin panel behavior.
+// Admin behavior
 (function () {
     var shell = document.getElementById('adminShell');
     var collapseButton = document.getElementById('collapseBtn');
@@ -8,7 +8,7 @@
     var storageKey = 'squir-admin-sidebar-collapsed';
     var themeStorageKey = 'squir-admin-theme';
 
-    // Apply the admin theme.
+    // Apply theme
     function applyTheme(isDark) {
         document.body.classList.toggle('dashboard-dark', isDark);
         document.documentElement.classList.remove('dashboard-dark-preload');

@@ -1,4 +1,4 @@
-/* Admin > Activity Logs */
+/* Activity logs */
 :root{
     --al-blue:#1f5eff;
     --al-blue-hover:#184fd8;
@@ -513,7 +513,7 @@ body.dashboard-dark .al-date-fields input{ color-scheme:dark; }
 
 /* Tablet */
 @media (max-width:1100px){
-    /* Keep the toolbar visible while scrolling. */
+    /* Keep toolbar visible */
     .al-heading{ display:contents; }
     .al-heading > div:first-child{ margin-bottom:14px; }
     .al-toolbar{

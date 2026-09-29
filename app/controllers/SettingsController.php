@@ -123,7 +123,7 @@ class SettingsController
         return ['errors' => []];
     }
 
-    // Load recent activity
+    // Recent activity
     public function listActivity(int $userId, int $limit = 50): array
     {
         return $this->activityLog->listForUser($userId, $limit);
@@ -183,7 +183,7 @@ class SettingsController
         ];
     }
 
-    // Check PDF support
+    // PDF support
     public function pdfAvailable(): bool
     {
         $autoload = __DIR__ . '/../../vendor/autoload.php';
@@ -194,7 +194,7 @@ class SettingsController
         return class_exists(\Dompdf\Dompdf::class);
     }
 
-    // Render the export PDF
+    // Export PDF
     public function exportPdf(int $userId): string
     {
         $data = $this->exportData($userId);
@@ -224,7 +224,7 @@ class SettingsController
         return $pdf;
     }
 
-    // Render the export view
+    // Export view
     private function renderExportHtml(array $data, array $user): string
     {
         ob_start();

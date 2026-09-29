@@ -4,7 +4,7 @@
 
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
 
-    // Send a settings request
+    // Settings request
     function postAjax(action, fields) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -46,7 +46,7 @@
 
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
-        // Keep the delete modal open
+        // Keep modal open
         var deleteModal = document.getElementById('deleteAccountModalBackdrop');
         if (deleteModal && deleteModal.classList.contains('open')) return;
         $all('.vault-modal-backdrop.open').forEach(function (backdrop) {
@@ -168,9 +168,33 @@
     var emailChangeResendBtn = document.getElementById('emailChangeResendBtn');
     var emailChangeCancelBtn = document.getElementById('emailChangeCancelBtn');
     var pendingNewEmail = '';
+    var emailCooldownTimer = null;
+
+    // Count down before the code can be sent again
+    function startEmailCooldown(seconds) {
+        if (!emailChangeResendBtn) return;
+        clearInterval(emailCooldownTimer);
+        var left = Math.max(0, parseInt(seconds, 10) || 0);
+
+        function paint() {
+            if (left > 0) {
+                emailChangeResendBtn.disabled = true;
+                emailChangeResendBtn.textContent = 'Resend in ' + left + 's';
+            } else {
+                clearInterval(emailCooldownTimer);
+                emailChangeResendBtn.disabled = false;
+                emailChangeResendBtn.textContent = 'Resend';
+            }
+        }
+
+        paint();
+        if (left > 0) {
+            emailCooldownTimer = setInterval(function () { left -= 1; paint(); }, 1000);
+        }
+    }
 
     // Show email verification step
-    function showEmailCodeStep(newEmail, devCode) {
+    function showEmailCodeStep(newEmail, devCode, retryAfter) {
         pendingNewEmail = newEmail;
         document.getElementById('emailChangeTargetEmail').textContent = newEmail;
 
@@ -187,12 +211,18 @@
 
         editAccountFormEl.hidden = true;
         emailCodePanel.hidden = false;
+        startEmailCooldown(retryAfter);
         if (emailCodeBoxes[0]) emailCodeBoxes[0].focus();
     }
 
     // Return to account form
     function resetEditAccountModal() {
         pendingNewEmail = '';
+        clearInterval(emailCooldownTimer);
+        if (emailChangeResendBtn) {
+            emailChangeResendBtn.disabled = false;
+            emailChangeResendBtn.textContent = 'Resend';
+        }
         if (editAccountFormEl) editAccountFormEl.hidden = false;
         if (emailCodePanel) emailCodePanel.hidden = true;
         if (emailCodeError) emailCodeError.textContent = '';
@@ -286,24 +316,29 @@
 
     if (emailChangeResendBtn) {
         emailChangeResendBtn.addEventListener('click', function () {
+            if (emailChangeResendBtn.disabled) return;
             emailChangeResendBtn.disabled = true;
+            emailCodeError.textContent = '';
+
             postAjax('resend_email_change', {}).then(function (result) {
                 if (!result.ok) {
                     emailCodeError.textContent = result.json.error || 'Could not resend the code.';
-                    emailChangeResendBtn.disabled = false;
+                    // A code went out a moment ago: keep the timer honest.
+                    startEmailCooldown(result.json.retry_after || 0);
                     return;
                 }
 
-                emailCodeError.textContent = '';
+                emailCodeBoxes.forEach(function (box) { box.value = ''; box.classList.remove('filled'); });
                 if (result.json.dev_code) {
                     emailChangeDevCodeEl.hidden = false;
-                    emailChangeDevCodeEl.textContent = "Dev mode — email isn't configured yet, so here's your code: " + result.json.dev_code;
+                    emailChangeDevCodeEl.textContent = "Dev mode \u2014 email isn't configured yet, so here's your code: " + result.json.dev_code;
                 }
 
-                setTimeout(function () { emailChangeResendBtn.disabled = false; }, 30000);
+                startEmailCooldown(result.json.retry_after);
+                if (emailCodeBoxes[0]) emailCodeBoxes[0].focus();
             }).catch(function () {
                 emailCodeError.textContent = 'Something went wrong. Please try again.';
-                emailChangeResendBtn.disabled = false;
+                startEmailCooldown(0);
             });
         });
     }
@@ -357,7 +392,7 @@
                         return;
                     }
 
-                    showEmailCodeStep(emailResult.json.new_email, emailResult.json.dev_code);
+                    showEmailCodeStep(emailResult.json.new_email, emailResult.json.dev_code, emailResult.json.retry_after);
                 }).catch(function () {
                     submitBtn.disabled = false;
                     errorEl.textContent = 'Something went wrong. Please try again.';

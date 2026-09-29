@@ -18,7 +18,7 @@
         });
     });
 
-    // Apply the selected theme
+    // Theme update
     function applyTheme(isDark) {
         document.body.classList.toggle('dashboard-dark', isDark);
         document.documentElement.classList.remove('dashboard-dark-preload');

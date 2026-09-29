@@ -1,5 +1,4 @@
 <?php
-// Active admin navigation item.
 $activeNav = $activeNav ?? '';
 $isActive = static fn (string $key): string => $activeNav === $key ? ' active' : '';
 ?>

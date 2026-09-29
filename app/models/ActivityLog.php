@@ -2,7 +2,7 @@
 
 class ActivityLog
 {
-    // Activity metadata.
+    // Activity metadata
     private const META = [
         'logged_in'        => ['label' => 'Logged in',                   'detail' => null,                             'icon' => 'ti-login',         'entity' => 'user'],
         'logged_out'       => ['label' => 'Logged out',                  'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'user'],
@@ -43,11 +43,13 @@ class ActivityLog
         'user_force_logout'=> ['label' => 'Forced a user logout',        'detail' => null,                             'icon' => 'ti-logout',        'entity' => 'user'],
         'logs_cleared'     => ['label' => 'Cleared activity logs',       'detail' => null,                             'icon' => 'ti-trash',         'entity' => 'system'],
         'admin_profile_updated'  => ['label' => 'Updated profile',       'detail' => null,                             'icon' => 'ti-user',          'entity' => 'admin'],
+        'admin_email_changed'    => ['label' => 'Updated email',         'detail' => null,                             'icon' => 'ti-mail',          'entity' => 'admin'],
         'admin_password_changed' => ['label' => 'Changed password',      'detail' => null,                             'icon' => 'ti-shield-check',  'entity' => 'admin'],
+        'admin_password_reset'   => ['label' => 'Reset password',        'detail' => null,                             'icon' => 'ti-key',           'entity' => 'admin'],
         'admin_logs_exported'    => ['label' => 'Exported activity logs', 'detail' => null,                            'icon' => 'ti-download',      'entity' => 'system'],
     ];
 
-    // Action categories.
+    // Action groups
     private const CATEGORIES = [
         'auth'      => ['label' => 'Sign in & out',   'actions' => ['logged_in', 'logged_out']],
         'vault'     => ['label' => 'Vault',           'actions' => ['vault_unlocked', 'vault_created', 'vault_updated', 'vault_deleted', 'password_viewed', 'password_copied']],
@@ -58,7 +60,7 @@ class ActivityLog
         'account'   => ['label' => 'Account',         'actions' => ['profile_updated', 'username_changed', 'email_changed', 'password_changed', 'pin_updated', 'data_exported', 'activity_cleared']],
     ];
 
-    // Activity labels.
+    // Activity labels
     private const ADMIN_LABELS = [
         'logged_in'         => 'Log in',
         'logged_out'        => 'Log out',
@@ -75,7 +77,7 @@ class ActivityLog
         'user_force_logout' => 'Forced logout',
     ];
 
-    // Admin log page: text color of the Activity column.
+    // Activity column tones
     private const TONES = [
         'danger'  => ['user_suspended', 'user_deleted', 'user_deactivated', 'user_force_logout', 'vault_deleted', 'note_deleted', 'task_deleted', 'folder_deleted', 'activity_cleared'],
         'warning' => ['favorite_added', 'favorite_removed', 'password_viewed', 'password_copied', 'vault_unlocked', 'pin_updated', 'password_changed', 'data_exported'],
@@ -87,7 +89,7 @@ class ActivityLog
     {
     }
 
-    // Log user activity
+    // Log activity
     public function log(int $userId, string $action, ?string $description = null, ?string $entityType = null, ?int $entityId = null): void
     {
         $meta = self::META[$action] ?? null;
@@ -111,7 +113,7 @@ class ActivityLog
         ]);
     }
 
-    // Record admin activity.
+    // Log admin activity
     public function logAdmin(int $adminId, string $action, ?string $description = null): void
     {
         $meta = self::META[$action] ?? null;
@@ -207,7 +209,7 @@ class ActivityLog
         return $items;
     }
 
-    // Admin activity log helpers.
+    // Admin log helpers
 
     // Label for the Activity column / dropdown.
     public static function adminLabel(string $action): string
@@ -536,7 +538,7 @@ class ActivityLog
             $os = 'Unknown';
         }
 
-        // Check overlapping browser names first
+        // Browser names
         if (preg_match('/Edg(e|A|iOS)?\//i', $ua)) {
             $browser = 'Edge';
         } elseif (preg_match('/OPR\/|Opera/i', $ua)) {
@@ -669,7 +671,7 @@ class ActivityLog
         return 'ti-device-desktop';
     }
 
-    // Check for activity.
+    // Activity check
     public function hasEntries(int $userId): bool
     {
         $statement = $this->db->prepare('SELECT 1 FROM activity_logs WHERE user_id = :user_id AND user_cleared_at IS NULL LIMIT 1');

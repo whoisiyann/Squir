@@ -9,7 +9,7 @@ $csrfToken = csrfToken();
 $controller = new DashboardController($dbh);
 $clockModel = new WorldClock($dbh);
 
-// Send a dashboard JSON response
+// JSON response
 function dashboardJson(array $payload, int $status = 200): void
 {
     http_response_code($status);
@@ -18,19 +18,17 @@ function dashboardJson(array $payload, int $status = 200): void
     exit;
 }
 
-// Handle dashboard search
+// Search dashboard
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['ajax'] ?? '') === 'search') {
     dashboardJson(['results' => $controller->search($userId, (string) ($_GET['q'] ?? ''))]);
 }
 
-// Load world clock cities
-// Load world clock catalog
+// Clock catalog
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['ajax'] ?? '') === 'world_clock_catalog') {
     dashboardJson(['cities' => $clockModel->catalog()]);
 }
 
-// Update world clocks
-// Handle world clock updates
+// Clock refresh
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && in_array($_POST['ajax'] ?? '', ['world_clock_add', 'world_clock_remove'], true)) {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -51,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     dashboardJson(['clocks' => $clockModel->forUser($userId)]);
 }
 
-// Load the dashboard view
+// Dashboard
 $dashboard = $controller->index($userId);
 if ($dashboard === []) {
     session_unset();
@@ -60,7 +58,7 @@ if ($dashboard === []) {
     exit;
 }
 
-// Return the saved-password message.
+// Saved flash message
 $flashSuccess = $_SESSION['vault_flash_success'] ?? null;
 unset($_SESSION['vault_flash_success']);
 

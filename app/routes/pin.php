@@ -20,7 +20,7 @@ if ($controller->hasPin($userId)) {
 
 $errors = [];
 
-// Process PIN creation
+// PIN create
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         $errors['pin'] = 'Your session expired. Please refresh the page and try again.';
@@ -39,5 +39,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pinLength = UserPin::length();
 
-// Render the PIN form
+// PIN form
 require __DIR__ . '/../views/auth/pin.php';

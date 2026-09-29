@@ -1,4 +1,4 @@
-// Admin user list actions
+// User list actions
 (function () {
     function $(selector, scope) { return (scope || document).querySelector(selector); }
     function $all(selector, scope) { return Array.prototype.slice.call((scope || document).querySelectorAll(selector)); }
@@ -179,7 +179,7 @@
         });
     }
 
-    // Keep the menu above the scroll area.
+    // Keep menu above scroll area
     function placeDropdown(dropdown, button) {
         var rect = button.getBoundingClientRect();
         var width = dropdown.offsetWidth;

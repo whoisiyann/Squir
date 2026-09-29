@@ -20,7 +20,7 @@ function squirMailLog(string $line): void
     file_put_contents($dir . '/mail-debug.log', '[' . date('Y-m-d H:i:s') . '] ' . $line . PHP_EOL, FILE_APPEND);
 }
 
-// Send a password reset code.
+// Password reset email
 function sendPasswordResetEmail(string $toEmail, string $toName, string $code, int $ttlMinutes): bool
 {
     $fromAddress = defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : 'no-reply@squir.local';
@@ -81,7 +81,7 @@ function sendPasswordResetEmail(string $toEmail, string $toName, string $code, i
     }
 }
 
-// Send an email change verification code.
+// Email change code
 function sendEmailChangeVerificationEmail(string $toEmail, string $toName, string $code, int $ttlMinutes): bool
 {
     $fromAddress = defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : 'no-reply@squir.local';
@@ -142,7 +142,7 @@ function sendEmailChangeVerificationEmail(string $toEmail, string $toName, strin
     }
 }
 
-// Send a vault PIN reset code.
+// Vault PIN reset email
 function sendPinResetEmail(string $toEmail, string $toName, string $code, int $ttlMinutes): bool
 {
     $fromAddress = defined('MAIL_FROM_ADDRESS') ? MAIL_FROM_ADDRESS : 'no-reply@squir.local';

@@ -35,7 +35,7 @@ class EmailChangeController
             return ['errors' => ['new_email' => 'That is already your current email address.']];
         }
 
-        // Check email availability.
+        // Email availability
         if ($this->userModel->emailExists($newEmail, $userId)) {
             return ['errors' => ['new_email' => 'An account with this email already exists.']];
         }
@@ -77,7 +77,7 @@ class EmailChangeController
 
         $newEmail = $result['new_email'];
 
-        // Check email availability again.
+        // Email availability
         if ($this->userModel->emailExists($newEmail, $userId)) {
             $this->emailChangeModel->clearForUser($userId);
             return ['errors' => ['code' => 'An account with this email already exists.']];
@@ -90,7 +90,7 @@ class EmailChangeController
         return ['errors' => [], 'email' => $newEmail];
     }
 
-    // Send a verification code.
+    // Verification code.
     private function issueAndSend(int $userId, string $newEmail, string $fullName): ?string
     {
         $change = $this->emailChangeModel->createForUser($userId, $newEmail);
