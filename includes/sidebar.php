@@ -19,6 +19,7 @@ $accountType = !empty($_SESSION['admin_id']) ? 'admin' : 'user';
         <a class="nav-link<?= $isActiveRoute('vault') ?>" href="./vault"<?= $route === 'vault' ? ' aria-current="page"' : '' ?>><i class="ti ti-shield-lock"></i><span>Vault</span></a>
         <a class="nav-link<?= $isActiveRoute('notes') ?>" href="./notes"<?= $route === 'notes' ? ' aria-current="page"' : '' ?>><i class="ti ti-notes"></i><span>Notes</span></a>
         <a class="nav-link<?= $isActiveRoute('tasks') ?>" href="./tasks"<?= $route === 'tasks' ? ' aria-current="page"' : '' ?>><i class="ti ti-checkbox"></i><span>Tasks</span></a>
+        <a class="nav-link<?= $isActiveRoute('calendar') ?>" href="./calendar"<?= $route === 'calendar' ? ' aria-current="page"' : '' ?>><i class="ti ti-calendar"></i><span>Calendar</span></a>
         <a class="nav-link<?= $isActiveRoute('folders') ?>" href="./folders"<?= $route === 'folders' ? ' aria-current="page"' : '' ?>><i class="ti ti-folder"></i><span>Folders</span></a>
         <a class="nav-link<?= $isActiveRoute('favorites') ?>" href="./favorites"<?= $route === 'favorites' ? ' aria-current="page"' : '' ?>><i class="ti ti-star"></i><span>Favorites</span></a>
     </nav>

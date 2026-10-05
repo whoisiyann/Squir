@@ -73,9 +73,23 @@
     }
 
 
-    // Save the choice to the account so it survives logout and other browsers
+
+    function findCsrfToken() {
+        if (window.VAULT_CSRF_TOKEN) return window.VAULT_CSRF_TOKEN;
+        if (window.NOTES_CSRF_TOKEN) return window.NOTES_CSRF_TOKEN;
+        if (window.FOLDERS_CSRF_TOKEN) return window.FOLDERS_CSRF_TOKEN;
+        if (window.SQUIR_TASKS && window.SQUIR_TASKS.csrf) return window.SQUIR_TASKS.csrf;
+        if (window.SQUIR_CALENDAR && window.SQUIR_CALENDAR.csrf) return window.SQUIR_CALENDAR.csrf;
+
+        var field = document.querySelector('input[name="csrf_token"]');
+        if (field && field.value) return field.value;
+
+        var editor = document.querySelector('[data-csrf]');
+        return editor ? (editor.getAttribute('data-csrf') || '') : '';
+    }
+
     function savePrefsToServer(fields) {
-        var token = window.VAULT_CSRF_TOKEN || '';
+        var token = findCsrfToken();
         if (!token || !window.fetch) return;
 
         var body = new URLSearchParams();

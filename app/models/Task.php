@@ -37,6 +37,21 @@ class Task
         return array_map([$this, 'normalize'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
+    // Fetch user tasks that have a due date (calendar)
+    public function scheduledForUser(int $userId): array
+    {
+        $stmt = $this->dbh->prepare(
+            'SELECT ' . self::COLUMNS . '
+             FROM tasks
+             WHERE user_id = :uid AND due_date IS NOT NULL
+             ORDER BY due_date ASC, position ASC, task_id ASC'
+        );
+        $stmt->execute(['uid' => $userId]);
+
+        return array_map([$this, 'normalize'], $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+
     // Task lookup
     public function find(int $taskId, int $userId): ?array
     {

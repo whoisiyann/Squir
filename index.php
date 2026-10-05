@@ -68,6 +68,10 @@ switch ($route) {
         require __DIR__ . '/app/routes/tasks.php';
         break;
 
+    case 'calendar':
+        require __DIR__ . '/app/routes/calendar.php';
+        break;
+
     case 'folders':
         require __DIR__ . '/app/routes/folders.php';
         break;
