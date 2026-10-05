@@ -1,4 +1,3 @@
-
 (function () {
     'use strict';
 
@@ -376,5 +375,183 @@
         recentList.addEventListener('scroll', checkScrollEnd);
         window.addEventListener('resize', checkScrollEnd);
         checkScrollEnd();
+    }
+    // Mini calendar
+    var miniGrid = $('miniCalGrid');
+
+    if (miniGrid) {
+        var calTasks = cfg.calendarTasks || [];
+        var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var miniLabel = $('miniCalLabel');
+        var miniTitle = $('miniCalTitle');
+        var miniPicker = $('miniCalPicker');
+        var prevDot = $('miniCalPrevDot');
+        var nextDot = $('miniCalNextDot');
+        var now = new Date();
+        var miniToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var miniCursor = new Date(now.getFullYear(), now.getMonth(), 1);
+        var pickerYear = miniCursor.getFullYear();
+
+        var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+        var ymd = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+
+        var renderMini = function () {
+            var year = miniCursor.getFullYear();
+            var month = miniCursor.getMonth();
+            var first = new Date(year, month, 1);
+            var start = new Date(year, month, 1 - first.getDay());
+            var monthStart = ymd(first);
+            var monthEnd = ymd(new Date(year, month + 1, 0));
+            var todayKey = ymd(miniToday);
+
+            // Group tasks by due date: { 'YYYY-MM-DD': { tasks: [], pending: n } }
+            var taskDays = {};
+            calTasks.forEach(function (task) {
+                if (!task.due_date) return;
+                var dueKey = String(task.due_date).slice(0, 10);
+                if (!taskDays[dueKey]) taskDays[dueKey] = { tasks: [], pending: 0 };
+                taskDays[dueKey].tasks.push(task);
+                if (task.status !== 'done') taskDays[dueKey].pending++;
+            });
+            var toneRank = { todo: 0, progress: 1, done: 2 };
+            var toneOf = function (task) {
+                if (task.status === 'done') return 'done';
+                if (task.status === 'in_progress') return 'progress';
+                return 'todo';
+            };
+
+            miniLabel.textContent = first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            miniGrid.textContent = '';
+
+            for (var i = 0; i < 42; i++) {
+                var day = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+                var key = ymd(day);
+                var cell = h('a', 'mini-cal-day');
+                cell.appendChild(h('span', 'mini-cal-num', String(day.getDate())));
+                cell.href = './calendar?view=month&date=' + key;
+                if (day.getMonth() !== month) cell.classList.add('is-out');
+                if (day.getDay() === 0 || day.getDay() === 6) cell.classList.add('is-weekend');
+
+                // One dot per task below the date number (same colors as the Calendar page)
+                var info = taskDays[key];
+                if (info) {
+                    var sorted = info.tasks.slice().sort(function (x, y) {
+                        return toneRank[toneOf(x)] - toneRank[toneOf(y)];
+                    });
+                    var dots = h('span', 'mini-cal-task-dots');
+                    dots.setAttribute('aria-hidden', 'true');
+                    sorted.slice(0, 3).forEach(function (task) {
+                        dots.appendChild(h('span', 'mini-cal-task-dot tone-' + toneOf(task)));
+                    });
+                    cell.appendChild(dots);
+                    var total = info.tasks.length;
+                    cell.title = total + (total === 1 ? ' task' : ' tasks')
+                        + (info.pending ? ' \u2022 ' + info.pending + ' unfinished' : ' \u2022 all done');
+                }
+                if (key === todayKey) {
+                    cell.classList.add('is-today');
+                    cell.setAttribute('aria-current', 'date');
+                }
+                cell.setAttribute('aria-label', day.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
+                miniGrid.appendChild(cell);
+            }
+
+            // Red = unfinished tasks before this month, yellow = unfinished tasks after it
+            var behind = 0;
+            var ahead = 0;
+            calTasks.forEach(function (task) {
+                if (!task.due_date || task.status === 'done') return;
+                if (task.due_date < monthStart) behind++;
+                else if (task.due_date > monthEnd) ahead++;
+            });
+            prevDot.classList.toggle('is-behind', behind > 0);
+            nextDot.classList.toggle('is-ahead', ahead > 0);
+            prevDot.parentNode.title = behind ? behind + ' unfinished before this month' : '';
+            nextDot.parentNode.title = ahead ? ahead + ' unfinished after this month' : '';
+        };
+
+        var closePicker = function () {
+            miniPicker.hidden = true;
+            miniTitle.setAttribute('aria-expanded', 'false');
+        };
+
+        var renderPicker = function () {
+            miniPicker.textContent = '';
+
+            var head = h('div', 'mini-cal-picker-head');
+            var prevYear = h('button', 'mini-cal-picker-nav');
+            prevYear.type = 'button';
+            prevYear.setAttribute('aria-label', 'Previous year');
+            prevYear.appendChild(icon('ti-chevron-left'));
+            prevYear.addEventListener('click', function (event) { event.stopPropagation(); pickerYear--; renderPicker(); });
+
+            var nextYear = h('button', 'mini-cal-picker-nav');
+            nextYear.type = 'button';
+            nextYear.setAttribute('aria-label', 'Next year');
+            nextYear.appendChild(icon('ti-chevron-right'));
+            nextYear.addEventListener('click', function (event) { event.stopPropagation(); pickerYear++; renderPicker(); });
+
+            head.appendChild(prevYear);
+            head.appendChild(h('strong', null, String(pickerYear)));
+            head.appendChild(nextYear);
+            miniPicker.appendChild(head);
+
+            var months = h('div', 'mini-cal-picker-months');
+            MONTHS.forEach(function (name, index) {
+                var btn = h('button', 'mini-cal-picker-month', name);
+                btn.type = 'button';
+                if (pickerYear === miniCursor.getFullYear() && index === miniCursor.getMonth()) btn.classList.add('is-selected');
+                btn.addEventListener('click', function () {
+                    miniCursor = new Date(pickerYear, index, 1);
+                    closePicker();
+                    renderMini();
+                });
+                months.appendChild(btn);
+            });
+            miniPicker.appendChild(months);
+
+            var todayBtn = h('button', 'mini-cal-picker-today');
+            todayBtn.type = 'button';
+            todayBtn.appendChild(icon('ti-calendar-event'));
+            todayBtn.appendChild(document.createTextNode(' Today'));
+            todayBtn.setAttribute('aria-label', 'Go to current month');
+            todayBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                miniCursor = new Date(miniToday.getFullYear(), miniToday.getMonth(), 1);
+                pickerYear = miniCursor.getFullYear();
+                closePicker();
+                renderMini();
+            });
+            miniPicker.appendChild(todayBtn);
+        };
+
+        $('miniCalPrev').addEventListener('click', function () {
+            miniCursor = new Date(miniCursor.getFullYear(), miniCursor.getMonth() - 1, 1);
+            renderMini();
+        });
+        $('miniCalNext').addEventListener('click', function () {
+            miniCursor = new Date(miniCursor.getFullYear(), miniCursor.getMonth() + 1, 1);
+            renderMini();
+        });
+
+        miniTitle.addEventListener('click', function () {
+            if (!miniPicker.hidden) { closePicker(); return; }
+            pickerYear = miniCursor.getFullYear();
+            renderPicker();
+            miniPicker.hidden = false;
+            miniTitle.setAttribute('aria-expanded', 'true');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (miniPicker.hidden) return;
+            var wrap = miniTitle.parentNode;
+            var path = event.composedPath ? event.composedPath() : [];
+            if (path.indexOf(wrap) === -1 && !wrap.contains(event.target)) closePicker();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && !miniPicker.hidden) { closePicker(); miniTitle.focus(); }
+        });
+
+        renderMini();
     }
 })();

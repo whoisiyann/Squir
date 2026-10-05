@@ -51,6 +51,7 @@ $pageData = [
     'clocks' => $dashboard['worldClocks'],
     'tzLabels' => $dashboard['timezoneLabels'],
     'maxClocks' => WorldClock::MAX_PER_USER,
+    'calendarTasks' => $dashboard['calendarTasks'] ?? [],
     'flash' => $flashSuccess,
 ];
 ?>
@@ -78,8 +79,8 @@ $pageData = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap">
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <link rel="stylesheet" href="./assets/css/dashboard.css?v=6">
+    <link rel="stylesheet" href="./assets/css/style.css?v=2">
+    <link rel="stylesheet" href="./assets/css/dashboard.css?v=7">
     <link rel="stylesheet" href="./assets/css/vault.css">
 </head>
 <body class="dashboard-page">
@@ -139,11 +140,24 @@ $pageData = [
 
                 <section class="dash-card dash-clocks" id="worldClocks" aria-labelledby="worldClocksTitle">
                     <div class="dash-card-head">
-                        <h2 id="worldClocksTitle"><i class="ti ti-history"></i> World Clocks</h2>
+                        <h2 id="worldClocksTitle"><i class="ti ti-clock"></i> World Clocks</h2>
                         <span class="live-pill"><span class="live-dot"></span>Live</span>
                     </div>
                     <ul class="clock-list" id="clockList"></ul>
                     <button type="button" class="clock-add-btn" id="openClockModal">+ Add city or country ></button>
+                </section>
+
+                <section class="dash-card dash-calendar" id="dashCalendar" aria-label="Calendar">
+                    <div class="mini-cal-nav">
+                        <button type="button" class="mini-cal-arrow" id="miniCalPrev" aria-label="Previous month"><i class="ti ti-chevron-left" aria-hidden="true"></i><span class="mini-cal-dot" id="miniCalPrevDot" aria-hidden="true"></span></button>
+                        <div class="mini-cal-title-wrap">
+                            <button type="button" class="mini-cal-title" id="miniCalTitle" aria-haspopup="true" aria-expanded="false" aria-controls="miniCalPicker"><span id="miniCalLabel"></span><i class="ti ti-chevron-down" aria-hidden="true"></i></button>
+                            <div class="mini-cal-picker" id="miniCalPicker" hidden></div>
+                        </div>
+                        <button type="button" class="mini-cal-arrow" id="miniCalNext" aria-label="Next month"><span class="mini-cal-dot" id="miniCalNextDot" aria-hidden="true"></span><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="mini-cal-week" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+                    <div class="mini-cal-grid" id="miniCalGrid"></div>
                 </section>
 
                 <section class="dash-card dash-tasks" id="tasks" aria-labelledby="taskOverviewTitle">
@@ -258,6 +272,6 @@ $pageData = [
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/vault.js?v=2"></script>
-<script src="./assets/js/dashboard-home.js?v=2"></script>
+<script src="./assets/js/dashboard-home.js?v=3"></script>
 </body>
 </html>

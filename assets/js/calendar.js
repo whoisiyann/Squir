@@ -601,7 +601,7 @@
         }
 
         var overdue = list.filter(isOverdue).sort(compareByDue);
-        var attention = sideCard('fa-solid fa-clock-rotate-left', 'Needs attention');
+        var attention = sideCard('ti ti-history', 'Needs attention');
         var row = overdue.length ? h('button', 'cal-stat cal-stat-link is-alert') : h('div', 'cal-stat');
         if (overdue.length) {
             row.type = 'button';

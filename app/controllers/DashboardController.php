@@ -45,6 +45,12 @@ class DashboardController
 			'counts' => $counts,
 			'pendingTasks' => $board['pending'],
 			'taskBoard' => $board,
+			'calendarTasks' => array_map(static fn (array $t): array => [
+				'task_id' => $t['task_id'],
+				'title' => $t['title'],
+				'status' => $t['status'],
+				'due_date' => $t['due_date'],
+			], (new Task($this->db))->scheduledForUser($userId)),
 			'recentItems' => $this->recentItems($userId, 10),
 			'vaultFolders' => (new Folder($this->db))->allForUserByType($userId, 'passwords'),
 			'worldClocks' => $clocks->forUser($userId),
