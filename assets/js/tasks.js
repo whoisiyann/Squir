@@ -183,7 +183,17 @@
 
 
     // Task board
+    // Keep the sidebar Tasks badge in sync
+    function syncNavBadge() {
+        var badge = document.getElementById('navTaskBadge');
+        if (!badge) return;
+        var pending = tasks.filter(function (task) { return task.status !== 'done'; }).length;
+        badge.textContent = pending > 99 ? '99+' : String(pending);
+        badge.hidden = pending === 0;
+    }
+
     function render() {
+        syncNavBadge();
         closeMenu();
         board.textContent = '';
 

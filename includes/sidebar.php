@@ -4,6 +4,18 @@ $isActiveRoute = static fn (string $r): string => $route === $r ? ' active' : ''
 
 
 $accountType = !empty($_SESSION['admin_id']) ? 'admin' : 'user';
+
+// Unfinished tasks (to do + in progress) for the Tasks badge
+$pendingTasks = 0;
+if (!empty($_SESSION['user_id']) && isset($dbh) && $dbh instanceof PDO) {
+    try {
+        $pendingStmt = $dbh->prepare("SELECT COUNT(*) FROM tasks WHERE user_id = :uid AND status <> 'done'");
+        $pendingStmt->execute(['uid' => (int) $_SESSION['user_id']]);
+        $pendingTasks = (int) $pendingStmt->fetchColumn();
+    } catch (Throwable $e) {
+        $pendingTasks = 0;
+    }
+}
 ?>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar" id="appSidebar">
@@ -18,7 +30,7 @@ $accountType = !empty($_SESSION['admin_id']) ? 'admin' : 'user';
         <a class="nav-link<?= $isActiveRoute('dashboard') ?>" href="./dashboard"<?= $route === 'dashboard' ? ' aria-current="page"' : '' ?>><i class="ti ti-home"></i><span>Dashboard</span></a>
         <a class="nav-link<?= $isActiveRoute('vault') ?>" href="./vault"<?= $route === 'vault' ? ' aria-current="page"' : '' ?>><i class="ti ti-shield-lock"></i><span>Vault</span></a>
         <a class="nav-link<?= $isActiveRoute('notes') ?>" href="./notes"<?= $route === 'notes' ? ' aria-current="page"' : '' ?>><i class="ti ti-notes"></i><span>Notes</span></a>
-        <a class="nav-link<?= $isActiveRoute('tasks') ?>" href="./tasks"<?= $route === 'tasks' ? ' aria-current="page"' : '' ?>><i class="ti ti-checkbox"></i><span>Tasks</span></a>
+        <a class="nav-link<?= $isActiveRoute('tasks') ?>" href="./tasks"<?= $route === 'tasks' ? ' aria-current="page"' : '' ?>><i class="ti ti-checkbox"></i><span>Tasks</span><span class="nav-badge" id="navTaskBadge"<?= $pendingTasks > 0 ? '' : ' hidden' ?>><?= $pendingTasks > 99 ? '99+' : $pendingTasks ?></span></a>
         <a class="nav-link<?= $isActiveRoute('calendar') ?>" href="./calendar"<?= $route === 'calendar' ? ' aria-current="page"' : '' ?>><i class="ti ti-calendar"></i><span>Calendar</span></a>
         <a class="nav-link<?= $isActiveRoute('folders') ?>" href="./folders"<?= $route === 'folders' ? ' aria-current="page"' : '' ?>><i class="ti ti-folder"></i><span>Folders</span></a>
         <a class="nav-link<?= $isActiveRoute('favorites') ?>" href="./favorites"<?= $route === 'favorites' ? ' aria-current="page"' : '' ?>><i class="ti ti-star"></i><span>Favorites</span></a>

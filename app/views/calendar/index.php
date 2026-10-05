@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/tasks.css">
-    <link rel="stylesheet" href="./assets/css/calendar.css?v=3">
+    <link rel="stylesheet" href="./assets/css/calendar.css?v=4">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
@@ -107,6 +107,6 @@
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
-<script src="./assets/js/calendar.js?v=1"></script>
+<script src="./assets/js/calendar.js?v=2"></script>
 </body>
 </html>

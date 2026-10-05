@@ -280,6 +280,30 @@ button, input {
   text-align: center;
 }
 
+.nav-link .nav-badge {
+  flex: 0 0 auto;
+  min-width: 22px;
+  max-width: none;
+  margin-left: auto;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--soft);
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.nav-link .nav-badge[hidden] {
+  display: none;
+}
+
+.nav-link.active .nav-badge {
+  background: rgba(255, 255, 255, .18);
+  color: var(--active-text);
+}
+
 .nav-link:hover {
   color: var(--text);
   background: var(--soft);
@@ -505,6 +529,9 @@ button, input {
     max-width: 0;
     opacity: 0;
     transition: max-width .38s cubic-bezier(.2, .8, .2, 1), opacity .2s ease;
+  }
+  .sidebar-collapsed .nav-link .nav-badge {
+    display: none;
   }
   .sidebar-collapsed .nav-link i {
     width: 24px;

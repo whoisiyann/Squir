@@ -44,7 +44,7 @@
 
     function icon(classes) {
         var node = document.createElement('i');
-        node.className = 'ti ' + classes;
+        node.className = classes.indexOf('fa-') === 0 ? classes : 'ti ' + classes;
         node.setAttribute('aria-hidden', 'true');
         return node;
     }
@@ -551,12 +551,22 @@
 
         var upcoming = list.filter(function (task) {
             return isOpen(task) && task.due_date >= todayYmd();
-        }).sort(compareByDue).slice(0, 5);
+        }).sort(compareByDue).slice(0, 10);
 
         var up = sideCard('ti-clock', 'Upcoming tasks');
+
+        // Same "View all" link as Recent Credentials
+        var viewAll = h('a', 'cal-view-all');
+        viewAll.href = './tasks';
+        viewAll.appendChild(h('span', null, 'View all'));
+        viewAll.appendChild(icon('ti-arrow-right'));
+        up.querySelector('.cal-side-title').appendChild(viewAll);
+
         if (upcoming.length === 0) {
             up.appendChild(h('p', 'cal-empty', 'Nothing coming up.'));
         }
+
+        var upList = h('div', 'cal-up-list');
         upcoming.forEach(function (task) {
             var item = h('button', 'cal-up-item tone-' + toneOf(task));
             item.type = 'button';
@@ -565,12 +575,33 @@
             item.appendChild(h('span', 'cal-up-title', task.title));
             item.appendChild(h('span', 'cal-up-date', fmtShort(task.due_date)));
             item.addEventListener('click', function () { openView(task); });
-            up.appendChild(item);
+            upList.appendChild(item);
         });
+
+        if (upcoming.length) {
+            up.appendChild(upList);
+
+            // Shows only after scrolling to the bottom of the list (like Recent Credentials)
+            var seeMore = h('a', 'cal-see-more', 'See more');
+            seeMore.href = './tasks';
+            up.appendChild(seeMore);
+        }
         sideEl.appendChild(up);
 
+        if (upcoming.length) {
+            var checkScrollEnd = function () {
+                var hasOverflow = upList.scrollHeight > upList.clientHeight + 1;
+                var reachedEnd = hasOverflow
+                    && upList.scrollTop > 0
+                    && upList.scrollTop + upList.clientHeight >= upList.scrollHeight - 4;
+                seeMore.classList.toggle('is-visible', reachedEnd);
+            };
+            upList.addEventListener('scroll', checkScrollEnd);
+            checkScrollEnd();
+        }
+
         var overdue = list.filter(isOverdue).sort(compareByDue);
-        var attention = sideCard('ti-bell', 'Needs attention');
+        var attention = sideCard('fa-solid fa-clock-rotate-left', 'Needs attention');
         var row = overdue.length ? h('button', 'cal-stat cal-stat-link is-alert') : h('div', 'cal-stat');
         if (overdue.length) {
             row.type = 'button';
