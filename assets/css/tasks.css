@@ -73,6 +73,20 @@ html.dashboard-dark-preload {
 }
 
 /* Page header */
+.content-area.tasks-page {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.content-area.tasks-page::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-area.tasks-page::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+
 .tasks-page .page-heading {
   align-items: flex-end;
   flex-wrap: wrap;

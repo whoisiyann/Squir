@@ -1653,10 +1653,11 @@ body.dashboard-dark .dash-calendar {
 .mini-cal-day {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 32px;
+  justify-content: flex-start;
+  width: 100%;
+  height: 38px;
   margin: 0 auto;
   border-radius: 8px;
   color: var(--text);
@@ -1664,9 +1665,24 @@ body.dashboard-dark .dash-calendar {
   text-decoration: none;
 }
 
-.mini-cal-day:hover,
-.mini-cal-day:focus-visible {
+/* The date number is its own box, so the highlight never covers the task dots */
+.mini-cal-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  border-radius: 8px;
+  line-height: 1;
+  transition: background .15s ease;
+}
+
+.mini-cal-day:hover .mini-cal-num,
+.mini-cal-day:focus-visible .mini-cal-num {
   background: var(--soft);
+}
+
+.mini-cal-day:focus-visible {
   outline: 0;
 }
 
@@ -1681,12 +1697,12 @@ body.dashboard-dark .dash-calendar {
 
 .mini-cal-task-dots {
   position: absolute;
-  bottom: 1px;
+  bottom: 2px;
   left: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -1702,13 +1718,9 @@ body.dashboard-dark .dash-calendar {
 .mini-cal-task-dot.tone-progress { background: var(--mc-prog); }
 .mini-cal-task-dot.tone-done { background: var(--mc-idle); }
 
-.mini-cal-day.is-today .mini-cal-task-dot {
-  box-shadow: 0 0 0 1px var(--button-text);
-}
-
-.mini-cal-day.is-today,
-.mini-cal-day.is-today:hover,
-.mini-cal-day.is-weekend.is-today {
+.mini-cal-day.is-today .mini-cal-num,
+.mini-cal-day.is-today:hover .mini-cal-num,
+.mini-cal-day.is-weekend.is-today .mini-cal-num {
   background: var(--accent);
   color: var(--button-text);
 }
