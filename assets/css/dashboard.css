@@ -8,6 +8,17 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.content-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
 }
 
 .page-heading {
@@ -1723,4 +1734,37 @@ body.dashboard-dark .dash-calendar {
 .mini-cal-day.is-weekend.is-today .mini-cal-num {
   background: var(--accent);
   color: var(--button-text);
+}
+
+/* Compact  */
+.dash-calendar { padding: 10px 12px 10px; }
+.dash-calendar .mini-cal-week { margin-top: 8px; }
+.dash-calendar .mini-cal-grid { margin-top: 4px; row-gap: 2px; }
+.dash-calendar .mini-cal-day { height: 34px; }
+.dash-calendar .mini-cal-num { width: 28px; height: 22px; }
+/* dots sit right under their own date number, with clear space before the next row */
+.dash-calendar .mini-cal-task-dots { top: 25px; bottom: auto; gap: 3px; }
+.dash-calendar .mini-cal-task-dot { width: 5px; height: 5px; }
+
+.dash-recent { padding: 14px 20px 14px; }
+.dash-recent .recent-list { margin-top: 8px; gap: 2px; }
+.dash-recent .recent-item-link { padding: 5px 6px; gap: 10px; }
+.dash-recent .recent-icon { width: 32px; height: 32px; }
+.dash-recent .recent-icon img { width: 18px; height: 18px; }
+.dash-recent .recent-info strong { font-size: .85rem; }
+.dash-recent .recent-info small { font-size: .72rem; }
+.dash-recent .recent-star-btn { width: 30px; height: 30px; font-size: 1.15rem; }
+
+/* See more: take less space and sit lower, closer to the card bottom */
+.dash-recent .recent-see-more { margin: 0 0 -8px; padding: 4px 8px; line-height: 1.2; }
+
+
+.dashboard-page {
+  --dash-min-height: 880px;   /* height of the dashboard at 100% zoom on desktop */
+}
+
+@media (min-width: 1181px) {
+  .dashboard-page .dash-layout {
+    min-height: var(--dash-min-height);
+  }
 }
