@@ -72,8 +72,8 @@ class User
 	public function create(string $fullName, ?string $username, string $email, string $passwordHash): int
 	{
 		$statement = $this->db->prepare(
-			'INSERT INTO users (full_name, username, email, password_hash, status)
-			 VALUES (:full_name, :username, :email, :password_hash, :status)'
+			'INSERT INTO users (full_name, username, email, password_hash, status, last_login_at)
+			 VALUES (:full_name, :username, :email, :password_hash, :status, NOW())'
 		);
 		$statement->execute([
 			'full_name' => $fullName,

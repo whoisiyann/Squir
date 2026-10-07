@@ -13,7 +13,7 @@ $statCards = [
         'color'    => 'orange',
     ],
     [
-        'label'    => 'Total Password Entries',
+        'label'    => 'Total Credentials',
         'value'    => $stats['total_passwords'],
         'subtitle' => 'Saved in vault',
         'icon'     => 'ti-lock',
