@@ -12,7 +12,7 @@
 
   --cal-head-bg: #F2F4F5;
   --cal-outside: #b4aea8;
-  --cal-cell-hover: rgba(107, 63, 42, .05);
+  --cal-cell-hover: var(--soft); 
 }
 
 body.dashboard-dark,
@@ -27,7 +27,7 @@ html.dashboard-dark-preload {
 
   --cal-head-bg: #181818;
   --cal-outside: #5c5c5c;
-  --cal-cell-hover: rgba(252, 151, 0, .07);
+  --cal-cell-hover: var(--soft); 
 }
 
 /* Task colors, used by chips and the upcoming list */

@@ -219,8 +219,8 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
-<script src="./assets/js/dashboard.js?v=3"></script>
+<script src="./assets/js/dashboard.js?v=4"></script>
 <script src="./assets/js/pin-gate.js"></script>
-<script src="./assets/js/settings.js"></script>
+<script src="./assets/js/settings.js?v=2"></script>
 </body>
 </html>

@@ -724,9 +724,56 @@
     }
 
     var searchInput = $('calSearchInput');
+
+    // Closest matching task to the date being viewed (ties go to the later one)
+    function nearestMatch(list, from) {
+        var best = null;
+        var bestGap = Infinity;
+        var fromTime = from.getTime();
+
+        list.forEach(function (task) {
+            var date = parseYmd(task.due_date);
+            if (!date) return;
+            var gap = Math.abs(date.getTime() - fromTime);
+            if (gap < bestGap || (gap === bestGap && best && task.due_date > best.due_date)) {
+                best = task;
+                bestGap = gap;
+            }
+        });
+
+        return best;
+    }
+
     searchInput.addEventListener('input', function () {
+        var hadTerm = state.term !== '';
         state.term = searchInput.value.trim().toLowerCase();
+
+        if (state.term === '') {
+            // Search cleared: go back to the current date
+            if (hadTerm) state.cursor = today();
+        } else {
+            // If nothing matches in the period on screen, jump to where the match is
+            var matches = visibleTasks();
+            var range = rangeFor(state.view, state.cursor);
+            var here = matches.some(function (task) { return inRange(task, range); });
+
+            if (!here) {
+                var target = nearestMatch(matches, state.cursor);
+                var date = target ? parseYmd(target.due_date) : null;
+                if (date) state.cursor = date;
+            }
+        }
+
         render();
+    });
+
+    // The browser's clear (x) button and Escape inside the box also reset to today
+    searchInput.addEventListener('search', function () {
+        if (searchInput.value.trim() === '' && state.term !== '') {
+            state.term = '';
+            state.cursor = today();
+            render();
+        }
     });
 
 

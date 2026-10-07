@@ -117,6 +117,8 @@
         } catch (error) {
             // Ignore storage errors
         }
+        // Let other parts of the page (like Settings) follow the change
+        document.dispatchEvent(new CustomEvent('squir-theme', { detail: pref }));
         // Only user actions pass animate
         if (animate) savePrefsToServer({ theme: pref });
     }

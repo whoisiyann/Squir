@@ -312,7 +312,6 @@ button, input {
 .nav-link.active {
   color: var(--active-text);
   background: var(--dark);
-  box-shadow: 0 0 0 4px rgba(61,36,24,.1);
 }
 
 .nav-link.active i {
@@ -1026,11 +1025,6 @@ html[data-accent="rose"].dashboard-dark-preload {
   --active-icon: #08090B;
   --task-drop-bg: color-mix(in srgb, #f472a0 8%, transparent);
 }
-/* Parts that were hard-coded brown */
-html[data-accent] .nav-link.active {
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--dark) 12%, transparent);
-}
-
 html[data-accent] .sq-lo-modal {
   --lo-brown: var(--accent);
 }

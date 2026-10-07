@@ -423,6 +423,11 @@
                 highlightTheme(pref);
             });
         });
+
+        // Keep in sync with the top bar sun/moon toggle
+        document.addEventListener('squir-theme', function (event) {
+            highlightTheme(event.detail);
+        });
     }
 
     /* Advanced appearance + accent color */
