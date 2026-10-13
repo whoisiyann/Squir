@@ -26,7 +26,7 @@ $initials = adminInitials($adminName);
                         <small><?= $escape($adminEmail) ?></small>
                     </div>
                     <a href="<?= url('admin/settings') ?>" role="menuitem"><i class="ti ti-settings"></i> Settings</a>
-                    <a href="<?= url('admin/logout') ?>" role="menuitem" data-logout-trigger onclick="return confirm('Log out of the admin panel?')"><i class="ti ti-logout"></i> Log Out</a>
+                    <a href="<?= url('admin/logout') ?>" role="menuitem" data-logout-trigger><i class="ti ti-logout"></i> Log Out</a>
                 </div>
             </div>
         </div>

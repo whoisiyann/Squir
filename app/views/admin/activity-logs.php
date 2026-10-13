@@ -243,7 +243,7 @@ $filtersJson = json_encode([
   <script>window.ADMIN_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;</script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="<?= url('assets/js/admin/admin-alert.js') ?>"></script>
-  <script src="<?= url('assets/js/admin/admin.js') ?>"></script>
+  <script src="<?= asset('assets/js/admin/admin.js') ?>"></script>
   <script src="<?= url('assets/js/admin/activity-logs.js') ?>"></script>
 </body>
 </html>

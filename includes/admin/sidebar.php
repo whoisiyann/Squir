@@ -24,3 +24,17 @@ $isActive = static fn (string $key): string => $activeNav === $key ? ' active' :
 
     <div class="sidebar-illustration"><img src="<?= url('assets/images/admin-squir.gif') ?>" alt="Squir mascot"></div>
 </aside>
+
+<div class="sq-lo-backdrop" id="logoutModalBackdrop" aria-hidden="true">
+    <div class="sq-lo-modal" role="alertdialog" aria-modal="true" aria-labelledby="logoutModalTitle" aria-describedby="logoutModalText">
+        <img class="sq-lo-image" src="<?= url('assets/images/squir-sleep.gif') ?>" alt="" width="167" height="176">
+
+        <h2 class="sq-lo-title" id="logoutModalTitle"><i class="ti ti-door-exit" aria-hidden="true"></i> Log Out?</h2>
+        <p class="sq-lo-text" id="logoutModalText">Are you sure you want to log out of the admin panel?</p>
+
+        <div class="sq-lo-actions">
+            <button type="button" class="sq-lo-btn sq-lo-btn-cancel" id="logoutModalCancel">Cancel</button>
+            <a class="sq-lo-btn sq-lo-btn-confirm" id="logoutModalConfirm" href="<?= url('admin/logout') ?>">Log out</a>
+        </div>
+    </div>
+</div>

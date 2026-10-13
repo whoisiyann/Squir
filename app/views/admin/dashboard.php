@@ -55,49 +55,38 @@ $avatarColor = static function (array $user) use ($avatarPalette): string {
     return $avatarPalette[$index];
 };
 
-// Assign activity icon colors.
+// Assign activity icon colors (keyed by the Tabler icon class).
 $activityColor = static function (string $icon): string {
     $map = [
-        'lock'         => 'is-green',
-        'file-text'    => 'is-purple',
-        'check-square' => 'is-amber',
-        'user'         => '',
-        'shield'       => 'is-muted',
-        'log-in'       => '',
-        'log-out'      => '',
-        'settings'     => 'is-muted',
-        'folder'       => 'is-amber',
-        'user-plus'    => 'is-green',
-        'user-check'   => 'is-green',
-        'user-x'       => 'is-muted',
-        'slash'        => '',
-        'trash-2'      => '',
+        'ti-lock'         => 'is-green',
+        'ti-key'          => 'is-green',
+        'ti-eye'          => 'is-green',
+        'ti-copy'         => 'is-green',
+        'ti-user-plus'    => 'is-green',
+        'ti-user-check'   => 'is-green',
+        'ti-notes'        => 'is-purple',
+        'ti-checkbox'     => 'is-amber',
+        'ti-folder'       => 'is-amber',
+        'ti-star'         => 'is-amber',
+        'ti-user'         => '',
+        'ti-mail'         => '',
+        'ti-login'        => '',
+        'ti-logout'       => '',
+        'ti-ban'          => '',
+        'ti-trash'        => '',
+        'ti-shield-lock'  => 'is-muted',
+        'ti-shield-check' => 'is-muted',
+        'ti-settings'     => 'is-muted',
+        'ti-download'     => 'is-muted',
+        'ti-user-x'       => 'is-muted',
+        'ti-user-off'     => 'is-muted',
     ];
 
     return $map[$icon] ?? 'is-muted';
 };
 
-// Map activity icons to Tabler names.
-$activityIcon = static function (string $icon): string {
-    $map = [
-        'lock'         => 'ti-lock',
-        'file-text'    => 'ti-notes',
-        'check-square' => 'ti-checkbox',
-        'user'         => 'ti-user',
-        'shield'       => 'ti-shield-lock',
-        'log-in'       => 'ti-login',
-        'log-out'      => 'ti-logout',
-        'settings'     => 'ti-settings',
-        'folder'       => 'ti-folder',
-        'user-plus'    => 'ti-user-plus',
-        'user-check'   => 'ti-user-check',
-        'user-x'       => 'ti-user-x',
-        'slash'        => 'ti-ban',
-        'trash-2'      => 'ti-trash',
-    ];
-
-    return $map[$icon] ?? 'ti-activity';
-};
+// The controller already returns a Tabler icon class (from ActivityLog).
+$activityIcon = static fn (string $icon): string => $icon !== '' ? $icon : 'ti-activity';
 
 $hour = (int) date('G');
 $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
@@ -242,6 +231,6 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
   <?php require __DIR__ . '/../../../includes/admin/footer.php'; ?>
 
   <script>window.ADMIN_CSRF_TOKEN = <?= json_encode(csrfToken()) ?>;</script>
-  <script src="<?= url('assets/js/admin/admin.js') ?>"></script>
+  <script src="<?= asset('assets/js/admin/admin.js') ?>"></script>
 </body>
 </html>

@@ -221,6 +221,14 @@ class ActivityLog
         return self::META[$action]['label'] ?? ucfirst(str_replace('_', ' ', $action));
     }
 
+    // Icon class for an action (e.g. "ti-star"). Unknown actions fall back to ti-activity.
+    public static function actionIcon(string $action): string
+    {
+        $icon = self::META[$action]['icon'] ?? 'ti-activity';
+
+        return preg_replace('/^ti\s+/', '', (string) $icon);
+    }
+
     // Action color group.
     public static function tone(string $action): string
     {

@@ -20,6 +20,9 @@
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]
         );
+
+
+        $dbh->exec("SET time_zone = '+08:00'");
     } catch (PDOException $e) {
         http_response_code(500);
         exit('The application is temporarily unavailable. Please try again later.');

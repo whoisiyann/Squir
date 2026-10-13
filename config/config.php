@@ -57,9 +57,8 @@ squirLoadEnv(__DIR__ . '/../.env');
 
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 587); // TLS
-define('SMTP_USERNAME', trim(getenv('SMTP_USERNAME') ?: ''));
-
-define('SMTP_PASSWORD', str_replace(' ', '', getenv('SMTP_PASSWORD') ?: ''));
+define('SMTP_USERNAME', trim($_ENV['SMTP_USERNAME'] ?? getenv('SMTP_USERNAME') ?: ''));
+define('SMTP_PASSWORD', str_replace(' ', '', $_ENV['SMTP_PASSWORD'] ?? getenv('SMTP_PASSWORD') ?: ''));
 
 define('MAIL_DEV_FALLBACK', true);
 

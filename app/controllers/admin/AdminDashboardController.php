@@ -1,14 +1,17 @@
 <?php
 
+require_once __DIR__ . '/../../models/ActivityLog.php';
+
 class AdminDashboardController
 {
 	// Activity labels.
 	private const ACTION_LABELS = [
 		'logged_in'        => 'Logged in',
 		'logged_out'       => 'Logged out',
-		'vault_created'    => 'Added a password',
-		'vault_updated'    => 'Updated a password',
-		'vault_deleted'    => 'Deleted a password',
+		'vault_created'    => 'Added a credential',
+		'vault_updated'    => 'Updated a credential',
+		'vault_deleted'    => 'Deleted a credential',
+		'password_viewed'  => 'Password viewed',
 		'note_created'     => 'Created a note',
 		'note_updated'     => 'Updated a note',
 		'note_deleted'     => 'Deleted a note',
@@ -29,35 +32,6 @@ class AdminDashboardController
 		'user_deactivated' => 'Deactivated a user',
 		'user_suspended'   => 'Suspended a user',
 		'user_deleted'     => 'Deleted a user',
-	];
-
-	// Activity icons.
-	private const ACTION_ICONS = [
-		'logged_in'        => 'log-in',
-		'logged_out'       => 'log-out',
-		'vault_created'    => 'lock',
-		'vault_updated'    => 'lock',
-		'vault_deleted'    => 'lock',
-		'note_created'     => 'file-text',
-		'note_updated'     => 'file-text',
-		'note_deleted'     => 'file-text',
-		'task_created'     => 'check-square',
-		'task_updated'     => 'check-square',
-		'task_completed'   => 'check-square',
-		'task_deleted'     => 'check-square',
-		'folder_created'   => 'folder',
-		'folder_deleted'   => 'folder',
-		'profile_updated'  => 'user',
-		'password_changed' => 'shield',
-		'pin_updated'      => 'shield',
-		'admin_logged_in'  => 'settings',
-		'admin_logged_out' => 'settings',
-		'user_created'     => 'user-plus',
-		'user_updated'     => 'user',
-		'user_activated'   => 'user-check',
-		'user_deactivated' => 'user-x',
-		'user_suspended'   => 'slash',
-		'user_deleted'     => 'trash-2',
 	];
 
 	public function __construct(private PDO $db)
@@ -145,7 +119,7 @@ class AdminDashboardController
 				'label'      => $label,
 				// Hide duplicate detail text.
 				'detail'     => $description !== $label ? $description : '',
-				'icon'       => self::ACTION_ICONS[$row['action']] ?? 'activity',
+				'icon'       => ActivityLog::actionIcon((string) $row['action']),
 				'time_label' => self::timeAgo((string) $row['created_at']),
 			];
 		}

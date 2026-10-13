@@ -25,6 +25,17 @@ if (!function_exists('url')) {
     }
 }
 
+if (!function_exists('asset')) {
+    // Asset URL with a version based on the file's last-modified time.
+    // The browser reloads the file whenever it changes.
+    function asset(string $path): string
+    {
+        $file = __DIR__ . '/../' . ltrim($path, '/');
+        $version = is_file($file) ? filemtime($file) : time();
+        return url($path) . '?v=' . $version;
+    }
+}
+
 
 if (!defined('PREF_THEMES')) {
     define('PREF_THEMES', ['light', 'dark', 'auto']);

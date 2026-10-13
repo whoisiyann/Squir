@@ -228,8 +228,11 @@
         if (!scrollArea || !moreBlock) return;
 
         function check() {
-            var atBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight <= 4;
-            moreBlock.classList.toggle('is-visible', atBottom);
+            var hiddenHeight = scrollArea.scrollHeight - scrollArea.clientHeight;
+            // Only when the list overflows (has a scrollbar) and is scrolled to the bottom
+            var hasScroll = hiddenHeight > 4;
+            var atBottom = hiddenHeight - scrollArea.scrollTop <= 4;
+            moreBlock.classList.toggle('is-visible', hasScroll && atBottom);
         }
 
         scrollArea.addEventListener('scroll', check);
@@ -322,4 +325,42 @@
             if (event.key === 'Escape' && topbar.classList.contains('search-open')) setSearchOpen(false);
         });
     }
+})();
+
+
+// Logout confirmation modal
+(function () {
+    var backdrop = document.getElementById('logoutModalBackdrop');
+    if (!backdrop) return;
+
+    var cancelBtn = document.getElementById('logoutModalCancel');
+
+    function openLogoutModal() {
+        backdrop.classList.add('open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        if (cancelBtn) cancelBtn.focus();
+    }
+
+    function closeLogoutModal() {
+        backdrop.classList.remove('open');
+        backdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    // Delegated click, so it works for any Log Out link on the page
+    document.addEventListener('click', function (event) {
+        var trigger = event.target.closest ? event.target.closest('[data-logout-trigger]') : null;
+        if (!trigger) return;
+        event.preventDefault();
+        openLogoutModal();
+    });
+
+    if (cancelBtn) cancelBtn.addEventListener('click', closeLogoutModal);
+
+    backdrop.addEventListener('click', function (event) {
+        if (event.target === backdrop) closeLogoutModal();
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && backdrop.classList.contains('open')) closeLogoutModal();
+    });
 })();
