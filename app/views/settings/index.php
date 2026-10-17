@@ -198,7 +198,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
                             <span class="settings-row-icon"><i class="ti ti-database-export"></i></span>
                             <span class="settings-row-text">
                                 <strong>Export Data</strong>
-                                <small>Download a copy of your vault, notes, tasks, and folders as CSV, Docs, or PDF.</small>
+                                <small>Download a copy of your vault, notes, tasks, and folders as CSV, Excel, Docs, or PDF.</small>
                             </span>
                             <button type="button" class="btn-outline-squir settings-export-btn" id="exportDataBtn">
                                 <i class="ti ti-download"></i> Export

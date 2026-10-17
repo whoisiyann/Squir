@@ -679,8 +679,8 @@
             setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
         }
 
-        var EXPORT_LABELS = { csv: 'CSV', doc: 'Docs', pdf: 'PDF' };
-        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
+        var EXPORT_LABELS = { csv: 'CSV', xlsx: 'Excel', doc: 'Docs', pdf: 'PDF' };
+        var EXPORT_TYPES = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
 
         // Download after the PIN check.
         function downloadExport(format) {
@@ -735,6 +735,7 @@
             window.SquirExportDialog.open({
                 title: 'Export Data',
                 intro: 'Choose the file format for your export.',
+                formats: ['csv', 'xlsx', 'doc', 'pdf'],
                 onExport: function (format) {
                     window.SquirPin.ensure('export').then(function () {
                         return downloadExport(format);

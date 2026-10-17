@@ -233,7 +233,7 @@ $titles = [
                 <span class="settings-row-icon"><i class="ti ti-database-export"></i></span>
                 <span class="settings-row-text">
                   <strong>Export all data logs ( Admin &amp; Users )</strong>
-                  <small>Download system logs as CSV, Docs, or PDF.</small>
+                  <small>Download system logs as CSV, Excel, Docs, or PDF.</small>
                 </span>
                 <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="asExportBtn">
                   <i class="ti ti-download" aria-hidden="true"></i> Export

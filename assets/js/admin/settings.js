@@ -932,8 +932,8 @@
             setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
         }
 
-        var EXPORT_LABELS = { csv: 'CSV', doc: 'Docs', pdf: 'PDF' };
-        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
+        var EXPORT_LABELS = { csv: 'CSV', xlsx: 'Excel', doc: 'Docs', pdf: 'PDF' };
+        var EXPORT_TYPES = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
 
         // report: 'user-summary' for the User Summary Report, otherwise the activity logs.
         function downloadExport(format, report, button) {
@@ -979,6 +979,7 @@
             window.SquirExportDialog.open({
                 title: 'Export Logs',
                 intro: 'Choose the file format for your export.',
+                formats: ['csv', 'xlsx', 'doc', 'pdf'],
                 onExport: function (format) { downloadExport(format, 'logs', exportBtn); }
             });
         });
@@ -996,6 +997,7 @@
                 window.SquirExportDialog.open({
                     title: 'Export User Summary Report',
                     intro: 'Choose the file format for the user summary report.',
+                    formats: ['csv', 'xlsx', 'doc', 'pdf'],
                     onExport: function (format) { downloadExport(format, 'user-summary', summaryBtn); }
                 });
             });

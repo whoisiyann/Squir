@@ -13,7 +13,7 @@ $adminId = requireAdminLogin();
 $adminModel = new Admin($dbh);
 $admin = $adminModel->findById($adminId);
 if (!$admin) {
-    // End the session if the admin account is gone.
+    // Admin account is gone.
     session_unset();
     session_destroy();
     header('Location: ' . url('login'));
@@ -24,7 +24,7 @@ $activityLog = new ActivityLog($dbh);
 $controller = new AdminSettingsController($adminModel, $activityLog, new AdminPasswordReset($dbh), new AdminEmailChange($dbh), new User($dbh));
 $csrfToken = csrfToken();
 
-// JSON response
+// JSON reply
 function adminSettingsJson(array $payload, int $status = 200): void
 {
     http_response_code($status);
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         adminSettingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
     }
 
-    // Save theme + accent color
+    // Save appearance
     if ($ajax === 'save_preferences') {
         $clean = cleanPreferences($_POST);
 
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         adminSettingsJson(['success' => true]);
     }
 
-    // Profile update
+    // Update profile
     if ($ajax === 'update_profile') {
         try {
             $result = $controller->updateProfile($adminId, $_POST);
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 
-    // Email code
+    // Verify email code
     if ($ajax === 'verify_email_change') {
         try {
             $result = $controller->verifyEmailChange($adminId, (string) ($_POST['code'] ?? ''));
@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 
-    // Reset code
+    // Verify reset code
     if ($ajax === 'forgot_verify_code') {
         try {
             $result = $controller->verifyResetCode($adminId, (string) ($_POST['code'] ?? ''));
@@ -221,7 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         adminSettingsJson(['success' => true]);
     }
 
-    // Clear activity log
+    // Clear log
     if ($ajax === 'clear_activity_log') {
         try {
             $controller->clearActivity($adminId);
@@ -235,9 +235,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     adminSettingsJson(['error' => 'Unknown request.'], 400);
 }
 
-// Export logs as CSV, Docs, or PDF
+// Export logs
 if (isset($_GET['export'])) {
-    // Keep PHP warnings out of the export.
+    // Hide PHP warnings in export.
     ini_set('display_errors', '0');
 
     $format = (string) $_GET['export'];
@@ -246,12 +246,16 @@ if (isset($_GET['export'])) {
     }
 
     $userOnly = ($_GET['scope'] ?? 'users') !== 'all';
-    $formatLabels = ['csv' => 'CSV', 'doc' => 'Docs', 'pdf' => 'PDF'];
+    $formatLabels = ['csv' => 'CSV', 'xlsx' => 'Excel', 'doc' => 'Docs', 'pdf' => 'PDF'];
 
-    // User Summary Report (credentials, notes, and tasks per user)
+    // User summary report
     if (($_GET['report'] ?? '') === 'user-summary') {
         if ($format === 'pdf' && !$controller->pdfAvailable()) {
             adminSettingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
+        }
+
+        if ($format === 'xlsx' && !$controller->xlsxAvailable()) {
+            adminSettingsJson(['error' => 'Excel export needs the PHP zip extension. Enable extension=zip in php.ini.'], 500);
         }
 
         if ($format === 'doc' && !$controller->docxAvailable()) {
@@ -283,7 +287,38 @@ if (isset($_GET['export'])) {
         exit;
     }
 
-    // Docs and PDF reports
+    // Excel export
+    if ($format === 'xlsx') {
+        if (!$controller->xlsxAvailable()) {
+            adminSettingsJson(['error' => 'Excel export needs the PHP zip extension. Enable extension=zip in php.ini.'], 500);
+        }
+
+        try {
+            $body = $controller->exportLogsXlsx($userOnly);
+        } catch (Throwable $error) {
+            error_log('Squir log Excel export failed: ' . $error->getMessage());
+            adminSettingsJson(['error' => 'Could not create the export. Please try again.'], 500);
+        }
+
+        $activityLog->logAdmin(
+            $adminId,
+            'admin_logs_exported',
+            $userOnly ? 'Exported user activity logs (Excel)' : 'Exported all activity logs (Excel)'
+        );
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: ' . XlsxBuilder::MIME);
+        header('Content-Disposition: attachment; filename="squir-' . ($userOnly ? 'user' : 'all') . '-logs-' . date('Y-m-d-His') . '.xlsx"');
+        header('Content-Length: ' . strlen($body));
+        header('Cache-Control: no-store');
+        echo $body;
+        exit;
+    }
+
+    // Docs and PDF export
     if ($format !== 'csv') {
         if ($format === 'pdf' && !$controller->pdfAvailable()) {
             adminSettingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
@@ -342,7 +377,7 @@ if (isset($_GET['export'])) {
     header('Cache-Control: no-store');
 
     $out = fopen('php://output', 'w');
-    fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel reads the names correctly
+    fwrite($out, "\xEF\xBB\xBF"); // Add UTF-8 BOM for Excel
     fputcsv($out, $controller->exportHeader(), ',', '"', '\\');
 
     if ($first !== null) {
@@ -362,7 +397,7 @@ if (isset($_GET['export'])) {
     exit;
 }
 
-// Select settings panel
+// Pick panel
 $panel = (string) ($_GET['panel'] ?? 'index');
 if (!in_array($panel, ['index', 'activity-log', 'change-password'], true)) {
     $panel = 'index';

@@ -4,6 +4,7 @@
 
     var FORMATS = [
         { value: 'csv', icon: 'ti-table',       label: 'CSV',  hint: 'Raw data for spreadsheets and analysis.' },
+        { value: 'xlsx', icon: 'ti-table-export', label: 'Excel', hint: 'Spreadsheet with columns already sized to fit.' },
         { value: 'doc', icon: 'ti-file-text',   label: 'Docs', hint: 'Editable text and customizable layout.' },
         { value: 'pdf', icon: 'ti-file-report', label: 'PDF',  hint: 'Print-ready, non-editable official report.' }
     ];
@@ -95,6 +96,14 @@
         ui.intro.textContent = options.intro || 'Choose the file format for your export.';
         ui.error.textContent = '';
         ui.onExport = options.onExport || null;
+
+        // Show only the formats this export supports (xlsx is opt-in).
+        var allowed = options.formats || ['csv', 'doc', 'pdf'];
+        Array.prototype.forEach.call(ui.radios, function (r) {
+            var show = allowed.indexOf(r.value) !== -1;
+            r.closest('.exd-option').style.display = show ? '' : 'none';
+            r.disabled = !show;
+        });
 
         // Select PDF by default.
         Array.prototype.forEach.call(ui.radios, function (r) { r.checked = r.value === (options.defaultFormat || 'pdf'); });

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../models/admin/AdminPasswordReset.php';
 require_once __DIR__ . '/../../models/admin/AdminEmailChange.php';
 require_once __DIR__ . '/../../../includes/mailer.php';
 require_once __DIR__ . '/../../../includes/DocxBuilder.php';
+require_once __DIR__ . '/../../../includes/XlsxBuilder.php';
 
 class AdminSettingsController
 {
@@ -16,7 +17,7 @@ class AdminSettingsController
 	// Limit Docs and PDFs because they use more memory.
 	private const EXPORT_REPORT_MAX = 2000;
 
-	public const EXPORT_FORMATS = ['csv', 'doc', 'pdf'];
+	public const EXPORT_FORMATS = ['csv', 'xlsx', 'doc', 'pdf'];
 
 	public function __construct(
 		private Admin $admin,
@@ -398,6 +399,31 @@ class AdminSettingsController
 		return DocxBuilder::available();
 	}
 
+	// Excel support (needs the PHP zip extension)
+	public function xlsxAvailable(): bool
+	{
+		return XlsxBuilder::available();
+	}
+
+	// Activity logs as an Excel file with auto-fitted columns
+	public function exportLogsXlsx(bool $userOnly): string
+	{
+		return XlsxBuilder::build(
+			$this->exportHeader(),
+			$this->flattenBatches($this->exportBatches($userOnly, self::EXPORT_MAX, false)),
+			['sheet' => $userOnly ? 'User activity logs' : 'All activity logs']
+		);
+	}
+
+	private function flattenBatches(Generator $batches): Generator
+	{
+		foreach ($batches as $batch) {
+			foreach ($batch as $row) {
+				yield $row;
+			}
+		}
+	}
+
 	// Return the report content, type, and extension.
 	public function exportReport(int $adminId, bool $userOnly, string $format): array
 	{
@@ -541,7 +567,7 @@ class AdminSettingsController
 			throw new RuntimeException('User model is not available.');
 		}
 
-		$limit = $format === 'csv' ? self::EXPORT_MAX : self::EXPORT_REPORT_MAX;
+		$limit = in_array($format, ['csv', 'xlsx'], true) ? self::EXPORT_MAX : self::EXPORT_REPORT_MAX;
 		$users = $this->users->summaryReport($limit);
 
 		$rows = [];
@@ -561,6 +587,15 @@ class AdminSettingsController
 				(string) $user['tasks_done'],
 				(string) $user['tasks_pending'],
 				(string) ($user['credentials'] + $user['notes'] + $user['tasks_done'] + $user['tasks_pending']),
+			];
+		}
+
+		// Excel: columns sized to fit, numbers stored as numbers
+		if ($format === 'xlsx') {
+			return [
+				XlsxBuilder::build($this->userSummaryHeader(), $rows, ['sheet' => 'User Summary', 'numeric' => [3, 4, 5, 6, 7]]),
+				XlsxBuilder::MIME,
+				'xlsx',
 			];
 		}
 

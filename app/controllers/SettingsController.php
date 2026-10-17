@@ -5,6 +5,7 @@ require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../models/Vault.php';
 require_once __DIR__ . '/../../includes/DocxBuilder.php';
+require_once __DIR__ . '/../../includes/XlsxBuilder.php';
 
 class SettingsController
 {
@@ -244,8 +245,14 @@ class SettingsController
         return DocxBuilder::available();
     }
 
+    // Excel support (needs the PHP zip extension)
+    public function xlsxAvailable(): bool
+    {
+        return XlsxBuilder::available();
+    }
+
     // Export formats the user can choose
-    public const EXPORT_FORMATS = ['csv', 'doc', 'pdf'];
+    public const EXPORT_FORMATS = ['csv', 'xlsx', 'doc', 'pdf'];
 
     // Build the export file: returns [body, mime type, file extension]
     public function exportFile(int $userId, string $format): array
@@ -256,6 +263,11 @@ class SettingsController
         switch ($format) {
             case 'csv':
                 $file = [$this->renderCsv($data), 'text/csv; charset=utf-8', 'csv'];
+                break;
+
+            case 'xlsx':
+                // Excel file with one sheet per type and auto-fitted columns
+                $file = [$this->renderXlsx($data), XlsxBuilder::MIME, 'xlsx'];
                 break;
 
             case 'doc':
@@ -358,6 +370,68 @@ class SettingsController
         fclose($out);
 
         return $csv;
+    }
+
+    // Build the Excel export: one sheet each for vault, notes, tasks, and folders.
+    private function renderXlsx(array $data): string
+    {
+        $statusLabels = ['todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done'];
+        $priorityLabels = ['low' => 'Low', 'medium' => 'Medium', 'high' => 'High'];
+
+        $vault = [];
+        foreach ($data['vault'] as $item) {
+            $vault[] = [
+                (string) $item['title'],
+                (string) ($item['folder'] ?? ''),
+                (string) ($item['username'] ?? ''),
+                (string) ($item['password'] ?? ''),
+                (string) ($item['website_url'] ?? ''),
+                str_replace(',', ', ', (string) ($item['tags'] ?? '')),
+                (string) ($item['notes'] ?? ''),
+                (string) ($item['created_at'] ?? ''),
+                (string) ($item['updated_at'] ?? ''),
+            ];
+        }
+
+        $notes = [];
+        foreach ($data['notes'] as $note) {
+            $notes[] = [
+                (string) $note['title'],
+                (string) ($note['folder'] ?? ''),
+                $this->plainText($note['content']),
+                (string) ($note['created_at'] ?? ''),
+                (string) ($note['updated_at'] ?? ''),
+            ];
+        }
+
+        $tasks = [];
+        foreach ($data['tasks'] as $task) {
+            $tasks[] = [
+                (string) $task['title'],
+                (string) ($task['description'] ?? ''),
+                $statusLabels[$task['status']] ?? (string) $task['status'],
+                $priorityLabels[$task['priority']] ?? (string) $task['priority'],
+                (string) ($task['due_date'] ?? ''),
+                (string) ($task['created_at'] ?? ''),
+            ];
+        }
+
+        $folders = [];
+        foreach ($data['folders'] as $folder) {
+            $folders[] = [
+                (string) $folder['folder_name'],
+                ucfirst((string) $folder['folder_type']),
+                (string) ($folder['color'] ?? ''),
+                (string) $folder['item_count'],
+            ];
+        }
+
+        return XlsxBuilder::buildWorkbook([
+            ['name' => 'Vault',   'header' => ['Title', 'Folder', 'Username', 'Password', 'Website', 'Tags', 'Notes', 'Created', 'Updated'], 'rows' => $vault],
+            ['name' => 'Notes',   'header' => ['Title', 'Folder', 'Content', 'Created', 'Updated'], 'rows' => $notes],
+            ['name' => 'Tasks',   'header' => ['Title', 'Description', 'Status', 'Priority', 'Due Date', 'Created'], 'rows' => $tasks],
+            ['name' => 'Folders', 'header' => ['Folder', 'Type', 'Color', 'Items'], 'rows' => $folders, 'numeric' => [3]],
+        ]);
     }
 
     // Prefix formula-like values to prevent CSV injection.
