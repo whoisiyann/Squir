@@ -141,12 +141,34 @@ class SettingsController
         return $this->user->delete($userId);
     }
 
-    // Build the account export
+    // Build the account export.
     public function exportData(int $userId): array
     {
         $vaultModel = new Vault($this->db);
+
+        // Vault entries with their folder and tags
+        $vaultStatement = $this->db->prepare(
+            "SELECT v.title,
+                    v.account_username,
+                    v.account_password,
+                    v.website_url,
+                    v.notes,
+                    v.created_at,
+                    v.updated_at,
+                    f.folder_name,
+                    GROUP_CONCAT(t.tag_name ORDER BY t.tag_name SEPARATOR ',') AS tags
+             FROM vault v
+             LEFT JOIN folders    f  ON f.folder_id = v.folder_id
+             LEFT JOIN vault_tags vt ON vt.vault_id = v.vault_id
+             LEFT JOIN tags       t  ON t.tag_id    = vt.tag_id
+             WHERE v.user_id = :uid
+             GROUP BY v.vault_id, f.folder_name
+             ORDER BY v.title ASC"
+        );
+        $vaultStatement->execute(['uid' => $userId]);
+
         $vaultOut = [];
-        foreach ($vaultModel->searchForUser($userId) as $row) {
+        foreach ($vaultStatement->fetchAll(PDO::FETCH_ASSOC) as $row) {
             $vaultOut[] = [
                 'title'       => $row['title'],
                 'username'    => $row['account_username'],
@@ -156,21 +178,42 @@ class SettingsController
                 'website_url' => $row['website_url'],
                 'notes'       => $row['notes'],
                 'tags'        => $row['tags'],
+                'folder'      => $row['folder_name'],
+                'created_at'  => $row['created_at'],
+                'updated_at'  => $row['updated_at'],
             ];
         }
 
+        // Notes with their folder
         $noteStatement = $this->db->prepare(
-            'SELECT title, content, created_at, updated_at FROM notes WHERE user_id = :uid ORDER BY updated_at DESC'
+            'SELECT n.title, n.content, n.created_at, n.updated_at, f.folder_name AS folder
+             FROM notes n
+             LEFT JOIN folders f ON f.folder_id = n.folder_id
+             WHERE n.user_id = :uid
+             ORDER BY n.updated_at DESC'
         );
         $noteStatement->execute(['uid' => $userId]);
 
         $taskStatement = $this->db->prepare(
-            'SELECT title, description, status, priority, due_date, created_at FROM tasks WHERE user_id = :uid ORDER BY created_at DESC'
+            'SELECT title, description, status, priority, due_date, created_at
+             FROM tasks
+             WHERE user_id = :uid
+             ORDER BY created_at DESC'
         );
         $taskStatement->execute(['uid' => $userId]);
 
+        // Include each folder's item count.
         $folderStatement = $this->db->prepare(
-            'SELECT folder_name, folder_type, color FROM folders WHERE user_id = :uid ORDER BY folder_name ASC'
+            'SELECT f.folder_name,
+                    f.folder_type,
+                    f.color,
+                    COUNT(DISTINCT v.vault_id) + COUNT(DISTINCT n.note_id) AS item_count
+             FROM folders f
+             LEFT JOIN vault v ON v.folder_id = f.folder_id
+             LEFT JOIN notes n ON n.folder_id = f.folder_id
+             WHERE f.user_id = :uid
+             GROUP BY f.folder_id, f.folder_name, f.folder_type, f.color
+             ORDER BY f.folder_name ASC'
         );
         $folderStatement->execute(['uid' => $userId]);
 
@@ -194,19 +237,52 @@ class SettingsController
         return class_exists(\Dompdf\Dompdf::class);
     }
 
-    // Export PDF
-    public function exportPdf(int $userId): string
+    // Export formats the user can choose
+    public const EXPORT_FORMATS = ['csv', 'doc', 'pdf'];
+
+    // Build the export file: returns [body, mime type, file extension]
+    public function exportFile(int $userId, string $format): array
     {
         $data = $this->exportData($userId);
         $user = $this->user->findById($userId) ?: [];
 
+        switch ($format) {
+            case 'csv':
+                $file = [$this->renderCsv($data), 'text/csv; charset=utf-8', 'csv'];
+                break;
+
+            case 'doc':
+                $file = [$this->renderExportHtml($data, $user, 'doc'), 'application/msword; charset=utf-8', 'doc'];
+                break;
+
+            case 'pdf':
+                $file = [$this->renderPdf($data, $user), 'application/pdf', 'pdf'];
+                break;
+
+            default:
+                throw new InvalidArgumentException('Unsupported export format.');
+        }
+
+        $this->activityLog->log($userId, 'data_exported');
+
+        return $file;
+    }
+
+    // Export PDF
+    public function exportPdf(int $userId): string
+    {
+        return $this->exportFile($userId, 'pdf')[0];
+    }
+
+    private function renderPdf(array $data, array $user): string
+    {
         $options = new \Dompdf\Options();
         $options->set('defaultFont', 'DejaVu Sans');
         $options->set('isRemoteEnabled', false);
         $options->set('isPhpEnabled', false);
 
         $dompdf = new \Dompdf\Dompdf($options);
-        $dompdf->loadHtml($this->renderExportHtml($data, $user), 'UTF-8');
+        $dompdf->loadHtml($this->renderExportHtml($data, $user, 'pdf'), 'UTF-8');
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
@@ -217,15 +293,90 @@ class SettingsController
         $canvas->page_text(40, $footerY, 'Squir - Confidential data export', $font, 8, [0.45, 0.45, 0.45]);
         $canvas->page_text($canvas->get_width() - 110, $footerY, 'Page {PAGE_NUM} of {PAGE_COUNT}', $font, 8, [0.45, 0.45, 0.45]);
 
-        $pdf = $dompdf->output();
-
-        $this->activityLog->log($userId, 'data_exported');
-
-        return $pdf;
+        return $dompdf->output();
     }
 
-    // Export view
-    private function renderExportHtml(array $data, array $user): string
+    // Write one CSV row per item.
+    private function renderCsv(array $data): string
+    {
+        $statusLabels = ['todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done'];
+        $priorityLabels = ['low' => 'Low', 'medium' => 'Medium', 'high' => 'High'];
+
+        $rows = [[
+            'Type', 'Title', 'Folder', 'Username', 'Password', 'Website', 'Tags',
+            'Content', 'Status', 'Priority', 'Due Date', 'Items', 'Created', 'Updated',
+        ]];
+
+        foreach ($data['vault'] as $item) {
+            $rows[] = [
+                'Vault', $item['title'], $item['folder'], $item['username'], $item['password'],
+                $item['website_url'], str_replace(',', ', ', (string) $item['tags']),
+                $item['notes'], '', '', '', '', $item['created_at'], $item['updated_at'],
+            ];
+        }
+
+        foreach ($data['notes'] as $note) {
+            $rows[] = [
+                'Note', $note['title'], $note['folder'], '', '', '', '',
+                $this->plainText($note['content']), '', '', '', '', $note['created_at'], $note['updated_at'],
+            ];
+        }
+
+        foreach ($data['tasks'] as $task) {
+            $rows[] = [
+                'Task', $task['title'], '', '', '', '', '',
+                $task['description'],
+                $statusLabels[$task['status']] ?? $task['status'],
+                $priorityLabels[$task['priority']] ?? $task['priority'],
+                $task['due_date'], '', $task['created_at'], '',
+            ];
+        }
+
+        foreach ($data['folders'] as $folder) {
+            $rows[] = [
+                'Folder', $folder['folder_name'], '', '', '', '', '',
+                ucfirst((string) $folder['folder_type']) . ' folder (' . $folder['color'] . ')',
+                '', '', '', $folder['item_count'], '', '',
+            ];
+        }
+
+        $out = fopen('php://temp', 'w+');
+        fwrite($out, "\xEF\xBB\xBF"); // Help Excel read UTF-8 correctly.
+        foreach ($rows as $row) {
+            fputcsv($out, array_map([self::class, 'csvCell'], $row), ',', '"', '\\');
+        }
+        rewind($out);
+        $csv = (string) stream_get_contents($out);
+        fclose($out);
+
+        return $csv;
+    }
+
+    // Prefix formula-like values to prevent CSV injection.
+    private static function csvCell(mixed $value): string
+    {
+        $text = (string) ($value ?? '');
+        if ($text !== '' && in_array($text[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            $text = "'" . $text;
+        }
+
+        return $text;
+    }
+
+    // Convert note HTML to plain text.
+    private function plainText(?string $html): string
+    {
+        $text = preg_replace('~<li(\s[^>]*)?>~i', '- ', (string) $html);
+        $text = preg_replace('~<br(\s[^>]*)?/?>~i', "\n", (string) $text);
+        $text = preg_replace('~</(p|div|li|h[1-6]|ul|ol|blockquote)>~i', "\n", (string) $text);
+        $text = html_entity_decode(strip_tags((string) $text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = str_replace("\xC2\xA0", ' ', $text);
+
+        return trim((string) preg_replace('/\n{3,}/', "\n\n", $text));
+    }
+
+    // Render the PDF or DOC view.
+    private function renderExportHtml(array $data, array $user, string $format = 'pdf'): string
     {
         ob_start();
         require __DIR__ . '/../views/settings/export-pdf.php';

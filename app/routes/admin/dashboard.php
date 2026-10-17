@@ -19,5 +19,6 @@ $data = (new AdminDashboardController($dbh))->index();
 $stats = $data['stats'];
 $recentUsers = $data['recentUsers'];
 $recentActivity = $data['recentActivity'];
+$userReport = $data['userReport'];
 
 require __DIR__ . '/../../views/admin/dashboard.php';

@@ -1,10 +1,12 @@
 <?php
 /** @var array $data Export data */
 /** @var array $user User data */
+/** @var string $format 'pdf' or 'doc' */
+$format = $format ?? 'pdf';
 
 $e = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-// Format a date for display
+// Format a date for display.
 $fmt = static function ($value, string $format = 'M j, Y g:i A'): string {
     if ($value === null || $value === '') {
         return '';
@@ -15,7 +17,7 @@ $fmt = static function ($value, string $format = 'M j, Y g:i A'): string {
     return $time === false ? '' : date($format, $time);
 };
 
-// Convert note HTML to plain text
+// Convert note HTML to plain text.
 $noteText = static function (?string $html): string {
     $html = (string) $html;
     if ($html === '') {
@@ -47,10 +49,17 @@ $ownerName = trim((string) ($user['full_name'] ?? ''));
 $ownerEmail = trim((string) ($user['email'] ?? ''));
 ?>
 <!DOCTYPE html>
+<?php if ($format === 'doc'): ?>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40" lang="en">
+<?php else: ?>
 <html lang="en">
+<?php endif; ?>
 <head>
 <meta charset="UTF-8">
 <title>Squir Data Export</title>
+<?php if ($format === 'doc'): ?>
+<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+<?php endif; ?>
 <style>
     @page { margin: 48px 40px 60px 40px; }
 
@@ -158,7 +167,7 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
     $tagList = trim((string) ($item['tags'] ?? ''));
     $tagList = $tagList === '' ? '' : implode(', ', explode(',', $tagList));
 
-    // Field values are already escaped
+    // Values are escaped before they are added to the output.
     $fields = [];
     if (($item['username'] ?? '') !== '') {
         $fields[] = ['Username', $e($item['username']), ''];
@@ -168,6 +177,9 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
     }
     if (!empty($item['website_url'])) {
         $fields[] = ['Website', $e($item['website_url']), ''];
+    }
+    if (!empty($item['folder'])) {
+        $fields[] = ['Folder', $e($item['folder']), ''];
     }
     if ($tagList !== '') {
         $fields[] = ['Tags', $e($tagList), ''];
@@ -207,6 +219,7 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
         <div class="note-meta">
             <?php if ($created !== ''): ?>Created <?= $e($created) ?><?php endif; ?>
             <?php if ($updated !== '' && $updated !== $created): ?> &middot; Updated <?= $e($updated) ?><?php endif; ?>
+            <?php if (!empty($note['folder'])): ?> &middot; Folder: <?= $e($note['folder']) ?><?php endif; ?>
         </div>
         <?php if ($body !== ''): ?>
             <div class="note-body"><?= nl2br($e($body)) ?></div>
@@ -254,9 +267,10 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
 <?php else: ?>
     <table class="grid">
         <tr>
-            <th style="width: 50%;">Folder</th>
-            <th style="width: 25%;">Type</th>
-            <th style="width: 25%;">Color</th>
+            <th style="width: 40%;">Folder</th>
+            <th style="width: 20%;">Type</th>
+            <th style="width: 20%;">Color</th>
+            <th style="width: 20%;">Items</th>
         </tr>
         <?php foreach ($folders as $folder): ?>
             <?php $type = (string) ($folder['folder_type'] ?? ''); ?>
@@ -264,6 +278,7 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
                 <td><?= $e($folder['folder_name'] ?? '') ?></td>
                 <td><?= $e($folderTypeLabels[$type] ?? $type) ?></td>
                 <td><?= $e($folder['color'] ?? '') ?></td>
+                <td><?= (int) ($folder['item_count'] ?? 0) ?></td>
             </tr>
         <?php endforeach; ?>
     </table>

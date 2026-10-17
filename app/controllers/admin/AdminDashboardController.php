@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../models/ActivityLog.php';
 
 class AdminDashboardController
 {
-	// Activity labels.
+	// Activity labels
 	private const ACTION_LABELS = [
 		'logged_in'        => 'Logged in',
 		'logged_out'       => 'Logged out',
@@ -45,6 +45,7 @@ class AdminDashboardController
 			'stats'           => $this->loadStats(),
 			'recentUsers'     => $this->loadRecentUsers(10),
 			'recentActivity'  => $this->loadRecentActivity(10),
+			'userReport'      => $this->loadUserReport(10),
 		];
 	}
 
@@ -86,6 +87,47 @@ class AdminDashboardController
 		return $statement->fetchAll();
 	}
 
+	// Count each table per user before joining to avoid duplicate totals.
+	private function loadUserReport(int $limit): array
+	{
+		$statement = $this->db->prepare(
+			'SELECT u.user_id,
+			        u.full_name,
+			        u.email,
+			        u.status,
+			        COALESCE(v.total, 0)   AS credentials,
+			        COALESCE(n.total, 0)   AS notes,
+			        COALESCE(t.done, 0)    AS tasks_done,
+			        COALESCE(t.pending, 0) AS tasks_pending
+			 FROM users u
+			 LEFT JOIN (SELECT user_id, COUNT(*) AS total
+			            FROM vault GROUP BY user_id) v ON v.user_id = u.user_id
+			 LEFT JOIN (SELECT user_id, COUNT(*) AS total
+			            FROM notes GROUP BY user_id) n ON n.user_id = u.user_id
+			 LEFT JOIN (SELECT user_id,
+			                   SUM(status = \'done\')  AS done,
+			                   SUM(status <> \'done\') AS pending
+			            FROM tasks GROUP BY user_id) t ON t.user_id = u.user_id
+			 ORDER BY (COALESCE(v.total, 0) + COALESCE(n.total, 0)
+			           + COALESCE(t.done, 0) + COALESCE(t.pending, 0)) DESC,
+			          u.full_name ASC
+			 LIMIT :limit'
+		);
+		$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+		$statement->execute();
+
+		$rows = [];
+		foreach ($statement->fetchAll() as $row) {
+			$row['credentials']   = (int) $row['credentials'];
+			$row['notes']         = (int) $row['notes'];
+			$row['tasks_done']    = (int) $row['tasks_done'];
+			$row['tasks_pending'] = (int) $row['tasks_pending'];
+			$rows[] = $row;
+		}
+
+		return $rows;
+	}
+
 	// Load user and admin activity
 	private function loadRecentActivity(int $limit): array
 	{
@@ -117,7 +159,7 @@ class AdminDashboardController
 				'actor'      => $actorName,
 				'is_admin'   => $row['admin_id'] !== null,
 				'label'      => $label,
-				// Hide duplicate detail text.
+				// Avoid showing the same text twice.
 				'detail'     => $description !== $label ? $description : '',
 				'icon'       => ActivityLog::actionIcon((string) $row['action']),
 				'time_label' => self::timeAgo((string) $row['created_at']),

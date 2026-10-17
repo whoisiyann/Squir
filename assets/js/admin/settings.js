@@ -925,16 +925,18 @@
             setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
         }
 
-        exportBtn.addEventListener('click', function () {
-            if (exportBusy) return;
+        var EXPORT_LABELS = { csv: 'CSV', doc: 'Docs', pdf: 'PDF' };
+        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/msword', pdf: 'application/pdf' };
+
+        function downloadExport(format) {
+            var label = EXPORT_LABELS[format] || 'file';
+            var scope = userOnly && !userOnly.checked ? 'all' : 'users';
             setExportBusy(true);
 
-            var scope = userOnly && !userOnly.checked ? 'all' : 'users';
-
-            fetch(endpoint + '?export=csv&scope=' + scope, { credentials: 'same-origin' }).then(function (response) {
+            fetch(endpoint + '?export=' + encodeURIComponent(format) + '&scope=' + scope, { credentials: 'same-origin' }).then(function (response) {
                 var type = response.headers.get('Content-Type') || '';
 
-                if (!response.ok || type.indexOf('text/csv') === -1) {
+                if (!response.ok || type.indexOf(EXPORT_TYPES[format]) === -1) {
                     return response.json().catch(function () { return {}; }).then(function (json) {
                         exportFail(json.error || 'Could not create the export. Please try again.');
                     });
@@ -942,16 +944,32 @@
 
                 var disposition = response.headers.get('Content-Disposition') || '';
                 var match = /filename="?([^";]+)"?/i.exec(disposition);
-                var filename = match ? match[1] : 'squir-logs.csv';
+                var filename = match ? match[1] : 'squir-logs.' + format;
 
                 return response.blob().then(function (blob) {
                     saveBlob(blob, filename);
-                    notifySuccess('Export Complete', 'Your logs were downloaded as a CSV file.');
+                    notifySuccess('Export Complete', 'Your logs were downloaded as a ' + label + ' file.');
                 });
             }).catch(function (error) {
                 notifyError(error && error.friendly ? error.message : 'Something went wrong while creating the export. Please try again.');
             }).then(function () {
                 setExportBusy(false);
+            });
+        }
+
+        // Choose a format first (no PIN for admins yet)
+        exportBtn.addEventListener('click', function () {
+            if (exportBusy) return;
+
+            if (!window.SquirExportDialog) {
+                notifyError('The export options could not load. Please refresh the page and try again.');
+                return;
+            }
+
+            window.SquirExportDialog.open({
+                title: 'Export Logs',
+                intro: 'Choose the file format for your export.',
+                onExport: downloadExport
             });
         });
     }

@@ -33,6 +33,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
     <link rel="stylesheet" href="./assets/css/vault.css">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="./assets/css/settings.css">
+    <link rel="stylesheet" href="./assets/css/export-dialog.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="settings-page">
@@ -197,7 +198,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
                             <span class="settings-row-icon"><i class="ti ti-database-export"></i></span>
                             <span class="settings-row-text">
                                 <strong>Export Data</strong>
-                                <small>Download a PDF copy of your vault, notes, tasks, and folders.</small>
+                                <small>Download a copy of your vault, notes, tasks, and folders as CSV, Docs, or PDF.</small>
                             </span>
                             <button type="button" class="btn-outline-squir settings-export-btn" id="exportDataBtn">
                                 <i class="ti ti-download"></i> Export
@@ -221,6 +222,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
 <script src="./assets/js/squir-dialogs.js"></script>
 <script src="./assets/js/dashboard.js?v=4"></script>
 <script src="./assets/js/pin-gate.js"></script>
-<script src="./assets/js/settings.js?v=2"></script>
+<script src="./assets/js/export-dialog.js"></script>
+<script src="./assets/js/settings.js?v=3"></script>
 </body>
 </html>

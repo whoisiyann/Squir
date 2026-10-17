@@ -11,6 +11,11 @@ class AdminSettingsController
 
 	private const EXPORT_MAX = 50000;
 
+	// Limit Docs and PDFs because they use more memory.
+	private const EXPORT_REPORT_MAX = 2000;
+
+	public const EXPORT_FORMATS = ['csv', 'doc', 'pdf'];
+
 	public function __construct(
 		private Admin $admin,
 		private ActivityLog $activityLog,
@@ -112,7 +117,7 @@ class AdminSettingsController
 			return ['errors' => ['form' => 'Your admin account could not be found.']];
 		}
 
-		// Email may be taken.
+		// Check that the address is still available.
 		if ($this->admin->emailExists((string) $pending['new_email'], $adminId)) {
 			$this->emailChange->clearForAdmin($adminId);
 			return ['errors' => ['form' => 'An account with this email already exists.']];
@@ -137,7 +142,7 @@ class AdminSettingsController
 
 		$newEmail = (string) $result['new_email'];
 
-		// Recheck email.
+		// Check again before saving.
 		if ($this->admin->emailExists($newEmail, $adminId)) {
 			$this->emailChange->clearForAdmin($adminId);
 			return ['errors' => ['code' => 'An account with this email already exists.']];
@@ -159,7 +164,7 @@ class AdminSettingsController
 		$devCode = null;
 		if (!$sent) {
 			if (defined('MAIL_DEV_FALLBACK') && MAIL_DEV_FALLBACK) {
-				// Show dev code when mail is off.
+				// Show the code if email is unavailable.
 				$devCode = $change['code'];
 			} else {
 				$this->emailChange->clearForAdmin($adminId);
@@ -222,7 +227,7 @@ class AdminSettingsController
 		$devCode = null;
 		if (!$sent) {
 			if (defined('MAIL_DEV_FALLBACK') && MAIL_DEV_FALLBACK) {
-				// Show dev code when mail is off.
+				// Show the code if email is unavailable.
 				$devCode = $reset['code'];
 			} else {
 				return ['errors' => ['form' => 'We could not send the email. Please try again later.']];
@@ -314,10 +319,10 @@ class AdminSettingsController
 	}
 
 	// Export CSV rows
-	public function exportBatches(bool $userOnly): Generator
+	public function exportBatches(bool $userOnly, int $max = self::EXPORT_MAX, bool $forCsv = true): Generator
 	{
 		$offset = 0;
-		while ($offset < self::EXPORT_MAX) {
+		while ($offset < $max) {
 			$rows = $this->activityLog->exportBatch($userOnly, self::EXPORT_BATCH, $offset);
 			if ($rows === []) {
 				return;
@@ -325,7 +330,7 @@ class AdminSettingsController
 
 			$batch = [];
 			foreach ($rows as $row) {
-				$batch[] = $this->exportRow($row);
+				$batch[] = $this->exportRow($row, $forCsv);
 			}
 			yield $batch;
 
@@ -337,7 +342,7 @@ class AdminSettingsController
 	}
 
 	// Format CSV row
-	private function exportRow(array $row): array
+	private function exportRow(array $row, bool $forCsv = true): array
 	{
 		$action = (string) $row['action'];
 
@@ -359,7 +364,7 @@ class AdminSettingsController
 
 		$detail = trim((string) ($row['description'] ?? ''));
 
-		return array_map([self::class, 'csvCell'], [
+		$cells = [
 			$type,
 			$name,
 			date('Y-m-d H:i:s', strtotime((string) $row['created_at'])),
@@ -367,7 +372,79 @@ class AdminSettingsController
 			$detail !== '' ? $detail : '—',
 			$device,
 			ActivityLog::displayIp($row['ip_address'] ?? null),
-		]);
+		];
+
+		// Protect CSV cells from formulas.
+		return $forCsv ? array_map([self::class, 'csvCell'], $cells) : array_map('strval', $cells);
+	}
+
+	// PDF support
+	public function pdfAvailable(): bool
+	{
+		$autoload = __DIR__ . '/../../../vendor/autoload.php';
+		if (is_readable($autoload)) {
+			require_once $autoload;
+		}
+
+		return class_exists(\Dompdf\Dompdf::class);
+	}
+
+	// Return the report content, type, and extension.
+	public function exportReport(int $adminId, bool $userOnly, string $format): array
+	{
+		if (!in_array($format, ['doc', 'pdf'], true)) {
+			throw new InvalidArgumentException('Unsupported report format.');
+		}
+
+		$rows = [];
+		foreach ($this->exportBatches($userOnly, self::EXPORT_REPORT_MAX, false) as $batch) {
+			foreach ($batch as $row) {
+				$rows[] = $row;
+			}
+		}
+
+		$adminRecord = $this->admin->findById($adminId) ?: [];
+		$report = [
+			'rows'         => $rows,
+			'scope_label'  => $userOnly ? 'User activity logs' : 'All activity logs (Admin & Users)',
+			'generated_at' => date('F j, Y \a\t g:i A'),
+			'prepared_by'  => (string) ($adminRecord['full_name'] ?? 'Administrator'),
+			'limit_note'   => count($rows) >= self::EXPORT_REPORT_MAX
+				? 'Showing the latest ' . number_format(self::EXPORT_REPORT_MAX) . ' entries. Use CSV to export everything.'
+				: '',
+		];
+
+		$html = $this->renderReportHtml($report, $format);
+
+		if ($format === 'doc') {
+			return [$html, 'application/msword; charset=utf-8', 'doc'];
+		}
+
+		$options = new \Dompdf\Options();
+		$options->set('defaultFont', 'DejaVu Sans');
+		$options->set('isRemoteEnabled', false);
+		$options->set('isPhpEnabled', false);
+
+		$dompdf = new \Dompdf\Dompdf($options);
+		$dompdf->loadHtml($html, 'UTF-8');
+		$dompdf->setPaper('A4', 'landscape');
+		$dompdf->render();
+
+		$canvas = $dompdf->getCanvas();
+		$font = $dompdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
+		$footerY = $canvas->get_height() - 28;
+		$canvas->page_text(40, $footerY, 'Squir - Activity log report', $font, 8, [0.45, 0.45, 0.45]);
+		$canvas->page_text($canvas->get_width() - 110, $footerY, 'Page {PAGE_NUM} of {PAGE_COUNT}', $font, 8, [0.45, 0.45, 0.45]);
+
+		return [$dompdf->output(), 'application/pdf', 'pdf'];
+	}
+
+	private function renderReportHtml(array $report, string $format): string
+	{
+		ob_start();
+		require __DIR__ . '/../../views/admin/export-logs.php';
+
+		return (string) ob_get_clean();
 	}
 
 	// Prevent CSV formula injection.

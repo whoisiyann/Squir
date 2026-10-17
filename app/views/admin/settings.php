@@ -46,6 +46,7 @@ $titles = [
   <link rel="stylesheet" href="<?= url('assets/css/admin/users.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/settings.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/settings.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/settings.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/admin/settings.css') ?>" />
+  <link rel="stylesheet" href="<?= url('assets/css/export-dialog.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/export-dialog.css') ?>" />
 </head>
 <body class="admin-page">
 <div class="app-shell" id="adminShell">
@@ -211,7 +212,7 @@ $titles = [
               <span class="settings-row-icon"><i class="ti ti-database-export"></i></span>
               <span class="settings-row-text">
                 <strong>Export all data logs ( Admin &amp; Users )</strong>
-                <small>Download system logs and user data.</small>
+                <small>Download system logs as CSV, Docs, or PDF.</small>
               </span>
               <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="asExportBtn">
                 <i class="ti ti-download" aria-hidden="true"></i> Export
@@ -478,6 +479,7 @@ $titles = [
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="<?= url('assets/js/admin/admin-alert.js') ?>"></script>
   <script src="<?= asset('assets/js/admin/admin.js') ?>"></script>
+  <script src="<?= url('assets/js/export-dialog.js') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/js/export-dialog.js') ?>"></script>
   <script src="<?= url('assets/js/admin/settings.js') ?>"></script>
 </body>
 </html>

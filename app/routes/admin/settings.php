@@ -12,7 +12,7 @@ $adminId = requireAdminLogin();
 $adminModel = new Admin($dbh);
 $admin = $adminModel->findById($adminId);
 if (!$admin) {
-    // Deleted admin session
+    // End the session if the admin account is gone.
     session_unset();
     session_destroy();
     header('Location: ' . url('login'));
@@ -234,12 +234,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     adminSettingsJson(['error' => 'Unknown request.'], 400);
 }
 
-// Export CSV
-if (($_GET['export'] ?? '') === 'csv') {
-    // Keep warnings out of the file.
+// Export logs as CSV, Docs, or PDF
+if (isset($_GET['export'])) {
+    // Keep PHP warnings out of the export.
     ini_set('display_errors', '0');
 
+    $format = (string) $_GET['export'];
+    if (!in_array($format, AdminSettingsController::EXPORT_FORMATS, true)) {
+        adminSettingsJson(['error' => 'Please choose a valid file format.'], 400);
+    }
+
     $userOnly = ($_GET['scope'] ?? 'users') !== 'all';
+    $formatLabels = ['csv' => 'CSV', 'doc' => 'Docs', 'pdf' => 'PDF'];
+
+    // Docs and PDF reports
+    if ($format !== 'csv') {
+        if ($format === 'pdf' && !$controller->pdfAvailable()) {
+            adminSettingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
+        }
+
+        try {
+            [$body, $mime, $extension] = $controller->exportReport($adminId, $userOnly, $format);
+        } catch (Throwable $error) {
+            error_log('Squir log ' . $format . ' export failed: ' . $error->getMessage());
+            adminSettingsJson(['error' => 'Could not create the export. Please try again.'], 500);
+        }
+
+        $activityLog->logAdmin(
+            $adminId,
+            'admin_logs_exported',
+            ($userOnly ? 'Exported user activity logs (' : 'Exported all activity logs (') . $formatLabels[$format] . ')'
+        );
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: attachment; filename="squir-' . ($userOnly ? 'user' : 'all') . '-logs-' . date('Y-m-d-His') . '.' . $extension . '"');
+        header('Content-Length: ' . strlen($body));
+        header('Cache-Control: no-store');
+        echo $body;
+        exit;
+    }
 
     $batches = $controller->exportBatches($userOnly);
     try {

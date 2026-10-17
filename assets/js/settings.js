@@ -4,7 +4,7 @@
 
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
 
-    // Settings request
+    // Send a settings request.
     function postAjax(action, fields) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -46,7 +46,7 @@
 
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
-        // Keep modal open
+        // Don't close the delete confirmation with Escape.
         var deleteModal = document.getElementById('deleteAccountModalBackdrop');
         if (deleteModal && deleteModal.classList.contains('open')) return;
         $all('.vault-modal-backdrop.open').forEach(function (backdrop) {
@@ -91,7 +91,7 @@
             if (deleteBackdrop && deleteConfirmBtn && deleteCancelBtn && deleteErrorEl) {
                 openDeleteAccountModal();
             } else if (window.confirm('Are you sure you want to delete your account? This will permanently remove your vault, notes, tasks, and all related data. This cannot be undone.')) {
-                // Fallback to browser prompt
+                // Use the browser confirmation if the custom dialog is unavailable.
                 postAjax('delete_account', {}).then(function (result) {
                     if (result.ok) window.location.href = './login';
                 });
@@ -170,7 +170,7 @@
     var pendingNewEmail = '';
     var emailCooldownTimer = null;
 
-    // Count down before the code can be sent again
+    // Track the email resend cooldown.
     function startEmailCooldown(seconds) {
         if (!emailChangeResendBtn) return;
         clearInterval(emailCooldownTimer);
@@ -323,7 +323,7 @@
             postAjax('resend_email_change', {}).then(function (result) {
                 if (!result.ok) {
                     emailCodeError.textContent = result.json.error || 'Could not resend the code.';
-                    // A code went out a moment ago: keep the timer honest.
+                    // Restart the resend timer.
                     startEmailCooldown(result.json.retry_after || 0);
                     return;
                 }
@@ -383,7 +383,7 @@
                     return;
                 }
 
-                // Start email verification.
+                // Send a verification code to the new email.
                 postAjax('request_email_change', { new_email: newEmail }).then(function (emailResult) {
                     submitBtn.disabled = false;
 
@@ -424,7 +424,7 @@
             });
         });
 
-        // Keep in sync with the top bar sun/moon toggle
+        // Sync with the header theme toggle.
         document.addEventListener('squir-theme', function (event) {
             highlightTheme(event.detail);
         });
@@ -439,7 +439,7 @@
         var accountCard = document.querySelector('.settings-grid > .settings-card');
         var lockTimer = null;
 
-        // Keep Account Information at its closed height while the dropdown is open
+        // Keep the account card the same height while this panel is open.
         function lockAccountHeight() {
             if (!accountCard || !window.matchMedia('(min-width: 1001px)').matches) return;
             accountCard.style.height = accountCard.offsetHeight + 'px';
@@ -456,7 +456,7 @@
             if (willOpen) {
                 lockAccountHeight();
             } else {
-                // Release after the close animation so both cards match again
+                // Reset the height after the close animation.
                 lockTimer = window.setTimeout(unlockAccountHeight, 450);
             }
 
@@ -679,25 +679,29 @@
             setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
         }
 
-        // Download the PDF after PIN verification
-        function downloadExport() {
+        var EXPORT_LABELS = { csv: 'CSV', doc: 'Docs', pdf: 'PDF' };
+        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/msword', pdf: 'application/pdf' };
+
+        // Download after the PIN check.
+        function downloadExport(format) {
+            var label = EXPORT_LABELS[format] || 'file';
             setExportBusy(true);
 
-            return fetch('./settings?export=pdf', { credentials: 'same-origin' }).then(function (response) {
+            return fetch('./settings?export=' + encodeURIComponent(format), { credentials: 'same-origin' }).then(function (response) {
                 var type = response.headers.get('Content-Type') || '';
 
-                if (!response.ok || type.indexOf('application/pdf') === -1) {
+                if (!response.ok || type.indexOf(EXPORT_TYPES[format]) === -1) {
                     return response.json().catch(function () { return {}; }).then(function (json) {
                         if (json.error === 'pin_required') {
                             exportFail('Your PIN check expired. Please try again.');
                         }
-                        exportFail(json.error || 'Could not create your PDF. Please try again.');
+                        exportFail(json.error || 'Could not create your export. Please try again.');
                     });
                 }
 
                 var disposition = response.headers.get('Content-Disposition') || '';
                 var match = /filename="?([^";]+)"?/i.exec(disposition);
-                var filename = match ? match[1] : 'squir-export.pdf';
+                var filename = match ? match[1] : 'squir-export.' + format;
 
                 return response.blob().then(function (blob) {
                     saveBlob(blob, filename);
@@ -705,7 +709,7 @@
                     if (window.Swal) {
                         Swal.fire({
                             title: 'Export Complete',
-                            text: 'Your data was downloaded as a PDF.',
+                            text: 'Your data was downloaded as a ' + label + ' file.',
                             icon: 'success',
                             confirmButtonText: 'Done',
                             confirmButtonColor: (window.SquirTheme && window.SquirTheme.swalColor) ? window.SquirTheme.swalColor() : '#6b3f2a'
@@ -713,21 +717,30 @@
                     }
                 });
             }).catch(function (error) {
-                showExportError(error && error.friendly ? error.message : 'Something went wrong while creating your PDF. Please try again.');
+                showExportError(error && error.friendly ? error.message : 'Something went wrong while creating your export. Please try again.');
             }).then(function () {
                 setExportBusy(false);
             });
         }
 
+        // Open the export flow.
         exportBtn.addEventListener('click', function () {
             if (exportBusy) return;
 
-            if (!window.SquirPin) {
-                showExportError('The PIN check could not load. Please refresh the page and try again.');
+            if (!window.SquirPin || !window.SquirExportDialog) {
+                showExportError('The export options could not load. Please refresh the page and try again.');
                 return;
             }
 
-            window.SquirPin.ensure('export').then(downloadExport);
+            window.SquirExportDialog.open({
+                title: 'Export Data',
+                intro: 'Choose the file format for your export.',
+                onExport: function (format) {
+                    window.SquirPin.ensure('export').then(function () {
+                        return downloadExport(format);
+                    });
+                }
+            });
         });
     }
 

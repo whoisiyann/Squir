@@ -388,10 +388,8 @@ CREATE INDEX idx_logs_action       ON activity_logs (action);
 -- 11. SEED: ADMINISTRATOR ACCOUNT
 --   php -r "echo password_hash('adminvault123', PASSWORD_DEFAULT), PHP_EOL;"
 
-
 INSERT INTO admins (full_name, username, email, password_hash)
 VALUES ('Admin', 'Admin', 'squirvault@gmail.com', '$2y$10$KWQz1tjq6CX3D5VhsWKdRuidaN390QjVy7BL3Iohezdq8sCxYz9hi');
-
 
 -- email: squirvault@gmail.com
 -- pass :  adminvault123

@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'update_
     ]);
 }
 
-// Request an email change.
+// Request an email change
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'request_email_change') {
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
@@ -226,10 +226,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_
     settingsJson(['ok' => false, 'error' => $result['error'] ?? 'That PIN is incorrect.'], 401);
 }
 
-// Export account data as a PDF.
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['export'] ?? '') === 'pdf') {
-    // Keep warnings out of the PDF.
+// Export account data as CSV, Docs, or PDF
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['export'])) {
+    // Keep PHP warnings out of the export.
     ini_set('display_errors', '0');
+
+    $format = (string) $_GET['export'];
+    if (!in_array($format, SettingsController::EXPORT_FORMATS, true)) {
+        settingsJson(['error' => 'Please choose a valid file format.'], 400);
+    }
 
     // Consume the one-time unlock
     $unlockedUntil = (int) ($_SESSION['export_unlocked_until'] ?? 0);
@@ -238,27 +243,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['export'] ?? '') === 'pdf') {
         settingsJson(['error' => 'pin_required'], 423);
     }
 
-    if (!$controller->pdfAvailable()) {
+    if ($format === 'pdf' && !$controller->pdfAvailable()) {
         settingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
     }
 
     try {
-        $pdf = $controller->exportPdf($userId);
+        [$body, $mime, $extension] = $controller->exportFile($userId, $format);
     } catch (Throwable $error) {
-        error_log('Squir PDF export failed: ' . $error->getMessage());
-        settingsJson(['error' => 'Could not create your PDF. Please try again.'], 500);
+        error_log('Squir ' . $format . ' export failed: ' . $error->getMessage());
+        settingsJson(['error' => 'Could not create your export. Please try again.'], 500);
     }
 
     while (ob_get_level() > 0) {
         ob_end_clean();
     }
 
-    header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="squir-export-' . date('Y-m-d') . '.pdf"');
-    header('Content-Length: ' . strlen($pdf));
+    header('Content-Type: ' . $mime);
+    header('Content-Disposition: attachment; filename="squir-export-' . date('Y-m-d') . '.' . $extension . '"');
+    header('Content-Length: ' . strlen($body));
     header('Cache-Control: private, no-store, no-cache, must-revalidate');
     header('Pragma: no-cache');
-    echo $pdf;
+    echo $body;
     exit;
 }
 

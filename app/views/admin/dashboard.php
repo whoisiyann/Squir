@@ -46,7 +46,7 @@ $statusBadge = static function (string $status) use ($escape): string {
     return '<span class="admin-badge ' . $class . '">' . $escape($status) . '</span>';
 };
 
-// Assign stable avatar colors.
+// Keep each user's avatar color consistent.
 $avatarPalette = ['', 'is-purple', 'is-blue', 'is-amber', 'is-green'];
 $avatarColor = static function (array $user) use ($avatarPalette): string {
     $seed = (string) ($user['user_id'] ?? $user['full_name'] ?? '');
@@ -55,7 +55,7 @@ $avatarColor = static function (array $user) use ($avatarPalette): string {
     return $avatarPalette[$index];
 };
 
-// Assign activity icon colors (keyed by the Tabler icon class).
+// Set colors by Tabler icon class.
 $activityColor = static function (string $icon): string {
     $map = [
         'ti-lock'         => 'is-green',
@@ -85,7 +85,7 @@ $activityColor = static function (string $icon): string {
     return $map[$icon] ?? 'is-muted';
 };
 
-// The controller already returns a Tabler icon class (from ActivityLog).
+// Use the icon class returned by ActivityLog.
 $activityIcon = static fn (string $icon): string => $icon !== '' ? $icon : 'ti-activity';
 
 $hour = (int) date('G');
@@ -226,11 +226,64 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
           <?php endif; ?>
         </section>
       </div>
+
+      <!-- Report: items per user -->
+      <section class="dash-card admin-panel admin-panel--flush admin-report" aria-labelledby="userReportTitle">
+        <div class="dash-card-head">
+          <h2 id="userReportTitle"><i class="ti ti-report-analytics"></i> User Summary Report</h2>
+          <a href="<?= url('admin/users') ?>">View all users <i class="ti ti-arrow-right"></i></a>
+        </div>
+        <p class="admin-report-note">Credentials, notes, and tasks (done vs pending) per user. Top 10 most active users.</p>
+
+        <?php if ($userReport === []): ?>
+          <p class="admin-empty">No users to report yet.</p>
+        <?php else: ?>
+          <div class="admin-table-wrap admin-report-wrap">
+            <table class="admin-table admin-report-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th class="is-num">Credentials</th>
+                  <th class="is-num">Notes</th>
+                  <th class="is-num">Tasks Done</th>
+                  <th class="is-num">Tasks Pending</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($userReport as $row): ?>
+                  <?php $detailsUrl = url('admin/user-details?id=' . (int) $row['user_id']); ?>
+                  <tr class="is-clickable" data-href="<?= $escape($detailsUrl) ?>">
+                    <td>
+                      <a class="admin-name-cell admin-row-link" href="<?= $escape($detailsUrl) ?>" title="View user details">
+                        <span class="admin-avatar-chip <?= $avatarColor($row) ?>"><?= $escape(userInitials($row['full_name'])) ?></span>
+                        <span><?= $escape($row['full_name']) ?></span>
+                      </a>
+                    </td>
+                    <td class="is-num" data-label="Credentials"><?= (int) $row['credentials'] ?></td>
+                    <td class="is-num" data-label="Notes"><?= (int) $row['notes'] ?></td>
+                    <td class="is-num" data-label="Tasks Done"><?= (int) $row['tasks_done'] ?></td>
+                    <td class="is-num" data-label="Tasks Pending"><?= (int) $row['tasks_pending'] ?></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php endif; ?>
+      </section>
     </main>
 
   <?php require __DIR__ . '/../../../includes/admin/footer.php'; ?>
 
   <script>window.ADMIN_CSRF_TOKEN = <?= json_encode(csrfToken()) ?>;</script>
   <script src="<?= asset('assets/js/admin/admin.js') ?>"></script>
+  <script>
+    // Open the user's details when the row is clicked.
+    document.querySelectorAll('.admin-report-table tr[data-href]').forEach(function (row) {
+      row.addEventListener('click', function (event) {
+        if (event.target.closest('a, button')) return; // Let links and buttons handle their clicks.
+        window.location.href = row.getAttribute('data-href');
+      });
+    });
+  </script>
 </body>
 </html>

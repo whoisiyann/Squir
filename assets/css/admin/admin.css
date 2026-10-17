@@ -311,6 +311,48 @@
 .admin-panel-more a:hover{ text-decoration:underline; }
 .admin-panel-more a i{ font-size:1rem; }
 
+/* Keep dashboard panels from shrinking while the page scrolls. */
+.admin-page .content-area > *{ flex-shrink:0; }
+.admin-page .content-area{ padding-bottom:32px; }
+
+/* Use the visible height on phones (address bar). */
+@supports (height:100dvh){
+    .admin-page .app-shell,
+    .admin-page .main-area,
+    .admin-page .content-area{ height:100dvh; }
+    .admin-page .app-shell{ min-height:100dvh; }
+}
+
+/* User summary report. */
+.admin-report{ flex:0 0 auto; margin-top:20px; }
+.admin-report-note{ margin:0; padding:0 20px 10px; color:var(--muted); font-size:.82rem; }
+.admin-report-wrap{ flex:0 0 auto; max-height:none; overflow-x:auto; overflow-y:visible; }
+.admin-report-table{ min-width:520px; }
+.admin-table th.is-num,
+.admin-table td.is-num{ text-align:center; font-variant-numeric:tabular-nums; }
+
+/* Clickable report rows. */
+.admin-report-table tbody tr.is-clickable{ cursor:pointer; }
+.admin-report-table tbody tr.is-clickable:hover{ background:var(--soft); }
+.admin-row-link{ color:inherit; text-decoration:none; }
+.admin-row-link:hover span:last-child{ text-decoration:underline; }
+.admin-row-link:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:6px; }
+
+/* Tighten table cells on tablets; allow horizontal scrolling. */
+@media (max-width:1100px){
+    .admin-report-table th,
+    .admin-report-table td{ padding-left:12px; padding-right:12px; }
+}
+
+/* Use stacked rows on phones without a minimum table width. */
+@media (max-width:700px){
+    .admin-report{ margin-top:14px; }
+    .admin-report-note{ padding:0 14px 10px; }
+    .admin-report-wrap{ overflow-x:hidden; padding-right:0; }
+    .admin-report-table{ min-width:0; }
+    .admin-table td.is-num{ text-align:right; }
+}
+
 /* Users table. */
 .admin-table{ width:100%; border-collapse:collapse; }
 .admin-table th{
@@ -419,5 +461,5 @@
 .admin-activity-row time{ font-size:.72rem; color:var(--muted); flex-shrink:0; }
 .admin-activity-body p{ margin:2px 0 0; font-size:.8rem; color:var(--muted); }
 
-/* Hide the joined icon on desktop. */
+/* Show the joined icon only on mobile. */
 .admin-table td[data-label="Joined"] i{ display:none; }
