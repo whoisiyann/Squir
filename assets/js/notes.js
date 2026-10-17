@@ -25,6 +25,7 @@
     }
 
     if (window.NOTES_FLASH) toast(window.NOTES_FLASH);
+    if (window.NOTES_ERROR) toast(window.NOTES_ERROR);
 
     (function () {
         var form = document.getElementById('notesSearchForm');

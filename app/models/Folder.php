@@ -96,10 +96,14 @@ class Folder
         $color = in_array($data['color'], self::COLORS, true) ? $data['color'] : 'brown';
         $type = in_array($data['folder_type'] ?? '', self::TYPES, true) ? $data['folder_type'] : 'passwords';
 
-        $stmt = $this->dbh->prepare(
-            'INSERT INTO folders (user_id, folder_name, folder_type, color) VALUES (:uid, :name, :type, :color)'
-        );
-        $stmt->execute(['uid' => $userId, 'name' => $data['folder_name'], 'type' => $type, 'color' => $color]);
+        try {
+            $stmt = $this->dbh->prepare(
+                'INSERT INTO folders (user_id, folder_name, folder_type, color) VALUES (:uid, :name, :type, :color)'
+            );
+            $stmt->execute(['uid' => $userId, 'name' => $data['folder_name'], 'type' => $type, 'color' => $color]);
+        } catch (PDOException $e) {
+            return ['errors' => $this->writeError($e, 'Folder::create')];
+        }
 
         return ['errors' => [], 'folder_id' => (int) $this->dbh->lastInsertId()];
     }
@@ -121,10 +125,14 @@ class Folder
             return ['errors' => $errors];
         }
 
-        $stmt = $this->dbh->prepare(
-            'UPDATE folders SET folder_name = :name WHERE folder_id = :id AND user_id = :uid'
-        );
-        $stmt->execute(['name' => trim($name), 'id' => $folderId, 'uid' => $userId]);
+        try {
+            $stmt = $this->dbh->prepare(
+                'UPDATE folders SET folder_name = :name WHERE folder_id = :id AND user_id = :uid'
+            );
+            $stmt->execute(['name' => trim($name), 'id' => $folderId, 'uid' => $userId]);
+        } catch (PDOException $e) {
+            return ['errors' => $this->writeError($e, 'Folder::rename')];
+        }
 
         return ['errors' => []];
     }
@@ -136,10 +144,15 @@ class Folder
             return false;
         }
 
-        $stmt = $this->dbh->prepare(
-            'UPDATE folders SET color = :color WHERE folder_id = :id AND user_id = :uid'
-        );
-        return $stmt->execute(['color' => $color, 'id' => $folderId, 'uid' => $userId]);
+        try {
+            $stmt = $this->dbh->prepare(
+                'UPDATE folders SET color = :color WHERE folder_id = :id AND user_id = :uid'
+            );
+            return $stmt->execute(['color' => $color, 'id' => $folderId, 'uid' => $userId]);
+        } catch (PDOException $e) {
+            error_log('[Folder::updateColor] ' . $e->getMessage());
+            return false;
+        }
     }
 
     // Delete a folder
@@ -171,8 +184,22 @@ class Folder
             if ($this->dbh->inTransaction()) {
                 $this->dbh->rollBack();
             }
+            error_log('[Folder::delete] ' . $e->getMessage());
             return false;
         }
+    }
+
+    // Convert a database failure into a user-safe error message.
+    // 23000 = integrity violation (e.g. the UNIQUE folder name).
+    private function writeError(PDOException $e, string $context): array
+    {
+        error_log('[' . $context . '] ' . $e->getMessage());
+
+        if ($e->getCode() === '23000') {
+            return ['folder_name' => 'You already have a folder with this name.'];
+        }
+
+        return ['form' => 'We could not save your changes right now. Please try again.'];
     }
 
     // Validate folder data

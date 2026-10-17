@@ -86,16 +86,21 @@ class Note
             return ['errors' => $errors];
         }
 
-        $stmt = $this->dbh->prepare(
-            'INSERT INTO notes (user_id, folder_id, title, content)
-             VALUES (:user_id, :folder_id, :title, :content)'
-        );
-        $stmt->execute([
-            'user_id' => $userId,
-            'folder_id' => $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId),
-            'title' => $data['title'],
-            'content' => $data['content'] !== '' ? $data['content'] : null,
-        ]);
+        try {
+            $stmt = $this->dbh->prepare(
+                'INSERT INTO notes (user_id, folder_id, title, content)
+                 VALUES (:user_id, :folder_id, :title, :content)'
+            );
+            $stmt->execute([
+                'user_id' => $userId,
+                'folder_id' => $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId),
+                'title' => $data['title'],
+                'content' => $data['content'] !== '' ? $data['content'] : null,
+            ]);
+        } catch (PDOException $e) {
+            error_log('[Note::create] ' . $e->getMessage());
+            return ['errors' => ['form' => 'We could not save your changes right now. Please try again.']];
+        }
 
         return ['errors' => [], 'note_id' => (int) $this->dbh->lastInsertId()];
     }
@@ -108,17 +113,22 @@ class Note
             return ['errors' => $errors];
         }
 
-        $stmt = $this->dbh->prepare(
-            'UPDATE notes SET folder_id = :folder_id, title = :title, content = :content
-             WHERE note_id = :id AND user_id = :uid'
-        );
-        $stmt->execute([
-            'folder_id' => $data['folder_id'] ?: null,
-            'title' => $data['title'],
-            'content' => $data['content'] !== '' ? $data['content'] : null,
-            'id' => $noteId,
-            'uid' => $userId,
-        ]);
+        try {
+            $stmt = $this->dbh->prepare(
+                'UPDATE notes SET folder_id = :folder_id, title = :title, content = :content
+                 WHERE note_id = :id AND user_id = :uid'
+            );
+            $stmt->execute([
+                'folder_id' => $data['folder_id'] ?: null,
+                'title' => $data['title'],
+                'content' => $data['content'] !== '' ? $data['content'] : null,
+                'id' => $noteId,
+                'uid' => $userId,
+            ]);
+        } catch (PDOException $e) {
+            error_log('[Note::update] ' . $e->getMessage());
+            return ['errors' => ['form' => 'We could not save your changes right now. Please try again.']];
+        }
 
         return ['errors' => []];
     }
@@ -126,8 +136,13 @@ class Note
     // Delete a note
     public function delete(int $noteId, int $userId): bool
     {
-        $stmt = $this->dbh->prepare('DELETE FROM notes WHERE note_id = :id AND user_id = :uid');
-        return $stmt->execute(['id' => $noteId, 'uid' => $userId]);
+        try {
+            $stmt = $this->dbh->prepare('DELETE FROM notes WHERE note_id = :id AND user_id = :uid');
+            return $stmt->execute(['id' => $noteId, 'uid' => $userId]);
+        } catch (PDOException $e) {
+            error_log('[Note::delete] ' . $e->getMessage());
+            return false;
+        }
     }
 
 
@@ -144,14 +159,19 @@ class Note
             }
         }
 
-        $stmt = $this->dbh->prepare(
-            'UPDATE notes SET folder_id = :folder_id WHERE note_id = :id AND user_id = :uid'
-        );
-        return $stmt->execute([
-            'folder_id' => $folderId,
-            'id' => $noteId,
-            'uid' => $userId,
-        ]);
+        try {
+            $stmt = $this->dbh->prepare(
+                'UPDATE notes SET folder_id = :folder_id WHERE note_id = :id AND user_id = :uid'
+            );
+            return $stmt->execute([
+                'folder_id' => $folderId,
+                'id' => $noteId,
+                'uid' => $userId,
+            ]);
+        } catch (PDOException $e) {
+            error_log('[Note::moveToFolder] ' . $e->getMessage());
+            return false;
+        }
     }
 
     // Duplicate a note
@@ -164,16 +184,21 @@ class Note
 
         $originalTitle = trim((string) $original['title']);
 
-        $stmt = $this->dbh->prepare(
-            'INSERT INTO notes (user_id, folder_id, title, content)
-             VALUES (:user_id, :folder_id, :title, :content)'
-        );
-        $stmt->execute([
-            'user_id' => $userId,
-            'folder_id' => $original['folder_id'],
-            'title' => $originalTitle !== '' ? $originalTitle . ' (Copy)' : '',
-            'content' => $original['content'],
-        ]);
+        try {
+            $stmt = $this->dbh->prepare(
+                'INSERT INTO notes (user_id, folder_id, title, content)
+                 VALUES (:user_id, :folder_id, :title, :content)'
+            );
+            $stmt->execute([
+                'user_id' => $userId,
+                'folder_id' => $original['folder_id'],
+                'title' => $originalTitle !== '' ? mb_substr($originalTitle, 0, 93) . ' (Copy)' : '',
+                'content' => $original['content'],
+            ]);
+        } catch (PDOException $e) {
+            error_log('[Note::duplicate] ' . $e->getMessage());
+            return null;
+        }
 
         return (int) $this->dbh->lastInsertId();
     }

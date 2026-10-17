@@ -278,6 +278,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
     window.NOTES_CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
     window.NOTES_ACTIVE_FOLDER = <?= json_encode($data['activeFolder'] !== null ? (int) $data['activeFolder'] : '') ?>;
     window.NOTES_FLASH = <?= json_encode($flashSuccess ?? null) ?>;
+    window.NOTES_ERROR = <?= json_encode(!empty($errors) ? (string) reset($errors) : null) ?>;
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/notes.js"></script>

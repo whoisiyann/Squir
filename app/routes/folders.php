@@ -158,17 +158,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
         } elseif ($action === 'delete') {
             $deleteId = (int) ($_POST['folder_id'] ?? 0);
             $folderToDelete = $folderModel->find($deleteId, $userId);
-            $controller->destroy($deleteId, $userId);
+            if ($controller->destroy($deleteId, $userId)) {
+                $returnTo = foldersSafeReturnTo($_POST['return_to'] ?? null);
+                if ($returnTo !== null) {
+                    header('Location: ' . $returnTo);
+                    exit;
+                }
 
-            $returnTo = foldersSafeReturnTo($_POST['return_to'] ?? null);
-            if ($returnTo !== null) {
-                header('Location: ' . $returnTo);
+                $backType = ($folderToDelete && $folderToDelete['folder_type'] === 'notes') ? '?type=notes' : '';
+                header('Location: ./folders' . $backType);
                 exit;
             }
-
-            $backType = ($folderToDelete && $folderToDelete['folder_type'] === 'notes') ? '?type=notes' : '';
-            header('Location: ./folders' . $backType);
-            exit;
+            $errors['form'] = 'We could not delete this folder. Please try again.';
         }
     }
 }

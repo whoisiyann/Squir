@@ -2,7 +2,21 @@
 // App settings
 
 error_reporting(E_ALL);
-ini_set('display_errors', '1');
+// Never show raw PHP/database errors to users. Errors go to the server log.
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+ini_set('log_errors', '1');
+
+// Save errors to logs/php-error.log inside the project.
+// If the folder can't be created, PHP's default error log is used.
+$squirLogDir = __DIR__ . '/../logs';
+if (!is_dir($squirLogDir)) {
+    @mkdir($squirLogDir, 0755, true);
+}
+if (is_dir($squirLogDir) && is_writable($squirLogDir)) {
+    ini_set('error_log', $squirLogDir . '/php-error.log');
+}
+unset($squirLogDir);
 
 date_default_timezone_set('Asia/Manila');
 

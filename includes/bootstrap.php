@@ -10,6 +10,64 @@ if (!headers_sent()) {
 require_once __DIR__ . '/dbconnect.php';
 require_once __DIR__ . '/../config/config.php';
 
+// Global error handling: users only see a generic message.
+// The real error is written to the server log.
+if (!function_exists('squirIsAjaxRequest')) {
+    function squirIsAjaxRequest(): bool
+    {
+        if (isset($_POST['ajax']) || isset($_GET['ajax'])) {
+            return true;
+        }
+        $requestedWith = strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''));
+        $accept = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
+        return $requestedWith === 'xmlhttprequest' || str_contains($accept, 'application/json');
+    }
+
+    function squirRenderFatalError(): void
+    {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        if (!headers_sent()) {
+            http_response_code(500);
+        }
+
+        if (squirIsAjaxRequest()) {
+            if (!headers_sent()) {
+                header('Content-Type: application/json');
+            }
+            echo json_encode(['error' => 'Something went wrong. Please try again.']);
+            return;
+        }
+
+        echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            . '<title>Something went wrong</title>'
+            . '<style>body{font-family:system-ui,sans-serif;background:#f6f1ea;color:#3b2f2a;'
+            . 'display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
+            . '.box{background:#fff;padding:2rem 2.5rem;border-radius:12px;max-width:420px;text-align:center;'
+            . 'box-shadow:0 4px 18px rgba(0,0,0,.08)}a{color:#8a5a3b}</style></head><body><div class="box">'
+            . '<h1 style="font-size:1.4rem">Something went wrong</h1>'
+            . '<p>We could not complete your request. Please try again in a moment.</p>'
+            . '<p><a href="javascript:history.back()">Go back</a></p></div></body></html>';
+    }
+
+    set_exception_handler(function (Throwable $e): void {
+        error_log('[uncaught] ' . get_class($e) . ': ' . $e->getMessage()
+            . ' in ' . $e->getFile() . ':' . $e->getLine());
+        squirRenderFatalError();
+    });
+
+    register_shutdown_function(function (): void {
+        $error = error_get_last();
+        if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+            error_log('[fatal] ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']);
+            squirRenderFatalError();
+        }
+    });
+}
+
 
 // Resolve the app base path.
 if (!defined('BASE_URL')) {

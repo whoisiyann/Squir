@@ -94,9 +94,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
     // folder_delete 
     $deleted = $folderModel->delete((int) $targetFolder['folder_id'], $userId);
-    if ($deleted) {
-        (new ActivityLog($dbh))->log($userId, 'folder_deleted', "Deleted folder '" . mb_substr(trim((string) $targetFolder['folder_name']) ?: 'Untitled', 0, 140) . "'", 'folder', (int) $targetFolder['folder_id']);
+    if (!$deleted) {
+        http_response_code(500);
+        echo json_encode(['error' => 'We could not delete this folder. Please try again.']);
+        exit;
     }
+    (new ActivityLog($dbh))->log($userId, 'folder_deleted', "Deleted folder '" . mb_substr(trim((string) $targetFolder['folder_name']) ?: 'Untitled', 0, 140) . "'", 'folder', (int) $targetFolder['folder_id']);
     echo json_encode(['success' => true]);
     exit;
 }
@@ -167,31 +170,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
             $errors = $result['errors'];
         } elseif ($action === 'delete') {
             $noteId = (int) ($_POST['note_id'] ?? 0);
-            $controller->destroy($noteId, $userId);
-            $_SESSION['notes_flash_success'] = 'Note deleted.';
-            header('Location: ' . ($returnTo ?? ('./notes?' . http_build_query($redirectParams))));
-            exit;
+            if ($controller->destroy($noteId, $userId)) {
+                $_SESSION['notes_flash_success'] = 'Note deleted.';
+                header('Location: ' . ($returnTo ?? ('./notes?' . http_build_query($redirectParams))));
+                exit;
+            }
+            $errors['form'] = 'We could not delete this note. Please try again.';
         } elseif ($action === 'move_folder') {
 
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $targetFolder = ($_POST['target_folder'] ?? '') !== '' ? (int) $_POST['target_folder'] : null;
-            $controller->moveToFolder($noteId, $userId, $targetFolder);
-            if ($returnTo !== null) {
-                header('Location: ' . $returnTo);
+            if ($controller->moveToFolder($noteId, $userId, $targetFolder)) {
+                if ($returnTo !== null) {
+                    header('Location: ' . $returnTo);
+                    exit;
+                }
+                $redirectParams['note'] = $noteId;
+                header('Location: ./notes?' . http_build_query($redirectParams));
                 exit;
             }
-            $redirectParams['note'] = $noteId;
-            header('Location: ./notes?' . http_build_query($redirectParams));
-            exit;
+            $errors['form'] = 'We could not move this note. Please try again.';
         } elseif ($action === 'duplicate') {
 
             $noteId = (int) ($_POST['note_id'] ?? 0);
             $newNoteId = $controller->duplicate($noteId, $userId);
             if ($newNoteId !== null) {
                 $redirectParams['note'] = $newNoteId;
+                header('Location: ./notes?' . http_build_query($redirectParams));
+                exit;
             }
-            header('Location: ./notes?' . http_build_query($redirectParams));
-            exit;
+            $errors['form'] = 'We could not duplicate this note. Please try again.';
         }
     }
 }
