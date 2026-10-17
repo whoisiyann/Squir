@@ -5,6 +5,7 @@
     define('DB_USER', 'root');
     define('DB_PASS', '');
     define('DB_NAME', 'squirdb');
+    // define('DB_NAME', 'squirdb_test');
 
     try {
         $dbh = new PDO(

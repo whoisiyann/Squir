@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../../includes/admin_auth.php';
 require_once __DIR__ . '/../../models/admin/Admin.php';
+require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../controllers/admin/AdminDashboardController.php';
 
 $adminId = requireAdminLogin();
@@ -14,6 +15,9 @@ if (!$admin) {
     header('Location: ' . url('login'));
     exit;
 }
+
+// Users who have not logged in for 30 days become inactive
+(new User($dbh))->markInactiveUsers();
 
 $data = (new AdminDashboardController($dbh))->index();
 $stats = $data['stats'];

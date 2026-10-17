@@ -145,9 +145,10 @@ $fmtLastLogin = static function (?string $value): string {
               <tbody id="usersTableBody">
                 <?php foreach ($users as $user): ?>
                   <?php
-                    $nextStatus = $user['status'] === 'suspended' ? 'active' : 'suspended';
-                    $toggleLabel = $user['status'] === 'suspended' ? 'Activate' : 'Suspend';
-                    $toggleIcon = $user['status'] === 'suspended' ? 'ti-user-check' : 'ti-ban';
+                    $isActive = $user['status'] === 'active';
+                    $nextStatus = $isActive ? 'suspended' : 'active';
+                    $toggleLabel = $isActive ? 'Suspend' : 'Activate';
+                    $toggleIcon = $isActive ? 'ti-ban' : 'ti-user-check';
                   ?>
                   <tr data-user-row
                       data-id="<?= (int) $user['user_id'] ?>"

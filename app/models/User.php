@@ -214,6 +214,7 @@ class User
 		$total = (int) $this->db->query('SELECT COUNT(*) FROM users')->fetchColumn();
 		$active = (int) $this->db->query("SELECT COUNT(*) FROM users WHERE status = 'active'")->fetchColumn();
 		$suspended = (int) $this->db->query("SELECT COUNT(*) FROM users WHERE status = 'suspended'")->fetchColumn();
+		$inactive = (int) $this->db->query("SELECT COUNT(*) FROM users WHERE status = 'inactive'")->fetchColumn();
 		$newThisWeek = (int) $this->db->query(
 			'SELECT COUNT(*) FROM users WHERE created_at >= (NOW() - INTERVAL 7 DAY)'
 		)->fetchColumn();
@@ -222,8 +223,25 @@ class User
 			'total' => $total,
 			'active' => $active,
 			'suspended' => $suspended,
+			'inactive' => $inactive,
 			'new_this_week' => $newThisWeek,
 		];
+	}
+
+	// Mark active users as inactive when they have not logged in for a while
+	public const INACTIVE_AFTER_DAYS = 30;
+
+	public function markInactiveUsers(int $days = self::INACTIVE_AFTER_DAYS): int
+	{
+		$statement = $this->db->prepare(
+			"UPDATE users
+			 SET status = 'inactive'
+			 WHERE status = 'active'
+			   AND COALESCE(last_login_at, created_at) < DATE_SUB(NOW(), INTERVAL :days DAY)"
+		);
+		$statement->execute(['days' => max(1, $days)]);
+
+		return $statement->rowCount();
 	}
 
 	// Update user status

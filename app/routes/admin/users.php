@@ -18,6 +18,7 @@ if (!$admin) {
 }
 
 $userModel = new User($dbh);
+$userModel->markInactiveUsers();
 $activityLog = new ActivityLog($dbh);
 $controller = new AdminUserController($userModel, $activityLog);
 

@@ -95,6 +95,13 @@ class AuthController
 			];
 		}
 
+		// Inactive (no login for a while): welcome back, reactivate the account
+		if ($user['status'] === 'inactive') {
+			$this->user->updateStatus((int) $user['user_id'], 'active');
+			$user['status'] = 'active';
+		}
+
+		// Suspended accounts stay blocked
 		if ($user['status'] !== 'active') {
 			return [
 				'errors' => ['form' => 'This account is not currently active.'],
