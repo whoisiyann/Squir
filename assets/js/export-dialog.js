@@ -4,7 +4,7 @@
 
     var FORMATS = [
         { value: 'csv', icon: 'ti-table',       label: 'CSV',  hint: 'Raw data for spreadsheets and analysis.' },
-        { value: 'xlsx', icon: 'ti-table-export', label: 'Excel', hint: 'Spreadsheet with columns already sized to fit.' },
+        { value: 'xlsx', icon: 'ti-table-export', label: 'Excel', hint: 'Organized, editable spreadsheet for managing records.' },
         { value: 'doc', icon: 'ti-file-text',   label: 'Docs', hint: 'Editable text and customizable layout.' },
         { value: 'pdf', icon: 'ti-file-report', label: 'PDF',  hint: 'Print-ready, non-editable official report.' }
     ];

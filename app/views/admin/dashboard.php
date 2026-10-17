@@ -243,6 +243,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
               <thead>
                 <tr>
                   <th>User</th>
+                  <th>Email</th>
                   <th class="is-num">Credentials</th>
                   <th class="is-num">Notes</th>
                   <th class="is-num">Tasks Done</th>
@@ -259,6 +260,7 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
                         <span><?= $escape($row['full_name']) ?></span>
                       </a>
                     </td>
+                    <td class="is-muted admin-report-email" data-label="Email"><?= $escape($row['email']) ?></td>
                     <td class="is-num" data-label="Credentials"><?= (int) $row['credentials'] ?></td>
                     <td class="is-num" data-label="Notes"><?= (int) $row['notes'] ?></td>
                     <td class="is-num" data-label="Tasks Done"><?= (int) $row['tasks_done'] ?></td>

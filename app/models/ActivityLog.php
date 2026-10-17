@@ -47,6 +47,7 @@ class ActivityLog
         'admin_password_changed' => ['label' => 'Changed password',      'detail' => null,                             'icon' => 'ti-shield-check',  'entity' => 'admin'],
         'admin_password_reset'   => ['label' => 'Reset password',        'detail' => null,                             'icon' => 'ti-key',           'entity' => 'admin'],
         'admin_logs_exported'    => ['label' => 'Exported activity logs', 'detail' => null,                            'icon' => 'ti-download',      'entity' => 'system'],
+        'admin_summary_exported' => ['label' => 'Exported user summary report', 'detail' => null,                          'icon' => 'ti-report-analytics', 'entity' => 'system'],
     ];
 
     // Action groups
@@ -152,8 +153,14 @@ class ActivityLog
 
         $items = [];
         foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $meta = self::META[$row['action']] ?? [
-                'label' => ucfirst(str_replace('_', ' ', (string) $row['action'])),
+            $action = (string) $row['action'];
+
+            if ($action === 'admin_logs_exported' && str_starts_with((string) $row['description'], 'Exported user summary report')) {
+                $action = 'admin_summary_exported';
+            }
+
+            $meta = self::META[$action] ?? [
+                'label' => ucfirst(str_replace('_', ' ', $action)),
                 'icon'  => 'ti-activity',
             ];
 

@@ -271,7 +271,7 @@ if (isset($_GET['export'])) {
 
         $activityLog->logAdmin(
             $adminId,
-            'admin_logs_exported',
+            'admin_summary_exported',
             'Exported user summary report (' . $formatLabels[$format] . ')'
         );
 

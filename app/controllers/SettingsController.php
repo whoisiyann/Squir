@@ -17,7 +17,7 @@ class SettingsController
     ) {
     }
 
-    // Update profile details
+    // Update profile
     public function updateProfile(int $userId, array $post): array
     {
         $fullName = trim((string) ($post['full_name'] ?? ''));
@@ -55,7 +55,7 @@ class SettingsController
         return ['errors' => [], 'user' => $this->user->findById($userId)];
     }
 
-    // Change account password
+    // Change password
     public function changePassword(int $userId, array $post): array
     {
         $current = (string) ($post['current_password'] ?? '');
@@ -88,7 +88,7 @@ class SettingsController
         return ['errors' => []];
     }
 
-    // Reset the vault PIN
+    // Reset PIN
     public function resetPin(int $userId, array $post): array
     {
         $current = trim((string) ($post['current_pin'] ?? ''));
@@ -131,24 +131,24 @@ class SettingsController
         return $this->activityLog->listForUser($userId, $limit);
     }
 
-    // Clear user activity log
+    // Clear activity
     public function clearActivityLog(int $userId): bool
     {
         return $this->activityLog->clearForUser($userId);
     }
 
-    // Delete the account and related data
+    // Delete account
     public function deleteAccount(int $userId): bool
     {
         return $this->user->delete($userId);
     }
 
-    // Build the account export.
+    // Build export
     public function exportData(int $userId): array
     {
         $vaultModel = new Vault($this->db);
 
-        // Vault entries with their folder and tags
+        // Vault items
         $vaultStatement = $this->db->prepare(
             "SELECT v.title,
                     v.account_username,
@@ -186,7 +186,7 @@ class SettingsController
             ];
         }
 
-        // Notes with their folder
+        // Notes
         $noteStatement = $this->db->prepare(
             'SELECT n.title, n.content, n.created_at, n.updated_at, f.folder_name AS folder
              FROM notes n
@@ -204,7 +204,7 @@ class SettingsController
         );
         $taskStatement->execute(['uid' => $userId]);
 
-        // Include each folder's item count.
+        // Folder totals
         $folderStatement = $this->db->prepare(
             'SELECT f.folder_name,
                     f.folder_type,
@@ -223,7 +223,7 @@ class SettingsController
             'exported_at' => date('c'),
             'vault'       => $vaultOut,
             'notes'       => $noteStatement->fetchAll(PDO::FETCH_ASSOC),
-            'tasks'       => $taskStatement->fetchAll(PDO::FETCH_ASSOC),
+            'tasks'       => $this->decodeTaskText($taskStatement->fetchAll(PDO::FETCH_ASSOC)),
             'folders'     => $folderStatement->fetchAll(PDO::FETCH_ASSOC),
         ];
     }
@@ -239,22 +239,22 @@ class SettingsController
         return class_exists(\Dompdf\Dompdf::class);
     }
 
-    // Docs support (composer require phpoffice/phpword)
+    // Docs support
     public function docxAvailable(): bool
     {
         return DocxBuilder::available();
     }
 
-    // Excel support (needs the PHP zip extension)
+    // Excel support
     public function xlsxAvailable(): bool
     {
         return XlsxBuilder::available();
     }
 
-    // Export formats the user can choose
+    // Export formats
     public const EXPORT_FORMATS = ['csv', 'xlsx', 'doc', 'pdf'];
 
-    // Build the export file: returns [body, mime type, file extension]
+    // Build export file
     public function exportFile(int $userId, string $format): array
     {
         $data = $this->exportData($userId);
@@ -266,12 +266,12 @@ class SettingsController
                 break;
 
             case 'xlsx':
-                // Excel file with one sheet per type and auto-fitted columns
+                // Excel export
                 $file = [$this->renderXlsx($data), XlsxBuilder::MIME, 'xlsx'];
                 break;
 
             case 'doc':
-                // Real Word file (.docx)
+                // Word export
                 $file = [$this->renderDocx($data, $user), DocxBuilder::MIME, 'docx'];
                 break;
 
@@ -306,7 +306,7 @@ class SettingsController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        // Add page numbers
+        // Page numbers
         $canvas = $dompdf->getCanvas();
         $font = $dompdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
         $footerY = $canvas->get_height() - 30;
@@ -316,64 +316,23 @@ class SettingsController
         return $dompdf->output();
     }
 
-    // Write one CSV row per item.
-    private function renderCsv(array $data): string
+    // Fix task text
+    private function decodeTaskText(array $tasks): array
     {
-        $statusLabels = ['todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done'];
-        $priorityLabels = ['low' => 'Low', 'medium' => 'Medium', 'high' => 'High'];
-
-        $rows = [[
-            'Type', 'Title', 'Folder', 'Username', 'Password', 'Website', 'Tags',
-            'Content', 'Status', 'Priority', 'Due Date', 'Items', 'Created', 'Updated',
-        ]];
-
-        foreach ($data['vault'] as $item) {
-            $rows[] = [
-                'Vault', $item['title'], $item['folder'], $item['username'], $item['password'],
-                $item['website_url'], str_replace(',', ', ', (string) $item['tags']),
-                $item['notes'], '', '', '', '', $item['created_at'], $item['updated_at'],
-            ];
+        foreach ($tasks as &$task) {
+            foreach (['title', 'description'] as $field) {
+                if (isset($task[$field]) && $task[$field] !== '') {
+                    $task[$field] = html_entity_decode((string) $task[$field], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                }
+            }
         }
+        unset($task);
 
-        foreach ($data['notes'] as $note) {
-            $rows[] = [
-                'Note', $note['title'], $note['folder'], '', '', '', '',
-                $this->plainText($note['content']), '', '', '', '', $note['created_at'], $note['updated_at'],
-            ];
-        }
-
-        foreach ($data['tasks'] as $task) {
-            $rows[] = [
-                'Task', $task['title'], '', '', '', '', '',
-                $task['description'],
-                $statusLabels[$task['status']] ?? $task['status'],
-                $priorityLabels[$task['priority']] ?? $task['priority'],
-                $task['due_date'], '', $task['created_at'], '',
-            ];
-        }
-
-        foreach ($data['folders'] as $folder) {
-            $rows[] = [
-                'Folder', $folder['folder_name'], '', '', '', '', '',
-                ucfirst((string) $folder['folder_type']) . ' folder (' . $folder['color'] . ')',
-                '', '', '', $folder['item_count'], '', '',
-            ];
-        }
-
-        $out = fopen('php://temp', 'w+');
-        fwrite($out, "\xEF\xBB\xBF"); // Help Excel read UTF-8 correctly.
-        foreach ($rows as $row) {
-            fputcsv($out, array_map([self::class, 'csvCell'], $row), ',', '"', '\\');
-        }
-        rewind($out);
-        $csv = (string) stream_get_contents($out);
-        fclose($out);
-
-        return $csv;
+        return $tasks;
     }
 
-    // Build the Excel export: one sheet each for vault, notes, tasks, and folders.
-    private function renderXlsx(array $data): string
+    // Export sections
+    private function exportSections(array $data): array
     {
         $statusLabels = ['todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done'];
         $priorityLabels = ['low' => 'Low', 'medium' => 'Medium', 'high' => 'High'];
@@ -426,15 +385,51 @@ class SettingsController
             ];
         }
 
-        return XlsxBuilder::buildWorkbook([
+        return [
             ['name' => 'Vault',   'header' => ['Title', 'Folder', 'Username', 'Password', 'Website', 'Tags', 'Notes', 'Created', 'Updated'], 'rows' => $vault],
             ['name' => 'Notes',   'header' => ['Title', 'Folder', 'Content', 'Created', 'Updated'], 'rows' => $notes],
             ['name' => 'Tasks',   'header' => ['Title', 'Description', 'Status', 'Priority', 'Due Date', 'Created'], 'rows' => $tasks],
             ['name' => 'Folders', 'header' => ['Folder', 'Type', 'Color', 'Items'], 'rows' => $folders, 'numeric' => [3]],
-        ]);
+        ];
     }
 
-    // Prefix formula-like values to prevent CSV injection.
+    // CSV export
+    private function renderCsv(array $data): string
+    {
+        $out = fopen('php://temp', 'w+');
+        fwrite($out, "\xEF\xBB\xBF"); // Help Excel read UTF-8 correctly.
+
+        foreach ($this->exportSections($data) as $index => $section) {
+            if ($index > 0) {
+                fwrite($out, "\n"); // Blank line between tables
+            }
+
+            fputcsv($out, [strtoupper($section['name']) . ' (' . count($section['rows']) . ')'], ',', '"', '\\');
+            fputcsv($out, $section['header'], ',', '"', '\\');
+
+            if ($section['rows'] === []) {
+                fputcsv($out, ['(none)'], ',', '"', '\\');
+            }
+
+            foreach ($section['rows'] as $row) {
+                fputcsv($out, array_map([self::class, 'csvCell'], $row), ',', '"', '\\');
+            }
+        }
+
+        rewind($out);
+        $csv = (string) stream_get_contents($out);
+        fclose($out);
+
+        return $csv;
+    }
+
+    // Excel export
+    private function renderXlsx(array $data): string
+    {
+        return XlsxBuilder::buildWorkbook($this->exportSections($data));
+    }
+
+    // Stop CSV injection
     private static function csvCell(mixed $value): string
     {
         $text = (string) ($value ?? '');
@@ -445,7 +440,7 @@ class SettingsController
         return $text;
     }
 
-    // Convert note HTML to plain text.
+    // Clean note text
     private function plainText(?string $html): string
     {
         $text = preg_replace('~<li(\s[^>]*)?>~i', '- ', (string) $html);
@@ -457,7 +452,7 @@ class SettingsController
         return trim((string) preg_replace('/\n{3,}/', "\n\n", $text));
     }
 
-    // Format a date for the Docs export.
+    // Format dates
     private function docDate(mixed $value, string $format = 'M j, Y g:i A'): string
     {
         if ($value === null || $value === '') {
@@ -469,7 +464,7 @@ class SettingsController
         return $time === false ? '' : date($format, $time);
     }
 
-    // Build the Docs export as a real .docx file.
+    // Build doc export
     private function renderDocx(array $data, array $user): string
     {
         $brown = '6B3F2A';
@@ -501,7 +496,7 @@ class SettingsController
         }
         $doc->paragraph($subtitle, ['color' => $soft, 'size' => 17, 'after' => 160]);
 
-        // Warning box
+        // Warning
         $doc->table([[[
             'shade' => 'FBF1E3',
             'paras' => [[
@@ -510,7 +505,7 @@ class SettingsController
             ]],
         ]]], [100], ['border' => 'E0C39A', 'after' => 200]);
 
-        // Summary counts
+        // Totals
         $summary = [];
         foreach ([
             [count($vault), 'Vault entries'],
@@ -528,7 +523,7 @@ class SettingsController
         }
         $doc->table([$summary], [25, 25, 25, 25]);
 
-        // Password vault
+        // Vault
         $doc->heading('Password Vault', 2);
         if ($vault === []) {
             $doc->paragraph('No vault entries to export.', ['italic' => true, 'color' => $muted]);
@@ -669,7 +664,7 @@ class SettingsController
         return $doc->build();
     }
 
-    // Render the PDF view.
+    // Build PDF view
     private function renderExportHtml(array $data, array $user, string $format = 'pdf'): string
     {
         ob_start();

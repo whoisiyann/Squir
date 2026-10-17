@@ -327,7 +327,8 @@
 .admin-report{ flex:0 0 auto; margin-top:20px; }
 .admin-report-note{ margin:0; padding:0 20px 10px; color:var(--muted); font-size:.82rem; }
 .admin-report-wrap{ flex:0 0 auto; max-height:none; overflow-x:auto; overflow-y:visible; }
-.admin-report-table{ min-width:520px; }
+.admin-report-table{ min-width:680px; }
+.admin-report-email{ overflow-wrap:anywhere; }
 .admin-table th.is-num,
 .admin-table td.is-num{ text-align:center; font-variant-numeric:tabular-nums; }
 
