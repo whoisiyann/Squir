@@ -560,6 +560,53 @@ button, input {
   }
 }
 
+/* User sidebar: keep the mascot whole and let the menu scroll on short screens (same idea as the admin sidebar). */
+body:not(.admin-page) .brand-row {
+  flex: 0 0 auto;
+}
+
+body:not(.admin-page) .sidebar-nav:not(.sidebar-bottom) {
+  flex: 0 1 auto;
+  min-height: 120px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+body:not(.admin-page) .sidebar-nav:not(.sidebar-bottom)::-webkit-scrollbar {
+  width: 6px;
+}
+
+body:not(.admin-page) .sidebar-nav:not(.sidebar-bottom)::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+body:not(.admin-page) .sidebar-bottom,
+body:not(.admin-page) .sidebar-illustration {
+  flex: 0 0 auto;
+}
+
+/* Shorter screens or zoomed-in pages: make the mascot smaller so more of the menu fits. */
+@media (max-height: 780px) {
+  body:not(.admin-page) .sidebar-bottom {
+    margin-top: 16px;
+  }
+  body:not(.admin-page) .sidebar-illustration {
+    padding-top: 10px;
+  }
+  body:not(.admin-page) .sidebar-illustration img {
+    max-width: 110px;
+  }
+}
+
+@media (max-height: 640px) {
+  body:not(.admin-page) .sidebar-illustration img {
+    max-width: 80px;
+  }
+}
+
 /* Mobile layout */
 @media (max-width: 700px) {
   :root {

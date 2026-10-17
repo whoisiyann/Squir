@@ -247,3 +247,12 @@ Squir/
 ## 📄 License
 
 This project was developed for academic purposes.
+
+
+
+
+
+
+
+
+composer require phpoffice/phpword

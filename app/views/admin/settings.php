@@ -47,6 +47,7 @@ $titles = [
   <link rel="stylesheet" href="<?= url('assets/css/settings.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/settings.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/settings.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/admin/settings.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/export-dialog.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/export-dialog.css') ?>" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="admin-page">
 <div class="app-shell" id="adminShell">
@@ -120,7 +121,7 @@ $titles = [
                 <i class="ti ti-moon"></i><span>Dark</span>
               </button>
               <button type="button" class="settings-theme-btn" data-theme="auto">
-                <i class="ti ti-contrast"></i><span>Auto</span>
+                <i class="fa fa-adjust"></i><span>Auto</span>
               </button>
             </div>
 
@@ -208,27 +209,48 @@ $titles = [
             </div>
             <p class="settings-card-subtitle">Export and manage your system data.</p>
 
-            <div class="settings-row settings-row-export">
-              <span class="settings-row-icon"><i class="ti ti-database-export"></i></span>
-              <span class="settings-row-text">
-                <strong>Export all data logs ( Admin &amp; Users )</strong>
-                <small>Download system logs as CSV, Docs, or PDF.</small>
-              </span>
-              <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="asExportBtn">
-                <i class="ti ti-download" aria-hidden="true"></i> Export
-              </button>
+            <!-- Group 1: User Summary Report -->
+            <div class="as-group" role="group" aria-labelledby="asGroupSummary">
+              <div class="as-group-label" id="asGroupSummary"><span>User Summary Report</span></div>
+
+              <div class="settings-row settings-row-export">
+                <span class="settings-row-icon"><i class="ti ti-report-analytics"></i></span>
+                <span class="settings-row-text">
+                  <strong>Export User Summary Report</strong>
+                  <small>Credentials, notes, and tasks (done vs pending) per user.</small>
+                </span>
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="asSummaryExportBtn">
+                  <i class="ti ti-download" aria-hidden="true"></i> Export
+                </button>
+              </div>
             </div>
 
-            <div class="settings-row">
-              <span class="settings-row-icon"><i class="ti ti-cloud-download"></i></span>
-              <span class="settings-row-text">
-                <strong>Export only user logs</strong>
-                <small>Only export user activity logs.</small>
-              </span>
-              <label class="as-switch" title="Export only user logs">
-                <input type="checkbox" id="asUserOnly" checked aria-label="Export only user logs">
-                <span class="as-switch-track" aria-hidden="true"></span>
-              </label>
+            <!-- Group 2: Activity logs -->
+            <div class="as-group as-group-divided" role="group" aria-labelledby="asGroupLogs">
+              <div class="as-group-label" id="asGroupLogs"><span>Activity Logs</span></div>
+
+              <div class="settings-row settings-row-export">
+                <span class="settings-row-icon"><i class="ti ti-database-export"></i></span>
+                <span class="settings-row-text">
+                  <strong>Export all data logs ( Admin &amp; Users )</strong>
+                  <small>Download system logs as CSV, Docs, or PDF.</small>
+                </span>
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="asExportBtn">
+                  <i class="ti ti-download" aria-hidden="true"></i> Export
+                </button>
+              </div>
+
+              <div class="settings-row">
+                <span class="settings-row-icon"><i class="ti ti-cloud-download"></i></span>
+                <span class="settings-row-text">
+                  <strong>Export only user logs</strong>
+                  <small>Only export user activity logs.</small>
+                </span>
+                <label class="as-switch" title="Export only user logs">
+                  <input type="checkbox" id="asUserOnly" checked aria-label="Export only user logs">
+                  <span class="as-switch-track" aria-hidden="true"></span>
+                </label>
+              </div>
             </div>
           </section>
         </div>

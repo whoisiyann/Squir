@@ -162,6 +162,52 @@ class User
 		return $statement->fetchAll();
 	}
 
+	// Items per user for the User Summary Report (all users when $limit is null)
+	public function summaryReport(?int $limit = null): array
+	{
+		$sql = 'SELECT u.user_id,
+		               u.full_name,
+		               u.email,
+		               u.status,
+		               COALESCE(v.total, 0)   AS credentials,
+		               COALESCE(n.total, 0)   AS notes,
+		               COALESCE(t.done, 0)    AS tasks_done,
+		               COALESCE(t.pending, 0) AS tasks_pending
+		        FROM users u
+		        LEFT JOIN (SELECT user_id, COUNT(*) AS total
+		                   FROM vault GROUP BY user_id) v ON v.user_id = u.user_id
+		        LEFT JOIN (SELECT user_id, COUNT(*) AS total
+		                   FROM notes GROUP BY user_id) n ON n.user_id = u.user_id
+		        LEFT JOIN (SELECT user_id,
+		                          SUM(status = \'done\')  AS done,
+		                          SUM(status <> \'done\') AS pending
+		                   FROM tasks GROUP BY user_id) t ON t.user_id = u.user_id
+		        ORDER BY (COALESCE(v.total, 0) + COALESCE(n.total, 0)
+		                  + COALESCE(t.done, 0) + COALESCE(t.pending, 0)) DESC,
+		                 u.full_name ASC';
+
+		if ($limit !== null) {
+			$sql .= ' LIMIT :limit';
+		}
+
+		$statement = $this->db->prepare($sql);
+		if ($limit !== null) {
+			$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+		}
+		$statement->execute();
+
+		$rows = [];
+		foreach ($statement->fetchAll() as $row) {
+			$row['credentials']   = (int) $row['credentials'];
+			$row['notes']         = (int) $row['notes'];
+			$row['tasks_done']    = (int) $row['tasks_done'];
+			$row['tasks_pending'] = (int) $row['tasks_pending'];
+			$rows[] = $row;
+		}
+
+		return $rows;
+	}
+
 	// Get admin user stats
 	public function adminStats(): array
 	{

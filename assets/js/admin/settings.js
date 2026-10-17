@@ -884,6 +884,7 @@
 
     /* Export logs */
     var exportBtn = document.getElementById('asExportBtn');
+    var summaryBtn = document.getElementById('asSummaryExportBtn');
     var userOnly = document.getElementById('asUserOnly');
     var USER_ONLY_KEY = 'squir-admin-export-user-only';
 
@@ -901,11 +902,17 @@
     if (exportBtn) {
         var exportBusy = false;
         var exportIdleHtml = exportBtn.innerHTML;
+        var summaryIdleHtml = summaryBtn ? summaryBtn.innerHTML : '';
 
-        function setExportBusy(state) {
+        // Show "Preparing..." on the button that started the export.
+        function setExportBusy(state, button) {
             exportBusy = state;
             exportBtn.disabled = state;
-            exportBtn.innerHTML = state ? '<i class="ti ti-loader" aria-hidden="true"></i> Preparing...' : exportIdleHtml;
+            if (summaryBtn) summaryBtn.disabled = state;
+
+            var target = button || exportBtn;
+            var idle = target === summaryBtn ? summaryIdleHtml : exportIdleHtml;
+            target.innerHTML = state ? '<i class="ti ti-loader" aria-hidden="true"></i> Preparing...' : idle;
         }
 
         function exportFail(message) {
@@ -926,14 +933,17 @@
         }
 
         var EXPORT_LABELS = { csv: 'CSV', doc: 'Docs', pdf: 'PDF' };
-        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/msword', pdf: 'application/pdf' };
+        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
 
-        function downloadExport(format) {
+        // report: 'user-summary' for the User Summary Report, otherwise the activity logs.
+        function downloadExport(format, report, button) {
             var label = EXPORT_LABELS[format] || 'file';
             var scope = userOnly && !userOnly.checked ? 'all' : 'users';
-            setExportBusy(true);
+            var isSummary = report === 'user-summary';
+            var query = '?export=' + encodeURIComponent(format) + (isSummary ? '&report=user-summary' : '&scope=' + scope);
+            setExportBusy(true, button);
 
-            fetch(endpoint + '?export=' + encodeURIComponent(format) + '&scope=' + scope, { credentials: 'same-origin' }).then(function (response) {
+            fetch(endpoint + query, { credentials: 'same-origin' }).then(function (response) {
                 var type = response.headers.get('Content-Type') || '';
 
                 if (!response.ok || type.indexOf(EXPORT_TYPES[format]) === -1) {
@@ -944,16 +954,16 @@
 
                 var disposition = response.headers.get('Content-Disposition') || '';
                 var match = /filename="?([^";]+)"?/i.exec(disposition);
-                var filename = match ? match[1] : 'squir-logs.' + format;
+                var filename = match ? match[1] : (isSummary ? 'squir-user-summary.' : 'squir-logs.') + (format === 'doc' ? 'docx' : format);
 
                 return response.blob().then(function (blob) {
                     saveBlob(blob, filename);
-                    notifySuccess('Export Complete', 'Your logs were downloaded as a ' + label + ' file.');
+                    notifySuccess('Export Complete', (isSummary ? 'The user summary report was downloaded as a ' : 'Your logs were downloaded as a ') + label + ' file.');
                 });
             }).catch(function (error) {
                 notifyError(error && error.friendly ? error.message : 'Something went wrong while creating the export. Please try again.');
             }).then(function () {
-                setExportBusy(false);
+                setExportBusy(false, button);
             });
         }
 
@@ -969,8 +979,26 @@
             window.SquirExportDialog.open({
                 title: 'Export Logs',
                 intro: 'Choose the file format for your export.',
-                onExport: downloadExport
+                onExport: function (format) { downloadExport(format, 'logs', exportBtn); }
             });
         });
+
+        // User Summary Report: same format dialog
+        if (summaryBtn) {
+            summaryBtn.addEventListener('click', function () {
+                if (exportBusy) return;
+
+                if (!window.SquirExportDialog) {
+                    notifyError('The export options could not load. Please refresh the page and try again.');
+                    return;
+                }
+
+                window.SquirExportDialog.open({
+                    title: 'Export User Summary Report',
+                    intro: 'Choose the file format for the user summary report.',
+                    onExport: function (format) { downloadExport(format, 'user-summary', summaryBtn); }
+                });
+            });
+        }
     }
 })();

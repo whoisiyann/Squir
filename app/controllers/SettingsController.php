@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../models/Vault.php';
+require_once __DIR__ . '/../../includes/DocxBuilder.php';
 
 class SettingsController
 {
@@ -237,6 +238,12 @@ class SettingsController
         return class_exists(\Dompdf\Dompdf::class);
     }
 
+    // Docs support (composer require phpoffice/phpword)
+    public function docxAvailable(): bool
+    {
+        return DocxBuilder::available();
+    }
+
     // Export formats the user can choose
     public const EXPORT_FORMATS = ['csv', 'doc', 'pdf'];
 
@@ -252,7 +259,8 @@ class SettingsController
                 break;
 
             case 'doc':
-                $file = [$this->renderExportHtml($data, $user, 'doc'), 'application/msword; charset=utf-8', 'doc'];
+                // Real Word file (.docx)
+                $file = [$this->renderDocx($data, $user), DocxBuilder::MIME, 'docx'];
                 break;
 
             case 'pdf':
@@ -375,7 +383,219 @@ class SettingsController
         return trim((string) preg_replace('/\n{3,}/', "\n\n", $text));
     }
 
-    // Render the PDF or DOC view.
+    // Format a date for the Docs export.
+    private function docDate(mixed $value, string $format = 'M j, Y g:i A'): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        $time = strtotime((string) $value);
+
+        return $time === false ? '' : date($format, $time);
+    }
+
+    // Build the Docs export as a real .docx file.
+    private function renderDocx(array $data, array $user): string
+    {
+        $brown = '6B3F2A';
+        $muted = '8A7D75';
+        $soft = '6F625B';
+        $head = 'F5EDE6';
+
+        $statusLabels = ['todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done'];
+        $priorityLabels = ['low' => 'Low', 'medium' => 'Medium', 'high' => 'High'];
+        $folderTypeLabels = ['passwords' => 'Passwords', 'notes' => 'Notes'];
+
+        $vault = $data['vault'] ?? [];
+        $notes = $data['notes'] ?? [];
+        $tasks = $data['tasks'] ?? [];
+        $folders = $data['folders'] ?? [];
+
+        $exportedAt = $this->docDate($data['exported_at'] ?? null, 'F j, Y \a\t g:i A');
+        $ownerName = trim((string) ($user['full_name'] ?? ''));
+        $ownerEmail = trim((string) ($user['email'] ?? ''));
+
+        $doc = new DocxBuilder(false, 'Squir - Confidential data export');
+
+        $doc->heading('Squir Data Export', 1);
+
+        $subtitle = $exportedAt;
+        if ($ownerName !== '') {
+            $subtitle = 'Prepared for ' . $ownerName . ($ownerEmail !== '' ? ' (' . $ownerEmail . ')' : '')
+                . ($exportedAt !== '' ? ' · ' . $exportedAt : '');
+        }
+        $doc->paragraph($subtitle, ['color' => $soft, 'size' => 17, 'after' => 160]);
+
+        // Warning box
+        $doc->table([[[
+            'shade' => 'FBF1E3',
+            'paras' => [[
+                ['Keep this file safe.', ['bold' => true, 'color' => $brown]],
+                [' It contains your saved passwords in plain text. Store it somewhere private and delete it when you no longer need it.', ['color' => $brown]],
+            ]],
+        ]]], [100], ['border' => 'E0C39A', 'after' => 200]);
+
+        // Summary counts
+        $summary = [];
+        foreach ([
+            [count($vault), 'Vault entries'],
+            [count($notes), 'Notes'],
+            [count($tasks), 'Tasks'],
+            [count($folders), 'Folders'],
+        ] as [$number, $label]) {
+            $summary[] = [
+                'align' => 'center',
+                'paras' => [
+                    [[(string) $number, ['bold' => true, 'color' => $brown, 'size' => 30]]],
+                    [[$label, ['color' => $soft, 'size' => 16]]],
+                ],
+            ];
+        }
+        $doc->table([$summary], [25, 25, 25, 25]);
+
+        // Password vault
+        $doc->heading('Password Vault', 2);
+        if ($vault === []) {
+            $doc->paragraph('No vault entries to export.', ['italic' => true, 'color' => $muted]);
+        }
+        foreach ($vault as $item) {
+            $title = trim((string) ($item['title'] ?? ''));
+            $tagList = trim((string) ($item['tags'] ?? ''));
+            $tagList = $tagList === '' ? '' : implode(', ', explode(',', $tagList));
+
+            $rows = [[[
+                'text' => $title !== '' ? $title : 'Untitled entry',
+                'span' => 2, 'shade' => $head, 'bold' => true, 'color' => $brown, 'size' => 20,
+            ]]];
+
+            $fields = [];
+            if (($item['username'] ?? '') !== '') {
+                $fields[] = ['Username', (string) $item['username'], false];
+            }
+            if (($item['password'] ?? '') !== '') {
+                $fields[] = ['Password', (string) $item['password'], true];
+            }
+            if (!empty($item['website_url'])) {
+                $fields[] = ['Website', (string) $item['website_url'], false];
+            }
+            if (!empty($item['folder'])) {
+                $fields[] = ['Folder', (string) $item['folder'], false];
+            }
+            if ($tagList !== '') {
+                $fields[] = ['Tags', $tagList, false];
+            }
+            if (!empty($item['notes'])) {
+                $fields[] = ['Notes', (string) $item['notes'], false];
+            }
+
+            foreach ($fields as [$label, $value, $mono]) {
+                $rows[] = [
+                    ['text' => $label, 'color' => $soft],
+                    ['text' => $value, 'mono' => $mono],
+                ];
+            }
+
+            $doc->table($rows, [22, 78], ['after' => 120]);
+        }
+
+        // Notes
+        $doc->heading('Notes', 2);
+        if ($notes === []) {
+            $doc->paragraph('No notes to export.', ['italic' => true, 'color' => $muted]);
+        }
+        foreach ($notes as $note) {
+            $title = trim((string) ($note['title'] ?? ''));
+            $created = $this->docDate($note['created_at'] ?? null);
+            $updated = $this->docDate($note['updated_at'] ?? null);
+            $body = $this->plainText($note['content'] ?? null);
+
+            $meta = [];
+            if ($created !== '') {
+                $meta[] = 'Created ' . $created;
+            }
+            if ($updated !== '' && $updated !== $created) {
+                $meta[] = 'Updated ' . $updated;
+            }
+            if (!empty($note['folder'])) {
+                $meta[] = 'Folder: ' . $note['folder'];
+            }
+
+            $doc->paragraph($title !== '' ? $title : 'Untitled note', ['bold' => true, 'size' => 21, 'keepNext' => true, 'before' => 160, 'after' => 20]);
+            if ($meta !== []) {
+                $doc->paragraph(implode(' · ', $meta), ['color' => $muted, 'size' => 15, 'keepNext' => true, 'after' => 60]);
+            }
+            if ($body !== '') {
+                $doc->paragraph($body, ['after' => 120]);
+            } else {
+                $doc->paragraph('(No content)', ['color' => $muted, 'after' => 120]);
+            }
+        }
+
+        // Tasks
+        $doc->heading('Tasks', 2);
+        if ($tasks === []) {
+            $doc->paragraph('No tasks to export.', ['italic' => true, 'color' => $muted]);
+        } else {
+            $head1 = ['shade' => $head, 'bold' => true, 'color' => $brown];
+            $rows = [[
+                $head1 + ['text' => 'Task'],
+                $head1 + ['text' => 'Status'],
+                $head1 + ['text' => 'Priority'],
+                $head1 + ['text' => 'Due date'],
+            ]];
+
+            foreach ($tasks as $task) {
+                $status = (string) ($task['status'] ?? '');
+                $priority = (string) ($task['priority'] ?? '');
+                $due = $this->docDate($task['due_date'] ?? null, 'M j, Y');
+
+                $paras = [[[(string) ($task['title'] ?? ''), ['bold' => true]]]];
+                if (!empty($task['description'])) {
+                    $paras[] = [[(string) $task['description'], ['color' => $soft, 'size' => 16]]];
+                }
+
+                $rows[] = [
+                    ['paras' => $paras],
+                    ['text' => $statusLabels[$status] ?? $status],
+                    ['text' => $priorityLabels[$priority] ?? $priority],
+                    ['text' => $due !== '' ? $due : '-'],
+                ];
+            }
+
+            $doc->table($rows, [50, 16, 14, 20], ['headerRows' => 1]);
+        }
+
+        // Folders
+        $doc->heading('Folders', 2);
+        if ($folders === []) {
+            $doc->paragraph('No folders to export.', ['italic' => true, 'color' => $muted]);
+        } else {
+            $head1 = ['shade' => $head, 'bold' => true, 'color' => $brown];
+            $rows = [[
+                $head1 + ['text' => 'Folder'],
+                $head1 + ['text' => 'Type'],
+                $head1 + ['text' => 'Color'],
+                $head1 + ['text' => 'Items'],
+            ]];
+
+            foreach ($folders as $folder) {
+                $type = (string) ($folder['folder_type'] ?? '');
+                $rows[] = [
+                    ['text' => (string) ($folder['folder_name'] ?? '')],
+                    ['text' => $folderTypeLabels[$type] ?? $type],
+                    ['text' => (string) ($folder['color'] ?? '')],
+                    ['text' => (string) (int) ($folder['item_count'] ?? 0)],
+                ];
+            }
+
+            $doc->table($rows, [40, 20, 20, 20], ['headerRows' => 1]);
+        }
+
+        return $doc->build();
+    }
+
+    // Render the PDF view.
     private function renderExportHtml(array $data, array $user, string $format = 'pdf'): string
     {
         ob_start();

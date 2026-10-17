@@ -680,7 +680,7 @@
         }
 
         var EXPORT_LABELS = { csv: 'CSV', doc: 'Docs', pdf: 'PDF' };
-        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/msword', pdf: 'application/pdf' };
+        var EXPORT_TYPES = { csv: 'text/csv', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
 
         // Download after the PIN check.
         function downloadExport(format) {
@@ -701,7 +701,7 @@
 
                 var disposition = response.headers.get('Content-Disposition') || '';
                 var match = /filename="?([^";]+)"?/i.exec(disposition);
-                var filename = match ? match[1] : 'squir-export.' + format;
+                var filename = match ? match[1] : 'squir-export.' + (format === 'doc' ? 'docx' : format);
 
                 return response.blob().then(function (blob) {
                     saveBlob(blob, filename);

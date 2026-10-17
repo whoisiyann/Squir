@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../../includes/admin_auth.php';
 require_once __DIR__ . '/../../models/admin/Admin.php';
 require_once __DIR__ . '/../../models/ActivityLog.php';
+require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/admin/AdminPasswordReset.php';
 require_once __DIR__ . '/../../models/admin/AdminEmailChange.php';
 require_once __DIR__ . '/../../controllers/admin/AdminSettingsController.php';
@@ -20,7 +21,7 @@ if (!$admin) {
 }
 
 $activityLog = new ActivityLog($dbh);
-$controller = new AdminSettingsController($adminModel, $activityLog, new AdminPasswordReset($dbh), new AdminEmailChange($dbh));
+$controller = new AdminSettingsController($adminModel, $activityLog, new AdminPasswordReset($dbh), new AdminEmailChange($dbh), new User($dbh));
 $csrfToken = csrfToken();
 
 // JSON response
@@ -247,10 +248,49 @@ if (isset($_GET['export'])) {
     $userOnly = ($_GET['scope'] ?? 'users') !== 'all';
     $formatLabels = ['csv' => 'CSV', 'doc' => 'Docs', 'pdf' => 'PDF'];
 
+    // User Summary Report (credentials, notes, and tasks per user)
+    if (($_GET['report'] ?? '') === 'user-summary') {
+        if ($format === 'pdf' && !$controller->pdfAvailable()) {
+            adminSettingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
+        }
+
+        if ($format === 'doc' && !$controller->docxAvailable()) {
+            adminSettingsJson(['error' => 'Docs export is not set up yet. Run "composer require phpoffice/phpword" in the project folder.'], 500);
+        }
+
+        try {
+            [$body, $mime, $extension] = $controller->exportUserSummary($adminId, $format);
+        } catch (Throwable $error) {
+            error_log('Squir user summary ' . $format . ' export failed: ' . $error->getMessage());
+            adminSettingsJson(['error' => 'Could not create the export. Please try again.'], 500);
+        }
+
+        $activityLog->logAdmin(
+            $adminId,
+            'admin_logs_exported',
+            'Exported user summary report (' . $formatLabels[$format] . ')'
+        );
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: attachment; filename="squir-user-summary-' . date('Y-m-d-His') . '.' . $extension . '"');
+        header('Content-Length: ' . strlen($body));
+        header('Cache-Control: no-store');
+        echo $body;
+        exit;
+    }
+
     // Docs and PDF reports
     if ($format !== 'csv') {
         if ($format === 'pdf' && !$controller->pdfAvailable()) {
             adminSettingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
+        }
+
+        if ($format === 'doc' && !$controller->docxAvailable()) {
+            adminSettingsJson(['error' => 'Docs export is not set up yet. Run "composer require phpoffice/phpword" in the project folder.'], 500);
         }
 
         try {

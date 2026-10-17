@@ -1,9 +1,11 @@
 <?php
 require_once __DIR__ . '/../../models/admin/Admin.php';
 require_once __DIR__ . '/../../models/ActivityLog.php';
+require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/admin/AdminPasswordReset.php';
 require_once __DIR__ . '/../../models/admin/AdminEmailChange.php';
 require_once __DIR__ . '/../../../includes/mailer.php';
+require_once __DIR__ . '/../../../includes/DocxBuilder.php';
 
 class AdminSettingsController
 {
@@ -20,7 +22,8 @@ class AdminSettingsController
 		private Admin $admin,
 		private ActivityLog $activityLog,
 		private ?AdminPasswordReset $passwordReset = null,
-		private ?AdminEmailChange $emailChange = null
+		private ?AdminEmailChange $emailChange = null,
+		private ?User $users = null
 	) {
 	}
 
@@ -389,6 +392,12 @@ class AdminSettingsController
 		return class_exists(\Dompdf\Dompdf::class);
 	}
 
+	// Docs support (composer require phpoffice/phpword)
+	public function docxAvailable(): bool
+	{
+		return DocxBuilder::available();
+	}
+
 	// Return the report content, type, and extension.
 	public function exportReport(int $adminId, bool $userOnly, string $format): array
 	{
@@ -414,11 +423,12 @@ class AdminSettingsController
 				: '',
 		];
 
-		$html = $this->renderReportHtml($report, $format);
-
+		// Docs: build a real .docx file
 		if ($format === 'doc') {
-			return [$html, 'application/msword; charset=utf-8', 'doc'];
+			return [$this->renderDocx($report), DocxBuilder::MIME, 'docx'];
 		}
+
+		$html = $this->renderReportHtml($report, $format);
 
 		$options = new \Dompdf\Options();
 		$options->set('defaultFont', 'DejaVu Sans');
@@ -437,6 +447,250 @@ class AdminSettingsController
 		$canvas->page_text($canvas->get_width() - 110, $footerY, 'Page {PAGE_NUM} of {PAGE_COUNT}', $font, 8, [0.45, 0.45, 0.45]);
 
 		return [$dompdf->output(), 'application/pdf', 'pdf'];
+	}
+
+	// Build the activity log report as a real .docx file.
+	private function renderDocx(array $report): string
+	{
+		$brown = '6B3F2A';
+		$soft = '6F625B';
+		$head = 'F5EDE6';
+
+		$rows = $report['rows'] ?? [];
+
+		$userCount = 0;
+		$adminCount = 0;
+		foreach ($rows as $row) {
+			if (($row[0] ?? '') === 'Admin') {
+				$adminCount++;
+			} elseif (($row[0] ?? '') === 'User') {
+				$userCount++;
+			}
+		}
+
+		$doc = new DocxBuilder(true, 'Squir - Activity log report');
+
+		$doc->heading('Activity Log Report', 1);
+		$doc->paragraph(
+			(string) ($report['scope_label'] ?? '') . ' · Prepared by ' . (string) ($report['prepared_by'] ?? '')
+			. ' · ' . (string) ($report['generated_at'] ?? ''),
+			['color' => $soft, 'size' => 17, 'after' => 160]
+		);
+
+		if (!empty($report['limit_note'])) {
+			$doc->table([[[
+				'text'  => (string) $report['limit_note'],
+				'shade' => 'FBF1E3',
+				'color' => $brown,
+			]]], [100], ['border' => 'E0C39A', 'after' => 160]);
+		}
+
+		$summary = [];
+		foreach ([
+			[count($rows), 'Total entries'],
+			[$userCount, 'User actions'],
+			[$adminCount, 'Admin actions'],
+		] as [$number, $label]) {
+			$summary[] = [
+				'align' => 'center',
+				'paras' => [
+					[[(string) $number, ['bold' => true, 'color' => $brown, 'size' => 30]]],
+					[[$label, ['color' => $soft, 'size' => 16]]],
+				],
+			];
+		}
+		$doc->table([$summary], [34, 33, 33], ['after' => 200]);
+
+		if ($rows === []) {
+			$doc->paragraph('No activity logs to export.', ['italic' => true, 'color' => '8A7D75']);
+
+			return $doc->build();
+		}
+
+		$headCell = ['shade' => $head, 'bold' => true, 'color' => $brown, 'size' => 17];
+		$table = [[
+			$headCell + ['text' => 'Type'],
+			$headCell + ['text' => 'Name'],
+			$headCell + ['text' => 'Date & Time'],
+			$headCell + ['text' => 'Activity'],
+			$headCell + ['text' => 'Details'],
+			$headCell + ['text' => 'Device'],
+			$headCell + ['text' => 'IP Address'],
+		]];
+
+		foreach ($rows as $row) {
+			$cells = [];
+			foreach (array_values($row) as $cell) {
+				$cells[] = ['text' => (string) $cell, 'size' => 16];
+			}
+			$table[] = $cells;
+		}
+
+		$doc->table($table, [8, 14, 14, 16, 26, 12, 10], ['headerRows' => 1]);
+
+		return $doc->build();
+	}
+
+	// User Summary Report: credentials, notes, and tasks per user (csv, doc, or pdf).
+	public function exportUserSummary(int $adminId, string $format): array
+	{
+		if (!in_array($format, self::EXPORT_FORMATS, true)) {
+			throw new InvalidArgumentException('Unsupported report format.');
+		}
+		if ($this->users === null) {
+			throw new RuntimeException('User model is not available.');
+		}
+
+		$limit = $format === 'csv' ? self::EXPORT_MAX : self::EXPORT_REPORT_MAX;
+		$users = $this->users->summaryReport($limit);
+
+		$rows = [];
+		$totals = ['credentials' => 0, 'notes' => 0, 'tasks_done' => 0, 'tasks_pending' => 0];
+		foreach ($users as $user) {
+			$totals['credentials']   += $user['credentials'];
+			$totals['notes']         += $user['notes'];
+			$totals['tasks_done']    += $user['tasks_done'];
+			$totals['tasks_pending'] += $user['tasks_pending'];
+
+			$rows[] = [
+				(string) $user['full_name'],
+				(string) $user['email'],
+				ucfirst((string) $user['status']),
+				(string) $user['credentials'],
+				(string) $user['notes'],
+				(string) $user['tasks_done'],
+				(string) $user['tasks_pending'],
+				(string) ($user['credentials'] + $user['notes'] + $user['tasks_done'] + $user['tasks_pending']),
+			];
+		}
+
+		// CSV: header and rows only
+		if ($format === 'csv') {
+			$stream = fopen('php://temp', 'w+');
+			fwrite($stream, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel reads the names correctly
+			fputcsv($stream, $this->userSummaryHeader(), ',', '"', '\\');
+			foreach ($rows as $row) {
+				fputcsv($stream, array_map([self::class, 'csvCell'], $row), ',', '"', '\\');
+			}
+			rewind($stream);
+			$csv = (string) stream_get_contents($stream);
+			fclose($stream);
+
+			return [$csv, 'text/csv; charset=utf-8', 'csv'];
+		}
+
+		$adminRecord = $this->admin->findById($adminId) ?: [];
+		$report = [
+			'header'       => $this->userSummaryHeader(),
+			'rows'         => $rows,
+			'totals'       => $totals,
+			'generated_at' => date('F j, Y \a\t g:i A'),
+			'prepared_by'  => (string) ($adminRecord['full_name'] ?? 'Administrator'),
+			'limit_note'   => count($rows) >= $limit
+				? 'Showing the first ' . number_format($limit) . ' users. Use CSV to export everything.'
+				: '',
+		];
+
+		if ($format === 'doc') {
+			return [$this->renderUserSummaryDocx($report), DocxBuilder::MIME, 'docx'];
+		}
+
+		ob_start();
+		require __DIR__ . '/../../views/admin/export-user-summary.php';
+		$html = (string) ob_get_clean();
+
+		$options = new \Dompdf\Options();
+		$options->set('defaultFont', 'DejaVu Sans');
+		$options->set('isRemoteEnabled', false);
+		$options->set('isPhpEnabled', false);
+
+		$dompdf = new \Dompdf\Dompdf($options);
+		$dompdf->loadHtml($html, 'UTF-8');
+		$dompdf->setPaper('A4', 'portrait');
+		$dompdf->render();
+
+		$canvas = $dompdf->getCanvas();
+		$font = $dompdf->getFontMetrics()->getFont('DejaVu Sans', 'normal');
+		$footerY = $canvas->get_height() - 28;
+		$canvas->page_text(40, $footerY, 'Squir - User summary report', $font, 8, [0.45, 0.45, 0.45]);
+		$canvas->page_text($canvas->get_width() - 110, $footerY, 'Page {PAGE_NUM} of {PAGE_COUNT}', $font, 8, [0.45, 0.45, 0.45]);
+
+		return [$dompdf->output(), 'application/pdf', 'pdf'];
+	}
+
+	public function userSummaryHeader(): array
+	{
+		return ['User', 'Email', 'Status', 'Credentials', 'Notes', 'Tasks Done', 'Tasks Pending', 'Total Items'];
+	}
+
+	// Build the User Summary Report as a real .docx file.
+	private function renderUserSummaryDocx(array $report): string
+	{
+		$brown = '6B3F2A';
+		$soft = '6F625B';
+		$head = 'F5EDE6';
+
+		$rows = $report['rows'] ?? [];
+		$totals = $report['totals'] ?? [];
+
+		$doc = new DocxBuilder(false, 'Squir - User summary report');
+
+		$doc->heading('User Summary Report', 1);
+		$doc->paragraph(
+			'Credentials, notes, and tasks per user · Prepared by ' . (string) ($report['prepared_by'] ?? '')
+			. ' · ' . (string) ($report['generated_at'] ?? ''),
+			['color' => $soft, 'size' => 17, 'after' => 160]
+		);
+
+		if (!empty($report['limit_note'])) {
+			$doc->table([[[
+				'text'  => (string) $report['limit_note'],
+				'shade' => 'FBF1E3',
+				'color' => $brown,
+			]]], [100], ['border' => 'E0C39A', 'after' => 160]);
+		}
+
+		$summary = [];
+		foreach ([
+			[count($rows), 'Users'],
+			[$totals['credentials'] ?? 0, 'Credentials'],
+			[$totals['notes'] ?? 0, 'Notes'],
+			[$totals['tasks_done'] ?? 0, 'Tasks done'],
+			[$totals['tasks_pending'] ?? 0, 'Tasks pending'],
+		] as [$number, $label]) {
+			$summary[] = [
+				'align' => 'center',
+				'paras' => [
+					[[(string) $number, ['bold' => true, 'color' => $brown, 'size' => 30]]],
+					[[$label, ['color' => $soft, 'size' => 16]]],
+				],
+			];
+		}
+		$doc->table([$summary], [20, 20, 20, 20, 20], ['after' => 200]);
+
+		if ($rows === []) {
+			$doc->paragraph('No users to report yet.', ['italic' => true, 'color' => '8A7D75']);
+
+			return $doc->build();
+		}
+
+		$headCell = ['shade' => $head, 'bold' => true, 'color' => $brown, 'size' => 17];
+		$table = [[]];
+		foreach ($report['header'] as $i => $label) {
+			$table[0][] = $headCell + ['text' => $label, 'align' => $i >= 3 ? 'center' : null];
+		}
+
+		foreach ($rows as $row) {
+			$cells = [];
+			foreach (array_values($row) as $i => $cell) {
+				$cells[] = ['text' => (string) $cell, 'size' => 16, 'align' => $i >= 3 ? 'center' : null];
+			}
+			$table[] = $cells;
+		}
+
+		$doc->table($table, [18, 26, 10, 11, 8, 9, 10, 8], ['headerRows' => 1]);
+
+		return $doc->build();
 	}
 
 	private function renderReportHtml(array $report, string $format): string

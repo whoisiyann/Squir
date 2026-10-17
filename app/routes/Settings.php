@@ -247,6 +247,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['export'])) {
         settingsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
     }
 
+    if ($format === 'doc' && !$controller->docxAvailable()) {
+        settingsJson(['error' => 'Docs export is not set up yet. Run "composer require phpoffice/phpword" in the project folder.'], 500);
+    }
+
     try {
         [$body, $mime, $extension] = $controller->exportFile($userId, $format);
     } catch (Throwable $error) {
