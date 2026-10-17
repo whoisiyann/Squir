@@ -3,7 +3,7 @@
 
     var editor = document.getElementById('noteEditor');
     var notesList = document.getElementById('notesList');
-    var menuFavBtn = document.querySelector('.note-menu-favorite'); // editor's 3-dot Favorite item
+    var menuFavBtn = document.querySelector('.note-menu-favorite'); // Favorite menu
 
     var toastEl = null;
     var toastTimer = null;
@@ -62,7 +62,7 @@
         }, { passive: false });
     })();
 
-    // Toggle a note favorite
+    // Toggle favorite
     function toggleFavoriteRequest(noteId, csrfToken) {
         var body = new URLSearchParams();
         body.set('ajax', 'toggle_favorite');
@@ -161,7 +161,7 @@
         });
     });
 
-    // Close note menus
+    // Close menus
     function closeAllMenus() {
         $all('.note-menu-dropdown.open').forEach(function (menu) {
             menu.classList.remove('open');
@@ -281,7 +281,7 @@
             saveTimer = setTimeout(saveNow, 700);
         }
 
-        // Save the active note
+        // Save note
         function saveNow() {
             clearTimeout(saveTimer);
             if (statusEl) statusEl.textContent = 'Saving…';
@@ -291,7 +291,7 @@
             body.set('csrf_token', csrfToken);
             body.set('note_id', noteId);
             body.set('title', titleInput.value);
-            body.set('content', contentEl.innerHTML);
+            body.set('content', getCleanHtml());
             body.set('folder_id', folderSelect.value);
 
             fetch('./notes', {
@@ -313,7 +313,7 @@
             });
         }
 
-        // Note list card
+        // Update note card
         function updateListCard(json) {
             if (!notesList) return;
             var card = notesList.querySelector('.note-card[data-note-id="' + noteId + '"]');
@@ -355,6 +355,231 @@
 
         normalizeHighlights();
 
+        // Highlight
+        var ZWSP = '\u200B';
+        var pendingHl = null; // Pending highlight
+
+        function isBlank(text) { return text.replace(/\u200B/g, '') === ''; }
+
+        // Find highlight
+        function findHighlightEl(node) {
+            var el = node && node.nodeType === 3 ? node.parentNode : node;
+            while (el && el !== contentEl) {
+                if (el.nodeType === 1) {
+                    if (el.classList.contains('note-hl')) return el;
+                    if (el.style && el.style.backgroundColor && !isTransparentBg(el.style.backgroundColor)) return el;
+                }
+                el = el.parentNode;
+            }
+            return null;
+        }
+
+        function getSelectionRange() {
+            var sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) return null;
+            var range = sel.getRangeAt(0);
+            return contentEl.contains(range.commonAncestorContainer) ? range : null;
+        }
+
+        function setCaret(node, offset) {
+            var r = document.createRange();
+            r.setStart(node, offset);
+            r.collapse(true);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(r);
+        }
+
+        function isVisiblyBlank(text) { return text.replace(/[\u200B\s]/g, '') === ''; }
+
+        // Selected text nodes
+        function textNodesInRange(range, skipBlank) {
+            var root = range.commonAncestorContainer;
+            var all = [];
+            if (root.nodeType === 3) {
+                all.push(root);
+            } else {
+                var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+                while (walker.nextNode()) all.push(walker.currentNode);
+            }
+            return all.filter(function (t) {
+                if (!range.intersectsNode(t)) return false;
+                var start = t === range.startContainer ? range.startOffset : 0;
+                var end = t === range.endContainer ? range.endOffset : t.length;
+                if (end <= start) return false;
+                return !skipBlank || !isVisiblyBlank(t.data.slice(start, end));
+            });
+        }
+
+        // Check highlight
+        function isRangeHighlighted(range) {
+            if (range.collapsed) return !!findHighlightEl(range.startContainer);
+            var texts = textNodesInRange(range, true);
+            if (!texts.length) return false;
+            return texts.every(function (t) { return !!findHighlightEl(t); });
+        }
+
+        // Isolate text nodes
+        function isolateRangeTextNodes(range) {
+            var nodes = textNodesInRange(range, false);
+            if (!nodes.length) return [];
+            var first = nodes[0], last = nodes[nodes.length - 1];
+            var so = range.startContainer === first ? range.startOffset : 0;
+            var eo = range.endContainer === last ? range.endOffset : last.length;
+            var same = first === last;
+            if (eo < last.length) last.splitText(eo);
+            if (so > 0) {
+                var mid = first.splitText(so);
+                nodes[0] = mid;
+                if (same) nodes[nodes.length - 1] = mid;
+            }
+            return nodes;
+        }
+
+        // Exit highlight
+        function exitHighlightAtCaret(range) {
+            var hl = findHighlightEl(range.startContainer);
+            if (!hl) return;
+            var parent = hl.parentNode;
+
+            var tailRange = document.createRange();
+            tailRange.setStart(range.startContainer, range.startOffset);
+            tailRange.setEnd(hl, hl.childNodes.length);
+            var tailFrag = tailRange.extractContents();
+
+            var marker = document.createTextNode(ZWSP);
+            parent.insertBefore(marker, hl.nextSibling);
+
+            if (!isBlank(tailFrag.textContent || '')) {
+                var tail = hl.cloneNode(false);
+                tail.appendChild(tailFrag);
+                parent.insertBefore(tail, marker.nextSibling);
+            }
+            if (isBlank(hl.textContent || '')) parent.removeChild(hl);
+            if (pendingHl && !pendingHl.parentNode) pendingHl = null;
+
+            setCaret(marker, 1);
+        }
+
+        // Enter highlight
+        function enterHighlightAtCaret(range) {
+            var span = document.createElement('span');
+            span.className = 'note-hl';
+            var text = document.createTextNode(ZWSP);
+            span.appendChild(text);
+            range.insertNode(span);
+            pendingHl = span;
+            setCaret(text, 1);
+        }
+
+        // Split highlight
+        function isolateInHighlight(t, hl) {
+            var parent = hl.parentNode;
+            var r = document.createRange();
+            r.setStartAfter(t);
+            r.setEnd(hl, hl.childNodes.length);
+            var after = r.extractContents();
+            r = document.createRange();
+            r.setStart(hl, 0);
+            r.setEndBefore(t);
+            var before = r.extractContents();
+            if (!isBlank(after.textContent || '')) {
+                var a = hl.cloneNode(false);
+                a.appendChild(after);
+                parent.insertBefore(a, hl.nextSibling);
+            }
+            if (!isBlank(before.textContent || '')) {
+                var b = hl.cloneNode(false);
+                b.appendChild(before);
+                parent.insertBefore(b, hl);
+            }
+        }
+
+        function removeHighlightFromNodes(nodes) {
+            nodes.forEach(function (t) {
+                var guard = 0;
+                var hl = findHighlightEl(t);
+                while (hl && guard++ < 10) {
+                    if (hl.tagName === 'SPAN') {
+                        isolateInHighlight(t, hl);
+                        var p = hl.parentNode;
+                        while (hl.firstChild) p.insertBefore(hl.firstChild, hl);
+                        p.removeChild(hl);
+                    } else {
+                        hl.style.removeProperty('background-color');
+                        hl.classList.remove('note-hl');
+                        if (!hl.getAttribute('style')) hl.removeAttribute('style');
+                    }
+                    hl = findHighlightEl(t);
+                }
+            });
+        }
+
+        function applyHighlightToNodes(nodes) {
+            removeHighlightFromNodes(nodes); // Remove duplicates
+            var spans = [];
+            nodes.forEach(function (t) {
+                var structural = /^\s+$/.test(t.data) &&
+                    (t.parentNode === contentEl || /^(UL|OL)$/.test(t.parentNode.nodeName));
+                if (structural) return;
+                var span = document.createElement('span');
+                span.className = 'note-hl';
+                t.parentNode.insertBefore(span, t);
+                span.appendChild(t);
+                spans.push(span);
+            });
+            spans.forEach(function (span) {
+                var prev = span.previousSibling;
+                if (prev && prev.nodeType === 1 && prev.tagName === 'SPAN' && prev.classList.contains('note-hl')) {
+                    while (span.firstChild) prev.appendChild(span.firstChild);
+                    span.parentNode.removeChild(span);
+                }
+            });
+        }
+
+        function toggleHighlight() {
+            var range = getSelectionRange();
+            if (!range) return;
+            var on = isRangeHighlighted(range);
+            if (range.collapsed) {
+                if (on) exitHighlightAtCaret(range); else enterHighlightAtCaret(range);
+                return;
+            }
+            var nodes = isolateRangeTextNodes(range);
+            if (!nodes.length) return;
+            if (on) removeHighlightFromNodes(nodes); else applyHighlightToNodes(nodes);
+
+            // Keep selection
+            var first = nodes[0], last = nodes[nodes.length - 1];
+            var r = document.createRange();
+            r.setStart(first, 0);
+            r.setEnd(last, last.length);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(r);
+        }
+
+        // Clean pending highlight
+        function cleanupPendingHighlight() {
+            if (!pendingHl) return;
+            if (!isBlank(pendingHl.textContent || '')) { pendingHl = null; return; }
+            var sel = window.getSelection();
+            var inside = sel && sel.rangeCount && pendingHl.contains(sel.anchorNode);
+            if (!inside) {
+                if (pendingHl.parentNode) pendingHl.parentNode.removeChild(pendingHl);
+                pendingHl = null;
+            }
+        }
+
+        // Clean saved HTML
+        function getCleanHtml() {
+            var clone = contentEl.cloneNode(true);
+            $all('.note-hl', clone).forEach(function (el) {
+                if (isBlank(el.textContent || '') && !el.querySelector('img, br')) el.parentNode.removeChild(el);
+            });
+            return clone.innerHTML.replace(/\u200B/g, '');
+        }
+
         function updateToolbarState() {
             $all('[data-cmd]', toolbar).forEach(function (el) {
                 var cmd = el.getAttribute('data-cmd');
@@ -369,7 +594,17 @@
                     }
                 } catch (error) {}
             });
+
+            var hlBtn = toolbar.querySelector('[data-cmd="hiliteColor"]');
+            if (hlBtn) {
+                var hlRange = getSelectionRange();
+                hlBtn.classList.toggle('active', !!hlRange && isRangeHighlighted(hlRange));
+            }
         }
+
+        toolbar.addEventListener('mousedown', function (event) {
+            if (event.target.closest('button')) event.preventDefault();
+        });
 
         $all('[data-cmd]', toolbar).forEach(function (el) {
             el.addEventListener('click', function () {
@@ -387,20 +622,7 @@
                     document.execCommand('formatBlock', false, current === value ? 'p' : value);
                     stripStrayHighlights();
                 } else if (cmd === 'hiliteColor') {
-                    var isActive = el.classList.toggle('active');
-                    var appliedValue = isActive
-                        ? getComputedStyle(document.documentElement).getPropertyValue('--highlight-color').trim()
-                        : 'transparent';
-                    var supportsHilite = document.queryCommandSupported
-                        ? document.queryCommandSupported('hiliteColor')
-                        : false;
-
-                    if (supportsHilite) {
-                        document.execCommand('hiliteColor', false, appliedValue);
-                    } else {
-                        document.execCommand('backColor', false, appliedValue);
-                    }
-                    normalizeHighlights();
+                    toggleHighlight();
                 } else {
                     document.execCommand(cmd, false, null);
                     stripStrayHighlights();
@@ -414,6 +636,7 @@
         contentEl.addEventListener('keyup', updateToolbarState);
         contentEl.addEventListener('mouseup', updateToolbarState);
         document.addEventListener('selectionchange', function () {
+            cleanupPendingHighlight();
             if (document.activeElement === contentEl) updateToolbarState();
         });
 
@@ -436,6 +659,7 @@
         titleInput.addEventListener('blur', saveNow);
 
         contentEl.addEventListener('input', function () {
+            normalizeHighlights();
             scheduleSave();
             updateEmptyState();
         });
