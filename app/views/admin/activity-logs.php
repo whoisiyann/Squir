@@ -45,6 +45,7 @@ $filtersJson = json_encode([
   <link rel="stylesheet" href="<?= url('assets/css/admin/admin.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/users.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/activity-logs.css') ?>" />
+  <link rel="stylesheet" href="<?= url('assets/css/export-dialog.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/export-dialog.css') ?>" />
 </head>
 <body class="admin-page">
 <div class="app-shell" id="adminShell">
@@ -171,10 +172,10 @@ $filtersJson = json_encode([
           </button>
 
           <!-- Mobile export action -->
-          <a class="al-export al-export-top" id="alExportTop" href="<?= $escape(url('admin/activity-logs?export=csv')) ?>"
-             aria-label="Export CSV" title="Export CSV">
+          <button type="button" class="al-export al-export-top" id="alExportTop"
+                  aria-label="Export activity logs" title="Export activity logs">
             <i class="ti ti-download" aria-hidden="true"></i><span>Export</span>
-          </a>
+          </button>
 
           <button type="button" class="al-refresh" id="alRefresh" aria-label="Refresh">
             <i class="ti ti-refresh" aria-hidden="true"></i><span>Refresh</span>
@@ -232,9 +233,9 @@ $filtersJson = json_encode([
         <button type="button" class="al-clear" id="alClear" data-al-clear>
           <i class="ti ti-trash" aria-hidden="true"></i> Clear Activity Logs
         </button>
-        <a class="al-export" id="alExport" href="<?= $escape(url('admin/activity-logs?export=csv')) ?>">
+        <button type="button" class="al-export" id="alExport">
           <i class="ti ti-download" aria-hidden="true"></i> Export
-        </a>
+        </button>
       </div>
     </main>
 
@@ -244,6 +245,7 @@ $filtersJson = json_encode([
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="<?= url('assets/js/admin/admin-alert.js') ?>"></script>
   <script src="<?= asset('assets/js/admin/admin.js') ?>"></script>
+  <script src="<?= url('assets/js/export-dialog.js') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/js/export-dialog.js') ?>"></script>
   <script src="<?= url('assets/js/admin/activity-logs.js') ?>"></script>
 </body>
 </html>

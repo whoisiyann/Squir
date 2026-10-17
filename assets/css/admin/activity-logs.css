@@ -1,4 +1,3 @@
-/* Activity logs */
 :root{
     --al-blue:#1f5eff;
     --al-blue-hover:#184fd8;
@@ -475,6 +474,8 @@ body.dashboard-dark .al-date-fields input{ color-scheme:dark; }
     transition:background .15s ease;
 }
 .al-export:hover{ background:var(--peach); }
+.al-export{ cursor:pointer; font-family:inherit; }
+.al-export:disabled{ opacity:.6; cursor:default; }
 .al-export-top{ display:none; } /* shown on phones only */
 
 /* Clear activity logs */
@@ -686,4 +687,9 @@ body.dashboard-dark .al-date-fields input{ color-scheme:dark; }
     .al-spinner{ animation-duration:2s; }
     .al-date-chevron,
     .al-menu-btn i{ transition:none; }
+}
+
+
+@media (min-width:701px){
+    .admin-page .content-area.al-page > .al-card{ flex-shrink:1; min-height:220px; }
 }

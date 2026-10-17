@@ -75,20 +75,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $filters = $controller->filters($_GET);
 
 // Export: same filters as the screen
-if (($_GET['export'] ?? '') === 'csv') {
-    $filename = 'squir-activity-logs-' . date('Y-m-d-His') . '.csv';
+if (isset($_GET['export'])) {
+    // Hide PHP warnings in export.
+    ini_set('display_errors', '0');
 
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="' . $filename . '"');
-    header('Cache-Control: no-store');
-
-    $out = fopen('php://output', 'w');
-    fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel reads the names correctly
-    fputcsv($out, ['User', 'Date & Time', 'Activity', 'Details', 'Device', 'IP Address'], ',', '"', '\\');
-    foreach ($controller->exportRows($filters) as $row) {
-        fputcsv($out, array_map('adminLogsCsvCell', $row), ',', '"', '\\');
+    $format = (string) $_GET['export'];
+    if (!in_array($format, AdminActivityLogController::EXPORT_FORMATS, true)) {
+        adminLogsJson(['error' => 'Please choose a valid file format.'], 400);
     }
-    fclose($out);
+
+    if ($format === 'pdf' && !$controller->pdfAvailable()) {
+        adminLogsJson(['error' => 'PDF export is not set up yet. Run "composer require dompdf/dompdf" in the project folder.'], 500);
+    }
+
+    if ($format === 'xlsx' && !$controller->xlsxAvailable()) {
+        adminLogsJson(['error' => 'Excel export needs the PHP zip extension. Enable extension=zip in php.ini.'], 500);
+    }
+
+    if ($format === 'doc' && !$controller->docxAvailable()) {
+        adminLogsJson(['error' => 'Docs export is not set up yet. Run "composer require phpoffice/phpword" in the project folder.'], 500);
+    }
+
+    $formatLabels = ['csv' => 'CSV', 'xlsx' => 'Excel', 'doc' => 'Docs', 'pdf' => 'PDF'];
+    $baseName = 'squir-activity-logs-' . date('Y-m-d-His');
+
+    try {
+        if ($format === 'csv') {
+            $csvRows = $controller->exportRows($filters);
+        } else {
+            [$body, $mime, $extension] = $controller->exportFile($filters, $format, (string) ($admin['full_name'] ?? 'Administrator'));
+        }
+    } catch (Throwable $error) {
+        error_log('Squir activity log ' . $format . ' export failed: ' . $error->getMessage());
+        adminLogsJson(['error' => 'Could not create the export. Please try again.'], 500);
+    }
+
+    $activityLog->logAdmin(
+        $adminId,
+        'admin_logs_exported',
+        'Exported user activity logs from the Activity Logs page (' . $formatLabels[$format] . ')'
+    );
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    if ($format === 'csv') {
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $baseName . '.csv"');
+        header('Cache-Control: no-store');
+
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM so Excel reads the names correctly
+        fputcsv($out, $controller->exportHeader(), ',', '"', '\\');
+        foreach ($csvRows as $row) {
+            fputcsv($out, array_map('adminLogsCsvCell', $row), ',', '"', '\\');
+        }
+        fclose($out);
+        exit;
+    }
+
+    header('Content-Type: ' . $mime);
+    header('Content-Disposition: attachment; filename="' . $baseName . '.' . $extension . '"');
+    header('Content-Length: ' . strlen($body));
+    header('Cache-Control: no-store');
+    echo $body;
     exit;
 }
 

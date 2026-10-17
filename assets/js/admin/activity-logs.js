@@ -110,12 +110,6 @@
 
         els.userChip.hidden = !state.user_id;
 
-        var exportParams = filterParams();
-        exportParams.set('export', 'csv');
-        var exportHref = endpoint + '?' + exportParams.toString();
-        els.exportLink.setAttribute('href', exportHref);
-        if (els.exportLinkTop) els.exportLinkTop.setAttribute('href', exportHref);
-
         var urlParams = filterParams();
         var currentRoute = new URLSearchParams(window.location.search).get('route');
         if (currentRoute) urlParams.set('route', currentRoute);
@@ -594,6 +588,95 @@
     Array.prototype.forEach.call(els.clearBtns, function (btn) {
         btn.addEventListener('click', startClear);
     });
+
+    /* ---------- Export (only what the filters show) ---------- */
+    var exportButtons = [els.exportLink, els.exportLinkTop].filter(Boolean);
+    var exportIdle = exportButtons.map(function (btn) { return btn.innerHTML; });
+    var exportBusy = false;
+
+    var EXPORT_LABELS = { csv: 'CSV', xlsx: 'Excel', doc: 'Docs', pdf: 'PDF' };
+    var EXPORT_TYPES = {
+        csv: 'text/csv',
+        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        pdf: 'application/pdf'
+    };
+
+    function setExportBusy(on) {
+        exportBusy = on;
+        exportButtons.forEach(function (btn, i) {
+            btn.disabled = on;
+            btn.innerHTML = on
+                ? '<i class="ti ti-loader" aria-hidden="true"></i><span>Preparing...</span>'
+                : exportIdle[i];
+        });
+    }
+
+    function saveBlob(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function downloadExport(format) {
+        var params = filterParams();
+        params.set('export', format);
+        setExportBusy(true);
+
+        fetch(endpoint + '?' + params.toString(), { credentials: 'same-origin' }).then(function (response) {
+            var type = response.headers.get('Content-Type') || '';
+
+            if (!response.ok || type.indexOf(EXPORT_TYPES[format]) === -1) {
+                return response.json().catch(function () { return {}; }).then(function (json) {
+                    var failure = new Error(json.error || 'Could not create the export. Please try again.');
+                    failure.friendly = true;
+                    throw failure;
+                });
+            }
+
+            var disposition = response.headers.get('Content-Disposition') || '';
+            var match = /filename="?([^";]+)"?/i.exec(disposition);
+            var filename = match ? match[1] : 'squir-activity-logs.' + (format === 'doc' ? 'docx' : format);
+
+            return response.blob().then(function (blob) {
+                saveBlob(blob, filename);
+                if (window.AdminAlert) {
+                    AdminAlert.success('Export Complete', 'Your logs were downloaded as a ' + EXPORT_LABELS[format] + ' file.');
+                }
+            });
+        }).catch(function (error) {
+            var message = error && error.friendly ? error.message : 'Something went wrong while creating the export. Please try again.';
+            if (window.AdminAlert) AdminAlert.error(message); else window.alert(message);
+        }).then(function () {
+            setExportBusy(false);
+        });
+    }
+
+    function startExport() {
+        if (exportBusy) return;
+
+        if (!window.SquirExportDialog) {
+            var message = 'The export options could not load. Please refresh the page and try again.';
+            if (window.AdminAlert) AdminAlert.error(message); else window.alert(message);
+            return;
+        }
+
+        window.SquirExportDialog.open({
+            title: 'Export Activity Logs',
+            intro: hasFilters()
+                ? 'Only the logs that match your current filters will be exported.'
+                : 'Choose the file format for your export.',
+            formats: ['csv', 'xlsx', 'doc', 'pdf'],
+            onExport: downloadExport
+        });
+    }
+
+    exportButtons.forEach(function (btn) { btn.addEventListener('click', startExport); });
 
     /* ---------- Clear filters and retry ---------- */
     function clearAll() {

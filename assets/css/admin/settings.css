@@ -1,4 +1,3 @@
-/* Settings */
 .as-page{ gap:0; }
 
 /* Hidden scrollbar*/
@@ -210,4 +209,11 @@
 @media (prefers-reduced-motion:reduce){
     .as-switch-track,
     .as-switch-track::after{ transition:none; }
+}
+
+
+.admin-page .content-area.as-page > .settings-activity-card{
+    flex:1 1 auto;
+    flex-shrink:1;
+    min-height:0;
 }
