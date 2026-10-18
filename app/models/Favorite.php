@@ -10,15 +10,15 @@ class Favorite
     }
 
 
-    // Fetch favorited vault entries for a user
+    // Get favorite vault entries
     public function vaultForUser(int $userId, string $search = ''): array
     {
         $conditions = ['fav.user_id = :uid', 'fav.vault_id IS NOT NULL'];
         $params = ['uid' => $userId];
 
         if ($search !== '') {
-            $conditions[] = '(v.title LIKE :search OR v.account_username LIKE :search OR v.website_url LIKE :search)';
-            $params['search'] = '%' . $search . '%';
+            $conditions[] = '(v.title LIKE :search1 OR v.account_username LIKE :search2 OR v.website_url LIKE :search3)';
+            $params['search1'] = $params['search2'] = $params['search3'] = '%' . $search . '%';
         }
 
         $where = implode(' AND ', $conditions);
@@ -40,7 +40,7 @@ class Favorite
     }
 
 
-    // Fetch favorited notes for a user
+    // Get favorite notes
     public function notesForUser(int $userId, string $search = ''): array
     {
         $conditions = ['fav.user_id = :uid', 'fav.note_id IS NOT NULL'];
@@ -68,7 +68,7 @@ class Favorite
     }
 
 
-    // Fetch favorited folders for a user
+    // Get favorite folders
     public function foldersForUser(int $userId, string $search = ''): array
     {
         $conditions = ['fav.user_id = :uid', 'fav.folder_id IS NOT NULL'];
@@ -83,11 +83,14 @@ class Favorite
 
         $stmt = $this->dbh->prepare(
             "SELECT f.*,
-                (SELECT COUNT(*) FROM vault v WHERE v.folder_id = f.folder_id AND v.user_id = f.user_id) AS vault_count,
-                (SELECT COUNT(*) FROM notes n WHERE n.folder_id = f.folder_id AND n.user_id = f.user_id) AS note_count
+                COUNT(DISTINCT v.vault_id) AS vault_count,
+                COUNT(DISTINCT n.note_id)  AS note_count
              FROM favorites fav
-             JOIN folders f ON f.folder_id = fav.folder_id AND f.user_id = fav.user_id
+             JOIN folders f    ON f.folder_id = fav.folder_id AND f.user_id = fav.user_id
+             LEFT JOIN vault v ON v.folder_id = f.folder_id AND v.user_id = f.user_id
+             LEFT JOIN notes n ON n.folder_id = f.folder_id AND n.user_id = f.user_id
              WHERE {$where}
+             GROUP BY fav.favorite_id, f.folder_id
              ORDER BY fav.created_at DESC"
         );
         $stmt->execute($params);
@@ -96,7 +99,7 @@ class Favorite
     }
 
 
-    // Count favorites per type for a user
+    // Count favorites by type
     public function countsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(

@@ -87,7 +87,7 @@ class AdminDashboardController
 		return $statement->fetchAll();
 	}
 
-	// Count each table per user before joining to avoid duplicate totals.
+	// Count each user's items without duplicates
 	private function loadUserReport(int $limit): array
 	{
 		$statement = $this->db->prepare(
@@ -95,21 +95,17 @@ class AdminDashboardController
 			        u.full_name,
 			        u.email,
 			        u.status,
-			        COALESCE(v.total, 0)   AS credentials,
-			        COALESCE(n.total, 0)   AS notes,
-			        COALESCE(t.done, 0)    AS tasks_done,
-			        COALESCE(t.pending, 0) AS tasks_pending
+			        COUNT(DISTINCT v.vault_id) AS credentials,
+			        COUNT(DISTINCT n.note_id)  AS notes,
+			        COUNT(DISTINCT CASE WHEN t.status = \'done\' THEN t.task_id END) AS tasks_done,
+			        COUNT(DISTINCT CASE WHEN t.status <> \'done\' THEN t.task_id END) AS tasks_pending
 			 FROM users u
-			 LEFT JOIN (SELECT user_id, COUNT(*) AS total
-			            FROM vault GROUP BY user_id) v ON v.user_id = u.user_id
-			 LEFT JOIN (SELECT user_id, COUNT(*) AS total
-			            FROM notes GROUP BY user_id) n ON n.user_id = u.user_id
-			 LEFT JOIN (SELECT user_id,
-			                   SUM(status = \'done\')  AS done,
-			                   SUM(status <> \'done\') AS pending
-			            FROM tasks GROUP BY user_id) t ON t.user_id = u.user_id
-			 ORDER BY (COALESCE(v.total, 0) + COALESCE(n.total, 0)
-			           + COALESCE(t.done, 0) + COALESCE(t.pending, 0)) DESC,
+			 LEFT JOIN vault v ON v.user_id = u.user_id
+			 LEFT JOIN notes n ON n.user_id = u.user_id
+			 LEFT JOIN tasks t ON t.user_id = u.user_id
+			 GROUP BY u.user_id, u.full_name, u.email, u.status
+			 ORDER BY (COUNT(DISTINCT v.vault_id) + COUNT(DISTINCT n.note_id)
+			           + COUNT(DISTINCT t.task_id)) DESC,
 			          u.full_name ASC
 			 LIMIT :limit'
 		);
@@ -159,7 +155,7 @@ class AdminDashboardController
 				'actor'      => $actorName,
 				'is_admin'   => $row['admin_id'] !== null,
 				'label'      => $label,
-				// Avoid showing the same text twice.
+				// Skip duplicate text
 				'detail'     => $description !== $label ? $description : '',
 				'icon'       => ActivityLog::actionIcon((string) $row['action']),
 				'time_label' => self::timeAgo((string) $row['created_at']),

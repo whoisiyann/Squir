@@ -10,7 +10,7 @@ class Note
     }
 
 
-    // Search user notes
+    // Search notes
     public function searchForUser(int $userId, ?int $folderId = null, string $search = ''): array
 {
     $conditions = ['n.user_id = :uid'];
@@ -29,9 +29,11 @@ class Note
     $where = implode(' AND ', $conditions);
 
     $stmt = $this->dbh->prepare(
-        "SELECT n.*, f.folder_name
+        "SELECT n.*, f.folder_name,
+                (fav.favorite_id IS NOT NULL) AS is_favorite
          FROM notes n
-         LEFT JOIN folders f ON f.folder_id = n.folder_id
+         LEFT JOIN folders f   ON f.folder_id = n.folder_id
+         LEFT JOIN favorites fav ON fav.note_id = n.note_id AND fav.user_id = n.user_id
          WHERE {$where}
          ORDER BY n.updated_at DESC"
     );
@@ -40,7 +42,7 @@ class Note
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-    // Note lookup
+    // Find a note
     public function find(int $noteId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -54,7 +56,7 @@ class Note
         return $row ?: null;
     }
 
-    // Count user notes
+    // Count notes
     public function countForUser(int $userId): int
     {
         $stmt = $this->dbh->prepare('SELECT COUNT(*) FROM notes WHERE user_id = :uid');
@@ -62,7 +64,7 @@ class Note
         return (int) $stmt->fetchColumn();
     }
 
-    // Count notes by folder
+    // Count notes per folder
     public function folderCountsForUser(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -78,7 +80,7 @@ class Note
     }
 
 
-    // Note
+    // Create a note
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data);
@@ -105,7 +107,7 @@ class Note
         return ['errors' => [], 'note_id' => (int) $this->dbh->lastInsertId()];
     }
 
-    // Note update
+    // Update a note
     public function update(int $noteId, int $userId, array $data): array
     {
         $errors = $this->validate($data);
@@ -119,7 +121,7 @@ class Note
                  WHERE note_id = :id AND user_id = :uid'
             );
             $stmt->execute([
-                'folder_id' => $data['folder_id'] ?: null,
+                'folder_id' => $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId),
                 'title' => $data['title'],
                 'content' => $data['content'] !== '' ? $data['content'] : null,
                 'id' => $noteId,
@@ -204,7 +206,7 @@ class Note
     }
 
 
-    // Build a plain-text excerpt
+    // Make a plain-text excerpt
     public static function excerptOf(?string $htmlContent, int $length = 90): string
     {
         $text = trim(preg_replace('/\s+/', ' ', strip_tags((string) $htmlContent)));
@@ -215,7 +217,7 @@ class Note
     }
 
 
-    // Provide a fallback note title
+    // Set a default note title
     public static function titleOrDefault(?string $title): string
     {
         $title = trim((string) $title);
@@ -223,7 +225,7 @@ class Note
     }
 
 
-    // Resolve a notes folder ID
+    // Check the notes folder ID
     private function resolveNotesFolderId($raw, int $userId): ?int
     {
         $folderId = (int) $raw;

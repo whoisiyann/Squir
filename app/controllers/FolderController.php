@@ -15,17 +15,17 @@ class FolderController
         $this->activityLog = $activityLog;
     }
 
-    // Folders
+    // Get folders
     public function index(int $userId, array $query): array
     {
         $search = trim((string) ($query['q'] ?? ''));
         $type = ($query['type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
 
         $folders = $this->folderModel->searchForUser($userId, $search, $type);
-        $favoriteIds = $this->favoriteFolderIds($userId);
 
+        // Set favorite and item counts
         foreach ($folders as &$folder) {
-            $folder['is_favorite'] = in_array((int) $folder['folder_id'], $favoriteIds, true);
+            $folder['is_favorite'] = (bool) $folder['is_favorite'];
             $folder['item_count'] = $type === 'notes' ? (int) $folder['note_count'] : (int) $folder['vault_count'];
         }
         unset($folder);
@@ -38,7 +38,7 @@ class FolderController
         ];
     }
 
-    // Folder
+    // Create a folder
     public function store(int $userId, array $post): array
     {
         $type = ($post['folder_type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
@@ -65,7 +65,7 @@ class FolderController
         return $result;
     }
 
-    // Folder color
+    // Update folder color
     public function updateColor(int $folderId, int $userId, string $color): bool
     {
         if (!$this->folderModel->find($folderId, $userId)) {
@@ -85,7 +85,7 @@ class FolderController
         return $deleted;
     }
 
-    // Toggle folder favorite state
+    // Toggle favorite
     public function toggleFavorite(int $folderId, int $userId): ?bool
     {
         $folder = $this->folderModel->find($folderId, $userId);
@@ -102,15 +102,7 @@ class FolderController
         return true;
     }
 
-    // Fetch favorite folder IDs
-    private function favoriteFolderIds(int $userId): array
-    {
-        $stmt = $this->dbh->prepare('SELECT folder_id FROM favorites WHERE user_id = :uid AND folder_id IS NOT NULL');
-        $stmt->execute(['uid' => $userId]);
-        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
-    }
-
-    // Favorite state
+    // Check if the folder is a favorite
     private function isFavorite(int $userId, int $folderId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM favorites WHERE user_id = :uid AND folder_id = :fid');
@@ -118,7 +110,7 @@ class FolderController
         return (bool) $stmt->fetchColumn();
     }
 
-    // Mark a folder favorite
+    // Add the folder to favorites
     private function markFavorite(int $userId, int $folderId): void
     {
         $check = $this->dbh->prepare('SELECT favorite_id FROM favorites WHERE user_id = :uid AND folder_id = :fid');
@@ -130,7 +122,7 @@ class FolderController
         $stmt->execute(['uid' => $userId, 'fid' => $folderId]);
     }
 
-    // Remove folder favorite
+    // Remove the folder from favorites
     private function unmarkFavorite(int $userId, int $folderId): void
     {
         $stmt = $this->dbh->prepare('DELETE FROM favorites WHERE user_id = :uid AND folder_id = :fid');

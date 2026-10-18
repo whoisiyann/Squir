@@ -6,7 +6,7 @@ class User
 	{
 	}
 
-	// Username check
+	// Check if the username exists
 	public function usernameExists(string $username, ?int $excludeUserId = null): bool
 	{
 		$sql = 'SELECT user_id FROM users WHERE username = :username';
@@ -23,7 +23,7 @@ class User
 		return (bool) $statement->fetch();
 	}
 
-	// Email check
+	// Check if the email exists
 	public function emailExists(string $email, ?int $excludeUserId = null): bool
 	{
 		$sql = 'SELECT user_id FROM users WHERE email = :email';
@@ -41,7 +41,7 @@ class User
 			return true;
 		}
 
-		// Login checks users first, so an admin email must never belong to a user.
+		// Keep admin emails out of user accounts
 		$adminStatement = $this->db->prepare('SELECT admin_id FROM admins WHERE email = :email LIMIT 1');
 		$adminStatement->execute(['email' => $email]);
 
@@ -68,7 +68,7 @@ class User
 		return $user ?: null;
 	}
 
-	// Create user
+	// Create a user
 	public function create(string $fullName, ?string $username, string $email, string $passwordHash): int
 	{
 		$statement = $this->db->prepare(
@@ -86,7 +86,7 @@ class User
 		return (int) $this->db->lastInsertId();
 	}
 
-	// Save the name Squir calls the user
+	// Update the username
 	public function updateUsername(int $userId, string $username): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET username = :username WHERE user_id = :id');
@@ -97,7 +97,7 @@ class User
 		]);
 	}
 
-	// Update password hash
+	// Update the password
 	public function updatePassword(int $userId, string $passwordHash): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET password_hash = :password_hash WHERE user_id = :id');
@@ -140,7 +140,7 @@ class User
 		$statement->execute(['id' => $userId]);
 	}
 
-	// Delete the account and related data
+	// Delete the user account
 	public function delete(int $userId): bool
 	{
 		$statement = $this->db->prepare('DELETE FROM users WHERE user_id = :id');
@@ -150,7 +150,7 @@ class User
 
 
 
-	// List users for admin
+	// Get all users
 	public function allForAdmin(): array
 	{
 		$statement = $this->db->query(
@@ -162,28 +162,24 @@ class User
 		return $statement->fetchAll();
 	}
 
-	// Items per user for the User Summary Report (all users when $limit is null)
+	// Get the user summary report
 	public function summaryReport(?int $limit = null): array
 	{
 		$sql = 'SELECT u.user_id,
 		               u.full_name,
 		               u.email,
 		               u.status,
-		               COALESCE(v.total, 0)   AS credentials,
-		               COALESCE(n.total, 0)   AS notes,
-		               COALESCE(t.done, 0)    AS tasks_done,
-		               COALESCE(t.pending, 0) AS tasks_pending
+		               COUNT(DISTINCT v.vault_id) AS credentials,
+		               COUNT(DISTINCT n.note_id)  AS notes,
+		               COUNT(DISTINCT CASE WHEN t.status = \'done\' THEN t.task_id END) AS tasks_done,
+		               COUNT(DISTINCT CASE WHEN t.status <> \'done\' THEN t.task_id END) AS tasks_pending
 		        FROM users u
-		        LEFT JOIN (SELECT user_id, COUNT(*) AS total
-		                   FROM vault GROUP BY user_id) v ON v.user_id = u.user_id
-		        LEFT JOIN (SELECT user_id, COUNT(*) AS total
-		                   FROM notes GROUP BY user_id) n ON n.user_id = u.user_id
-		        LEFT JOIN (SELECT user_id,
-		                          SUM(status = \'done\')  AS done,
-		                          SUM(status <> \'done\') AS pending
-		                   FROM tasks GROUP BY user_id) t ON t.user_id = u.user_id
-		        ORDER BY (COALESCE(v.total, 0) + COALESCE(n.total, 0)
-		                  + COALESCE(t.done, 0) + COALESCE(t.pending, 0)) DESC,
+		        LEFT JOIN vault v ON v.user_id = u.user_id
+		        LEFT JOIN notes n ON n.user_id = u.user_id
+		        LEFT JOIN tasks t ON t.user_id = u.user_id
+		        GROUP BY u.user_id, u.full_name, u.email, u.status
+		        ORDER BY (COUNT(DISTINCT v.vault_id) + COUNT(DISTINCT n.note_id)
+		                  + COUNT(DISTINCT t.task_id)) DESC,
 		                 u.full_name ASC';
 
 		if ($limit !== null) {
@@ -208,7 +204,7 @@ class User
 		return $rows;
 	}
 
-	// Get admin user stats
+	// Get admin stats
 	public function adminStats(): array
 	{
 		$total = (int) $this->db->query('SELECT COUNT(*) FROM users')->fetchColumn();
@@ -228,7 +224,7 @@ class User
 		];
 	}
 
-	// Mark active users as inactive when they have not logged in for a while
+	// Mark inactive users
 	public const INACTIVE_AFTER_DAYS = 30;
 
 	public function markInactiveUsers(int $days = self::INACTIVE_AFTER_DAYS): int
@@ -252,7 +248,7 @@ class User
 		return $statement->execute(['status' => $status, 'id' => $userId]);
 	}
 
-	// Invalidate existing sessions
+	// Log the user out of all sessions
 	public function forceLogout(int $userId): bool
 	{
 		$statement = $this->db->prepare('UPDATE users SET force_logout_at = NOW() WHERE user_id = :id');
@@ -260,23 +256,22 @@ class User
 		return $statement->execute(['id' => $userId]);
 	}
 
-	// Get user detail stats
+	// Get user details
 	public function adminDetailStats(int $userId): array
 	{
-		$statement = $this->db->prepare(
-			"SELECT
-				(SELECT COUNT(*) FROM vault   WHERE user_id = :vault_user)   AS credentials,
-				(SELECT COUNT(*) FROM notes   WHERE user_id = :notes_user)   AS notes,
-				(SELECT COUNT(*) FROM tasks   WHERE user_id = :tasks_user AND status <> 'done') AS tasks,
-				(SELECT COUNT(*) FROM folders WHERE user_id = :folders_user) AS folders"
-		);
-		$statement->execute([
-			'vault_user'   => $userId,
-			'notes_user'   => $userId,
-			'tasks_user'   => $userId,
-			'folders_user' => $userId,
-		]);
-		$row = $statement->fetch() ?: [];
+		// Count each item type
+		$queries = [
+			'credentials' => 'SELECT COUNT(*) FROM vault WHERE user_id = :uid',
+			'notes'       => 'SELECT COUNT(*) FROM notes WHERE user_id = :uid',
+			'tasks'       => "SELECT COUNT(*) FROM tasks WHERE user_id = :uid AND status <> 'done'",
+			'folders'     => 'SELECT COUNT(*) FROM folders WHERE user_id = :uid',
+		];
+		$row = [];
+		foreach ($queries as $key => $sql) {
+			$statement = $this->db->prepare($sql);
+			$statement->execute(['uid' => $userId]);
+			$row[$key] = (int) $statement->fetchColumn();
+		}
 
 		return [
 			'credentials' => (int) ($row['credentials'] ?? 0),
@@ -294,7 +289,7 @@ class User
 		return $this->updateEmail($userId, $email) && $ok;
 	}
 
-	// Save theme and accent color
+	// Update the theme and accent color
 	public function updatePreferences(int $userId, ?string $theme, ?string $accent): void
 	{
 		$sets = [];

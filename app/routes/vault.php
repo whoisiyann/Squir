@@ -13,7 +13,7 @@ $controller = new VaultController($vaultModel, $dbh, $activityLog);
 $pinController = new PinController(new UserPin($dbh));
 $csrfToken = csrfToken();
 
-// Vault PIN check
+// Check the vault PIN
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_pin') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_
     exit;
 }
 
-// Reveal the decrypted password
 // Reveal a vault password
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     header('Content-Type: application/json');
@@ -66,7 +65,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'reveal') {
     exit;
 }
 
-// Record a password copy.
+// Log a password copy
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'log_password_copy') {
     header('Content-Type: application/json');
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
@@ -88,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'log_pas
     exit;
 }
 
-// Toggle a vault favorite
 // Toggle vault favorite
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'toggle_favorite') {
     header('Content-Type: application/json');
@@ -118,7 +116,7 @@ unset($_SESSION['vault_flash_success']);
 $openModal = null;
 
 
-// Validate a safe return URL
+// Check the return URL
 function vaultSafeReturnTo(?string $value): string
 {
     $default = './vault';
@@ -131,7 +129,7 @@ function vaultSafeReturnTo(?string $value): string
     return $default;
 }
 
-// Vault form submit
+// Handle vault form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $returnTo = vaultSafeReturnTo($_POST['return_to'] ?? null);
 
@@ -171,10 +169,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         } elseif ($action === 'delete') {
             $vaultId = (int) ($_POST['vault_id'] ?? 0);
-            $controller->destroy($vaultId, $userId);
-            $_SESSION['vault_flash_success'] = 'Password deleted.';
-            header('Location: ' . $returnTo);
-            exit;
+            if ($controller->destroy($vaultId, $userId)) {
+                $_SESSION['vault_flash_success'] = 'Password deleted.';
+                header('Location: ' . $returnTo);
+                exit;
+            }
+            $errors['form'] = 'We could not delete this password. Please try again.';
         }
     }
 }

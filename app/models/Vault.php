@@ -14,7 +14,7 @@ class Vault
     }
 
 
-    // Encrypt secret
+    // Encrypt the password
     private function encryptSecret(string $plain): string
     {   
         $key = $this->encryptionKey();
@@ -23,7 +23,7 @@ class Vault
         return base64_encode($iv . $cipherText);
     }
 
-    // Decrypt secret
+    // Decrypt the password
     public function decryptSecret(string $encoded): string
     {
         $key = $this->encryptionKey();
@@ -34,7 +34,7 @@ class Vault
         return $plain === false ? '' : $plain;
     }
 
-    // Get key
+    // Get the encryption key
     private function encryptionKey(): string
     {
         $key = defined('VAULT_ENCRYPTION_KEY') ? VAULT_ENCRYPTION_KEY : '';
@@ -109,7 +109,7 @@ class Vault
     }
 
 
-    // Sync tags
+    // Update tags
     private function syncTags(int $vaultId, int $userId, array $tags): void
     {
         $clear = $this->dbh->prepare('DELETE FROM vault_tags WHERE vault_id = :vid');
@@ -174,16 +174,15 @@ class Vault
             $params['folder_id'] = $folderId;
         }
         if ($search !== '') {
-            $conditions[] = '(v.title LIKE :search OR v.account_username LIKE :search OR v.website_url LIKE :search)';
-            $params['search'] = '%' . $search . '%';
+            // Use a unique placeholder for each value
+            $conditions[] = '(v.title LIKE :search1 OR v.account_username LIKE :search2 OR v.website_url LIKE :search3)';
+            $params['search1'] = $params['search2'] = $params['search3'] = '%' . $search . '%';
         }
+        $tagJoin = '';
         if ($tag !== null && $tag !== '') {
-            // Include all item tags
-            $conditions[] = 'EXISTS (
-                SELECT 1 FROM vault_tags vtf
-                JOIN tags tf ON tf.tag_id = vtf.tag_id
-                WHERE vtf.vault_id = v.vault_id AND tf.tag_name = :tag
-            )';
+            // Filter by tag with a JOIN (separate aliases, so the tag list still shows every tag)
+            $tagJoin = 'INNER JOIN vault_tags vtf ON vtf.vault_id = v.vault_id
+             INNER JOIN tags tf       ON tf.tag_id = vtf.tag_id AND tf.tag_name = :tag';
             $params['tag'] = strtolower($tag);
         }
 
@@ -191,10 +190,13 @@ class Vault
 
         $stmt = $this->dbh->prepare(
             "SELECT v.*,
-                    GROUP_CONCAT(t.tag_name ORDER BY t.tag_name SEPARATOR ',') AS tags
+                    GROUP_CONCAT(DISTINCT t.tag_name ORDER BY t.tag_name SEPARATOR ',') AS tags,
+                    MAX(fav.favorite_id IS NOT NULL) AS is_favorite
              FROM vault v
+             {$tagJoin}
              LEFT JOIN vault_tags vt ON vt.vault_id = v.vault_id
              LEFT JOIN tags t        ON t.tag_id = vt.tag_id
+             LEFT JOIN favorites fav ON fav.vault_id = v.vault_id AND fav.user_id = v.user_id
              WHERE {$where}
              GROUP BY v.vault_id
              ORDER BY v.created_at DESC"
@@ -204,7 +206,7 @@ class Vault
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Vault lookup
+    // Find a vault entry
     public function find(int $vaultId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare(
@@ -222,7 +224,7 @@ class Vault
     }
 
 
-    // Vault entry
+    // Create a vault entry
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data, false);
@@ -260,7 +262,7 @@ class Vault
         return ['errors' => [], 'vault_id' => $vaultId];
     }
 
-    // Vault update
+    // Update a vault entry
     public function update(int $vaultId, int $userId, array $data): array
     {
         $errors = $this->validate($data, true);
@@ -334,10 +336,15 @@ class Vault
     // Delete a vault entry
     public function delete(int $vaultId, int $userId): bool
     {
-        $stmt = $this->dbh->prepare('DELETE FROM vault WHERE vault_id = :id AND user_id = :uid');
-        $ok = $stmt->execute(['id' => $vaultId, 'uid' => $userId]);
-        $this->deleteOrphanTags($userId);
-        return $ok;
+        try {
+            $stmt = $this->dbh->prepare('DELETE FROM vault WHERE vault_id = :id AND user_id = :uid');
+            $ok = $stmt->execute(['id' => $vaultId, 'uid' => $userId]);
+            $this->deleteOrphanTags($userId);
+            return $ok;
+        } catch (Throwable $exception) {
+            error_log('[Vault::delete] ' . $exception->getMessage());
+            return false;
+        }
     }
 
 

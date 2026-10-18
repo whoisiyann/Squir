@@ -181,9 +181,9 @@ Squir/
    - Import the schema:
      ```bash
      mysql -u root -p squirdb < database/squirdb.sql
-     mysql -u root -p squirdb < database/world_clocks.sql
-     mysql -u root -p squirdb < database/pin_resets_migration.sql
+     mysql -u root -p squirdb < database/seed_data.sql
      ```
+     `squirdb.sql` already includes the World Clock tables and the city catalog (it is the same content as `world_clocks.sql`, which is kept only for re-running that part).
 
 4. **Configure the database connection**
    Edit `includes/dbconnect.php` and update the constants to match your local setup:

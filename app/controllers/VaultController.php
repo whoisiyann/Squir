@@ -13,7 +13,7 @@ class VaultController
         $this->activityLog = $activityLog;
     }
 
-    // Vault entries
+    // Get vault entries
     public function index(int $userId, array $query): array
     {
         $folderId = isset($query['folder']) && $query['folder'] !== '' ? (int) $query['folder'] : null;
@@ -26,9 +26,9 @@ class VaultController
         $items = $this->vaultModel->searchForUser($userId, $folderId, $search, $tag !== '' ? $tag : null);
 
 
-        $favoriteIds = $this->favoriteVaultIds($userId);
+        // Set favorite flags
         foreach ($items as &$item) {
-            $item['is_favorite'] = in_array((int) $item['vault_id'], $favoriteIds, true);
+            $item['is_favorite'] = (bool) $item['is_favorite'];
         }
         unset($item);
 
@@ -43,7 +43,7 @@ class VaultController
         ];
     }
 
-    // Vault entry
+    // Save a vault entry
     public function store(int $userId, array $post): array
     {
         $result = $this->vaultModel->create($userId, $this->extract($post));
@@ -59,7 +59,7 @@ class VaultController
         return $result;
     }
 
-    // Vault edit
+    // Get a vault entry for editing
     public function edit(int $vaultId, int $userId): ?array
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -70,7 +70,7 @@ class VaultController
         return $item;
     }
 
-    // Vault update
+    // Update a vault entry
     public function update(int $vaultId, int $userId, array $post): array
     {
         $existing = $this->vaultModel->find($vaultId, $userId);
@@ -140,7 +140,7 @@ class VaultController
         }
         return $this->vaultModel->decryptSecret($item['account_password']);
     }
-    // Toggle vault favorite state
+    // Toggle favorite
     public function toggleFavorite(int $vaultId, int $userId): ?bool
     {
         $item = $this->vaultModel->find($vaultId, $userId);
@@ -157,7 +157,7 @@ class VaultController
         return true;
     }
 
-    // Extract vault input
+    // Get vault form data
     private function extract(array $post): array
     {
         return [
@@ -171,7 +171,7 @@ class VaultController
         ];
     }
 
-    // Vault folders
+    // Get vault folders
     private function getFolders(int $userId): array
     {
         $stmt = $this->dbh->prepare(
@@ -181,15 +181,7 @@ class VaultController
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Fetch favorite vault IDs
-    private function favoriteVaultIds(int $userId): array
-    {
-        $stmt = $this->dbh->prepare('SELECT vault_id FROM favorites WHERE user_id = :uid AND vault_id IS NOT NULL');
-        $stmt->execute(['uid' => $userId]);
-        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
-    }
-
-    // Favorite state
+    // Check if the vault entry is a favorite
     private function isFavorite(int $userId, int $vaultId): bool
     {
         $stmt = $this->dbh->prepare('SELECT 1 FROM favorites WHERE user_id = :uid AND vault_id = :vid');
@@ -197,7 +189,7 @@ class VaultController
         return (bool) $stmt->fetchColumn();
     }
 
-    // Mark a vault entry favorite
+    // Add the vault entry to favorites
     private function markFavorite(int $userId, int $vaultId): void
     {
         $check = $this->dbh->prepare('SELECT favorite_id FROM favorites WHERE user_id = :uid AND vault_id = :vid');
@@ -210,7 +202,7 @@ class VaultController
         $stmt->execute(['uid' => $userId, 'vid' => $vaultId]);
     }
 
-    // Remove vault favorite
+    // Remove the vault entry from favorites
     private function unmarkFavorite(int $userId, int $vaultId): void
     {
         $stmt = $this->dbh->prepare('DELETE FROM favorites WHERE user_id = :uid AND vault_id = :vid');

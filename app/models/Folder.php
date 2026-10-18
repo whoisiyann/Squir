@@ -22,7 +22,7 @@ class Folder
         $this->dbh = $dbh;
     }
 
-    // Search user folders
+    // Search folders
     public function searchForUser(int $userId, string $search = '', string $type = 'passwords'): array
     {
         $type = in_array($type, self::TYPES, true) ? $type : 'passwords';
@@ -39,10 +39,15 @@ class Folder
 
         $stmt = $this->dbh->prepare(
             "SELECT f.*,
-                (SELECT COUNT(*) FROM vault v WHERE v.folder_id = f.folder_id AND v.user_id = f.user_id) AS vault_count,
-                (SELECT COUNT(*) FROM notes n WHERE n.folder_id = f.folder_id AND n.user_id = f.user_id) AS note_count
+                COUNT(DISTINCT v.vault_id) AS vault_count,
+                COUNT(DISTINCT n.note_id)  AS note_count,
+                MAX(fav.favorite_id IS NOT NULL) AS is_favorite
              FROM folders f
+             LEFT JOIN vault v       ON v.folder_id = f.folder_id AND v.user_id = f.user_id
+             LEFT JOIN notes n       ON n.folder_id = f.folder_id AND n.user_id = f.user_id
+             LEFT JOIN favorites fav ON fav.folder_id = f.folder_id AND fav.user_id = f.user_id
              WHERE {$where}
+             GROUP BY f.folder_id
              ORDER BY f.updated_at DESC"
         );
         $stmt->execute($params);
@@ -50,7 +55,7 @@ class Folder
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Folder lookup
+    // Find a folder
     public function find(int $folderId, int $userId): ?array
     {
         $stmt = $this->dbh->prepare('SELECT * FROM folders WHERE folder_id = :id AND user_id = :uid');
@@ -60,7 +65,7 @@ class Folder
     }
 
 
-    // Fetch folders by type
+    // Get folders by type
     public function allForUserByType(int $userId, string $type): array
     {
         $type = in_array($type, self::TYPES, true) ? $type : 'passwords';
@@ -71,7 +76,7 @@ class Folder
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Duplicate check
+    // Check for duplicate names
     public function nameExists(int $userId, string $name, string $type, ?int $excludeId = null): bool
     {
         $sql = 'SELECT folder_id FROM folders WHERE user_id = :uid AND folder_name = :name AND folder_type = :type';
@@ -85,7 +90,7 @@ class Folder
         return (bool) $stmt->fetch();
     }
 
-    // Folder
+    // Create a folder
     public function create(int $userId, array $data): array
     {
         $errors = $this->validate($data, $userId, null);
@@ -137,7 +142,7 @@ class Folder
         return ['errors' => []];
     }
 
-    // Folder color
+    // Update folder color
     public function updateColor(int $folderId, int $userId, string $color): bool
     {
         if (!in_array($color, self::COLORS, true)) {
@@ -189,8 +194,7 @@ class Folder
         }
     }
 
-    // Convert a database failure into a user-safe error message.
-    // 23000 = integrity violation (e.g. the UNIQUE folder name).
+    // Show a friendly database error
     private function writeError(PDOException $e, string $context): array
     {
         error_log('[' . $context . '] ' . $e->getMessage());

@@ -30,14 +30,22 @@ class DashboardController
 			return [];
 		}
 
+		// Count each item type
+		$countQueries = [
+			'vault'   => 'SELECT COUNT(*) FROM vault WHERE user_id = :user_id',
+			'notes'   => 'SELECT COUNT(*) FROM notes WHERE user_id = :user_id',
+			'tasks'   => 'SELECT COUNT(*) FROM tasks WHERE user_id = :user_id',
+			'folders' => 'SELECT COUNT(*) FROM folders WHERE user_id = :user_id',
+		];
 		$counts = [];
-		foreach (['vault' => 'vault', 'notes' => 'notes', 'tasks' => 'tasks', 'folders' => 'folders'] as $key => $table) {
-			$statement = $this->db->prepare("SELECT COUNT(*) FROM {$table} WHERE user_id = :user_id");
+		foreach ($countQueries as $key => $sql) {
+			$statement = $this->db->prepare($sql);
 			$statement->execute(['user_id' => $userId]);
 			$counts[$key] = (int) $statement->fetchColumn();
 		}
 
-		$board = $this->taskBoard((new Task($this->db))->allForUser($userId));
+		$taskModel = new Task($this->db);
+		$board = $this->taskBoard($taskModel->allForUser($userId), $taskModel->countsByStatus($userId));
 		$clocks = new WorldClock($this->db);
 
 		return [
@@ -60,7 +68,7 @@ class DashboardController
 
 
 	// Group tasks by status
-	private function taskBoard(array $tasks): array
+	private function taskBoard(array $tasks, array $statusCounts): array
 	{
 		$today = new DateTimeImmutable('today');
 		$columns = ['todo' => [], 'in_progress' => [], 'done' => []];
@@ -100,12 +108,13 @@ class DashboardController
 
 		return [
 			'columns' => $columns,
+			// Use the task counts from the database
 			'counts' => [
-				'todo' => count($columns['todo']),
-				'in_progress' => count($columns['in_progress']),
-				'done' => count($columns['done']),
+				'todo' => $statusCounts['todo'] ?? 0,
+				'in_progress' => $statusCounts['in_progress'] ?? 0,
+				'done' => $statusCounts['done'] ?? 0,
 			],
-			'pending' => count($columns['todo']) + count($columns['in_progress']),
+			'pending' => ($statusCounts['todo'] ?? 0) + ($statusCounts['in_progress'] ?? 0),
 			'overdue' => $overdue,
 			'approaching' => $approaching,
 		];
