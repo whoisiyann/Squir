@@ -4,8 +4,8 @@
     define('DB_PORT', '3307');
     define('DB_USER', 'root');
     define('DB_PASS', '');
-    define('DB_NAME', 'squirdb');
-    // define('DB_NAME', 'squirdb_test');
+    // define('DB_NAME', 'squirdb');
+    define('DB_NAME', 'squirdb_test');
 
     try {
         $dbh = new PDO(

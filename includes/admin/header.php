@@ -1,7 +1,7 @@
 <?php
 $adminName = $adminName ?? 'Administrator';
 $adminEmail = $adminEmail ?? '';
-$escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+$escape = static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 $initials = adminInitials($adminName);
 ?>
 <header class="topbar">

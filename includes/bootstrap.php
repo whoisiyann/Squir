@@ -1,5 +1,9 @@
 <?php
 
+if (ob_get_level() === 0) {
+    ob_start();
+}
+
 session_start();
 
 // Request phone model hints
@@ -43,14 +47,17 @@ if (!function_exists('squirIsAjaxRequest')) {
 
         echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
-            . '<title>Something went wrong</title>'
-            . '<style>body{font-family:system-ui,sans-serif;background:#f6f1ea;color:#3b2f2a;'
-            . 'display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
-            . '.box{background:#fff;padding:2rem 2.5rem;border-radius:12px;max-width:420px;text-align:center;'
-            . 'box-shadow:0 4px 18px rgba(0,0,0,.08)}a{color:#8a5a3b}</style></head><body><div class="box">'
-            . '<h1 style="font-size:1.4rem">Something went wrong</h1>'
-            . '<p>We could not complete your request. Please try again in a moment.</p>'
-            . '<p><a href="javascript:history.back()">Go back</a></p></div></body></html>';
+            . '<title>Something went wrong</title></head><body>'
+            . '<div style="position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483647;'
+            . 'display:flex;align-items:center;justify-content:center;padding:1rem;box-sizing:border-box;'
+            . 'background:#f6f1ea;font-family:system-ui,-apple-system,\'Segoe UI\',Roboto,sans-serif;color:#3b2f2a">'
+            . '<div style="background:#fff;padding:2rem 2.5rem;border-radius:12px;max-width:420px;width:100%;'
+            . 'box-sizing:border-box;text-align:center;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
+            . '<h1 style="font-size:1.4rem;margin:0 0 .75rem;color:#3b2f2a;font-weight:700">Something went wrong</h1>'
+            . '<p style="margin:0 0 1rem;color:#3b2f2a;line-height:1.5;font-size:1rem">'
+            . 'We could not complete your request. Please try again in a moment.</p>'
+            . '<p style="margin:0"><a href="javascript:history.back()" style="color:#8a5a3b;font-size:1rem">Go back</a></p>'
+            . '</div></div></body></html>';
     }
 
     set_exception_handler(function (Throwable $e): void {
