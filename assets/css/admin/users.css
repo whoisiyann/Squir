@@ -22,7 +22,7 @@
     max-width:320px;
     margin:0;
 }
-.admin-toolbar .admin-select,
+.admin-toolbar .admin-menu,
 .admin-toolbar #openAddUserModal{
     flex:0 0 auto;
 }
@@ -30,13 +30,13 @@
     .admin-panel .dash-card-head.admin-users-head{ flex-wrap:wrap; row-gap:12px; align-items:stretch; }
     .admin-toolbar{ flex:1 1 100%; flex-wrap:wrap; justify-content:flex-start; }
     .admin-toolbar .search-box{ flex:1 1 240px; max-width:none; order:2; }
-    .admin-toolbar .admin-select{ order:1; }
+    .admin-toolbar .admin-menu{ order:1; }
     .admin-toolbar #openAddUserModal{ order:3; }
 }
 @media (max-width:560px){
     .admin-toolbar{ flex-direction:column; flex-wrap:nowrap; align-items:stretch; }
     .admin-toolbar .search-box,
-    .admin-toolbar .admin-select,
+    .admin-toolbar .admin-menu,
     .admin-toolbar #openAddUserModal{ width:100%; max-width:none; flex:0 0 auto; }
 }
 
@@ -81,14 +81,17 @@
         max-width:none;
         order:1;
     }
-    .admin-toolbar .admin-select{
+    .admin-toolbar .admin-menu{
         flex:0 0 auto;
         width:auto;
         max-width:none;
         order:2;
-        padding:10px 28px 10px 12px;
+    }
+    .admin-toolbar .admin-menu-btn{
+        padding:10px 12px;
         font-size:.8rem;
     }
+    .admin-toolbar .admin-menu-pop{ left:auto; right:0; }
     .admin-toolbar #openAddUserModal{
         flex:0 0 auto;
         width:40px;
@@ -222,10 +225,18 @@
 /* Hide the calendar icon on desktop. */
 .admin-table td[data-label="Joined"] i{ display:none; }
 
-/* Desktop table scrolling. */
+/* Desktop: panel fills the page height, table scrolls inside it. */
 @media (min-width:701px){
+    .admin-panel.admin-panel--flush{
+        flex:1 1 auto;
+        min-height:220px;
+        overflow:hidden;
+    }
     .admin-users-table-wrap{
-        max-height:min(560px, 60vh);
+        flex:1 1 auto;
+        min-height:0;
+        max-height:none;
+        padding-right:0;
     }
 }
 
@@ -319,19 +330,62 @@ a.btn-admin{ text-decoration:none; }
 }
 
 /* Status filter. */
-.admin-select{
-    appearance:none;
-    -webkit-appearance:none;
-    padding:10px 34px 10px 14px;
-    border-radius:10px;
+.admin-menu{ position:relative; }
+.admin-menu-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    width:100%;
+    min-width:140px;
+    padding:10px 12px 10px 14px;
     border:1px solid var(--border);
-    background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23747877' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center;
+    border-radius:10px;
+    background:var(--card);
     color:var(--text);
+    font:inherit;
     font-size:.84rem;
     font-weight:500;
+    white-space:nowrap;
     cursor:pointer;
 }
-.admin-select:focus{ outline:none; border-color:var(--accent); }
+.admin-menu-btn > span{ overflow:hidden; text-overflow:ellipsis; }
+.admin-menu-btn i{ flex-shrink:0; font-size:1rem; color:var(--muted); transition:transform .15s ease; }
+.admin-menu-btn:hover{ background:var(--soft); }
+.admin-menu-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.admin-menu-btn.is-filtered{ border-color:var(--accent); }
+.admin-menu-btn[aria-expanded="true"] i{ transform:rotate(180deg); }
+
+.admin-menu-pop{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    z-index:50;
+    min-width:100%;
+    padding:6px 0;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--card);
+    box-shadow:var(--shadow);
+}
+.admin-menu-pop[hidden]{ display:none; }
+.admin-menu-item{
+    display:block;
+    width:100%;
+    padding:8px 16px;
+    border:0;
+    background:transparent;
+    color:var(--text);
+    font:inherit;
+    font-size:.84rem;
+    text-align:left;
+    white-space:nowrap;
+    cursor:pointer;
+}
+.admin-menu-item:hover,
+.admin-menu-item:focus-visible{ background:var(--soft); outline:none; }
+.admin-menu-item.is-selected{ color:var(--accent); font-weight:600; }
+@media (prefers-reduced-motion:reduce){ .admin-menu-btn i{ transition:none; } }
 
 /* User modals */
 .admin-modal-backdrop{
@@ -477,8 +531,7 @@ a.btn-admin{ text-decoration:none; }
         background:var(--bg);
         border-bottom:1px solid var(--border);
     }
-    .admin-toolbar .search-box input,
-    .admin-toolbar .admin-select{ font-size:16px; } /* Prevent iOS zoom. */
+    .admin-toolbar .search-box input{ font-size:16px; } /* Prevent iOS zoom. */
     .admin-empty{ padding:24px 12px; }
 }
 
@@ -487,5 +540,5 @@ a.btn-admin{ text-decoration:none; }
     .admin-users-table-wrap .admin-table td:nth-child(1){ max-width:58%; }
     .admin-users-table-wrap .admin-table td:nth-child(2),
     .admin-users-table-wrap .admin-table td:nth-child(5){ margin-left:0; }
-    .admin-toolbar .admin-select{ max-width:110px; }
+    .admin-toolbar .admin-menu-btn{ max-width:110px; }
 }

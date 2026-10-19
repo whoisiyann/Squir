@@ -54,6 +54,62 @@
     var statusFilter = $('#usersStatusFilter');
     if (statusFilter) statusFilter.addEventListener('change', applyFilters);
 
+    /* ---- status filter menu ---- */
+    var statusMenu = $('#usersStatusMenu');
+    if (statusMenu && statusFilter) {
+        var menuBtn = $('#usersStatusBtn');
+        var menuPop = $('#usersStatusPop');
+        var menuLabel = $('#usersStatusLabel');
+        var menuItems = $all('.admin-menu-item', menuPop);
+
+        var openMenu = function () {
+            menuPop.hidden = false;
+            menuBtn.setAttribute('aria-expanded', 'true');
+        };
+        var closeMenu = function () {
+            if (menuPop.hidden) return;
+            menuPop.hidden = true;
+            menuBtn.setAttribute('aria-expanded', 'false');
+        };
+        var focusItem = function (step) {
+            var index = menuItems.indexOf(document.activeElement);
+            index = index === -1 ? (step > 0 ? 0 : menuItems.length - 1) : (index + step + menuItems.length) % menuItems.length;
+            menuItems[index].focus();
+        };
+
+        menuBtn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            if (menuPop.hidden) openMenu(); else closeMenu();
+        });
+        menuBtn.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (menuPop.hidden) openMenu();
+                focusItem(event.key === 'ArrowDown' ? 1 : -1);
+            }
+        });
+        menuPop.addEventListener('keydown', function (event) {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                focusItem(event.key === 'ArrowDown' ? 1 : -1);
+            }
+        });
+        menuPop.addEventListener('click', function (event) {
+            var item = event.target.closest('.admin-menu-item');
+            if (!item) return;
+            statusFilter.value = item.getAttribute('data-value');
+            menuLabel.textContent = item.getAttribute('data-short');
+            menuItems.forEach(function (el) { el.classList.toggle('is-selected', el === item); });
+            menuBtn.classList.toggle('is-filtered', statusFilter.value !== 'all');
+            closeMenu();
+            applyFilters();
+        });
+        document.addEventListener('click', closeMenu);
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && !menuPop.hidden) { closeMenu(); menuBtn.focus(); }
+        });
+    }
+
     /* ---- generic modal open/close ---- */
     function openModal(name) {
         var backdrop = document.getElementById(name + 'ModalBackdrop');

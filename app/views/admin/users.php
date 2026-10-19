@@ -114,12 +114,20 @@ $fmtLastLogin = static function (?string $value): string {
           <h2><i class="ti ti-users"></i> All Users</h2>
 
           <div class="admin-toolbar">
-            <select class="admin-select" id="usersStatusFilter" aria-label="Filter by status">
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="suspended">Suspended</option>
-            </select>
+            <div class="admin-menu" id="usersStatusMenu">
+              <input type="hidden" id="usersStatusFilter" value="all">
+              <button type="button" class="admin-menu-btn" id="usersStatusBtn"
+                      aria-haspopup="menu" aria-expanded="false" aria-label="Filter by status">
+                <span id="usersStatusLabel">All Status</span>
+                <i class="ti ti-chevron-down" aria-hidden="true"></i>
+              </button>
+              <div class="admin-menu-pop" id="usersStatusPop" role="menu" hidden>
+                <button type="button" class="admin-menu-item is-selected" role="menuitem" data-value="all" data-short="All Status">All Status</button>
+                <button type="button" class="admin-menu-item" role="menuitem" data-value="active" data-short="Active">Active</button>
+                <button type="button" class="admin-menu-item" role="menuitem" data-value="inactive" data-short="Inactive">Inactive</button>
+                <button type="button" class="admin-menu-item" role="menuitem" data-value="suspended" data-short="Suspended">Suspended</button>
+              </div>
+            </div>
             <div class="search-box">
               <i class="ti ti-search"></i>
               <input type="search" id="usersSearch" placeholder="Search by name or email..." aria-label="Search by name or email" autocomplete="off">

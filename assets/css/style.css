@@ -1185,6 +1185,14 @@ html[data-accent] .sq-lo-modal {
     padding-right: 40px;
   }
 
+  /* The close (X) button is already there, so hide the browser's own clear (X) */
+  .topbar .search-box input[type="search"]::-webkit-search-cancel-button,
+  .topbar .search-box input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
   .topbar.search-open .mobile-toggle-btn,
   .topbar.search-open .topbar-brand,
   .topbar.search-open .search-toggle-btn,
