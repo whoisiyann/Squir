@@ -39,7 +39,7 @@ class Vault
     {
         $key = defined('VAULT_ENCRYPTION_KEY') ? VAULT_ENCRYPTION_KEY : '';
         if ($key === '') {
-            throw new RuntimeException('VAULT_ENCRYPTION_KEY is not configured in config/config.php');
+            throw new RuntimeException('VAULT_ENCRYPTION_KEY is not set in .env');
         }
         return substr(hash('sha256', $key, true), 0, 32);
     }

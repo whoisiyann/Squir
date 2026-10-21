@@ -4,6 +4,17 @@ if (ob_get_level() === 0) {
     ob_start();
 }
 
+// Safer session cookies: not readable by JavaScript, not sent from other sites,
+// and only sent over HTTPS when the site is served over HTTPS.
+$squirHttps = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+    || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
+ini_set('session.use_strict_mode', '1');
+ini_set('session.use_only_cookies', '1');
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_secure', $squirHttps ? '1' : '0');
+unset($squirHttps);
+
 session_start();
 
 // Request phone model hints
@@ -11,6 +22,7 @@ if (!headers_sent()) {
     header('Accept-CH: Sec-CH-UA-Model');
 }
 
+require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/dbconnect.php';
 require_once __DIR__ . '/../config/config.php';
 

@@ -1,7 +1,26 @@
-
+# Never list folder contents
+Options -Indexes
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Block dotfiles and dot-folders (.env, .git, .vscode, .htaccess, ...)
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+    # Block internal folders. They are loaded by PHP (require), never by the browser.
+    RewriteRule ^(app|config|database|includes|vendor|node_modules|tailwind_plugins|logs)(/|$) - [F,NC,L]
+
+    # dist/ only needs dist/assets for the browser. Block the leftover template pages.
+    RewriteRule ^dist/(admin|includes|database)(/|$) - [F,NC,L]
+
+    # Block sensitive file types anywhere
+    RewriteRule \.(env|sql|log|md|lock|drawio|bak|ini|sh)$ - [F,NC,L]
+
+    # Block project/config files in the root
+    RewriteRule ^(composer\.json|package(-lock)?\.json|gulpfile\.js|postcss\.config\.js|tailwind\.config\.js|structure\.txt|squirdb\.vuerd\.json|build\.css|pages\.php)$ - [F,NC,L]
+
+    # Only index.php may be run directly. Every other .php file is reached through ?route=
+    RewriteRule ^(?!index\.php$).+\.php$ - [F,NC,L]
 
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d

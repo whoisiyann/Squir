@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         (new ActivityLog($dbh))->log((int) $result['values']['user_id'], 'logged_in');
         session_regenerate_id(true);
         unset($_SESSION['has_pin']);
+        unset($_SESSION['admin_id'], $_SESSION['admin_name'], $_SESSION['prefs_admin']);
         clearPinUnlock();
         $_SESSION['user_id'] = (int) $result['values']['user_id'];
         $_SESSION['login_at'] = time();
@@ -42,6 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($adminResult['errors'] === []) {
             $admin = $adminResult['values'];
             session_regenerate_id(true);
+            unset($_SESSION['user_id'], $_SESSION['login_at'], $_SESSION['has_pin'], $_SESSION['prefs_user']);
+            clearPinUnlock();
             $_SESSION['admin_id'] = (int) $admin['admin_id'];
             $_SESSION['admin_name'] = $admin['full_name'];
 
