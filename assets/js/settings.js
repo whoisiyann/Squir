@@ -737,7 +737,7 @@
                 intro: 'Choose the file format for your export.',
                 formats: ['csv', 'xlsx', 'doc', 'pdf'],
                 onExport: function (format) {
-                    window.SquirPin.ensure('export').then(function () {
+                    window.SquirPin.ensure('export', format).then(function () {
                         return downloadExport(format);
                     });
                 }

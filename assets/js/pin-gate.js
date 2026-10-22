@@ -15,8 +15,23 @@ window.SquirPin = (function () {
     var SUBTITLES = {
         view: 'Enter your PIN to view this password.',
         copy: 'Enter your PIN to copy this password.',
-        export: 'Enter your PIN to export your data as PDF.'
+        export: 'Enter your PIN to export your data.'
     };
+
+    // Names shown in the export subtitle, keyed by the chosen format
+    var EXPORT_FORMAT_LABELS = {
+        csv: 'CSV',
+        xlsx: 'Excel',
+        doc: 'Docs',
+        pdf: 'PDF'
+    };
+
+    function subtitleFor(reason, format) {
+        if (reason === 'export' && EXPORT_FORMAT_LABELS[format]) {
+            return 'Enter your PIN to export your data as ' + EXPORT_FORMAT_LABELS[format] + '.';
+        }
+        return SUBTITLES[reason] || SUBTITLES.view;
+    }
 
     // PIN verification endpoints
     var ENDPOINTS = {
@@ -61,12 +76,12 @@ window.SquirPin = (function () {
     }
 
     // Open the PIN verification dialog
-    function open(reason) {
+    function open(reason, format) {
         currentReason = reason || 'view';
         errorEl.textContent = '';
         setBusy(false);
         if (subtitleEl) {
-            subtitleEl.textContent = SUBTITLES[reason] || SUBTITLES.view;
+            subtitleEl.textContent = subtitleFor(reason, format);
         }
         backdrop.classList.add('open');
         backdrop.setAttribute('aria-hidden', 'false');
@@ -192,7 +207,7 @@ window.SquirPin = (function () {
 
     return {
 
-        ensure: function (reason) {
+        ensure: function (reason, format) {
             // Always verify the export PIN
             if (reason !== 'export' && ttlSeconds > 0 && Date.now() < unlockedUntil) {
                 return Promise.resolve();
@@ -200,7 +215,7 @@ window.SquirPin = (function () {
 
             return new Promise(function (resolve) {
                 resolveCurrent = resolve;
-                open(reason);
+                open(reason, format);
             });
         },
 

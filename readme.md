@@ -254,5 +254,5 @@ This project was developed for academic purposes.
 
 
 
-
+php -r "echo bin2hex(random_bytes(32));" - for AES-256 password encrypt and decrypt
 composer require phpoffice/phpword
