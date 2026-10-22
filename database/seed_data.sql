@@ -1,7 +1,7 @@
--- SQUIR - SAMPLE / SEED DATA (14 users)
+-- SQUIR - SAMPLE / SEED DATA (30 users)
 -- Login password of every sample user : 123456789
 -- Vault PIN of every sample user      : 123456
--- Statuses: 11 active, 2 inactive (user 7, 9), 1 suspended (user 12)
+-- Statuses: 25 active, 3 inactive (user 7, 9, 22), 2 suspended (user 12, 28)
 
 USE squirdb;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -21,7 +21,23 @@ INSERT INTO users (user_id, full_name, username, email, password_hash, status, t
 (11, 'Miguel Torres', 'migueltorres', 'migueltorres@example.com', '$2y$10$UNvkRwxEw.zTP6iz2wkMaeixVicg34q0d7ElfAGlIhNm8uAy7yVBe', 'active', 'dark', 'green', '2026-10-11 07:05:00', '2026-09-09 09:00:00'),
 (12, 'Sofia Navarro', 'sofianav', 'sofianav@example.com', '$2y$10$ROSFczVR.hmlBB49byarbOBVijD7dQ.oJD0zRITiIbkNkyrto1lWu', 'suspended', NULL, NULL, '2026-10-07 20:24:00', '2026-09-13 09:00:00'),
 (13, 'Gabriel Domingo', 'gabdomingo', 'gabdomingo@example.com', '$2y$10$NSJZLqlxdForCNTAe0I2o.FXB4lRT7ncksb07XcM2AWYeVIFj.88S', 'active', 'light', 'purple', '2026-10-15 21:38:00', '2026-09-04 09:00:00'),
-(14, 'Patricia Lim', 'patlim', 'patlim@example.com', '$2y$10$DdTnd4bzsOBJY1YL6TGioORk1/kKF3ErV/IPTiaPo2u3ke3VyCS3a', 'active', 'dark', 'orange', '2026-10-04 16:37:00', '2026-09-21 09:00:00');
+(14, 'Patricia Lim', 'patlim', 'patlim@example.com', '$2y$10$DdTnd4bzsOBJY1YL6TGioORk1/kKF3ErV/IPTiaPo2u3ke3VyCS3a', 'active', 'dark', 'orange', '2026-10-04 16:37:00', '2026-09-21 09:00:00'),
+(15, 'Rafael Castillo', 'rafaelc', 'rafaelc@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'light', 'blue', '2026-10-08 12:32:00', '2026-09-17 09:00:00'),
+(16, 'Isabelle Fernandez', 'isafernandez', 'isafernandez@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'dark', 'rose', '2026-10-08 14:00:00', '2026-09-27 09:00:00'),
+(17, 'Daniel Pascual', 'danpascual', 'danpascual@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'auto', 'green', '2026-10-15 08:35:00', '2026-09-18 09:00:00'),
+(18, 'Camille Flores', 'camilleflores', 'camilleflores@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', NULL, 'purple', '2026-10-20 20:07:00', '2026-09-14 09:00:00'),
+(19, 'Joshua Mercado', 'joshm', 'joshm@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'light', 'orange', '2026-10-09 20:03:00', '2026-09-23 09:00:00'),
+(20, 'Hannah Soriano', 'hannahs', 'hannahs@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'dark', 'brown', '2026-10-19 17:30:00', '2026-09-23 09:00:00'),
+(21, 'Nathan Valdez', 'nathanv', 'nathanv@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'auto', NULL, '2026-10-05 07:09:00', '2026-09-21 09:00:00'),
+(22, 'Trisha Alvarez', 'trishaal', 'trishaal@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'inactive', NULL, 'blue', '2026-08-22 18:58:00', '2026-07-11 09:00:00'),
+(23, 'Elijah Salvador', 'elijahs', 'elijahs@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'light', 'rose', '2026-10-20 08:41:00', '2026-09-09 09:00:00'),
+(24, 'Jasmine Ocampo', 'jasmineo', 'jasmineo@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'dark', 'green', '2026-10-07 16:50:00', '2026-09-07 09:00:00'),
+(25, 'Vincent Aguilar', 'vinceaguilar', 'vinceaguilar@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'auto', 'purple', '2026-10-20 18:46:00', '2026-09-05 09:00:00'),
+(26, 'Bianca Rivera', 'biancarivera', 'biancarivera@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', NULL, 'orange', '2026-10-14 15:26:00', '2026-09-13 09:00:00'),
+(27, 'Lorenzo Padilla', 'lorenzop', 'lorenzop@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'light', 'brown', '2026-10-05 07:32:00', '2026-09-16 09:00:00'),
+(28, 'Chloe Mendez', 'chloemendez', 'chloemendez@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'suspended', 'dark', NULL, '2026-10-15 14:38:00', '2026-09-08 09:00:00'),
+(29, 'Adrian Cortez', 'adriancortez', 'adriancortez@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', 'auto', 'blue', '2026-10-11 14:45:00', '2026-09-22 09:00:00'),
+(30, 'Nicole Santiago', 'nicolesantiago', 'nicolesantiago@example.com', '$2y$10$TZ0zWFIsHObDct58vaw7qunpj6.r.OPCLM9LeUVurSm8QNXQQSEXS', 'active', NULL, 'rose', '2026-10-18 15:26:00', '2026-09-28 09:00:00');
 
 -- USER PINS (PIN = 123456)
 INSERT INTO user_pins (user_id, pin_hash) VALUES
@@ -38,7 +54,23 @@ INSERT INTO user_pins (user_id, pin_hash) VALUES
 (11, '$2y$10$b8yDQuXdwjzkZrL6kDLPWudE98.s1EjQnNE6hQ6M44MeyqvkTzKeW'),
 (12, '$2y$10$qErcF/CztWlQgaqqWmleZeF2nsozbrc9.EgJbESxhdmM17z8pXYfC'),
 (13, '$2y$10$HIgRlI6nreZwaXUM3GN6veo7pnnupickcZhCfmMVf8VZKuYypNWbm'),
-(14, '$2y$10$J7MZQCvAbp/Ag343GqEl7eHTJfeIufeHWyp8McZ8uKOVdqeTuyS5O');
+(14, '$2y$10$J7MZQCvAbp/Ag343GqEl7eHTJfeIufeHWyp8McZ8uKOVdqeTuyS5O'),
+(15, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(16, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(17, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(18, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(19, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(20, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(21, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(22, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(23, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(24, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(25, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(26, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(27, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(28, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(29, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe'),
+(30, '$2y$10$9bnUBeBFAewgYVOCU43r3eIBl8U.faXp0L48ur/hCJWKyp2ax8aFe');
 
 -- FOLDERS
 INSERT INTO folders (folder_id, user_id, folder_name, folder_type, color) VALUES
@@ -97,7 +129,71 @@ INSERT INTO folders (folder_id, user_id, folder_name, folder_type, color) VALUES
 (53, 14, 'Social Media', 'passwords', 'pink'),
 (54, 14, 'School Accounts', 'passwords', 'brown'),
 (55, 14, 'School Subjects', 'notes', 'red'),
-(56, 14, 'Personal', 'notes', 'blue');
+(56, 14, 'Personal', 'notes', 'blue'),
+(57, 15, 'Social Media', 'passwords', 'green'),
+(58, 15, 'School Accounts', 'passwords', 'orange'),
+(59, 15, 'School Subjects', 'notes', 'purple'),
+(60, 15, 'Personal', 'notes', 'teal'),
+(61, 16, 'Social Media', 'passwords', 'pink'),
+(62, 16, 'School Accounts', 'passwords', 'brown'),
+(63, 16, 'School Subjects', 'notes', 'red'),
+(64, 16, 'Personal', 'notes', 'blue'),
+(65, 17, 'Social Media', 'passwords', 'green'),
+(66, 17, 'School Accounts', 'passwords', 'orange'),
+(67, 17, 'School Subjects', 'notes', 'purple'),
+(68, 17, 'Personal', 'notes', 'teal'),
+(69, 18, 'Social Media', 'passwords', 'pink'),
+(70, 18, 'School Accounts', 'passwords', 'brown'),
+(71, 18, 'School Subjects', 'notes', 'red'),
+(72, 18, 'Personal', 'notes', 'blue'),
+(73, 19, 'Social Media', 'passwords', 'green'),
+(74, 19, 'School Accounts', 'passwords', 'orange'),
+(75, 19, 'School Subjects', 'notes', 'purple'),
+(76, 19, 'Personal', 'notes', 'teal'),
+(77, 20, 'Social Media', 'passwords', 'pink'),
+(78, 20, 'School Accounts', 'passwords', 'brown'),
+(79, 20, 'School Subjects', 'notes', 'red'),
+(80, 20, 'Personal', 'notes', 'blue'),
+(81, 21, 'Social Media', 'passwords', 'green'),
+(82, 21, 'School Accounts', 'passwords', 'orange'),
+(83, 21, 'School Subjects', 'notes', 'purple'),
+(84, 21, 'Personal', 'notes', 'teal'),
+(85, 22, 'Social Media', 'passwords', 'pink'),
+(86, 22, 'School Accounts', 'passwords', 'brown'),
+(87, 22, 'School Subjects', 'notes', 'red'),
+(88, 22, 'Personal', 'notes', 'blue'),
+(89, 23, 'Social Media', 'passwords', 'green'),
+(90, 23, 'School Accounts', 'passwords', 'orange'),
+(91, 23, 'School Subjects', 'notes', 'purple'),
+(92, 23, 'Personal', 'notes', 'teal'),
+(93, 24, 'Social Media', 'passwords', 'pink'),
+(94, 24, 'School Accounts', 'passwords', 'brown'),
+(95, 24, 'School Subjects', 'notes', 'red'),
+(96, 24, 'Personal', 'notes', 'blue'),
+(97, 25, 'Social Media', 'passwords', 'green'),
+(98, 25, 'School Accounts', 'passwords', 'orange'),
+(99, 25, 'School Subjects', 'notes', 'purple'),
+(100, 25, 'Personal', 'notes', 'teal'),
+(101, 26, 'Social Media', 'passwords', 'pink'),
+(102, 26, 'School Accounts', 'passwords', 'brown'),
+(103, 26, 'School Subjects', 'notes', 'red'),
+(104, 26, 'Personal', 'notes', 'blue'),
+(105, 27, 'Social Media', 'passwords', 'green'),
+(106, 27, 'School Accounts', 'passwords', 'orange'),
+(107, 27, 'School Subjects', 'notes', 'purple'),
+(108, 27, 'Personal', 'notes', 'teal'),
+(109, 28, 'Social Media', 'passwords', 'pink'),
+(110, 28, 'School Accounts', 'passwords', 'brown'),
+(111, 28, 'School Subjects', 'notes', 'red'),
+(112, 28, 'Personal', 'notes', 'blue'),
+(113, 29, 'Social Media', 'passwords', 'green'),
+(114, 29, 'School Accounts', 'passwords', 'orange'),
+(115, 29, 'School Subjects', 'notes', 'purple'),
+(116, 29, 'Personal', 'notes', 'teal'),
+(117, 30, 'Social Media', 'passwords', 'pink'),
+(118, 30, 'School Accounts', 'passwords', 'brown'),
+(119, 30, 'School Subjects', 'notes', 'red'),
+(120, 30, 'Personal', 'notes', 'blue');
 
 -- VAULT (account_password is AES-256-CBC encrypted)
 INSERT INTO vault (vault_id, user_id, folder_id, title, account_username, account_password, website_url, notes) VALUES
@@ -156,7 +252,71 @@ INSERT INTO vault (vault_id, user_id, folder_id, title, account_username, accoun
 (53, 14, 53, 'Spotify', 'patlim@example.com', 'ZepC2akSfH0wlNaLjubWEScYsnpif7QNNE1TS+4DOKQ=', 'https://www.spotify.com', NULL),
 (54, 14, 54, 'Gmail', 'patlim@example.com', 'iIKFJZTDfEXTI/t/yia84YtqSsTCHtrF+U2P63I8yP0=', 'https://mail.google.com', 'Sample entry for demo.'),
 (55, 14, 53, 'Netflix', 'patlim@example.com', 'rG6VyqQfnXD/AEXhktZeDMLE8zZdvmDzEg9TW9DM/kY=', 'https://www.netflix.com', NULL),
-(56, 14, 54, 'GitHub', 'patlim@example.com', 'KDuyIyQLHAoJe5eiPn0wMZiVhqUo649fjS7voGlbLCM=', 'https://github.com', NULL);
+(56, 14, 54, 'GitHub', 'patlim@example.com', 'KDuyIyQLHAoJe5eiPn0wMZiVhqUo649fjS7voGlbLCM=', 'https://github.com', NULL),
+(57, 15, 57, 'Facebook', 'rafaelc@example.com', 'VRPhPmsEqd86KMFQkKigWqpKOK6IPH2dzcuUhvVGw82B8S4YhnjrId/QiouiGNdR', 'https://www.facebook.com', 'Sample entry for demo.'),
+(58, 15, 57, 'Instagram', 'rafaelc@example.com', 'CtsaemVhnJ5OdhKdgjxEw2E/c3FHBmzMHqPgCKVGhAQ=', 'https://www.instagram.com', NULL),
+(59, 15, 58, 'GitHub', 'rafaelc@example.com', 'TqfBb2uroHjicmjRQYCNhNhf9BzVDz9lC1bs6da/0EA=', 'https://github.com', NULL),
+(60, 15, 58, 'Gmail', 'rafaelc@example.com', 'AH8KV3Our3GLfo5cHZKvjN6QScM0+Vr8+Rj+Xacfbe0=', 'https://mail.google.com', 'Sample entry for demo.'),
+(61, 16, 61, 'Instagram', 'isafernandez@example.com', '5lddKCHVoWnAnKlj+Qb6HuhVqX1LDxCW20jBl3IEvp0=', 'https://www.instagram.com', NULL),
+(62, 16, 61, 'Spotify', 'isafernandez@example.com', 'YGPVvqP9MpgbuunFpIjVXmydoR7jTK+4G0Q4cAKhOYo=', 'https://www.spotify.com', NULL),
+(63, 16, 62, 'Gmail', 'isafernandez@example.com', 'a9+cM0V7hGfk/vK73cNr/EJ+Ye5qofdRe63UHdsKF2o=', 'https://mail.google.com', 'Sample entry for demo.'),
+(64, 16, 62, 'Notion', 'isafernandez@example.com', 'yL/wy0xYD4zuG121MTwhdQHyviY1pnjPj7C2VSYYyvlTC14crCFeNadF6DlfUX8x', 'https://www.notion.so', NULL),
+(65, 17, 65, 'Spotify', 'danpascual@example.com', 'Q0nz/5cZwGHeRCaS8b6QPqald6C3lyuvD6EvfuFLoSk=', 'https://www.spotify.com', NULL),
+(66, 17, 65, 'Netflix', 'danpascual@example.com', 's6i18uO//haQBmBLHmxXhDcZGhBTO/vRPFD7I68juIo=', 'https://www.netflix.com', 'Sample entry for demo.'),
+(67, 17, 66, 'Notion', 'danpascual@example.com', '7LdJYwf+TfBcDKk8DonREbSt8e9bp+zSFZKBN2Z79RfOZyp8Cl0tn11avj/XERli', 'https://www.notion.so', NULL),
+(68, 17, 66, 'Zoom', 'danpascual@example.com', 'sU6tCcnpfxNlPVOr4fx7lD06GFxGnhl28aPRICCDnVk=', 'https://zoom.us', NULL),
+(69, 18, 69, 'Netflix', 'camilleflores@example.com', '2dC0c3WgR9h1l42X5dPvZpBfab4BsR+VR3Kd37M11mE=', 'https://www.netflix.com', 'Sample entry for demo.'),
+(70, 18, 69, 'TikTok', 'camilleflores@example.com', 'OMcZzTneqvpdKHClVSldlPS2JRuW5azRhKjXCGsZamKGDzBfuqsD4NIR9NZy3TKx', 'https://www.tiktok.com', NULL),
+(71, 18, 70, 'Zoom', 'camilleflores@example.com', '+lcR/3Vb8CHU2BKeyrMbu7AbfFyVTHCpxziIpFh8Zw4=', 'https://zoom.us', NULL),
+(72, 18, 70, 'Google Classroom', 'camilleflores@example.com', 'xs0oRMwddcT2oDfBFdg+yYhIUS8wZswb7Ra9rqIUEro=', 'https://classroom.google.com', 'Sample entry for demo.'),
+(73, 19, 73, 'TikTok', 'joshm@example.com', 'jJ5el6aTfeuwxtohOqYEPcw+3GREpp4dQVwUb5dkIN14etM0hXSDemweezbubGdj', 'https://www.tiktok.com', NULL),
+(74, 19, 73, 'Discord', 'joshm@example.com', 'l+bkv3Jgjbd7wDAoxU8nRWZ8P1rKTLF44EGA87SXm+0=', 'https://discord.com', NULL),
+(75, 19, 74, 'Google Classroom', 'joshm@example.com', 'N0yHUp753tvAsJTzCMLcxSPCS/0w9R4eH3Z34NrW0K4=', 'https://classroom.google.com', 'Sample entry for demo.'),
+(76, 19, 74, 'Canva', 'joshm@example.com', '5Liz3hS6HZYX+99mrqb+u/nDF6VVwsHSz8QMJCVwS9I=', 'https://www.canva.com', NULL),
+(77, 20, 77, 'Discord', 'hannahs@example.com', 'zHCwit66iQP8qpKtwQrXYkDUUy79Fxm6uT6uBwBIQvE=', 'https://discord.com', NULL),
+(78, 20, 77, 'Facebook', 'hannahs@example.com', 'UlOcoqyXKaUmvqdNc9Nj4xfEz6O2ufbxOCDXpaxsRqo=', 'https://www.facebook.com', 'Sample entry for demo.'),
+(79, 20, 78, 'Canva', 'hannahs@example.com', 'OjLgqsHaCtOU36aq1NnEgK0/IFEitpg85x8M/8nzOmY=', 'https://www.canva.com', NULL),
+(80, 20, 78, 'GitHub', 'hannahs@example.com', 'MsgE/38TX62LPzFkEOdg1nsjsUhwzz62fud0YqOfZ17MgEQ/2aFTys2uNAxLA+4p', 'https://github.com', NULL),
+(81, 21, 81, 'Facebook', 'nathanv@example.com', 'JjSlV4R6ArK6Nf38fVWPGlnThjlfmoF5m2Q0AcsDM8w=', 'https://www.facebook.com', 'Sample entry for demo.'),
+(82, 21, 81, 'Instagram', 'nathanv@example.com', 'U4qYfU6wVk1QSjq/1Ya0ZikBtv4Jqk3RxofKA9Igwqs=', 'https://www.instagram.com', NULL),
+(83, 21, 82, 'GitHub', 'nathanv@example.com', 'n6aX7miPxYQypIH1BQqceNRGTuzOzxY431GqGIqRoTlaeHDz+k4xM6vOzhltEfnU', 'https://github.com', NULL),
+(84, 21, 82, 'Gmail', 'nathanv@example.com', 'YW2C9n5Hj+uvxUR9G1XRhNSjW7E0SyJ6c2XokEjj+gs=', 'https://mail.google.com', 'Sample entry for demo.'),
+(85, 22, 85, 'Instagram', 'trishaal@example.com', 'D5JYActpByf3CjkA3U/agBzf/Jwm6SOCzG/fLu00PNA=', 'https://www.instagram.com', NULL),
+(86, 22, 85, 'Spotify', 'trishaal@example.com', 'IYOuRRB7t8JUJtT7yvUShqfs0U9O6sg78JorqGR6hKNLQhLfUNLu0uQQAFYX6/bC', 'https://www.spotify.com', NULL),
+(87, 22, 86, 'Gmail', 'trishaal@example.com', 'Frftb1pbvfDXrm6GbFqAXEPMuDg6QszELiYOC3C/eIM=', 'https://mail.google.com', 'Sample entry for demo.'),
+(88, 22, 86, 'Notion', 'trishaal@example.com', 'f72sqKUybJOMjdL2M84fKRCMbIph728yrv/iVqpSUJo=', 'https://www.notion.so', NULL),
+(89, 23, 89, 'Spotify', 'elijahs@example.com', 'iv0x1lQYWxLxA2aDj0N1V9Y249ogvSLLyjl2EbvuLkFTvTifbBFuzLOyyCN4RGkH', 'https://www.spotify.com', NULL),
+(90, 23, 89, 'Netflix', 'elijahs@example.com', 'TdroVcFaEqlKmW6M0zQZg8cyIvjKFi1DnAtTko1cr/U=', 'https://www.netflix.com', 'Sample entry for demo.'),
+(91, 23, 90, 'Notion', 'elijahs@example.com', 'WWZwN2Y0KN4VjhxT9J/kFXyGlc/z2KNbCFiP1FQSzvA=', 'https://www.notion.so', NULL),
+(92, 23, 90, 'Zoom', 'elijahs@example.com', 'blrSyCT6FEa/kEdOSt+b0yowLemIRkh0P306bboubsg=', 'https://zoom.us', NULL),
+(93, 24, 93, 'Netflix', 'jasmineo@example.com', 'D2BgJJ0ljZpeF8D5wdBwdHyX31oWbl1O23NNMbKqFjQ=', 'https://www.netflix.com', 'Sample entry for demo.'),
+(94, 24, 93, 'TikTok', 'jasmineo@example.com', 'u6ZMa0BlVgGW5BV/BiNFq+mS0nwTkyX0UVAXAeFQdkg=', 'https://www.tiktok.com', NULL),
+(95, 24, 94, 'Zoom', 'jasmineo@example.com', 'Zg3qFBktSpMh3pb7x5cMs1UGMnNCdjDLZqnZxGoypeE=', 'https://zoom.us', NULL),
+(96, 24, 94, 'Google Classroom', 'jasmineo@example.com', 'uDUifpk7HhZ/szacd/ksgrtKEhuAfZDGJMbmeqgLwblhTp5rGsLCndY9b6p6Q1qc', 'https://classroom.google.com', 'Sample entry for demo.'),
+(97, 25, 97, 'TikTok', 'vinceaguilar@example.com', 'lVXtZEByntzMaHuJW7/BOHFjGVCBzV9NLDUluI0agfo=', 'https://www.tiktok.com', NULL),
+(98, 25, 97, 'Discord', 'vinceaguilar@example.com', '+ezbUQJU06vjPmsb9GBG49r6nL2+Ktfih4oLroCRF5w=', 'https://discord.com', NULL),
+(99, 25, 98, 'Google Classroom', 'vinceaguilar@example.com', 'IYIIJ3P24KdRftZO6m5/3Ig6FVvdn8hZCvIPZq0ONRziDlUZFV470FxmdSnXeRt3', 'https://classroom.google.com', 'Sample entry for demo.'),
+(100, 25, 98, 'Canva', 'vinceaguilar@example.com', 'PIlsmFxjTGGW6jlLjqV0EcjpoGFxsnLZW+MOJSsrd3M=', 'https://www.canva.com', NULL),
+(101, 26, 101, 'Discord', 'biancarivera@example.com', 'zNBXib7FiDvtxMBmx+6NsKI1d4aegbxa88+Ic7y45JU=', 'https://discord.com', NULL),
+(102, 26, 101, 'Facebook', 'biancarivera@example.com', 'SdFoLOQTMwXI5tU629o4u3ZsxEtbOp50wCq+f1zbMJBOu9RKLT4gMOzri0kH4s8e', 'https://www.facebook.com', 'Sample entry for demo.'),
+(103, 26, 102, 'Canva', 'biancarivera@example.com', 'ItQls947SMr96UhQscQ869ApXMKfxLYqoTkq7q8RfEM=', 'https://www.canva.com', NULL),
+(104, 26, 102, 'GitHub', 'biancarivera@example.com', '3il5CBBxtre7J8Q8wAlpTDp8WNOsDO0xY3vT30L+IWA=', 'https://github.com', NULL),
+(105, 27, 105, 'Facebook', 'lorenzop@example.com', 'iJPiRlewybMDZ/EEsQ2iq8Yc3Or4a30xhMxX3zdOfmCQwNRmoWzvpaPwiRE2OxRW', 'https://www.facebook.com', 'Sample entry for demo.'),
+(106, 27, 105, 'Instagram', 'lorenzop@example.com', 'SjAxbotwFTzT3BGX1ARJdw8++wKxw4Tw/pO6RgfjDn4=', 'https://www.instagram.com', NULL),
+(107, 27, 106, 'GitHub', 'lorenzop@example.com', 'z2qRUwKwB51GvJHcjjuAyyIGJSUFTwS+m0DVxvdzSL8=', 'https://github.com', NULL),
+(108, 27, 106, 'Gmail', 'lorenzop@example.com', 'BijDfxJbFE8c+X4NTDCUi7j2KgGC3vYTHWwjT8QD96o=', 'https://mail.google.com', 'Sample entry for demo.'),
+(109, 28, 109, 'Instagram', 'chloemendez@example.com', '/JaQRXPtjNo1D25xgpghsEnxjY6ojin75zUK6nKG7Jo=', 'https://www.instagram.com', NULL),
+(110, 28, 109, 'Spotify', 'chloemendez@example.com', 'OiHXZHKjfCbYHlveCaPFVUKLUY6DthZISeoPL2BqEQQ=', 'https://www.spotify.com', NULL),
+(111, 28, 110, 'Gmail', 'chloemendez@example.com', 'QYN4DnmMq4q/MimVfJcGKuotvgm0kzaJ3G9hOPgVm7s=', 'https://mail.google.com', 'Sample entry for demo.'),
+(112, 28, 110, 'Notion', 'chloemendez@example.com', 'Tq/rs0+PZYMdapAy5PMX2cfJGWJE/I3pem7/h4KwL9IsHpTQQrHYGOQc9cO2Soq2', 'https://www.notion.so', NULL),
+(113, 29, 113, 'Spotify', 'adriancortez@example.com', 'Z5LkYyfFeOq+B6sC4Oi5o9IXGo8DtengPV/L5XvEVvc=', 'https://www.spotify.com', NULL),
+(114, 29, 113, 'Netflix', 'adriancortez@example.com', 'LxsegsguiAwrGbq+iJhJvvzzOeCz7MsoqIjII973KG8=', 'https://www.netflix.com', 'Sample entry for demo.'),
+(115, 29, 114, 'Notion', 'adriancortez@example.com', 'q7SL2lyOce6QDDJoajW+jiyMpZTItx6bEsZrLmx2Xvr65xoTxzQa/71/eE6zVKdM', 'https://www.notion.so', NULL),
+(116, 29, 114, 'Zoom', 'adriancortez@example.com', 'dthn6T3fXPNV3YmsWRrVxARTx0SOhMU6afCspX8UjPY=', 'https://zoom.us', NULL),
+(117, 30, 117, 'Netflix', 'nicolesantiago@example.com', 'l63HCeCOok03euqefdY/S0/QAwODrX6AZDBuNnNW2D0=', 'https://www.netflix.com', 'Sample entry for demo.'),
+(118, 30, 117, 'TikTok', 'nicolesantiago@example.com', '3WNgo9CbvTCD7fdT07e9GHi8YV5c2pp2XZDaZ5UbiOgNsm2loVReFI9wrgYrx2Gx', 'https://www.tiktok.com', NULL),
+(119, 30, 118, 'Zoom', 'nicolesantiago@example.com', 'QMPGONxZbcp2SM+SahmKiY5rW2gCKac+zlxaqjaDiNU=', 'https://zoom.us', NULL),
+(120, 30, 118, 'Google Classroom', 'nicolesantiago@example.com', 'cGixeeT19H4/Goj9O1BAm0K4GorN91+0+1EYi503SbQ=', 'https://classroom.google.com', 'Sample entry for demo.');
 
 -- TAGS
 INSERT INTO tags (tag_id, user_id, tag_name) VALUES
@@ -201,7 +361,55 @@ INSERT INTO tags (tag_id, user_id, tag_name) VALUES
 (39, 13, 'school'),
 (40, 14, 'school'),
 (41, 14, 'social'),
-(42, 14, 'work');
+(42, 14, 'work'),
+(43, 15, 'social'),
+(44, 15, 'important'),
+(45, 15, 'personal'),
+(46, 16, 'personal'),
+(47, 16, 'important'),
+(48, 16, 'school'),
+(49, 17, 'personal'),
+(50, 17, 'work'),
+(51, 17, 'social'),
+(52, 18, 'important'),
+(53, 18, 'school'),
+(54, 18, 'personal'),
+(55, 19, 'social'),
+(56, 19, 'important'),
+(57, 19, 'personal'),
+(58, 20, 'personal'),
+(59, 20, 'important'),
+(60, 20, 'school'),
+(61, 21, 'personal'),
+(62, 21, 'work'),
+(63, 21, 'social'),
+(64, 22, 'important'),
+(65, 22, 'school'),
+(66, 22, 'personal'),
+(67, 23, 'social'),
+(68, 23, 'important'),
+(69, 23, 'personal'),
+(70, 24, 'personal'),
+(71, 24, 'important'),
+(72, 24, 'school'),
+(73, 25, 'personal'),
+(74, 25, 'work'),
+(75, 25, 'social'),
+(76, 26, 'important'),
+(77, 26, 'school'),
+(78, 26, 'personal'),
+(79, 27, 'social'),
+(80, 27, 'important'),
+(81, 27, 'personal'),
+(82, 28, 'personal'),
+(83, 28, 'important'),
+(84, 28, 'school'),
+(85, 29, 'personal'),
+(86, 29, 'work'),
+(87, 29, 'social'),
+(88, 30, 'important'),
+(89, 30, 'school'),
+(90, 30, 'personal');
 
 -- VAULT_TAGS
 INSERT INTO vault_tags (vault_id, tag_id) VALUES
@@ -260,7 +468,71 @@ INSERT INTO vault_tags (vault_id, tag_id) VALUES
 (6, 6),
 (7, 6),
 (8, 5),
-(9, 9);
+(9, 9),
+(57, 43),
+(58, 43),
+(59, 44),
+(60, 44),
+(61, 46),
+(62, 46),
+(63, 48),
+(64, 48),
+(65, 51),
+(66, 51),
+(67, 50),
+(68, 50),
+(69, 52),
+(70, 52),
+(71, 53),
+(72, 53),
+(73, 55),
+(74, 55),
+(75, 56),
+(76, 56),
+(77, 58),
+(78, 58),
+(79, 60),
+(80, 60),
+(81, 63),
+(82, 63),
+(83, 62),
+(84, 62),
+(85, 64),
+(86, 64),
+(87, 65),
+(88, 65),
+(89, 67),
+(90, 67),
+(91, 68),
+(92, 68),
+(93, 70),
+(94, 70),
+(95, 72),
+(96, 72),
+(97, 75),
+(98, 75),
+(99, 74),
+(100, 74),
+(101, 76),
+(102, 76),
+(103, 77),
+(104, 77),
+(105, 79),
+(106, 79),
+(107, 80),
+(108, 80),
+(109, 82),
+(110, 82),
+(111, 84),
+(112, 84),
+(113, 87),
+(114, 87),
+(115, 86),
+(116, 86),
+(117, 88),
+(118, 88),
+(119, 89),
+(120, 89);
 
 -- NOTES
 INSERT INTO notes (note_id, user_id, folder_id, title, content) VALUES
@@ -305,80 +577,208 @@ INSERT INTO notes (note_id, user_id, folder_id, title, content) VALUES
 (39, 13, 52, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
 (40, 14, 55, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
 (41, 14, 55, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
-(42, 14, 56, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>');
+(42, 14, 56, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(43, 15, 59, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(44, 15, 59, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(45, 15, 60, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(46, 16, 63, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(47, 16, 63, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(48, 16, 64, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(49, 17, 67, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(50, 17, 67, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(51, 17, 68, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(52, 18, 71, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(53, 18, 71, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(54, 18, 72, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(55, 19, 75, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(56, 19, 75, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(57, 19, 76, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(58, 20, 79, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(59, 20, 79, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(60, 20, 80, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(61, 21, 83, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(62, 21, 83, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(63, 21, 84, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(64, 22, 87, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(65, 22, 87, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(66, 22, 88, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(67, 23, 91, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(68, 23, 91, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(69, 23, 92, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(70, 24, 95, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(71, 24, 95, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(72, 24, 96, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(73, 25, 99, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(74, 25, 99, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(75, 25, 100, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(76, 26, 103, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(77, 26, 103, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(78, 26, 104, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(79, 27, 107, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>'),
+(80, 27, 107, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(81, 27, 108, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(82, 28, 111, 'Group Project Meeting', '<p>Meeting every Friday 3PM. Bring laptop.</p>'),
+(83, 28, 111, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(84, 28, 112, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(85, 29, 115, 'Thesis Ideas', '<p>1. Inventory system<br>2. Student portal<br>3. Task tracker</p>'),
+(86, 29, 115, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(87, 29, 116, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(88, 30, 119, 'Birthday Gift Ideas', '<p>Wallet, headphones, notebook set.</p>'),
+(89, 30, 119, 'Midterm Reviewer', '<p>Review chapters 1-5 and practice SQL joins.</p>'),
+(90, 30, 120, 'Grocery List', '<p>Rice, eggs, milk, coffee, bread.</p>');
 
--- TASKS
+-- TASKS (dates are relative to the day you import this file: CURDATE() / NOW())
 INSERT INTO tasks (task_id, user_id, title, description, status, priority, due_date, position, completed_at) VALUES
-(1, 1, 'Update resume', 'Sample task for demo.', 'todo', 'low', '2026-10-10', 0, NULL),
-(2, 1, 'Buy school supplies', NULL, 'todo', 'high', '2026-10-12', 1, NULL),
-(3, 1, 'Pay internet bill', 'Sample task for demo.', 'todo', 'high', '2026-10-17', 2, NULL),
-(4, 1, 'Review for quiz', NULL, 'in_progress', 'medium', '2026-10-28', 0, NULL),
-(5, 1, 'Group meeting', 'Sample task for demo.', 'done', 'high', '2026-10-21', 0, '2026-10-07 18:00:00'),
-(6, 2, 'Buy school supplies', NULL, 'done', 'low', '2026-10-10', 0, '2026-10-05 18:00:00'),
-(7, 2, 'Prepare defense slides', 'Sample task for demo.', 'in_progress', 'medium', '2026-10-15', 0, NULL),
-(8, 2, 'Clean workspace', NULL, 'in_progress', 'low', '2026-10-16', 1, NULL),
-(9, 2, 'Review for quiz', 'Sample task for demo.', 'todo', 'high', '2026-10-17', 0, NULL),
-(10, 2, 'Pay internet bill', NULL, 'done', 'medium', '2026-10-29', 1, '2026-10-12 18:00:00'),
-(11, 3, 'Submit research paper', 'Sample task for demo.', 'todo', 'high', '2026-10-27', 0, NULL),
-(12, 3, 'Practice presentation', NULL, 'todo', 'low', '2026-10-28', 1, NULL),
-(13, 3, 'Clean workspace', 'Sample task for demo.', 'done', 'low', '2026-10-27', 0, '2026-10-13 18:00:00'),
-(14, 3, 'Prepare defense slides', NULL, 'done', 'medium', '2026-10-16', 1, '2026-10-13 18:00:00'),
-(15, 3, 'Pay internet bill', 'Sample task for demo.', 'todo', 'low', '2026-10-21', 2, NULL),
-(16, 4, 'Update resume', NULL, 'todo', 'high', '2026-10-28', 0, NULL),
-(17, 4, 'Submit research paper', 'Sample task for demo.', 'todo', 'low', '2026-10-13', 1, NULL),
-(18, 4, 'Group meeting', NULL, 'todo', 'medium', '2026-10-27', 2, NULL),
-(19, 4, 'Practice presentation', 'Sample task for demo.', 'done', 'medium', '2026-10-22', 0, '2026-10-13 18:00:00'),
-(20, 4, 'Buy school supplies', NULL, 'todo', 'high', '2026-10-31', 3, NULL),
-(21, 5, 'Buy school supplies', 'Sample task for demo.', 'todo', 'medium', '2026-10-25', 0, NULL),
-(22, 5, 'Submit research paper', NULL, 'todo', 'high', '2026-10-21', 1, NULL),
-(23, 5, 'Clean workspace', 'Sample task for demo.', 'todo', 'high', '2026-10-24', 2, NULL),
-(24, 5, 'Practice presentation', NULL, 'in_progress', 'low', '2026-10-11', 0, NULL),
-(25, 5, 'Review for quiz', 'Sample task for demo.', 'done', 'medium', '2026-10-16', 0, '2026-10-08 18:00:00'),
-(26, 6, 'Group meeting', NULL, 'todo', 'medium', '2026-10-23', 0, NULL),
-(27, 6, 'Submit research paper', 'Sample task for demo.', 'todo', 'low', '2026-10-12', 1, NULL),
-(28, 6, 'Buy school supplies', NULL, 'done', 'high', '2026-10-20', 0, '2026-10-12 18:00:00'),
-(29, 6, 'Pay internet bill', 'Sample task for demo.', 'todo', 'high', '2026-10-23', 2, NULL),
-(30, 6, 'Update resume', NULL, 'todo', 'high', '2026-10-27', 3, NULL),
-(31, 7, 'Practice presentation', 'Sample task for demo.', 'todo', 'low', '2026-10-30', 0, NULL),
-(32, 7, 'Pay internet bill', NULL, 'todo', 'medium', '2026-10-17', 1, NULL),
-(33, 7, 'Prepare defense slides', 'Sample task for demo.', 'done', 'high', '2026-10-11', 0, '2026-10-08 18:00:00'),
-(34, 7, 'Clean workspace', NULL, 'todo', 'low', '2026-10-22', 2, NULL),
-(35, 7, 'Review for quiz', 'Sample task for demo.', 'in_progress', 'low', '2026-10-17', 0, NULL),
-(36, 8, 'Prepare defense slides', NULL, 'in_progress', 'low', '2026-10-18', 0, NULL),
-(37, 8, 'Finish SQL activity', 'Sample task for demo.', 'done', 'low', '2026-10-17', 0, '2026-10-10 18:00:00'),
-(38, 8, 'Clean workspace', NULL, 'todo', 'low', '2026-10-11', 0, NULL),
-(39, 8, 'Buy school supplies', 'Sample task for demo.', 'in_progress', 'low', '2026-10-10', 1, NULL),
-(40, 8, 'Practice presentation', NULL, 'done', 'medium', '2026-10-30', 1, '2026-10-13 18:00:00'),
-(41, 9, 'Pay internet bill', 'Sample task for demo.', 'todo', 'medium', '2026-10-14', 0, NULL),
-(42, 9, 'Update resume', NULL, 'done', 'low', '2026-10-30', 0, '2026-10-09 18:00:00'),
-(43, 9, 'Group meeting', 'Sample task for demo.', 'todo', 'high', '2026-10-28', 1, NULL),
-(44, 9, 'Practice presentation', NULL, 'in_progress', 'low', '2026-10-25', 0, NULL),
-(45, 9, 'Submit research paper', 'Sample task for demo.', 'done', 'low', '2026-10-25', 1, '2026-10-13 18:00:00'),
-(46, 10, 'Buy school supplies', NULL, 'in_progress', 'high', '2026-10-12', 0, NULL),
-(47, 10, 'Practice presentation', 'Sample task for demo.', 'todo', 'medium', '2026-10-12', 0, NULL),
-(48, 10, 'Clean workspace', NULL, 'todo', 'low', '2026-10-16', 1, NULL),
-(49, 10, 'Review for quiz', 'Sample task for demo.', 'done', 'medium', '2026-10-24', 0, '2026-10-12 18:00:00'),
-(50, 10, 'Pay internet bill', NULL, 'done', 'medium', '2026-10-10', 1, '2026-10-11 18:00:00'),
-(51, 11, 'Clean workspace', 'Sample task for demo.', 'done', 'high', '2026-10-28', 0, '2026-10-08 18:00:00'),
-(52, 11, 'Prepare defense slides', NULL, 'done', 'medium', '2026-10-23', 1, '2026-10-16 18:00:00'),
-(53, 11, 'Submit research paper', 'Sample task for demo.', 'done', 'medium', '2026-10-21', 2, '2026-10-11 18:00:00'),
-(54, 11, 'Review for quiz', NULL, 'done', 'medium', '2026-10-18', 3, '2026-10-11 18:00:00'),
-(55, 11, 'Finish SQL activity', 'Sample task for demo.', 'in_progress', 'medium', '2026-10-15', 0, NULL),
-(56, 12, 'Finish SQL activity', NULL, 'done', 'high', '2026-10-11', 0, '2026-10-08 18:00:00'),
-(57, 12, 'Review for quiz', 'Sample task for demo.', 'done', 'low', '2026-10-11', 1, '2026-10-07 18:00:00'),
-(58, 12, 'Pay internet bill', NULL, 'done', 'high', '2026-10-15', 2, '2026-10-14 18:00:00'),
-(59, 12, 'Clean workspace', 'Sample task for demo.', 'todo', 'high', '2026-10-15', 0, NULL),
-(60, 12, 'Prepare defense slides', NULL, 'done', 'low', '2026-10-16', 3, '2026-10-09 18:00:00'),
-(61, 13, 'Review for quiz', 'Sample task for demo.', 'done', 'low', '2026-10-10', 0, '2026-10-06 18:00:00'),
-(62, 13, 'Finish SQL activity', NULL, 'todo', 'high', '2026-10-10', 0, NULL),
-(63, 13, 'Buy school supplies', 'Sample task for demo.', 'todo', 'high', '2026-10-23', 1, NULL),
-(64, 13, 'Clean workspace', NULL, 'todo', 'low', '2026-10-20', 2, NULL),
-(65, 13, 'Group meeting', 'Sample task for demo.', 'in_progress', 'high', '2026-10-29', 0, NULL),
-(66, 14, 'Practice presentation', NULL, 'done', 'low', '2026-10-11', 0, '2026-10-05 18:00:00'),
-(67, 14, 'Clean workspace', 'Sample task for demo.', 'todo', 'high', '2026-10-23', 0, NULL),
-(68, 14, 'Finish SQL activity', NULL, 'todo', 'high', '2026-10-29', 1, NULL),
-(69, 14, 'Buy school supplies', 'Sample task for demo.', 'todo', 'high', '2026-10-14', 2, NULL),
-(70, 14, 'Pay internet bill', NULL, 'todo', 'medium', '2026-10-20', 3, NULL);
+(1, 1, 'Update resume', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 0, NULL),
+(2, 1, 'Buy school supplies', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 1, NULL),
+(3, 1, 'Pay internet bill', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 2, NULL),
+(4, 1, 'Review for quiz', NULL, 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(5, 1, 'Group meeting', 'Sample task for demo.', 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '18:00:00')),
+(6, 2, 'Buy school supplies', NULL, 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(7, 2, 'Prepare defense slides', 'Sample task for demo.', 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 0, NULL),
+(8, 2, 'Clean workspace', NULL, 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 1, NULL),
+(9, 2, 'Review for quiz', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 0, NULL),
+(10, 2, 'Pay internet bill', NULL, 'done', 'medium', CURDATE(), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(11, 3, 'Submit research paper', 'Sample task for demo.', 'todo', 'high', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(12, 3, 'Practice presentation', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 1, NULL),
+(13, 3, 'Clean workspace', 'Sample task for demo.', 'done', 'low', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00')),
+(14, 3, 'Prepare defense slides', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(15, 3, 'Pay internet bill', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 2, NULL),
+(16, 4, 'Update resume', NULL, 'todo', 'high', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(17, 4, 'Submit research paper', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 1, NULL),
+(18, 4, 'Group meeting', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 2, NULL),
+(19, 4, 'Practice presentation', 'Sample task for demo.', 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(20, 4, 'Buy school supplies', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 8 DAY), 3, NULL),
+(21, 5, 'Buy school supplies', 'Sample task for demo.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 0, NULL),
+(22, 5, 'Submit research paper', NULL, 'todo', 'high', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1, NULL),
+(23, 5, 'Clean workspace', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 2, NULL),
+(24, 5, 'Practice presentation', NULL, 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(25, 5, 'Review for quiz', 'Sample task for demo.', 'done', 'medium', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(26, 6, 'Group meeting', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(27, 6, 'Submit research paper', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 13 DAY), 1, NULL),
+(28, 6, 'Buy school supplies', NULL, 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 6 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(29, 6, 'Pay internet bill', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 11 DAY), 2, NULL),
+(30, 6, 'Update resume', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 3, NULL),
+(31, 7, 'Practice presentation', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 0, NULL),
+(32, 7, 'Pay internet bill', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 1, NULL),
+(33, 7, 'Prepare defense slides', 'Sample task for demo.', 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(34, 7, 'Clean workspace', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 10 DAY), 2, NULL),
+(35, 7, 'Review for quiz', 'Sample task for demo.', 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 0, NULL),
+(36, 8, 'Prepare defense slides', NULL, 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 0, NULL),
+(37, 8, 'Finish SQL activity', 'Sample task for demo.', 'done', 'low', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00')),
+(38, 8, 'Clean workspace', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 12 DAY), 0, NULL),
+(39, 8, 'Buy school supplies', 'Sample task for demo.', 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1, NULL),
+(40, 8, 'Practice presentation', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(41, 9, 'Pay internet bill', 'Sample task for demo.', 'todo', 'medium', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(42, 9, 'Update resume', NULL, 'done', 'low', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(43, 9, 'Group meeting', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 12 DAY), 1, NULL),
+(44, 9, 'Practice presentation', NULL, 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 0, NULL),
+(45, 9, 'Submit research paper', 'Sample task for demo.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(46, 10, 'Buy school supplies', NULL, 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(47, 10, 'Practice presentation', 'Sample task for demo.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 0, NULL),
+(48, 10, 'Clean workspace', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 12 DAY), 1, NULL),
+(49, 10, 'Review for quiz', 'Sample task for demo.', 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '18:00:00')),
+(50, 10, 'Pay internet bill', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 4 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(51, 11, 'Clean workspace', 'Sample task for demo.', 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(52, 11, 'Prepare defense slides', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 7 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(53, 11, 'Submit research paper', 'Sample task for demo.', 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 2, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00')),
+(54, 11, 'Review for quiz', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 6 DAY), 3, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(55, 11, 'Finish SQL activity', 'Sample task for demo.', 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(56, 12, 'Finish SQL activity', NULL, 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(57, 12, 'Review for quiz', 'Sample task for demo.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '18:00:00')),
+(58, 12, 'Pay internet bill', NULL, 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 6 DAY), 2, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(59, 12, 'Clean workspace', 'Sample task for demo.', 'todo', 'high', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(60, 12, 'Prepare defense slides', NULL, 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 3, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00')),
+(61, 13, 'Review for quiz', 'Sample task for demo.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 7 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(62, 13, 'Finish SQL activity', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 11 DAY), 0, NULL),
+(63, 13, 'Buy school supplies', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1, NULL),
+(64, 13, 'Clean workspace', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 8 DAY), 2, NULL),
+(65, 13, 'Group meeting', 'Sample task for demo.', 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(66, 14, 'Practice presentation', NULL, 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 7 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(67, 14, 'Clean workspace', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 0, NULL),
+(68, 14, 'Finish SQL activity', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1, NULL),
+(69, 14, 'Buy school supplies', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 2, NULL),
+(70, 14, 'Pay internet bill', NULL, 'todo', 'medium', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 3, NULL),
+(71, 15, 'Update resume', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 13 DAY), 0, NULL),
+(72, 15, 'Pay internet bill', NULL, 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 7 DAY), 0, NULL),
+(73, 15, 'Group meeting', 'Sample task for demo.', 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(74, 15, 'Practice presentation', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 7 DAY), 1, NULL),
+(75, 15, 'Prepare defense slides', 'Sample task for demo.', 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '18:00:00')),
+(76, 16, 'Review for quiz', NULL, 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(77, 16, 'Submit research paper', 'Sample task for demo.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 6 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(78, 16, 'Clean workspace', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 7 DAY), 0, NULL),
+(79, 16, 'Finish SQL activity', 'Sample task for demo.', 'done', 'medium', CURDATE(), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '18:00:00')),
+(80, 16, 'Buy school supplies', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 8 DAY), 1, NULL),
+(81, 17, 'Practice presentation', 'Sample task for demo.', 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 7 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(82, 17, 'Prepare defense slides', NULL, 'todo', 'medium', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(83, 17, 'Update resume', 'Sample task for demo.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(84, 17, 'Pay internet bill', NULL, 'todo', 'high', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1, NULL),
+(85, 17, 'Group meeting', 'Sample task for demo.', 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(86, 18, 'Finish SQL activity', NULL, 'todo', 'low', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(87, 18, 'Buy school supplies', 'Sample task for demo.', 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 5 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(88, 18, 'Review for quiz', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 13 DAY), 1, NULL),
+(89, 18, 'Submit research paper', 'Sample task for demo.', 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 7 DAY), 0, NULL),
+(90, 18, 'Clean workspace', NULL, 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00')),
+(91, 19, 'Pay internet bill', 'Sample task for demo.', 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 4 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(92, 19, 'Group meeting', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 8 DAY), 0, NULL),
+(93, 19, 'Practice presentation', 'Sample task for demo.', 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 0, NULL),
+(94, 19, 'Prepare defense slides', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 4 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(95, 19, 'Update resume', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 1, NULL),
+(96, 20, 'Submit research paper', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 0, NULL),
+(97, 20, 'Clean workspace', 'Sample task for demo.', 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(98, 20, 'Finish SQL activity', NULL, 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 4 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '18:00:00')),
+(99, 20, 'Buy school supplies', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 1, NULL),
+(100, 20, 'Review for quiz', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '18:00:00')),
+(101, 21, 'Prepare defense slides', 'Sample task for demo.', 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(102, 21, 'Update resume', NULL, 'done', 'high', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '18:00:00')),
+(103, 21, 'Pay internet bill', 'Sample task for demo.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 8 DAY), 0, NULL),
+(104, 21, 'Group meeting', NULL, 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(105, 21, 'Practice presentation', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 1, NULL),
+(106, 22, 'Buy school supplies', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(107, 22, 'Review for quiz', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(108, 22, 'Submit research paper', NULL, 'done', 'high', CURDATE(), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '18:00:00')),
+(109, 22, 'Clean workspace', 'Sample task for demo.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 1, NULL),
+(110, 22, 'Finish SQL activity', NULL, 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(111, 23, 'Group meeting', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(112, 23, 'Practice presentation', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 7 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(113, 23, 'Prepare defense slides', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 1, NULL),
+(114, 23, 'Update resume', NULL, 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(115, 23, 'Pay internet bill', 'Sample task for demo.', 'done', 'medium', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00')),
+(116, 24, 'Clean workspace', NULL, 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(117, 24, 'Finish SQL activity', 'Sample task for demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 10 DAY), 0, NULL),
+(118, 24, 'Buy school supplies', NULL, 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(119, 24, 'Review for quiz', 'Sample task for demo.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(120, 24, 'Submit research paper', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 10 DAY), 1, NULL),
+(121, 25, 'Update resume', 'Sample task for demo.', 'todo', 'medium', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(122, 25, 'Pay internet bill', NULL, 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(123, 25, 'Group meeting', 'Sample task for demo.', 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 7 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 7 DAY), '18:00:00')),
+(124, 25, 'Practice presentation', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 1, NULL),
+(125, 25, 'Prepare defense slides', 'Sample task for demo.', 'done', 'low', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(126, 26, 'Review for quiz', NULL, 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 0, NULL),
+(127, 26, 'Submit research paper', 'Sample task for demo.', 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(128, 26, 'Clean workspace', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 7 DAY), 0, NULL),
+(129, 26, 'Finish SQL activity', 'Sample task for demo.', 'done', 'high', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(130, 26, 'Buy school supplies', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 1, NULL),
+(131, 27, 'Practice presentation', 'Sample task for demo.', 'done', 'low', CURDATE(), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '18:00:00')),
+(132, 27, 'Prepare defense slides', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 0, NULL),
+(133, 27, 'Update resume', 'Sample task for demo.', 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(134, 27, 'Pay internet bill', NULL, 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 1, NULL),
+(135, 27, 'Group meeting', 'Sample task for demo.', 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 0, NULL),
+(136, 28, 'Finish SQL activity', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 13 DAY), 0, NULL),
+(137, 28, 'Buy school supplies', 'Sample task for demo.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 6 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 5 DAY), '18:00:00')),
+(138, 28, 'Review for quiz', NULL, 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1, NULL),
+(139, 28, 'Submit research paper', 'Sample task for demo.', 'in_progress', 'medium', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(140, 28, 'Clean workspace', NULL, 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 4 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 4 DAY), '18:00:00')),
+(141, 29, 'Pay internet bill', 'Sample task for demo.', 'done', 'high', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:00:00')),
+(142, 29, 'Group meeting', NULL, 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 14 DAY), 0, NULL),
+(143, 29, 'Practice presentation', 'Sample task for demo.', 'in_progress', 'low', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NULL),
+(144, 29, 'Prepare defense slides', NULL, 'done', 'high', DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(145, 29, 'Update resume', 'Sample task for demo.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 11 DAY), 1, NULL),
+(146, 30, 'Submit research paper', NULL, 'todo', 'low', DATE_SUB(CURDATE(), INTERVAL 2 DAY), 0, NULL),
+(147, 30, 'Clean workspace', 'Sample task for demo.', 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 9 DAY), 0, NULL),
+(148, 30, 'Finish SQL activity', NULL, 'done', 'medium', DATE_SUB(CURDATE(), INTERVAL 4 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 6 DAY), '18:00:00')),
+(149, 30, 'Buy school supplies', 'Sample task for demo.', 'todo', 'low', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1, NULL),
+(150, 30, 'Review for quiz', NULL, 'done', 'high', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 1, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 2 DAY), '18:00:00'));
 
 -- FAVORITES (exactly one of folder/vault/note per row)
 INSERT INTO favorites (user_id, folder_id, vault_id, note_id) VALUES
@@ -416,38 +816,114 @@ INSERT INTO favorites (user_id, folder_id, vault_id, note_id) VALUES
 (13, NULL, NULL, 37),
 (14, NULL, 53, NULL),
 (14, NULL, NULL, 40),
-(14, 53, NULL, NULL);
+(14, 53, NULL, NULL),
+(15, NULL, 57, NULL),
+(15, NULL, NULL, 43),
+(15, 57, NULL, NULL),
+(16, NULL, 61, NULL),
+(16, NULL, NULL, 46),
+(17, NULL, 65, NULL),
+(17, NULL, NULL, 49),
+(17, 65, NULL, NULL),
+(18, NULL, 69, NULL),
+(18, NULL, NULL, 52),
+(19, NULL, 73, NULL),
+(19, NULL, NULL, 55),
+(19, 73, NULL, NULL),
+(20, NULL, 77, NULL),
+(20, NULL, NULL, 58),
+(21, NULL, 81, NULL),
+(21, NULL, NULL, 61),
+(21, 81, NULL, NULL),
+(22, NULL, 85, NULL),
+(22, NULL, NULL, 64),
+(23, NULL, 89, NULL),
+(23, NULL, NULL, 67),
+(23, 89, NULL, NULL),
+(24, NULL, 93, NULL),
+(24, NULL, NULL, 70),
+(25, NULL, 97, NULL),
+(25, NULL, NULL, 73),
+(25, 97, NULL, NULL),
+(26, NULL, 101, NULL),
+(26, NULL, NULL, 76),
+(27, NULL, 105, NULL),
+(27, NULL, NULL, 79),
+(27, 105, NULL, NULL),
+(28, NULL, 109, NULL),
+(28, NULL, NULL, 82),
+(29, NULL, 113, NULL),
+(29, NULL, NULL, 85),
+(29, 113, NULL, NULL),
+(30, NULL, 117, NULL),
+(30, NULL, NULL, 88);
 
--- USER WORLD CLOCKS (uses cities from world_clocks.sql)
+-- USER WORLD CLOCKS (uses cities from the World Clock catalog in squirdb.sql)
 INSERT INTO user_world_clocks (user_id, city_id)
-SELECT 1, city_id FROM cities WHERE city_name = 'Tokyo' LIMIT 1
-UNION ALL SELECT 1, city_id FROM cities WHERE city_name = 'Sydney' LIMIT 1
-UNION ALL SELECT 2, city_id FROM cities WHERE city_name = 'Seoul' LIMIT 1
-UNION ALL SELECT 2, city_id FROM cities WHERE city_name = 'Dubai' LIMIT 1
-UNION ALL SELECT 3, city_id FROM cities WHERE city_name = 'London' LIMIT 1
-UNION ALL SELECT 3, city_id FROM cities WHERE city_name = 'Singapore' LIMIT 1
-UNION ALL SELECT 4, city_id FROM cities WHERE city_name = 'Sydney' LIMIT 1
-UNION ALL SELECT 4, city_id FROM cities WHERE city_name = 'Dubai' LIMIT 1
-UNION ALL SELECT 5, city_id FROM cities WHERE city_name = 'New York' LIMIT 1
-UNION ALL SELECT 5, city_id FROM cities WHERE city_name = 'London' LIMIT 1
-UNION ALL SELECT 6, city_id FROM cities WHERE city_name = 'London' LIMIT 1
-UNION ALL SELECT 6, city_id FROM cities WHERE city_name = 'New York' LIMIT 1
-UNION ALL SELECT 7, city_id FROM cities WHERE city_name = 'New York' LIMIT 1
-UNION ALL SELECT 7, city_id FROM cities WHERE city_name = 'Singapore' LIMIT 1
-UNION ALL SELECT 8, city_id FROM cities WHERE city_name = 'Singapore' LIMIT 1
-UNION ALL SELECT 8, city_id FROM cities WHERE city_name = 'London' LIMIT 1
-UNION ALL SELECT 9, city_id FROM cities WHERE city_name = 'Singapore' LIMIT 1
-UNION ALL SELECT 9, city_id FROM cities WHERE city_name = 'Dubai' LIMIT 1
-UNION ALL SELECT 10, city_id FROM cities WHERE city_name = 'Dubai' LIMIT 1
-UNION ALL SELECT 10, city_id FROM cities WHERE city_name = 'London' LIMIT 1
-UNION ALL SELECT 11, city_id FROM cities WHERE city_name = 'Seoul' LIMIT 1
-UNION ALL SELECT 11, city_id FROM cities WHERE city_name = 'London' LIMIT 1
-UNION ALL SELECT 12, city_id FROM cities WHERE city_name = 'Sydney' LIMIT 1
-UNION ALL SELECT 12, city_id FROM cities WHERE city_name = 'Seoul' LIMIT 1
-UNION ALL SELECT 13, city_id FROM cities WHERE city_name = 'Singapore' LIMIT 1
-UNION ALL SELECT 13, city_id FROM cities WHERE city_name = 'London' LIMIT 1
-UNION ALL SELECT 14, city_id FROM cities WHERE city_name = 'New York' LIMIT 1
-UNION ALL SELECT 14, city_id FROM cities WHERE city_name = 'Singapore' LIMIT 1;
+SELECT w.user_id, c.city_id
+FROM (
+    SELECT 1 AS user_id, 'JP' AS country_code, 'Tokyo' AS city_name
+    UNION ALL SELECT 1, 'AU', 'Sydney'
+    UNION ALL SELECT 2, 'KR', 'Seoul'
+    UNION ALL SELECT 2, 'AE', 'Dubai'
+    UNION ALL SELECT 3, 'GB', 'London'
+    UNION ALL SELECT 3, 'SG', 'Singapore'
+    UNION ALL SELECT 4, 'AU', 'Sydney'
+    UNION ALL SELECT 4, 'AE', 'Dubai'
+    UNION ALL SELECT 5, 'US', 'New York'
+    UNION ALL SELECT 5, 'GB', 'London'
+    UNION ALL SELECT 6, 'GB', 'London'
+    UNION ALL SELECT 6, 'US', 'New York'
+    UNION ALL SELECT 7, 'US', 'New York'
+    UNION ALL SELECT 7, 'SG', 'Singapore'
+    UNION ALL SELECT 8, 'SG', 'Singapore'
+    UNION ALL SELECT 8, 'GB', 'London'
+    UNION ALL SELECT 9, 'SG', 'Singapore'
+    UNION ALL SELECT 9, 'AE', 'Dubai'
+    UNION ALL SELECT 10, 'AE', 'Dubai'
+    UNION ALL SELECT 10, 'GB', 'London'
+    UNION ALL SELECT 11, 'KR', 'Seoul'
+    UNION ALL SELECT 11, 'GB', 'London'
+    UNION ALL SELECT 12, 'AU', 'Sydney'
+    UNION ALL SELECT 12, 'KR', 'Seoul'
+    UNION ALL SELECT 13, 'SG', 'Singapore'
+    UNION ALL SELECT 13, 'GB', 'London'
+    UNION ALL SELECT 14, 'US', 'New York'
+    UNION ALL SELECT 14, 'SG', 'Singapore'
+    UNION ALL SELECT 15, 'JP', 'Tokyo'
+    UNION ALL SELECT 15, 'SG', 'Singapore'
+    UNION ALL SELECT 16, 'AU', 'Sydney'
+    UNION ALL SELECT 16, 'US', 'New York'
+    UNION ALL SELECT 17, 'KR', 'Seoul'
+    UNION ALL SELECT 17, 'FR', 'Paris'
+    UNION ALL SELECT 18, 'AE', 'Dubai'
+    UNION ALL SELECT 18, 'US', 'Los Angeles'
+    UNION ALL SELECT 19, 'GB', 'London'
+    UNION ALL SELECT 19, 'CA', 'Toronto'
+    UNION ALL SELECT 20, 'SG', 'Singapore'
+    UNION ALL SELECT 20, 'DE', 'Berlin'
+    UNION ALL SELECT 21, 'US', 'New York'
+    UNION ALL SELECT 21, 'TH', 'Bangkok'
+    UNION ALL SELECT 22, 'FR', 'Paris'
+    UNION ALL SELECT 22, 'HK', 'Hong Kong'
+    UNION ALL SELECT 23, 'US', 'Los Angeles'
+    UNION ALL SELECT 23, 'IN', 'Mumbai'
+    UNION ALL SELECT 24, 'CA', 'Toronto'
+    UNION ALL SELECT 24, 'JP', 'Tokyo'
+    UNION ALL SELECT 25, 'DE', 'Berlin'
+    UNION ALL SELECT 25, 'AU', 'Sydney'
+    UNION ALL SELECT 26, 'TH', 'Bangkok'
+    UNION ALL SELECT 26, 'KR', 'Seoul'
+    UNION ALL SELECT 27, 'HK', 'Hong Kong'
+    UNION ALL SELECT 27, 'AE', 'Dubai'
+    UNION ALL SELECT 28, 'IN', 'Mumbai'
+    UNION ALL SELECT 28, 'GB', 'London'
+    UNION ALL SELECT 29, 'JP', 'Tokyo'
+    UNION ALL SELECT 29, 'SG', 'Singapore'
+    UNION ALL SELECT 30, 'AU', 'Sydney'
+    UNION ALL SELECT 30, 'US', 'New York'
+) AS w
+JOIN cities c ON c.country_code = w.country_code AND c.city_name = w.city_name;
 
 -- ACTIVITY LOGS
 INSERT INTO activity_logs (user_id, admin_id, action, entity_type, description, ip_address, device, created_at) VALUES
@@ -500,6 +976,54 @@ INSERT INTO activity_logs (user_id, admin_id, action, entity_type, description, 
 (14, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-05 16:17:00'),
 (14, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'Android (Chrome)', '2026-10-15 11:07:00'),
 (NULL, 1, 'admin_logged_in', 'admin', 'Admin logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-16 08:00:00'),
-(NULL, 1, 'user_suspended', 'user', 'Suspended a user', '127.0.0.1', 'Windows (Chrome)', '2026-10-16 08:30:00');
+(NULL, 1, 'user_suspended', 'user', 'Suspended a user', '127.0.0.1', 'Windows (Chrome)', '2026-10-16 08:30:00'),
+(15, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-20 19:49:00'),
+(15, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'Windows (Edge)', '2026-10-19 10:00:00'),
+(15, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'iOS (Safari)', '2026-10-07 08:18:00'),
+(16, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Windows (Edge)', '2026-10-13 12:59:00'),
+(16, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'iOS (Safari)', '2026-10-16 19:24:00'),
+(16, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Android (Chrome)', '2026-10-21 17:04:00'),
+(17, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'iOS (Safari)', '2026-10-14 07:54:00'),
+(17, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'Android (Chrome)', '2026-10-16 12:29:00'),
+(17, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-18 08:25:00'),
+(18, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'Android (Chrome)', '2026-10-13 20:26:00'),
+(18, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Windows (Chrome)', '2026-10-20 15:33:00'),
+(18, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Windows (Edge)', '2026-10-05 16:14:00'),
+(19, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'Windows (Chrome)', '2026-10-09 14:56:00'),
+(19, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Edge)', '2026-10-12 20:56:00'),
+(19, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'iOS (Safari)', '2026-10-08 17:44:00'),
+(20, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Windows (Edge)', '2026-10-21 18:30:00'),
+(20, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'iOS (Safari)', '2026-10-17 13:12:00'),
+(20, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'Android (Chrome)', '2026-10-14 20:17:00'),
+(21, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'iOS (Safari)', '2026-10-11 11:44:00'),
+(21, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'Android (Chrome)', '2026-10-20 14:32:00'),
+(21, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'Windows (Chrome)', '2026-10-20 19:27:00'),
+(22, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Android (Chrome)', '2026-10-19 18:45:00'),
+(22, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'Windows (Chrome)', '2026-10-21 11:28:00'),
+(22, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Windows (Edge)', '2026-10-10 13:53:00'),
+(23, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'Windows (Chrome)', '2026-10-18 09:28:00'),
+(23, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'Windows (Edge)', '2026-10-05 08:00:00'),
+(23, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'iOS (Safari)', '2026-10-19 16:34:00'),
+(24, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'Windows (Edge)', '2026-10-13 17:48:00'),
+(24, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'iOS (Safari)', '2026-10-16 09:00:00'),
+(24, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Android (Chrome)', '2026-10-15 17:37:00'),
+(25, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'iOS (Safari)', '2026-10-21 11:05:00'),
+(25, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Android (Chrome)', '2026-10-18 17:10:00'),
+(25, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'Windows (Chrome)', '2026-10-09 19:50:00'),
+(26, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Android (Chrome)', '2026-10-05 08:24:00'),
+(26, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Windows (Chrome)', '2026-10-07 07:53:00'),
+(26, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'Windows (Edge)', '2026-10-16 17:22:00'),
+(27, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-08 14:29:00'),
+(27, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'Windows (Edge)', '2026-10-10 09:37:00'),
+(27, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'iOS (Safari)', '2026-10-21 10:27:00'),
+(28, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Windows (Edge)', '2026-10-11 17:58:00'),
+(28, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'iOS (Safari)', '2026-10-10 07:41:00'),
+(28, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Android (Chrome)', '2026-10-06 14:55:00'),
+(29, NULL, 'task_created', 'task', 'Created task', '127.0.0.1', 'iOS (Safari)', '2026-10-21 21:08:00'),
+(29, NULL, 'folder_created', 'folder', 'Created folder', '127.0.0.1', 'Android (Chrome)', '2026-10-10 17:54:00'),
+(29, NULL, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-10 13:17:00'),
+(30, NULL, 'note_created', 'note', 'Created note', '127.0.0.1', 'Android (Chrome)', '2026-10-16 09:16:00'),
+(30, NULL, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Windows (Chrome)', '2026-10-19 14:49:00'),
+(30, NULL, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Windows (Edge)', '2026-10-18 11:29:00');
 
 SET FOREIGN_KEY_CHECKS = 1;

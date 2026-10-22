@@ -5,7 +5,7 @@ USE squirdb;
 DELETE FROM users WHERE email = 'ianchristopherjunio19@gmail.com';
 
 INSERT INTO users (full_name, username, email, password_hash, status, last_login_at)
-VALUES ('Ian Christopher Junio', 'ianjunio', 'ianchristopherjunio19@gmail.com', '$2y$10$Z5wkcMphYaDWHrsZ2CN5X.ltR.G7m0wE8nk5OOk4d1FzWhwZDhde.', 'active', '2026-10-18 09:00:00');
+VALUES ('Ian Christopher Junio', '_whoisiyann', 'ianchristopherjunio19@gmail.com', '$2y$10$Z5wkcMphYaDWHrsZ2CN5X.ltR.G7m0wE8nk5OOk4d1FzWhwZDhde.', 'active', '2026-10-18 09:00:00');
 SET @uid = LAST_INSERT_ID();
 
 INSERT INTO user_pins (user_id, pin_hash) VALUES (@uid, '$2y$10$ho1tTXf.p9KbqfcGpIYS/OTTDt7QvmIjNofytoWLztpfL5B7baa8G');
@@ -67,13 +67,13 @@ INSERT INTO notes (user_id, folder_id, title, content) VALUES
 (@uid, (SELECT folder_id FROM folders WHERE user_id = @uid AND folder_name = 'Personal' AND folder_type = 'notes'), 'Gaming Schedule', '<p>Ranked games on weekends only. Study first on weekdays.</p>'),
 (@uid, (SELECT folder_id FROM folders WHERE user_id = @uid AND folder_name = 'Personal' AND folder_type = 'notes'), 'Birthday Gift Ideas', '<p>Headphones, wallet, notebook set.</p>');
 
--- TASKS (5)
+-- TASKS (5) - dates are relative to the day you import this file
 INSERT INTO tasks (user_id, title, description, status, priority, due_date, position, completed_at) VALUES
-(@uid, 'Finish Squir database seed', 'Run reset and seed scripts, then test.', 'in_progress', 'high', '2026-10-19', 0, NULL),
-(@uid, 'Prepare Squir defense', 'Review checklist and practice the demo.', 'todo', 'high', '2026-10-21', 0, NULL),
-(@uid, 'Review SQL joins', 'Practice INNER and LEFT JOIN queries.', 'todo', 'medium', '2026-10-23', 1, NULL),
-(@uid, 'Submit project documentation', 'Final documentation and ERD.', 'todo', 'medium', '2026-10-25', 2, NULL),
-(@uid, 'Test login and CRUD flow', 'Checked login, add, edit and delete.', 'done', 'low', '2026-10-17', 0, '2026-10-17 18:30:00');
+(@uid, 'Finish Squir database seed', 'Run reset and seed scripts, then test.', 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NULL),
+(@uid, 'Prepare Squir defense', 'Review checklist and practice the demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 0, NULL),
+(@uid, 'Review SQL joins', 'Practice INNER and LEFT JOIN queries.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 1, NULL),
+(@uid, 'Submit project documentation', 'Final documentation and ERD.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 2, NULL),
+(@uid, 'Test login and CRUD flow', 'Checked login, add, edit and delete.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:30:00'));
 
 -- FAVORITES (4 credentials, 2 notes, 1 folder)
 INSERT INTO favorites (user_id, folder_id, vault_id, note_id) VALUES

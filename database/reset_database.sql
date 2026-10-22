@@ -27,7 +27,7 @@ TRUNCATE TABLE admins;
 
 -- World clock catalog (countries/cities) is kept by default.
 -- Uncomment these two lines if you also want them emptied
--- (then re-run world_clocks.sql afterwards):
+-- (then re-run the COUNTRIES / CITIES inserts in squirdb.sql afterwards):
 
 -- TRUNCATE TABLE cities;
 -- TRUNCATE TABLE countries;
