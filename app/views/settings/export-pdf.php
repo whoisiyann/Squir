@@ -144,7 +144,7 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
 </p>
 
 <div class="warning">
-    <strong>Keep this file safe.</strong> It contains your saved passwords in plain text.
+    <strong>Keep this file safe.</strong> <?= !empty($data['passwords_encrypted']) ? 'Your saved passwords are encrypted in this file.' : 'It contains your saved passwords in plain text.' ?>
     Store it somewhere private and delete it when you no longer need it.
 </div>
 

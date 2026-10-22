@@ -1163,3 +1163,53 @@ html.dashboard-dark-preload .sq-da-modal {
   width: 0;
   height: 0;
 }
+
+/* Safe export switch */
+.settings-switch {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.settings-switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.settings-switch-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background .15s ease;
+}
+
+.settings-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  transition: transform .15s ease;
+}
+
+.settings-switch input:checked + .settings-switch-track { background: var(--accent); }
+.settings-switch input:checked + .settings-switch-track::after { transform: translateX(20px); }
+.settings-switch input:focus-visible + .settings-switch-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-switch-track,
+  .settings-switch-track::after { transition: none; }
+}

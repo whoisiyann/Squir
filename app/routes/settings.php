@@ -256,7 +256,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['export'])) {
     }
 
     try {
-        [$body, $mime, $extension] = $controller->exportFile($userId, $format);
+        // Safe export is the default; only an explicit safe=0 gives plain-text passwords
+        $encryptPasswords = ($_GET['safe'] ?? '1') !== '0';
+        [$body, $mime, $extension] = $controller->exportFile($userId, $format, $encryptPasswords);
     } catch (Throwable $error) {
         error_log('Squir ' . $format . ' export failed: ' . $error->getMessage());
         settingsJson(['error' => 'Could not create your export. Please try again.'], 500);

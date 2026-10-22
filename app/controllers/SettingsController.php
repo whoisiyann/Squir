@@ -144,7 +144,8 @@ class SettingsController
     }
 
     // Build export
-    public function exportData(int $userId): array
+    // $encryptPasswords = true keeps passwords encrypted (safe export), false decrypts them.
+    public function exportData(int $userId, bool $encryptPasswords = true): array
     {
         $vaultModel = new Vault($this->db);
 
@@ -175,7 +176,9 @@ class SettingsController
                 'title'       => $row['title'],
                 'username'    => $row['account_username'],
                 'password'    => $row['account_password'] !== null && $row['account_password'] !== ''
-                    ? $vaultModel->decryptSecret($row['account_password'])
+                    ? ($encryptPasswords
+                        ? $row['account_password']
+                        : $vaultModel->decryptSecret($row['account_password']))
                     : null,
                 'website_url' => $row['website_url'],
                 'notes'       => $row['notes'],
@@ -221,6 +224,7 @@ class SettingsController
 
         return [
             'exported_at' => date('c'),
+            'passwords_encrypted' => $encryptPasswords,
             'vault'       => $vaultOut,
             'notes'       => $noteStatement->fetchAll(PDO::FETCH_ASSOC),
             'tasks'       => $this->decodeTaskText($taskStatement->fetchAll(PDO::FETCH_ASSOC)),
@@ -255,9 +259,9 @@ class SettingsController
     public const EXPORT_FORMATS = ['csv', 'xlsx', 'doc', 'pdf'];
 
     // Build export file
-    public function exportFile(int $userId, string $format): array
+    public function exportFile(int $userId, string $format, bool $encryptPasswords = true): array
     {
-        $data = $this->exportData($userId);
+        $data = $this->exportData($userId, $encryptPasswords);
         $user = $this->user->findById($userId) ?: [];
 
         switch ($format) {
@@ -501,7 +505,9 @@ class SettingsController
             'shade' => 'FBF1E3',
             'paras' => [[
                 ['Keep this file safe.', ['bold' => true, 'color' => $brown]],
-                [' It contains your saved passwords in plain text. Store it somewhere private and delete it when you no longer need it.', ['color' => $brown]],
+                [!empty($data['passwords_encrypted'])
+                    ? ' Your saved passwords are encrypted in this file. Store it somewhere private and delete it when you no longer need it.'
+                    : ' It contains your saved passwords in plain text. Store it somewhere private and delete it when you no longer need it.', ['color' => $brown]],
             ]],
         ]]], [100], ['border' => 'E0C39A', 'after' => 200]);
 

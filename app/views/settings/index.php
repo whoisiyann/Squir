@@ -204,6 +204,18 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
                                 <i class="ti ti-download"></i> Export
                             </button>
                         </div>
+
+                        <div class="settings-row">
+                            <span class="settings-row-icon"><i class="ti ti-shield-lock"></i></span>
+                            <span class="settings-row-text">
+                                <strong>Safe export</strong>
+                                <small>Keep your passwords encrypted in exported files.</small>
+                            </span>
+                            <label class="settings-switch" title="Safe export">
+                                <input type="checkbox" id="safeExportToggle" checked aria-label="Safe export">
+                                <span class="settings-switch-track" aria-hidden="true"></span>
+                            </label>
+                        </div>
                     </section>
                 </div>
             </div>

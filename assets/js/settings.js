@@ -679,6 +679,21 @@
             setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
         }
 
+        // Safe export toggle (on = passwords stay encrypted)
+        var safeToggle = document.getElementById('safeExportToggle');
+        var SAFE_EXPORT_KEY = 'squir-safe-export';
+
+        if (safeToggle) {
+            try {
+                var storedSafe = window.localStorage.getItem(SAFE_EXPORT_KEY);
+                if (storedSafe !== null) safeToggle.checked = storedSafe === '1';
+            } catch (error) {}
+
+            safeToggle.addEventListener('change', function () {
+                try { window.localStorage.setItem(SAFE_EXPORT_KEY, safeToggle.checked ? '1' : '0'); } catch (error) {}
+            });
+        }
+
         var EXPORT_LABELS = { csv: 'CSV', xlsx: 'Excel', doc: 'Docs', pdf: 'PDF' };
         var EXPORT_TYPES = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
 
@@ -687,7 +702,7 @@
             var label = EXPORT_LABELS[format] || 'file';
             setExportBusy(true);
 
-            return fetch('./settings?export=' + encodeURIComponent(format), { credentials: 'same-origin' }).then(function (response) {
+            return fetch('./settings?export=' + encodeURIComponent(format) + '&safe=' + (safeToggle && !safeToggle.checked ? '0' : '1'), { credentials: 'same-origin' }).then(function (response) {
                 var type = response.headers.get('Content-Type') || '';
 
                 if (!response.ok || type.indexOf(EXPORT_TYPES[format]) === -1) {
