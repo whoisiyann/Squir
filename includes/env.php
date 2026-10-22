@@ -1,7 +1,7 @@
 <?php
 
 // Reads the .env file and gives the app env() / envBool().
-// Real values (keys, passwords) live in .env and are never committed. See .env.example.
+// Keep secrets in .env; never commit them.
 
 if (!function_exists('squirLoadEnv')) {
     function squirLoadEnv(string $path): void

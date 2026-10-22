@@ -403,7 +403,7 @@
     });
 })();
 
-// Mobile topbar: hide on scroll down, show on scroll up, tap search icon to search
+// Handle mobile topbar visibility.
 (function () {
     var topbar = document.querySelector('.topbar');
     if (!topbar) return;

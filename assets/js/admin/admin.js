@@ -229,7 +229,7 @@
 
         function check() {
             var hiddenHeight = scrollArea.scrollHeight - scrollArea.clientHeight;
-            // Only when the list overflows (has a scrollbar) and is scrolled to the bottom
+            // Reveal the action when the list is scrolled to the bottom.
             var hasScroll = hiddenHeight > 4;
             var atBottom = hiddenHeight - scrollArea.scrollTop <= 4;
             moreBlock.classList.toggle('is-visible', hasScroll && atBottom);
@@ -244,7 +244,7 @@
     setupScrollReveal('recentActivityScroll', 'recentActivityMore');
 })();
 
-// Mobile topbar: hide on scroll down, show on scroll up, tap search icon to search
+// Handle mobile topbar visibility.
 (function () {
     var topbar = document.querySelector('.topbar');
     if (!topbar) return;

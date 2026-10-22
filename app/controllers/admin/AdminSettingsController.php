@@ -557,7 +557,7 @@ class AdminSettingsController
 		return $doc->build();
 	}
 
-	// User Summary Report: credentials, notes, and tasks per user (csv, doc, or pdf).
+	// Export user summary reports.
 	public function exportUserSummary(int $adminId, string $format): array
 	{
 		if (!in_array($format, self::EXPORT_FORMATS, true)) {

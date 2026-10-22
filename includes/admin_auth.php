@@ -7,7 +7,7 @@ function requireAdminLogin(): int
 
 	$adminId = (int) ($_SESSION['admin_id'] ?? 0);
 
-	// Make sure the admin still exists and is active, not just that a session value is set.
+	// Confirm the admin account is still active.
 	if ($adminId > 0) {
 		$check = $dbh->prepare('SELECT status FROM admins WHERE admin_id = :id LIMIT 1');
 		$check->execute(['id' => $adminId]);

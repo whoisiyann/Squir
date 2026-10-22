@@ -311,7 +311,7 @@
             var profileChanged = fullName !== saved.full_name || username !== saved.username;
             var wantsEmailChange = emailChanged();
 
-            // Nothing was edited: just close the modal, no request and no notification.
+            // Close without saving if nothing changed.
             if (!profileChanged && !wantsEmailChange) {
                 closeEdit();
                 return;
@@ -935,7 +935,7 @@
         var EXPORT_LABELS = { csv: 'CSV', xlsx: 'Excel', doc: 'Docs', pdf: 'PDF' };
         var EXPORT_TYPES = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
 
-        // report: 'user-summary' for the User Summary Report, otherwise the activity logs.
+        // Select the report type.
         function downloadExport(format, report, button) {
             var label = EXPORT_LABELS[format] || 'file';
             var scope = userOnly && !userOnly.checked ? 'all' : 'users';

@@ -4,13 +4,12 @@ require_once __DIR__ . '/../includes/env.php';
 // App settings
 
 error_reporting(E_ALL);
-// Never show raw PHP/database errors to users. Errors go to the server log.
+// Keep raw errors out of user responses.
 ini_set('display_errors', '0');
 ini_set('display_startup_errors', '0');
 ini_set('log_errors', '1');
 
-// Save errors to logs/php-error.log inside the project.
-// If the folder can't be created, PHP's default error log is used.
+// Use the PHP default log if the project log directory is unavailable.
 $squirLogDir = __DIR__ . '/../logs';
 if (!is_dir($squirLogDir)) {
     @mkdir($squirLogDir, 0755, true);
@@ -28,8 +27,8 @@ define('APP_NAME', 'Squir');
 // local = this computer only (XAMPP). production = real hosting.
 define('APP_ENV', strtolower((string) env('APP_ENV', 'production')));
 
-// Vault encryption key. It is read from .env and must never be written in source code.
-// Changing it makes existing vault passwords unreadable.
+// Read the vault key from .env; never commit it.
+// Changing the key makes saved passwords unreadable.
 define('VAULT_ENCRYPTION_KEY', (string) env('VAULT_ENCRYPTION_KEY', ''));
 
 define('PIN_LENGTH', 6);
@@ -54,13 +53,12 @@ define('SMTP_PORT', (int) env('SMTP_PORT', '587')); // TLS
 define('SMTP_USERNAME', trim((string) env('SMTP_USERNAME', '')));
 define('SMTP_PASSWORD', str_replace(' ', '', (string) env('SMTP_PASSWORD', '')));
 
-// Dev fallback: shows the reset/verification code on screen when the email cannot be sent.
-// It is only allowed when APP_ENV=local AND the request comes from this same computer.
+// Show reset codes only on local requests when email delivery fails.
 $squirIsLoopback = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
 define('MAIL_DEV_FALLBACK', APP_ENV === 'local' && $squirIsLoopback && envBool('MAIL_DEV_FALLBACK', false));
 unset($squirIsLoopback);
 
-// SMTP debug logging writes the full email (including codes) to a log file. Local use only.
+// Log full emails, including codes, for local debugging.
 define('MAIL_DEBUG', APP_ENV === 'local' && envBool('MAIL_DEBUG', false));
 define('MAIL_FROM_ADDRESS', SMTP_USERNAME !== '' ? SMTP_USERNAME : 'no-reply@squir.local');
 define('MAIL_FROM_NAME', 'Squir');

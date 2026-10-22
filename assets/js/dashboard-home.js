@@ -432,7 +432,7 @@
                 if (day.getMonth() !== month) cell.classList.add('is-out');
                 if (day.getDay() === 0 || day.getDay() === 6) cell.classList.add('is-weekend');
 
-                // One dot per task below the date number (same colors as the Calendar page)
+                // Show task dots below the date.
                 var info = taskDays[key];
                 if (info) {
                     var sorted = info.tasks.slice().sort(function (x, y) {
@@ -456,7 +456,7 @@
                 miniGrid.appendChild(cell);
             }
 
-            // Red = unfinished tasks before this month, yellow = unfinished tasks after it
+            // Mark unfinished tasks outside this month.
             var behind = 0;
             var ahead = 0;
             calTasks.forEach(function (task) {

@@ -180,7 +180,7 @@ class Vault
         }
         $tagJoin = '';
         if ($tag !== null && $tag !== '') {
-            // Filter by tag with a JOIN (separate aliases, so the tag list still shows every tag)
+            // Filter by tag while keeping the full tag list.
             $tagJoin = 'INNER JOIN vault_tags vtf ON vtf.vault_id = v.vault_id
              INNER JOIN tags tf       ON tf.tag_id = vtf.tag_id AND tf.tag_name = :tag';
             $params['tag'] = strtolower($tag);

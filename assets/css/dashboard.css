@@ -1676,7 +1676,7 @@ body.dashboard-dark .dash-calendar {
   text-decoration: none;
 }
 
-/* The date number is its own box, so the highlight never covers the task dots */
+/* Keep the date highlight clear of task dots. */
 .mini-cal-num {
   display: flex;
   align-items: center;
@@ -1742,7 +1742,7 @@ body.dashboard-dark .dash-calendar {
 .dash-calendar .mini-cal-grid { margin-top: 4px; row-gap: 2px; }
 .dash-calendar .mini-cal-day { height: 34px; }
 .dash-calendar .mini-cal-num { width: 28px; height: 22px; }
-/* dots sit right under their own date number, with clear space before the next row */
+/* Align task dots below each date. */
 .dash-calendar .mini-cal-task-dots { top: 25px; bottom: auto; gap: 3px; }
 .dash-calendar .mini-cal-task-dot { width: 5px; height: 5px; }
 

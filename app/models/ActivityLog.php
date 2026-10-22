@@ -228,7 +228,7 @@ class ActivityLog
         return self::META[$action]['label'] ?? ucfirst(str_replace('_', ' ', $action));
     }
 
-    // Icon class for an action (e.g. "ti-star"). Unknown actions fall back to ti-activity.
+    // Resolve the action icon.
     public static function actionIcon(string $action): string
     {
         $icon = self::META[$action]['icon'] ?? 'ti-activity';
@@ -468,7 +468,7 @@ class ActivityLog
         ];
     }
 
-    // Permanently delete user logs in a date range. Returns the number deleted.
+    // Delete user logs by date range.
     public function clearForAdmin(string $range): int
     {
         // Same base filter as the admin list: user activity only.

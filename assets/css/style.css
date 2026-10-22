@@ -560,7 +560,7 @@ button, input {
   }
 }
 
-/* User sidebar: keep the mascot whole and let the menu scroll on short screens (same idea as the admin sidebar). */
+/* Keep the sidebar usable on short screens. */
 body:not(.admin-page) .brand-row {
   flex: 0 0 auto;
 }
@@ -588,7 +588,7 @@ body:not(.admin-page) .sidebar-illustration {
   flex: 0 0 auto;
 }
 
-/* Shorter screens or zoomed-in pages: make the mascot smaller so more of the menu fits. */
+/* Shrink the mascot on short screens. */
 @media (max-height: 780px) {
   body:not(.admin-page) .sidebar-bottom {
     margin-top: 16px;
@@ -1185,7 +1185,7 @@ html[data-accent] .sq-lo-modal {
     padding-right: 40px;
   }
 
-  /* The close (X) button is already there, so hide the browser's own clear (X) */
+  /* Hide the browser's clear button. */
   .topbar .search-box input[type="search"]::-webkit-search-cancel-button,
   .topbar .search-box input[type="search"]::-webkit-search-decoration {
     -webkit-appearance: none;

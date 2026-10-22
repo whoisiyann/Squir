@@ -4,8 +4,7 @@ if (ob_get_level() === 0) {
     ob_start();
 }
 
-// Safer session cookies: not readable by JavaScript, not sent from other sites,
-// and only sent over HTTPS when the site is served over HTTPS.
+// Secure session cookie settings.
 $squirHttps = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
     || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
 ini_set('session.use_strict_mode', '1');
@@ -26,8 +25,7 @@ require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/dbconnect.php';
 require_once __DIR__ . '/../config/config.php';
 
-// Global error handling: users only see a generic message.
-// The real error is written to the server log.
+// Show users a generic error and log the details.
 if (!function_exists('squirIsAjaxRequest')) {
     function squirIsAjaxRequest(): bool
     {
@@ -103,8 +101,7 @@ if (!function_exists('url')) {
 }
 
 if (!function_exists('asset')) {
-    // Asset URL with a version based on the file's last-modified time.
-    // The browser reloads the file whenever it changes.
+    // Version assets by modification time.
     function asset(string $path): string
     {
         $file = __DIR__ . '/../' . ltrim($path, '/');
@@ -146,7 +143,7 @@ function sessionPreferences(string $role = 'user'): array
         $prefs['accent'] = in_array($row['accent_color'] ?? null, PREF_ACCENTS, true) ? $row['accent_color'] : null;
         $_SESSION[$key] = $prefs;
     } catch (Throwable $exception) {
-        // Columns missing until the migration is run. Keep the choice saved in the browser.
+        // Preferences may be unavailable until the database migration runs.
     }
 
     return $prefs;

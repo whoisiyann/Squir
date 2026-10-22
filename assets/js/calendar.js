@@ -178,7 +178,7 @@
         return (task.title + ' ' + task.description).toLowerCase().indexOf(state.term) !== -1;
     }
 
-    // Tasks shown on the calendar: they need a due date and must match the search
+    // Filter calendar tasks by due date and search.
     function visibleTasks() {
         return tasks.filter(function (task) {
             return !!task.due_date && matchesSearch(task);
@@ -581,7 +581,7 @@
         if (upcoming.length) {
             up.appendChild(upList);
 
-            // Shows only after scrolling to the bottom of the list (like Recent Credentials)
+            // Reveal more tasks at the end of the list.
             var seeMore = h('a', 'cal-see-more', 'See more');
             seeMore.href = './tasks';
             up.appendChild(seeMore);
@@ -655,7 +655,7 @@
     var prevBtn = $('calPrev');
     var nextBtn = $('calNext');
 
-    // Dots beside the arrows: unfinished tasks before (red) and after (yellow) the visible period
+    // Mark unfinished tasks outside the visible period.
     var prevDot = h('span', 'cal-nav-dot');
     var nextDot = h('span', 'cal-nav-dot');
     prevDot.setAttribute('aria-hidden', 'true');
@@ -725,7 +725,6 @@
 
     var searchInput = $('calSearchInput');
 
-    // Closest matching task to the date being viewed (ties go to the later one)
     function nearestMatch(list, from) {
         var best = null;
         var bestGap = Infinity;
@@ -749,10 +748,10 @@
         state.term = searchInput.value.trim().toLowerCase();
 
         if (state.term === '') {
-            // Search cleared: go back to the current date
+            // Return to today when the search is cleared.
             if (hadTerm) state.cursor = today();
         } else {
-            // If nothing matches in the period on screen, jump to where the match is
+            // Jump to the nearest match outside the current period.
             var matches = visibleTasks();
             var range = rangeFor(state.view, state.cursor);
             var here = matches.some(function (task) { return inRange(task, range); });
@@ -767,7 +766,7 @@
         render();
     });
 
-    // The browser's clear (x) button and Escape inside the box also reset to today
+    // Reset to today when search is cleared.
     searchInput.addEventListener('search', function () {
         if (searchInput.value.trim() === '' && state.term !== '') {
             state.term = '';

@@ -145,7 +145,7 @@ html.dashboard-dark-preload {
   background: var(--soft);
 }
 
-/* Dot beside each arrow: gray = nothing, red = unfinished before, yellow = still to do after */
+/* Mark unfinished tasks outside the visible period. */
 .cal-nav-dot {
   flex: 0 0 auto;
   width: 8px;
@@ -278,7 +278,7 @@ html.dashboard-dark-preload {
   font-weight: 600;
 }
 
-/* Sun and Sat numbers use the accent color (month cells and week columns) */
+/* Highlight weekend dates. */
 .cal-cell:not(.is-today):nth-child(7n+1) .cal-daynum,
 .cal-cell:not(.is-today):nth-child(7n) .cal-daynum,
 .cal-day-col:not(.is-today):nth-child(7n+1) .cal-day-col-head .cal-daynum,
@@ -677,7 +677,7 @@ html.dashboard-dark-preload {
   font-size: .78rem;
 }
 
-/* Upcoming list: 5 rows visible (5 x 38px + 4 x 6px gaps), scrolls up to 10 */
+/* Limit the upcoming list height. */
 .cal-up-list {
   display: flex;
   flex-direction: column;
@@ -878,7 +878,7 @@ html.dashboard-dark-preload {
     justify-content: space-between;
   }
 
-  /* Search collapses into an icon button, and opens full width when tapped */
+  /* Expand search on tap. */
   .cal-toolbar .tasks-search {
     position: relative;
     flex: 0 0 40px;

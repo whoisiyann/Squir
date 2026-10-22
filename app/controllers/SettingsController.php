@@ -144,7 +144,7 @@ class SettingsController
     }
 
     // Build export
-    // $encryptPasswords = true keeps passwords encrypted (safe export), false decrypts them.
+    // Keep exported passwords encrypted by default.
     public function exportData(int $userId, bool $encryptPasswords = true): array
     {
         $vaultModel = new Vault($this->db);
