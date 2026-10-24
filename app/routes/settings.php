@@ -226,7 +226,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'verify_
     settingsJson(['ok' => false, 'error' => $result['error'] ?? 'That PIN is incorrect.'], 401);
 }
 
-// Export account data as CSV, Docs, or PDF
+// Items the user can pick from in the export dialog
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['export_options'])) {
+    try {
+        settingsJson(['ok' => true, 'options' => $controller->exportOptions($userId)]);
+    } catch (PDOException $error) {
+        error_log('Squir export options failed: ' . $error->getMessage());
+        settingsJson(['error' => 'Could not load the export options. Please try again.'], 500);
+    }
+}
+
+// Export account data
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['export'])) {
     // Keep PHP warnings out of the export.
     ini_set('display_errors', '0');
@@ -234,6 +244,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['export'])) {
     $format = (string) $_GET['export'];
     if (!in_array($format, SettingsController::EXPORT_FORMATS, true)) {
         settingsJson(['error' => 'Please choose a valid file format.'], 400);
+    }
+
+    // Read the selected export scope
+    $scope = null;
+    if (isset($_GET['scope'])) {
+        $decodedScope = json_decode((string) $_GET['scope'], true);
+        if (!is_array($decodedScope)) {
+            settingsJson(['error' => 'Please choose what to export.'], 400);
+        }
+
+        try {
+            $scope = $controller->normalizeScope($decodedScope);
+        } catch (InvalidArgumentException $error) {
+            settingsJson(['error' => $error->getMessage()], 400);
+        }
     }
 
     // Consume the one-time unlock
@@ -258,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['export'])) {
     try {
         // Plain-text passwords require safe=0.
         $encryptPasswords = ($_GET['safe'] ?? '1') !== '0';
-        [$body, $mime, $extension] = $controller->exportFile($userId, $format, $encryptPasswords);
+        [$body, $mime, $extension] = $controller->exportFile($userId, $format, $encryptPasswords, $scope);
     } catch (Throwable $error) {
         error_log('Squir ' . $format . ' export failed: ' . $error->getMessage());
         settingsJson(['error' => 'Could not create your export. Please try again.'], 500);

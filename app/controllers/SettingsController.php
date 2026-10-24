@@ -125,110 +125,238 @@ class SettingsController
         return ['errors' => []];
     }
 
-    // Recent activity
+    // List recent activity
     public function listActivity(int $userId, int $limit = 50): array
     {
         return $this->activityLog->listForUser($userId, $limit);
     }
 
-    // Clear activity
+    // Clear activity log
     public function clearActivityLog(int $userId): bool
     {
         return $this->activityLog->clearForUser($userId);
     }
 
-    // Delete account
+    // Delete user account
     public function deleteAccount(int $userId): bool
     {
         return $this->user->delete($userId);
     }
 
-    // Build export
-    // Keep exported passwords encrypted by default.
-    public function exportData(int $userId, bool $encryptPasswords = true): array
+    // Exportable sections
+    public const EXPORT_SECTIONS = ['vault', 'notes', 'tasks', 'folders'];
+
+    // Export item labels
+    public function exportOptions(int $userId): array
+    {
+        $queries = [
+            'vault'   => 'SELECT vault_id AS id, title AS label, \'\' AS hint FROM vault WHERE user_id = :uid ORDER BY title ASC',
+            'notes'   => 'SELECT note_id AS id, title AS label, \'\' AS hint FROM notes WHERE user_id = :uid ORDER BY updated_at DESC',
+            'tasks'   => 'SELECT task_id AS id, title AS label, status AS hint FROM tasks WHERE user_id = :uid ORDER BY created_at DESC',
+            'folders' => 'SELECT folder_id AS id, folder_name AS label, folder_type AS hint FROM folders WHERE user_id = :uid ORDER BY folder_name ASC',
+        ];
+
+        $hintLabels = [
+            'todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done',
+            'passwords' => 'Passwords', 'notes' => 'Notes',
+        ];
+
+        $options = [];
+        foreach ($queries as $section => $sql) {
+            $statement = $this->db->prepare($sql);
+            $statement->execute(['uid' => $userId]);
+
+            $items = [];
+            foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $label = html_entity_decode((string) $row['label'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $items[] = [
+                    'id'    => (int) $row['id'],
+                    'label' => trim($label) !== '' ? $label : 'Untitled',
+                    'hint'  => $hintLabels[$row['hint']] ?? '',
+                ];
+            }
+
+            $options[$section] = $items;
+        }
+
+        return $options;
+    }
+
+    // Normalize export scope
+    public function normalizeScope(?array $scope): array
+    {
+        if ($scope === null) {
+            return array_fill_keys(self::EXPORT_SECTIONS, true);
+        }
+
+        $clean = [];
+        foreach (self::EXPORT_SECTIONS as $section) {
+            if (!array_key_exists($section, $scope)) {
+                continue;
+            }
+
+            $value = $scope[$section];
+            if ($value === true || $value === 'all') {
+                $clean[$section] = true;
+                continue;
+            }
+
+            if (is_array($value)) {
+                $ids = array_values(array_unique(array_filter(
+                    array_map('intval', $value),
+                    static fn (int $id): bool => $id > 0
+                )));
+
+                if ($ids !== []) {
+                    $clean[$section] = $ids;
+                }
+            }
+        }
+
+        if ($clean === []) {
+            throw new InvalidArgumentException('Please choose what to export.');
+        }
+
+        return $clean;
+    }
+
+    // Filter by selected IDs
+    private function idFilter(string $column, array|bool $selection, array &$params, string $prefix): string
+    {
+        if ($selection === true || $selection === false) {
+            return '';
+        }
+
+        $holders = [];
+        foreach (array_values($selection) as $i => $id) {
+            $key = $prefix . $i;
+            $holders[] = ':' . $key;
+            $params[$key] = (int) $id;
+        }
+
+        return ' AND ' . $column . ' IN (' . implode(',', $holders) . ')';
+    }
+
+    // Build export data; passwords stay encrypted by default.
+    public function exportData(int $userId, bool $encryptPasswords = true, ?array $scope = null): array
     {
         $vaultModel = new Vault($this->db);
+        $scope = $this->normalizeScope($scope);
 
         // Vault items
-        $vaultStatement = $this->db->prepare(
-            "SELECT v.title,
-                    v.account_username,
-                    v.account_password,
-                    v.website_url,
-                    v.notes,
-                    v.created_at,
-                    v.updated_at,
-                    f.folder_name,
-                    GROUP_CONCAT(t.tag_name ORDER BY t.tag_name SEPARATOR ',') AS tags
-             FROM vault v
-             LEFT JOIN folders    f  ON f.folder_id = v.folder_id
-             LEFT JOIN vault_tags vt ON vt.vault_id = v.vault_id
-             LEFT JOIN tags       t  ON t.tag_id    = vt.tag_id
-             WHERE v.user_id = :uid
-             GROUP BY v.vault_id, f.folder_name
-             ORDER BY v.title ASC"
-        );
-        $vaultStatement->execute(['uid' => $userId]);
-
         $vaultOut = [];
-        foreach ($vaultStatement->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $vaultOut[] = [
-                'title'       => $row['title'],
-                'username'    => $row['account_username'],
-                'password'    => $row['account_password'] !== null && $row['account_password'] !== ''
-                    ? ($encryptPasswords
-                        ? $row['account_password']
-                        : $vaultModel->decryptSecret($row['account_password']))
-                    : null,
-                'website_url' => $row['website_url'],
-                'notes'       => $row['notes'],
-                'tags'        => $row['tags'],
-                'folder'      => $row['folder_name'],
-                'created_at'  => $row['created_at'],
-                'updated_at'  => $row['updated_at'],
-            ];
+        if (isset($scope['vault'])) {
+            $params = ['uid' => $userId];
+            $filter = $this->idFilter('v.vault_id', $scope['vault'], $params, 'vid');
+
+            $vaultStatement = $this->db->prepare(
+                "SELECT v.title,
+                        v.account_username,
+                        v.account_password,
+                        v.website_url,
+                        v.notes,
+                        v.created_at,
+                        v.updated_at,
+                        f.folder_name,
+                        GROUP_CONCAT(t.tag_name ORDER BY t.tag_name SEPARATOR ',') AS tags
+                 FROM vault v
+                 LEFT JOIN folders    f  ON f.folder_id = v.folder_id
+                 LEFT JOIN vault_tags vt ON vt.vault_id = v.vault_id
+                 LEFT JOIN tags       t  ON t.tag_id    = vt.tag_id
+                 WHERE v.user_id = :uid" . $filter . "
+                 GROUP BY v.vault_id, f.folder_name
+                 ORDER BY v.title ASC"
+            );
+            $vaultStatement->execute($params);
+
+            foreach ($vaultStatement->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $vaultOut[] = [
+                    'title'       => $row['title'],
+                    'username'    => $row['account_username'],
+                    'password'    => $row['account_password'] !== null && $row['account_password'] !== ''
+                        ? ($encryptPasswords
+                            ? $row['account_password']
+                            : $vaultModel->decryptSecret($row['account_password']))
+                        : null,
+                    'website_url' => $row['website_url'],
+                    'notes'       => $row['notes'],
+                    'tags'        => $row['tags'],
+                    'folder'      => $row['folder_name'],
+                    'created_at'  => $row['created_at'],
+                    'updated_at'  => $row['updated_at'],
+                ];
+            }
         }
 
         // Notes
-        $noteStatement = $this->db->prepare(
-            'SELECT n.title, n.content, n.created_at, n.updated_at, f.folder_name AS folder
-             FROM notes n
-             LEFT JOIN folders f ON f.folder_id = n.folder_id
-             WHERE n.user_id = :uid
-             ORDER BY n.updated_at DESC'
-        );
-        $noteStatement->execute(['uid' => $userId]);
+        $notesOut = [];
+        if (isset($scope['notes'])) {
+            $params = ['uid' => $userId];
+            $filter = $this->idFilter('n.note_id', $scope['notes'], $params, 'nid');
 
-        $taskStatement = $this->db->prepare(
-            'SELECT title, description, status, priority, due_date, created_at
-             FROM tasks
-             WHERE user_id = :uid
-             ORDER BY created_at DESC'
-        );
-        $taskStatement->execute(['uid' => $userId]);
+            $noteStatement = $this->db->prepare(
+                'SELECT n.title, n.content, n.created_at, n.updated_at, f.folder_name AS folder
+                 FROM notes n
+                 LEFT JOIN folders f ON f.folder_id = n.folder_id
+                 WHERE n.user_id = :uid' . $filter . '
+                 ORDER BY n.updated_at DESC'
+            );
+            $noteStatement->execute($params);
+            $notesOut = $noteStatement->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        // Tasks
+        $tasksOut = [];
+        if (isset($scope['tasks'])) {
+            $params = ['uid' => $userId];
+            $filter = $this->idFilter('task_id', $scope['tasks'], $params, 'tid');
+
+            $taskStatement = $this->db->prepare(
+                'SELECT title, description, status, priority, due_date, created_at
+                 FROM tasks
+                 WHERE user_id = :uid' . $filter . '
+                 ORDER BY created_at DESC'
+            );
+            $taskStatement->execute($params);
+            $tasksOut = $this->decodeTaskText($taskStatement->fetchAll(PDO::FETCH_ASSOC));
+        }
 
         // Folder totals
-        $folderStatement = $this->db->prepare(
-            'SELECT f.folder_name,
-                    f.folder_type,
-                    f.color,
-                    COUNT(DISTINCT v.vault_id) + COUNT(DISTINCT n.note_id) AS item_count
-             FROM folders f
-             LEFT JOIN vault v ON v.folder_id = f.folder_id
-             LEFT JOIN notes n ON n.folder_id = f.folder_id
-             WHERE f.user_id = :uid
-             GROUP BY f.folder_id, f.folder_name, f.folder_type, f.color
-             ORDER BY f.folder_name ASC'
-        );
-        $folderStatement->execute(['uid' => $userId]);
+        $foldersOut = [];
+        if (isset($scope['folders'])) {
+            $params = ['uid' => $userId];
+            $filter = $this->idFilter('f.folder_id', $scope['folders'], $params, 'fid');
+
+            $folderStatement = $this->db->prepare(
+                'SELECT f.folder_name,
+                        f.folder_type,
+                        f.color,
+                        COUNT(DISTINCT v.vault_id) + COUNT(DISTINCT n.note_id) AS item_count
+                 FROM folders f
+                 LEFT JOIN vault v ON v.folder_id = f.folder_id
+                 LEFT JOIN notes n ON n.folder_id = f.folder_id
+                 WHERE f.user_id = :uid' . $filter . '
+                 GROUP BY f.folder_id, f.folder_name, f.folder_type, f.color
+                 ORDER BY f.folder_name ASC'
+            );
+            $folderStatement->execute($params);
+            $foldersOut = $folderStatement->fetchAll(PDO::FETCH_ASSOC);
+        }
 
         return [
-            'exported_at' => date('c'),
+            'exported_at'         => date('c'),
             'passwords_encrypted' => $encryptPasswords,
-            'vault'       => $vaultOut,
-            'notes'       => $noteStatement->fetchAll(PDO::FETCH_ASSOC),
-            'tasks'       => $this->decodeTaskText($taskStatement->fetchAll(PDO::FETCH_ASSOC)),
-            'folders'     => $folderStatement->fetchAll(PDO::FETCH_ASSOC),
+            // Selected sections
+            'included'            => [
+                'vault'   => isset($scope['vault']),
+                'notes'   => isset($scope['notes']),
+                'tasks'   => isset($scope['tasks']),
+                'folders' => isset($scope['folders']),
+            ],
+            'vault'               => $vaultOut,
+            'notes'               => $notesOut,
+            'tasks'               => $tasksOut,
+            'folders'             => $foldersOut,
         ];
     }
 
@@ -259,9 +387,9 @@ class SettingsController
     public const EXPORT_FORMATS = ['csv', 'xlsx', 'doc', 'pdf'];
 
     // Build export file
-    public function exportFile(int $userId, string $format, bool $encryptPasswords = true): array
+    public function exportFile(int $userId, string $format, bool $encryptPasswords = true, ?array $scope = null): array
     {
-        $data = $this->exportData($userId, $encryptPasswords);
+        $data = $this->exportData($userId, $encryptPasswords, $scope);
         $user = $this->user->findById($userId) ?: [];
 
         switch ($format) {
@@ -320,7 +448,7 @@ class SettingsController
         return $dompdf->output();
     }
 
-    // Fix task text
+    // Decode task text
     private function decodeTaskText(array $tasks): array
     {
         foreach ($tasks as &$task) {
@@ -389,12 +517,21 @@ class SettingsController
             ];
         }
 
-        return [
-            ['name' => 'Vault',   'header' => ['Title', 'Folder', 'Username', 'Password', 'Website', 'Tags', 'Notes', 'Created', 'Updated'], 'rows' => $vault],
-            ['name' => 'Notes',   'header' => ['Title', 'Folder', 'Content', 'Created', 'Updated'], 'rows' => $notes],
-            ['name' => 'Tasks',   'header' => ['Title', 'Description', 'Status', 'Priority', 'Due Date', 'Created'], 'rows' => $tasks],
-            ['name' => 'Folders', 'header' => ['Folder', 'Type', 'Color', 'Items'], 'rows' => $folders, 'numeric' => [3]],
+        $sections = [
+            'vault'   => ['name' => 'Vault',   'header' => ['Title', 'Folder', 'Username', 'Password', 'Website', 'Tags', 'Notes', 'Created', 'Updated'], 'rows' => $vault],
+            'notes'   => ['name' => 'Notes',   'header' => ['Title', 'Folder', 'Content', 'Created', 'Updated'], 'rows' => $notes],
+            'tasks'   => ['name' => 'Tasks',   'header' => ['Title', 'Description', 'Status', 'Priority', 'Due Date', 'Created'], 'rows' => $tasks],
+            'folders' => ['name' => 'Folders', 'header' => ['Folder', 'Type', 'Color', 'Items'], 'rows' => $folders, 'numeric' => [3]],
         ];
+
+        // Keep selected sections
+        $included = $data['included'] ?? array_fill_keys(self::EXPORT_SECTIONS, true);
+
+        return array_values(array_filter(
+            $sections,
+            static fn (string $key): bool => !empty($included[$key]),
+            ARRAY_FILTER_USE_KEY
+        ));
     }
 
     // CSV export
@@ -433,7 +570,7 @@ class SettingsController
         return XlsxBuilder::buildWorkbook($this->exportSections($data));
     }
 
-    // Stop CSV injection
+    // Prevent CSV formula injection
     private static function csvCell(mixed $value): string
     {
         $text = (string) ($value ?? '');
@@ -485,6 +622,8 @@ class SettingsController
         $tasks = $data['tasks'] ?? [];
         $folders = $data['folders'] ?? [];
 
+        $included = $data['included'] ?? array_fill_keys(self::EXPORT_SECTIONS, true);
+
         $exportedAt = $this->docDate($data['exported_at'] ?? null, 'F j, Y \a\t g:i A');
         $ownerName = trim((string) ($user['full_name'] ?? ''));
         $ownerEmail = trim((string) ($user['email'] ?? ''));
@@ -501,24 +640,34 @@ class SettingsController
         $doc->paragraph($subtitle, ['color' => $soft, 'size' => 17, 'after' => 160]);
 
         // Warning
+        if (empty($included['vault'])) {
+            $warning = ' Store it somewhere private and delete it when you no longer need it.';
+        } elseif (!empty($data['passwords_encrypted'])) {
+            $warning = ' Your saved passwords are encrypted in this file. Store it somewhere private and delete it when you no longer need it.';
+        } else {
+            $warning = ' It contains your saved passwords in plain text. Store it somewhere private and delete it when you no longer need it.';
+        }
+
         $doc->table([[[
             'shade' => 'FBF1E3',
             'paras' => [[
                 ['Keep this file safe.', ['bold' => true, 'color' => $brown]],
-                [!empty($data['passwords_encrypted'])
-                    ? ' Your saved passwords are encrypted in this file. Store it somewhere private and delete it when you no longer need it.'
-                    : ' It contains your saved passwords in plain text. Store it somewhere private and delete it when you no longer need it.', ['color' => $brown]],
+                [$warning, ['color' => $brown]],
             ]],
         ]]], [100], ['border' => 'E0C39A', 'after' => 200]);
 
         // Totals
         $summary = [];
         foreach ([
-            [count($vault), 'Vault entries'],
-            [count($notes), 'Notes'],
-            [count($tasks), 'Tasks'],
-            [count($folders), 'Folders'],
-        ] as [$number, $label]) {
+            ['vault', count($vault), 'Vault entries'],
+            ['notes', count($notes), 'Notes'],
+            ['tasks', count($tasks), 'Tasks'],
+            ['folders', count($folders), 'Folders'],
+        ] as [$key, $number, $label]) {
+            if (empty($included[$key])) {
+                continue;
+            }
+
             $summary[] = [
                 'align' => 'center',
                 'paras' => [
@@ -527,144 +676,156 @@ class SettingsController
                 ],
             ];
         }
-        $doc->table([$summary], [25, 25, 25, 25]);
 
-        // Vault
-        $doc->heading('Password Vault', 2);
-        if ($vault === []) {
-            $doc->paragraph('No vault entries to export.', ['italic' => true, 'color' => $muted]);
-        }
-        foreach ($vault as $item) {
-            $title = trim((string) ($item['title'] ?? ''));
-            $tagList = trim((string) ($item['tags'] ?? ''));
-            $tagList = $tagList === '' ? '' : implode(', ', explode(',', $tagList));
 
-            $rows = [[[
-                'text' => $title !== '' ? $title : 'Untitled entry',
-                'span' => 2, 'shade' => $head, 'bold' => true, 'color' => $brown, 'size' => 20,
-            ]]];
+        $summaryWidths = array_fill(0, count($summary), intdiv(100, count($summary)));
+        $summaryWidths[count($summaryWidths) - 1] += 100 - array_sum($summaryWidths);
+        $doc->table([$summary], $summaryWidths);
 
-            $fields = [];
-            if (($item['username'] ?? '') !== '') {
-                $fields[] = ['Username', (string) $item['username'], false];
+        if (!empty($included['vault'])) {
+            // Vault
+            $doc->heading('Password Vault', 2);
+            if ($vault === []) {
+                $doc->paragraph('No vault entries to export.', ['italic' => true, 'color' => $muted]);
             }
-            if (($item['password'] ?? '') !== '') {
-                $fields[] = ['Password', (string) $item['password'], true];
-            }
-            if (!empty($item['website_url'])) {
-                $fields[] = ['Website', (string) $item['website_url'], false];
-            }
-            if (!empty($item['folder'])) {
-                $fields[] = ['Folder', (string) $item['folder'], false];
-            }
-            if ($tagList !== '') {
-                $fields[] = ['Tags', $tagList, false];
-            }
-            if (!empty($item['notes'])) {
-                $fields[] = ['Notes', (string) $item['notes'], false];
-            }
+            foreach ($vault as $item) {
+                $title = trim((string) ($item['title'] ?? ''));
+                $tagList = trim((string) ($item['tags'] ?? ''));
+                $tagList = $tagList === '' ? '' : implode(', ', explode(',', $tagList));
 
-            foreach ($fields as [$label, $value, $mono]) {
-                $rows[] = [
-                    ['text' => $label, 'color' => $soft],
-                    ['text' => $value, 'mono' => $mono],
-                ];
-            }
+                $rows = [[[
+                    'text' => $title !== '' ? $title : 'Untitled entry',
+                    'span' => 2, 'shade' => $head, 'bold' => true, 'color' => $brown, 'size' => 20,
+                ]]];
 
-            $doc->table($rows, [22, 78], ['after' => 120]);
-        }
-
-        // Notes
-        $doc->heading('Notes', 2);
-        if ($notes === []) {
-            $doc->paragraph('No notes to export.', ['italic' => true, 'color' => $muted]);
-        }
-        foreach ($notes as $note) {
-            $title = trim((string) ($note['title'] ?? ''));
-            $created = $this->docDate($note['created_at'] ?? null);
-            $updated = $this->docDate($note['updated_at'] ?? null);
-            $body = $this->plainText($note['content'] ?? null);
-
-            $meta = [];
-            if ($created !== '') {
-                $meta[] = 'Created ' . $created;
-            }
-            if ($updated !== '' && $updated !== $created) {
-                $meta[] = 'Updated ' . $updated;
-            }
-            if (!empty($note['folder'])) {
-                $meta[] = 'Folder: ' . $note['folder'];
-            }
-
-            $doc->paragraph($title !== '' ? $title : 'Untitled note', ['bold' => true, 'size' => 21, 'keepNext' => true, 'before' => 160, 'after' => 20]);
-            if ($meta !== []) {
-                $doc->paragraph(implode(' · ', $meta), ['color' => $muted, 'size' => 15, 'keepNext' => true, 'after' => 60]);
-            }
-            if ($body !== '') {
-                $doc->paragraph($body, ['after' => 120]);
-            } else {
-                $doc->paragraph('(No content)', ['color' => $muted, 'after' => 120]);
-            }
-        }
-
-        // Tasks
-        $doc->heading('Tasks', 2);
-        if ($tasks === []) {
-            $doc->paragraph('No tasks to export.', ['italic' => true, 'color' => $muted]);
-        } else {
-            $head1 = ['shade' => $head, 'bold' => true, 'color' => $brown];
-            $rows = [[
-                $head1 + ['text' => 'Task'],
-                $head1 + ['text' => 'Status'],
-                $head1 + ['text' => 'Priority'],
-                $head1 + ['text' => 'Due date'],
-            ]];
-
-            foreach ($tasks as $task) {
-                $status = (string) ($task['status'] ?? '');
-                $priority = (string) ($task['priority'] ?? '');
-                $due = $this->docDate($task['due_date'] ?? null, 'M j, Y');
-
-                $paras = [[[(string) ($task['title'] ?? ''), ['bold' => true]]]];
-                if (!empty($task['description'])) {
-                    $paras[] = [[(string) $task['description'], ['color' => $soft, 'size' => 16]]];
+                $fields = [];
+                if (($item['username'] ?? '') !== '') {
+                    $fields[] = ['Username', (string) $item['username'], false];
+                }
+                if (($item['password'] ?? '') !== '') {
+                    $fields[] = ['Password', (string) $item['password'], true];
+                }
+                if (!empty($item['website_url'])) {
+                    $fields[] = ['Website', (string) $item['website_url'], false];
+                }
+                if (!empty($item['folder'])) {
+                    $fields[] = ['Folder', (string) $item['folder'], false];
+                }
+                if ($tagList !== '') {
+                    $fields[] = ['Tags', $tagList, false];
+                }
+                if (!empty($item['notes'])) {
+                    $fields[] = ['Notes', (string) $item['notes'], false];
                 }
 
-                $rows[] = [
-                    ['paras' => $paras],
-                    ['text' => $statusLabels[$status] ?? $status],
-                    ['text' => $priorityLabels[$priority] ?? $priority],
-                    ['text' => $due !== '' ? $due : '-'],
-                ];
-            }
+                foreach ($fields as [$label, $value, $mono]) {
+                    $rows[] = [
+                        ['text' => $label, 'color' => $soft],
+                        ['text' => $value, 'mono' => $mono],
+                    ];
+                }
 
-            $doc->table($rows, [50, 16, 14, 20], ['headerRows' => 1]);
+                $doc->table($rows, [22, 78], ['after' => 120]);
+            }
         }
 
-        // Folders
-        $doc->heading('Folders', 2);
-        if ($folders === []) {
-            $doc->paragraph('No folders to export.', ['italic' => true, 'color' => $muted]);
-        } else {
-            $head1 = ['shade' => $head, 'bold' => true, 'color' => $brown];
-            $rows = [[
-                $head1 + ['text' => 'Folder'],
-                $head1 + ['text' => 'Type'],
-                $head1 + ['text' => 'Color'],
-                $head1 + ['text' => 'Items'],
-            ]];
-
-            foreach ($folders as $folder) {
-                $type = (string) ($folder['folder_type'] ?? '');
-                $rows[] = [
-                    ['text' => (string) ($folder['folder_name'] ?? '')],
-                    ['text' => $folderTypeLabels[$type] ?? $type],
-                    ['text' => (string) ($folder['color'] ?? '')],
-                    ['text' => (string) (int) ($folder['item_count'] ?? 0)],
-                ];
+        if (!empty($included['notes'])) {
+            // Notes
+            $doc->heading('Notes', 2);
+            if ($notes === []) {
+                $doc->paragraph('No notes to export.', ['italic' => true, 'color' => $muted]);
             }
+            foreach ($notes as $note) {
+                $title = trim((string) ($note['title'] ?? ''));
+                $created = $this->docDate($note['created_at'] ?? null);
+                $updated = $this->docDate($note['updated_at'] ?? null);
+                $body = $this->plainText($note['content'] ?? null);
 
-            $doc->table($rows, [40, 20, 20, 20], ['headerRows' => 1]);
+                $meta = [];
+                if ($created !== '') {
+                    $meta[] = 'Created ' . $created;
+                }
+                if ($updated !== '' && $updated !== $created) {
+                    $meta[] = 'Updated ' . $updated;
+                }
+                if (!empty($note['folder'])) {
+                    $meta[] = 'Folder: ' . $note['folder'];
+                }
+
+                $doc->paragraph($title !== '' ? $title : 'Untitled note', ['bold' => true, 'size' => 21, 'keepNext' => true, 'before' => 160, 'after' => 20]);
+                if ($meta !== []) {
+                    $doc->paragraph(implode(' · ', $meta), ['color' => $muted, 'size' => 15, 'keepNext' => true, 'after' => 60]);
+                }
+                if ($body !== '') {
+                    $doc->paragraph($body, ['after' => 120]);
+                } else {
+                    $doc->paragraph('(No content)', ['color' => $muted, 'after' => 120]);
+                }
+            }
+        }
+
+        if (!empty($included['tasks'])) {
+            // Tasks
+            $doc->heading('Tasks', 2);
+            if ($tasks === []) {
+                $doc->paragraph('No tasks to export.', ['italic' => true, 'color' => $muted]);
+            } else {
+                $head1 = ['shade' => $head, 'bold' => true, 'color' => $brown];
+                $rows = [[
+                    $head1 + ['text' => 'Task'],
+                    $head1 + ['text' => 'Status'],
+                    $head1 + ['text' => 'Priority'],
+                    $head1 + ['text' => 'Due date'],
+                ]];
+
+                foreach ($tasks as $task) {
+                    $status = (string) ($task['status'] ?? '');
+                    $priority = (string) ($task['priority'] ?? '');
+                    $due = $this->docDate($task['due_date'] ?? null, 'M j, Y');
+
+                    $paras = [[[(string) ($task['title'] ?? ''), ['bold' => true]]]];
+                    if (!empty($task['description'])) {
+                        $paras[] = [[(string) $task['description'], ['color' => $soft, 'size' => 16]]];
+                    }
+
+                    $rows[] = [
+                        ['paras' => $paras],
+                        ['text' => $statusLabels[$status] ?? $status],
+                        ['text' => $priorityLabels[$priority] ?? $priority],
+                        ['text' => $due !== '' ? $due : '-'],
+                    ];
+                }
+
+                $doc->table($rows, [50, 16, 14, 20], ['headerRows' => 1]);
+            }
+        }
+
+        if (!empty($included['folders'])) {
+            // Folders
+            $doc->heading('Folders', 2);
+            if ($folders === []) {
+                $doc->paragraph('No folders to export.', ['italic' => true, 'color' => $muted]);
+            } else {
+                $head1 = ['shade' => $head, 'bold' => true, 'color' => $brown];
+                $rows = [[
+                    $head1 + ['text' => 'Folder'],
+                    $head1 + ['text' => 'Type'],
+                    $head1 + ['text' => 'Color'],
+                    $head1 + ['text' => 'Items'],
+                ]];
+
+                foreach ($folders as $folder) {
+                    $type = (string) ($folder['folder_type'] ?? '');
+                    $rows[] = [
+                        ['text' => (string) ($folder['folder_name'] ?? '')],
+                        ['text' => $folderTypeLabels[$type] ?? $type],
+                        ['text' => (string) ($folder['color'] ?? '')],
+                        ['text' => (string) (int) ($folder['item_count'] ?? 0)],
+                    ];
+                }
+
+                $doc->table($rows, [40, 20, 20, 20], ['headerRows' => 1]);
+            }
         }
 
         return $doc->build();

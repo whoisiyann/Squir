@@ -33,7 +33,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
     <link rel="stylesheet" href="./assets/css/vault.css">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="./assets/css/settings.css">
-    <link rel="stylesheet" href="./assets/css/export-dialog.css">
+    <link rel="stylesheet" href="./assets/css/export-dialog.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="settings-page">
@@ -234,7 +234,7 @@ $memberSince = 'Member since ' . date('M j, Y', strtotime((string) $user['create
 <script src="./assets/js/squir-dialogs.js"></script>
 <script src="./assets/js/dashboard.js?v=4"></script>
 <script src="./assets/js/pin-gate.js"></script>
-<script src="./assets/js/export-dialog.js"></script>
-<script src="./assets/js/settings.js?v=3"></script>
+<script src="./assets/js/export-dialog.js?v=2"></script>
+<script src="./assets/js/settings.js?v=4"></script>
 </body>
 </html>

@@ -118,7 +118,6 @@ Administrators log in from the same login page and are redirected to their own p
 - Password, PIN, and email-change verification all use **hashed, time-limited, single-use codes** with a maximum attempt count before a new code is required.
 - CSRF tokens are required on state-changing requests.
 - Sensitive actions (reveal/copy password, data export, account deletion) require re-authentication via PIN or password.
-- Copied passwords are cleared from the clipboard after 30 seconds.
 - Session cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` over HTTPS.
 - `.htaccess` blocks direct access to `.env`, `.sql`, `.log`, source folders (`app`, `config`, `includes`, `vendor`, ...), and every `.php` file except `index.php`.
 - PHP/database errors are logged to `logs/php-error.log` and never shown to users.

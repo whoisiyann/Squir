@@ -1,4 +1,4 @@
-/* Export format dialog (user settings + admin settings) */
+/* Export dialog */
 
 .exd-backdrop {
     display: none;
@@ -150,4 +150,163 @@
     .exd-btn:not(.exd-btn-primary):hover { background: var(--soft, #f2f4f5); }
     .exd-btn-primary:hover { filter: brightness(.92); }
     .exd-close:hover { background: var(--soft, #f2f4f5); }
+}
+
+/* "What to export" step */
+.exd-dialog [hidden] { display: none !important; }
+
+.exd-scopes {
+    display: grid;
+    gap: 10px;
+}
+
+.exd-scope {
+    padding: 12px 14px;
+    border: 1px solid var(--border, #e5e5e5);
+    border-radius: 14px;
+    transition: border-color .15s ease, background-color .15s ease;
+}
+
+.exd-scope:not(.is-off) {
+    border-color: var(--accent, #6b3f2a);
+    background: var(--soft, #f2f4f5);
+}
+
+.exd-scope-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.exd-scope-head input[type="checkbox"] {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--accent, #6b3f2a);
+}
+
+.exd-scope-mode {
+    display: flex;
+    gap: 8px;
+    margin: 10px 0 0 30px;
+}
+
+.exd-pill {
+    position: relative;
+    padding: 6px 12px;
+    border: 1px solid var(--border, #e5e5e5);
+    border-radius: 999px;
+    background: var(--card, #fff);
+    color: var(--text, #000);
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.exd-pill input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.exd-pill:has(input:checked) {
+    border-color: var(--accent, #6b3f2a);
+    background: var(--accent, #6b3f2a);
+    color: var(--button-text, #fff);
+}
+
+.exd-pill:has(input:focus-visible) {
+    outline: 2px solid var(--accent, #6b3f2a);
+    outline-offset: 2px;
+}
+
+.exd-scope-list {
+    margin: 10px 0 0 30px;
+    padding: 8px 10px;
+    max-height: 170px;
+    overflow-y: auto;
+    border: 1px solid var(--border, #e5e5e5);
+    border-radius: 10px;
+    background: var(--card, #fff);
+}
+
+.exd-scope-tools {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 4px;
+}
+
+.exd-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent, #6b3f2a);
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.exd-scope-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: .88rem;
+    cursor: pointer;
+}
+
+.exd-scope-item input {
+    flex: 0 0 auto;
+    margin: 0;
+    accent-color: var(--accent, #6b3f2a);
+}
+
+.exd-scope-item-label {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.exd-scope-item small {
+    flex: 0 0 auto;
+    color: var(--muted, #747877);
+    font-size: .75rem;
+}
+
+/* Dialog scrollbar */
+.exd-dialog,
+.exd-scope-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border, #e5e5e5) transparent;
+}
+
+.exd-dialog::-webkit-scrollbar,
+.exd-scope-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.exd-dialog::-webkit-scrollbar-track,
+.exd-scope-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.exd-dialog::-webkit-scrollbar-thumb,
+.exd-scope-list::-webkit-scrollbar-thumb {
+    background: var(--border, #e5e5e5);
+    border-radius: 99px;
+}
+
+/* Scope card icons */
+.exd-scope .exd-option-icon {
+    background: var(--soft, #f2f4f5);
+    transition: background-color .15s ease;
+}
+
+.exd-scope:not(.is-off) .exd-option-icon {
+    background: var(--card, #fff);
 }

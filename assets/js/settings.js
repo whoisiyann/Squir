@@ -4,7 +4,7 @@
 
     var csrfToken = window.VAULT_CSRF_TOKEN || '';
 
-    // Send a settings request.
+    // Send a settings request
     function postAjax(action, fields) {
         var body = new URLSearchParams();
         body.set('ajax', action);
@@ -46,7 +46,7 @@
 
     document.addEventListener('keydown', function (event) {
         if (event.key !== 'Escape') return;
-        // Don't close the delete confirmation with Escape.
+
         var deleteModal = document.getElementById('deleteAccountModalBackdrop');
         if (deleteModal && deleteModal.classList.contains('open')) return;
         $all('.vault-modal-backdrop.open').forEach(function (backdrop) {
@@ -91,7 +91,7 @@
             if (deleteBackdrop && deleteConfirmBtn && deleteCancelBtn && deleteErrorEl) {
                 openDeleteAccountModal();
             } else if (window.confirm('Are you sure you want to delete your account? This will permanently remove your vault, notes, tasks, and all related data. This cannot be undone.')) {
-                // Use the browser confirmation if the custom dialog is unavailable.
+
                 postAjax('delete_account', {}).then(function (result) {
                     if (result.ok) window.location.href = './login';
                 });
@@ -170,7 +170,7 @@
     var pendingNewEmail = '';
     var emailCooldownTimer = null;
 
-    // Track the email resend cooldown.
+    // Track the resend cooldown
     function startEmailCooldown(seconds) {
         if (!emailChangeResendBtn) return;
         clearInterval(emailCooldownTimer);
@@ -193,7 +193,7 @@
         }
     }
 
-    // Show email verification step
+    // Show email verification
     function showEmailCodeStep(newEmail, devCode, retryAfter) {
         pendingNewEmail = newEmail;
         document.getElementById('emailChangeTargetEmail').textContent = newEmail;
@@ -215,7 +215,7 @@
         if (emailCodeBoxes[0]) emailCodeBoxes[0].focus();
     }
 
-    // Return to account form
+    // Return to the account form
     function resetEditAccountModal() {
         pendingNewEmail = '';
         clearInterval(emailCooldownTimer);
@@ -323,7 +323,7 @@
             postAjax('resend_email_change', {}).then(function (result) {
                 if (!result.ok) {
                     emailCodeError.textContent = result.json.error || 'Could not resend the code.';
-                    // Restart the resend timer.
+
                     startEmailCooldown(result.json.retry_after || 0);
                     return;
                 }
@@ -383,7 +383,7 @@
                     return;
                 }
 
-                // Send a verification code to the new email.
+
                 postAjax('request_email_change', { new_email: newEmail }).then(function (emailResult) {
                     submitBtn.disabled = false;
 
@@ -424,7 +424,7 @@
             });
         });
 
-        // Sync with the header theme toggle.
+
         document.addEventListener('squir-theme', function (event) {
             highlightTheme(event.detail);
         });
@@ -439,7 +439,7 @@
         var accountCard = document.querySelector('.settings-grid > .settings-card');
         var lockTimer = null;
 
-        // Keep the account card the same height while this panel is open.
+        // Keep the account card height steady while open
         function lockAccountHeight() {
             if (!accountCard || !window.matchMedia('(min-width: 1001px)').matches) return;
             accountCard.style.height = accountCard.offsetHeight + 'px';
@@ -456,7 +456,7 @@
             if (willOpen) {
                 lockAccountHeight();
             } else {
-                // Reset the height after the close animation.
+
                 lockTimer = window.setTimeout(unlockAccountHeight, 450);
             }
 
@@ -679,7 +679,7 @@
             setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
         }
 
-        // Safe export toggle (on = passwords stay encrypted)
+        // Keep exported passwords encrypted
         var safeToggle = document.getElementById('safeExportToggle');
         var SAFE_EXPORT_KEY = 'squir-safe-export';
 
@@ -697,12 +697,45 @@
         var EXPORT_LABELS = { csv: 'CSV', xlsx: 'Excel', doc: 'Docs', pdf: 'PDF' };
         var EXPORT_TYPES = { csv: 'text/csv', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', doc: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', pdf: 'application/pdf' };
 
-        // Download after the PIN check.
-        function downloadExport(format) {
+        // Export scope options
+        var EXPORT_SCOPES = [
+            { key: 'vault',   label: 'Vault',   icon: 'ti-lock',      singular: 'vault entry', plural: 'vault entries' },
+            { key: 'notes',   label: 'Notes',   icon: 'ti-notes',     singular: 'note',        plural: 'notes' },
+            { key: 'tasks',   label: 'Tasks',   icon: 'ti-checkbox', singular: 'task',        plural: 'tasks' },
+            { key: 'folders', label: 'Folders', icon: 'ti-folder',    singular: 'folder',      plural: 'folders' }
+        ];
+
+        // Load export item labels
+        function loadExportScopes() {
+            return fetch('./settings?export_options=1', { credentials: 'same-origin' }).then(function (response) {
+                return response.json().catch(function () { return {}; }).then(function (json) {
+                    if (!response.ok || !json.options) {
+                        exportFail(json.error || 'Could not load the export options. Please try again.');
+                    }
+
+                    return EXPORT_SCOPES.map(function (scope) {
+                        return {
+                            key: scope.key,
+                            label: scope.label,
+                            icon: scope.icon,
+                            singular: scope.singular,
+                            plural: scope.plural,
+                            items: json.options[scope.key] || []
+                        };
+                    });
+                });
+            });
+        }
+
+        // Download the export after PIN verification
+        function downloadExport(format, scope) {
             var label = EXPORT_LABELS[format] || 'file';
             setExportBusy(true);
 
-            return fetch('./settings?export=' + encodeURIComponent(format) + '&safe=' + (safeToggle && !safeToggle.checked ? '0' : '1'), { credentials: 'same-origin' }).then(function (response) {
+            var exportUrl = './settings?export=' + encodeURIComponent(format) + '&safe=' + (safeToggle && !safeToggle.checked ? '0' : '1');
+            if (scope) exportUrl += '&scope=' + encodeURIComponent(JSON.stringify(scope));
+
+            return fetch(exportUrl, { credentials: 'same-origin' }).then(function (response) {
                 var type = response.headers.get('Content-Type') || '';
 
                 if (!response.ok || type.indexOf(EXPORT_TYPES[format]) === -1) {
@@ -738,7 +771,7 @@
             });
         }
 
-        // Open the export flow.
+
         exportBtn.addEventListener('click', function () {
             if (exportBusy) return;
 
@@ -747,15 +780,26 @@
                 return;
             }
 
-            window.SquirExportDialog.open({
-                title: 'Export Data',
-                intro: 'Choose the file format for your export.',
-                formats: ['csv', 'xlsx', 'doc', 'pdf'],
-                onExport: function (format) {
-                    window.SquirPin.ensure('export', format).then(function () {
-                        return downloadExport(format);
-                    });
-                }
+            // Choose scope and format, then verify PIN and download
+            setExportBusy(true);
+            loadExportScopes().then(function (scopes) {
+                setExportBusy(false);
+
+                window.SquirExportDialog.open({
+                    title: 'Export Data',
+                    scopeIntro: 'Choose what you want to export.',
+                    intro: 'Choose the file format for your export.',
+                    scopes: scopes,
+                    formats: ['csv', 'xlsx', 'doc', 'pdf'],
+                    onExport: function (format, scope) {
+                        window.SquirPin.ensure('export', format).then(function () {
+                            return downloadExport(format, scope);
+                        });
+                    }
+                });
+            }).catch(function (error) {
+                setExportBusy(false);
+                showExportError(error && error.friendly ? error.message : 'The export options could not load. Please try again.');
             });
         });
     }

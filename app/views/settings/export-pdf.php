@@ -6,7 +6,7 @@ $format = $format ?? 'pdf';
 
 $e = static fn ($value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
-// Format a date for display.
+// Format export dates
 $fmt = static function ($value, string $format = 'M j, Y g:i A'): string {
     if ($value === null || $value === '') {
         return '';
@@ -17,7 +17,7 @@ $fmt = static function ($value, string $format = 'M j, Y g:i A'): string {
     return $time === false ? '' : date($format, $time);
 };
 
-// Convert note HTML to plain text.
+// Strip formatting from note content
 $noteText = static function (?string $html): string {
     $html = (string) $html;
     if ($html === '') {
@@ -43,6 +43,9 @@ $vault = $data['vault'] ?? [];
 $notes = $data['notes'] ?? [];
 $tasks = $data['tasks'] ?? [];
 $folders = $data['folders'] ?? [];
+
+// Selected export sections
+$included = $data['included'] ?? ['vault' => true, 'notes' => true, 'tasks' => true, 'folders' => true];
 
 $exportedAt = $fmt($data['exported_at'] ?? null, 'F j, Y \a\t g:i A');
 $ownerName = trim((string) ($user['full_name'] ?? ''));
@@ -144,19 +147,23 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
 </p>
 
 <div class="warning">
-    <strong>Keep this file safe.</strong> <?= !empty($data['passwords_encrypted']) ? 'Your saved passwords are encrypted in this file.' : 'It contains your saved passwords in plain text.' ?>
+    <strong>Keep this file safe.</strong>
+    <?php if (!empty($included['vault'])): ?>
+        <?= !empty($data['passwords_encrypted']) ? 'Your saved passwords are encrypted in this file.' : 'It contains your saved passwords in plain text.' ?>
+    <?php endif; ?>
     Store it somewhere private and delete it when you no longer need it.
 </div>
 
 <table class="summary">
     <tr>
-        <td><div class="count"><?= count($vault) ?></div><div class="name">Vault entries</div></td>
-        <td><div class="count"><?= count($notes) ?></div><div class="name">Notes</div></td>
-        <td><div class="count"><?= count($tasks) ?></div><div class="name">Tasks</div></td>
-        <td><div class="count"><?= count($folders) ?></div><div class="name">Folders</div></td>
+        <?php if (!empty($included['vault'])): ?><td><div class="count"><?= count($vault) ?></div><div class="name">Vault entries</div></td><?php endif; ?>
+        <?php if (!empty($included['notes'])): ?><td><div class="count"><?= count($notes) ?></div><div class="name">Notes</div></td><?php endif; ?>
+        <?php if (!empty($included['tasks'])): ?><td><div class="count"><?= count($tasks) ?></div><div class="name">Tasks</div></td><?php endif; ?>
+        <?php if (!empty($included['folders'])): ?><td><div class="count"><?= count($folders) ?></div><div class="name">Folders</div></td><?php endif; ?>
     </tr>
 </table>
 
+<?php if (!empty($included['vault'])): ?>
 <h2>Password Vault</h2>
 <?php if ($vault === []): ?>
     <p class="empty">No vault entries to export.</p>
@@ -167,7 +174,7 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
     $tagList = trim((string) ($item['tags'] ?? ''));
     $tagList = $tagList === '' ? '' : implode(', ', explode(',', $tagList));
 
-    // Values are escaped before they are added to the output.
+
     $fields = [];
     if (($item['username'] ?? '') !== '') {
         $fields[] = ['Username', $e($item['username']), ''];
@@ -202,7 +209,9 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
         <?php endif; ?>
     </div>
 <?php endforeach; ?>
+<?php endif; ?>
 
+<?php if (!empty($included['notes'])): ?>
 <h2>Notes</h2>
 <?php if ($notes === []): ?>
     <p class="empty">No notes to export.</p>
@@ -228,7 +237,9 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
         <?php endif; ?>
     </div>
 <?php endforeach; ?>
+<?php endif; ?>
 
+<?php if (!empty($included['tasks'])): ?>
 <h2>Tasks</h2>
 <?php if ($tasks === []): ?>
     <p class="empty">No tasks to export.</p>
@@ -260,7 +271,9 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
         <?php endforeach; ?>
     </table>
 <?php endif; ?>
+<?php endif; ?>
 
+<?php if (!empty($included['folders'])): ?>
 <h2>Folders</h2>
 <?php if ($folders === []): ?>
     <p class="empty">No folders to export.</p>
@@ -282,6 +295,7 @@ $ownerEmail = trim((string) ($user['email'] ?? ''));
             </tr>
         <?php endforeach; ?>
     </table>
+<?php endif; ?>
 <?php endif; ?>
 
 </body>
