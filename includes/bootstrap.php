@@ -289,10 +289,10 @@ function userInitials(string $fullName): string
 
 function currentUserSummary(PDO $dbh, int $userId): array
 {
-    $stmt = $dbh->prepare('SELECT full_name, username FROM users WHERE user_id = :uid');
+    $stmt = $dbh->prepare('SELECT full_name, username, email FROM users WHERE user_id = :uid');
     $stmt->execute(['uid' => $userId]);
 
-    $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['full_name' => 'User', 'username' => 'user'];
+    $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['full_name' => 'User', 'username' => 'user', 'email' => ''];
     $user['initials'] = userInitials($user['full_name']);
 
     return $user;

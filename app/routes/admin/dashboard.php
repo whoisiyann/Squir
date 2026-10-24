@@ -16,6 +16,14 @@ if (!$admin) {
     exit;
 }
 
+// Header search (used on every admin page)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['ajax'] ?? '') === 'search') {
+    header('Content-Type: application/json');
+    header('Cache-Control: no-store');
+    echo json_encode(['results' => (new AdminDashboardController($dbh))->search((string) ($_GET['q'] ?? ''))]);
+    exit;
+}
+
 // Users who have not logged in for 30 days become inactive
 (new User($dbh))->markInactiveUsers();
 

@@ -28,7 +28,8 @@
 
     SquirBulkSelect.init({
         root: body,
-        marqueeArea: document.getElementById('alScroll') || body,
+        marqueeArea: root,     
+        marqueeFromItems: true,      
         itemSelector: 'tr[data-log-row]',
         getId: function (item) { return item.getAttribute('data-log-id'); },
         checkHost: function (item) { return item.querySelector('.al-user-cell') || item.firstElementChild; },

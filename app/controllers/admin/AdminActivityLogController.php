@@ -306,6 +306,28 @@ class AdminActivityLogController
 		];
 	}
 
+	// Delete only the logs the admin selected.
+	public function deleteSelected(array $ids): array
+	{
+		$ids = array_values(array_unique(array_filter(
+			array_map(static fn ($id): int => is_scalar($id) ? (int) $id : 0, $ids),
+			static fn (int $id): bool => $id > 0
+		)));
+
+		if ($ids === []) {
+			return ['errors' => ['Please select at least one log.'], 'deleted' => 0];
+		}
+
+		if (count($ids) > 1000) {
+			return ['errors' => ['You can delete up to 1,000 logs at a time.'], 'deleted' => 0];
+		}
+
+		return [
+			'errors'  => [],
+			'deleted' => $this->activityLog->deleteForAdminByIds($ids),
+		];
+	}
+
 	// Format row.
 	private function present(array $row): array
 	{

@@ -45,7 +45,7 @@ $filtersJson = json_encode([
   <link rel="stylesheet" href="<?= url('assets/css/admin/admin.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/users.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/activity-logs.css') ?>" />
-  <link rel="stylesheet" href="<?= url('assets/css/bulk-select.css') ?>" />
+  <link rel="stylesheet" href="<?= url('assets/css/bulk-select.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/bulk-select.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/export-dialog.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/export-dialog.css') ?>" />
 </head>
 <body class="admin-page">
@@ -252,7 +252,7 @@ $filtersJson = json_encode([
   <script src="<?= asset('assets/js/admin/admin.js') ?>"></script>
   <script src="<?= url('assets/js/export-dialog.js') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/js/export-dialog.js') ?>"></script>
   <script src="<?= url('assets/js/admin/activity-logs.js') ?>"></script>
-  <script src="<?= url('assets/js/bulk-select.js') ?>"></script>
-  <script src="<?= url('assets/js/admin/activity-logs-bulk.js') ?>"></script>
+  <script src="<?= url('assets/js/bulk-select.js') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/js/bulk-select.js') ?>"></script>
+  <script src="<?= url('assets/js/admin/activity-logs-bulk.js') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/js/admin/activity-logs-bulk.js') ?>"></script>
 </body>
 </html>

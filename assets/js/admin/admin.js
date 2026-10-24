@@ -325,6 +325,120 @@
             if (event.key === 'Escape' && topbar.classList.contains('search-open')) setSearchOpen(false);
         });
     }
+
+    // Live search: users and activities
+    var panel = document.getElementById('adminSearchResults');
+    var endpoint = searchBox ? searchBox.getAttribute('data-endpoint') : '';
+    if (searchInput && searchBox && panel && endpoint) {
+        var ICONS = { user: 'ti-user', activity: 'ti-activity' };
+        var timer = null;
+        var requestId = 0;
+        var links = [];
+        var active = -1;
+
+        function closeResults() {
+            panel.classList.remove('open');
+            panel.textContent = '';
+            searchInput.setAttribute('aria-expanded', 'false');
+            links = [];
+            active = -1;
+        }
+
+        function setActiveResult(index) {
+            links.forEach(function (link, i) { link.classList.toggle('active', i === index); });
+            active = index;
+            if (links[index]) links[index].scrollIntoView({ block: 'nearest' });
+        }
+
+        function renderResults(results, term) {
+            panel.textContent = '';
+            links = [];
+            active = -1;
+
+            if (results.length === 0) {
+                var empty = document.createElement('div');
+                empty.className = 'search-empty';
+                empty.textContent = 'No matches for \u201c' + term + '\u201d.';
+                panel.appendChild(empty);
+            }
+
+            results.forEach(function (result) {
+                var link = document.createElement('a');
+                link.className = 'search-result';
+                link.href = result.url;
+                link.setAttribute('role', 'option');
+
+                var iconWrap = document.createElement('span');
+                iconWrap.className = 'search-result-icon';
+                var icon = document.createElement('i');
+                icon.className = 'ti ' + (ICONS[result.type] || 'ti-search');
+                iconWrap.appendChild(icon);
+
+                var text = document.createElement('span');
+                text.className = 'search-result-text';
+                var title = document.createElement('strong');
+                title.textContent = result.title;
+                var sub = document.createElement('small');
+                sub.textContent = result.subtitle;
+                text.appendChild(title);
+                text.appendChild(sub);
+
+                link.appendChild(iconWrap);
+                link.appendChild(text);
+                panel.appendChild(link);
+                links.push(link);
+            });
+
+            panel.classList.add('open');
+            searchInput.setAttribute('aria-expanded', 'true');
+        }
+
+        function runSearch(term) {
+            var current = ++requestId;
+            fetch(endpoint + '?ajax=search&q=' + encodeURIComponent(term), {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json' }
+            }).then(function (response) {
+                if (!response.ok) throw new Error('Search failed');
+                return response.json();
+            }).then(function (json) {
+                if (current === requestId) renderResults(json.results || [], term);
+            }).catch(function () {
+                if (current === requestId) closeResults();
+            });
+        }
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(timer);
+            var term = searchInput.value.trim();
+            if (term.length < 2) {
+                requestId++;
+                closeResults();
+                return;
+            }
+            timer = setTimeout(function () { runSearch(term); }, 220);
+        });
+
+        searchInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') { closeResults(); return; }
+            if (links.length === 0) return;
+
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                var next = active + (event.key === 'ArrowDown' ? 1 : -1);
+                if (next < 0) next = links.length - 1;
+                if (next >= links.length) next = 0;
+                setActiveResult(next);
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                window.location.href = (links[active] || links[0]).href;
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!searchBox.contains(event.target)) closeResults();
+        });
+    }
 })();
 
 

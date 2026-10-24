@@ -9,10 +9,11 @@ $initials = adminInitials($adminName);
         <button class="mobile-toggle-btn" id="mobileBtn" type="button" aria-label="Open menu"><i class="ti ti-menu-2"></i></button>
         <a class="topbar-brand" href="<?= url('admin/dashboard') ?>" aria-label="Squir admin dashboard"><img src="<?= url('assets/images/squir.png') ?>" alt=""><span class="topbar-brand-text">Squir<small class="topbar-brand-role">Administrator</small></span></a>
         <button class="search-toggle-btn" id="searchToggle" type="button" aria-label="Open search" aria-expanded="false"><i class="ti ti-search"></i></button>
-        <div class="search-box" id="adminSearch">
+        <div class="search-box" id="adminSearch" data-endpoint="<?= $escape(url('admin/dashboard')) ?>">
             <i class="ti ti-search"></i>
-            <input type="search" placeholder="Search users, activities..." aria-label="Search users, activities" autocomplete="off">
+            <input type="search" id="adminSearchInput" placeholder="Search users, activities..." aria-label="Search users, activities" autocomplete="off" aria-controls="adminSearchResults" aria-expanded="false">
             <button class="search-close-btn" id="searchClose" type="button" aria-label="Close search"><i class="ti ti-x"></i></button>
+            <div class="search-results" id="adminSearchResults" role="listbox" aria-label="Search results"></div>
         </div>
         <div class="topbar-actions">
             <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><i class="ti ti-moon"></i></button>

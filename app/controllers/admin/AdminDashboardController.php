@@ -38,6 +38,64 @@ class AdminDashboardController
 	{
 	}
 
+	// Header search: matching users and activity types.
+	public function search(string $term): array
+	{
+		$term = mb_substr(trim($term), 0, 100);
+		if (mb_strlen($term) < 2) {
+			return [];
+		}
+
+		$results = [];
+
+		// Users (name, username, email). Escape LIKE wildcards.
+		$like = '%' . addcslashes($term, '\\%_') . '%';
+		$statement = $this->db->prepare(
+			'SELECT user_id, full_name, username, email
+			 FROM users
+			 WHERE full_name LIKE :q0 OR username LIKE :q1 OR email LIKE :q2
+			 ORDER BY full_name ASC
+			 LIMIT 5'
+		);
+		$statement->execute(['q0' => $like, 'q1' => $like, 'q2' => $like]);
+
+		foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $user) {
+			$results[] = [
+				'type'     => 'user',
+				'title'    => (string) $user['full_name'],
+				'subtitle' => (string) $user['email'],
+				'url'      => url('admin/user-details?id=' . (int) $user['user_id']),
+			];
+		}
+
+		// Activity types and groups. Each opens Activity Logs with that filter.
+		$needle = mb_strtolower($term);
+		$activities = [];
+		foreach (ActivityLog::actionGroups() as $key => $group) {
+			if (mb_strpos(mb_strtolower((string) $group['label']), $needle) !== false) {
+				$activities[] = [
+					'type'     => 'activity',
+					'title'    => 'All ' . $group['label'],
+					'subtitle' => 'Activity logs',
+					'url'      => url('admin/activity-logs?action=' . rawurlencode('cat:' . $key)),
+				];
+			}
+
+			foreach ($group['actions'] as $code => $label) {
+				if (mb_strpos(mb_strtolower((string) $label), $needle) !== false) {
+					$activities[] = [
+						'type'     => 'activity',
+						'title'    => (string) $label,
+						'subtitle' => (string) $group['label'] . ' activity',
+						'url'      => url('admin/activity-logs?action=' . rawurlencode((string) $code)),
+					];
+				}
+			}
+		}
+
+		return array_merge($results, array_slice($activities, 0, 5));
+	}
+
 	// Load admin dashboard data
 	public function index(): array
 	{
