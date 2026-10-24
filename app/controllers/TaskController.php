@@ -96,6 +96,34 @@ class TaskController
     }
 
     // Move all tasks between statuses
+    public function destroyMany(array $ids, int $userId): int
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        $ids = array_slice($ids, 0, 200);
+
+        $titles = [];
+        $deleted = 0;
+        foreach ($ids as $taskId) {
+            $existing = $this->taskModel->find($taskId, $userId);
+            if (!$existing) {
+                continue;
+            }
+            if ($this->taskModel->delete($taskId, $userId)) {
+                $deleted++;
+                $titles[] = $this->activityTitle($existing['title']);
+            }
+        }
+
+        if ($deleted === 1) {
+            $this->activityLog->log($userId, 'task_deleted', "Deleted task '" . $titles[0] . "'", 'task', $ids[0] ?? null);
+        } elseif ($deleted > 1) {
+            $preview = implode(', ', array_slice($titles, 0, 3)) . ($deleted > 3 ? ', ...' : '');
+            $this->activityLog->log($userId, 'task_deleted', 'Deleted ' . $deleted . ' tasks (' . mb_substr($preview, 0, 180) . ')', 'task', null);
+        }
+
+        return $deleted;
+    }
+
     public function moveAll(int $userId, string $from, string $to): int
     {
         return $this->taskModel->moveAll($userId, $from, $to);

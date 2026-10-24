@@ -85,6 +85,35 @@ class NoteController
         return $deleted;
     }
 
+    // Delete several notes at once
+    public function destroyMany(array $ids, int $userId): int
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        $ids = array_slice($ids, 0, 200);
+
+        $titles = [];
+        $deleted = 0;
+        foreach ($ids as $noteId) {
+            $existing = $this->noteModel->find($noteId, $userId);
+            if (!$existing) {
+                continue;
+            }
+            if ($this->noteModel->delete($noteId, $userId)) {
+                $deleted++;
+                $titles[] = $this->activityTitle($existing['title']);
+            }
+        }
+
+        if ($deleted === 1) {
+            $this->activityLog->log($userId, 'note_deleted', "Deleted note '" . $titles[0] . "'", 'note', $ids[0] ?? null);
+        } elseif ($deleted > 1) {
+            $preview = implode(', ', array_slice($titles, 0, 3)) . ($deleted > 3 ? ', ...' : '');
+            $this->activityLog->log($userId, 'note_deleted', 'Deleted ' . $deleted . ' notes (' . mb_substr($preview, 0, 180) . ')', 'note', null);
+        }
+
+        return $deleted;
+    }
+
     // Move a note to a folder
     public function moveToFolder(int $noteId, int $userId, ?int $folderId): bool
     {

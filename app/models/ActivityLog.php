@@ -511,6 +511,29 @@ class ActivityLog
         return $statement->rowCount();
     }
 
+    // Delete selected user activity logs.
+    public function deleteForAdminByIds(array $ids): int
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        if ($ids === []) {
+            return 0;
+        }
+
+        $marks = [];
+        $params = [];
+        foreach ($ids as $i => $id) {
+            $marks[] = ':id' . $i;
+            $params['id' . $i] = $id;
+        }
+
+        $statement = $this->db->prepare(
+            'DELETE FROM activity_logs WHERE user_id IS NOT NULL AND admin_id IS NULL AND log_id IN (' . implode(', ', $marks) . ')'
+        );
+        $statement->execute($params);
+
+        return $statement->rowCount();
+    }
+
     // Get the client IP
     private static function clientIp(): ?string
     {

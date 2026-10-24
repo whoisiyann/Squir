@@ -38,6 +38,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/move-folder.css">
     <link rel="stylesheet" href="./assets/css/notes-folders.css">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
+    <link rel="stylesheet" href="./assets/css/bulk-select.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body class="<?= $activeNote ? 'notes-detail-active' : '' ?>">
@@ -64,7 +65,10 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <h1>Notes</h1>
                             <p>Write it down. Keep it organized.</p>
                         </div>
-                        <button type="button" class="icon-btn" id="openNotesFolderPanel" data-tooltip="Manage folders" aria-label="Manage folders" aria-haspopup="dialog"><i class="ti ti-folder"></i></button>
+                        <div class="bs-heading-actions">
+                            <button type="button" class="bs-toggle bs-toggle-icon" id="notesSelectBtn" data-tooltip="Select notes" aria-label="Select notes to delete" aria-pressed="false"><i class="ti ti-checkbox"></i></button>
+                            <button type="button" class="icon-btn" id="openNotesFolderPanel" data-tooltip="Manage folders" aria-label="Manage folders" aria-haspopup="dialog"><i class="ti ti-folder"></i></button>
+                        </div>
                     </div>
 
                     <div class="notes-toolbar">
@@ -286,6 +290,8 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/notes.js"></script>
+<script src="./assets/js/bulk-select.js"></script>
+<script src="./assets/js/notes-bulk.js"></script>
 <script src="./assets/js/submit-once.js?v=1"></script>
 <script src="./assets/js/move-folder.js"></script>
 <script src="./assets/js/notes-folders.js"></script>

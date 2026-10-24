@@ -912,6 +912,12 @@
 
     render();
 
+    // Expose board updates for bulk deletion
+    window.SquirTasksBoard = {
+        update: function (result) { applyServer(result); render(); },
+        toast: toast
+    };
+
     // Open task from URL
     (function () {
         var params = new URLSearchParams(window.location.search);

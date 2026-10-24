@@ -32,6 +32,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/tasks.css">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
+    <link rel="stylesheet" href="./assets/css/bulk-select.css">
 </head>
 <body>
 <div class="app-shell" id="appShell">
@@ -53,9 +54,16 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                     <p>Get things done, one task at a time.</p>
                 </div>
 
-                <div class="tasks-search" role="search">
-                    <i class="ti ti-search"></i>
-                    <input type="search" id="tasksSearchInput" placeholder="Search tasks..." aria-label="Search tasks" autocomplete="off">
+                <div class="bs-heading-actions">
+                    <button type="button" class="bs-toggle" id="tasksSelectBtn" aria-pressed="false" title="Select tasks to delete">
+                        <i class="ti ti-checkbox"></i>
+                        <span>Select</span>
+                    </button>
+
+                    <div class="tasks-search" role="search">
+                        <i class="ti ti-search"></i>
+                        <input type="search" id="tasksSearchInput" placeholder="Search tasks..." aria-label="Search tasks" autocomplete="off">
+                    </div>
                 </div>
             </div>
 
@@ -76,6 +84,8 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
-<script src="./assets/js/tasks.js?v=2"></script>
+<script src="./assets/js/tasks.js?v=3"></script>
+<script src="./assets/js/bulk-select.js"></script>
+<script src="./assets/js/tasks-bulk.js"></script>
 </body>
 </html>

@@ -43,6 +43,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'save') 
     exit;
 }
 
+// Delete the selected notes
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'bulk_delete') {
+    header('Content-Type: application/json');
+    if (!csrfValid($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Your session expired. Please refresh the page and try again.']);
+        exit;
+    }
+
+    $ids = $_POST['ids'] ?? [];
+    if (!is_array($ids) || $ids === []) {
+        http_response_code(422);
+        echo json_encode(['error' => 'Please select at least one note.']);
+        exit;
+    }
+
+    $deleted = $controller->destroyMany($ids, $userId);
+    if ($deleted === 0) {
+        http_response_code(404);
+        echo json_encode(['error' => 'We could not delete the selected notes. Please try again.']);
+        exit;
+    }
+
+    $_SESSION['notes_flash_success'] = $deleted === 1 ? 'Note deleted.' : $deleted . ' notes deleted.';
+    echo json_encode(['success' => true, 'deleted' => $deleted]);
+    exit;
+}
+
 // Handle note folder actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && in_array($_POST['ajax'] ?? '', ['folder_create', 'folder_rename', 'folder_delete'], true)) {

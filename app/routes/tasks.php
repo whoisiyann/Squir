@@ -90,6 +90,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId);
 
+            // Delete the selected tasks
+            case 'bulk_delete':
+                $ids = $_POST['ids'] ?? [];
+                if (!is_array($ids) || $ids === []) {
+                    tasksRespond(['error' => 'Please select at least one task.'], 422);
+                }
+                $deleted = $controller->destroyMany($ids, $userId);
+                if ($deleted === 0) {
+                    tasksRespond(['error' => 'Task not found.'], 404);
+                }
+                tasksOk($controller, $userId, ['deleted' => $deleted]);
+
             // Move all tasks
             case 'move_all':
                 $moved = $controller->moveAll(

@@ -43,12 +43,41 @@ function adminLogsCsvCell(mixed $value): string
 
 // Clear logs (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ((string) ($_POST['ajax'] ?? '') !== 'clear_logs') {
+    $postAction = (string) ($_POST['ajax'] ?? '');
+    if (!in_array($postAction, ['clear_logs', 'delete_logs'], true)) {
         adminLogsJson(['error' => 'Unknown request.'], 400);
     }
 
     if (!csrfValid($_POST['csrf_token'] ?? null)) {
         adminLogsJson(['error' => 'Your session expired. Please refresh the page and try again.'], 403);
+    }
+
+    // Delete only the selected logs
+    if ($postAction === 'delete_logs') {
+        $ids = $_POST['ids'] ?? [];
+        if (!is_array($ids)) {
+            adminLogsJson(['error' => 'Please select at least one log.'], 422);
+        }
+
+        try {
+            $result = $controller->deleteSelected($ids);
+        } catch (PDOException $exception) {
+            adminLogsJson(['error' => 'Could not delete the selected logs. Please try again.'], 500);
+        }
+
+        if ($result['errors'] !== []) {
+            adminLogsJson(['error' => reset($result['errors'])], 422);
+        }
+
+        if ($result['deleted'] > 0) {
+            $activityLog->logAdmin(
+                $adminId,
+                'logs_cleared',
+                'Deleted ' . $result['deleted'] . ' selected user activity log' . ($result['deleted'] === 1 ? '' : 's')
+            );
+        }
+
+        adminLogsJson(['success' => true, 'deleted' => $result['deleted']]);
     }
 
     try {

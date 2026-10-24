@@ -45,6 +45,7 @@ $filtersJson = json_encode([
   <link rel="stylesheet" href="<?= url('assets/css/admin/admin.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/users.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/admin/activity-logs.css') ?>" />
+  <link rel="stylesheet" href="<?= url('assets/css/bulk-select.css') ?>" />
   <link rel="stylesheet" href="<?= url('assets/css/export-dialog.css') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/css/export-dialog.css') ?>" />
 </head>
 <body class="admin-page">
@@ -177,6 +178,10 @@ $filtersJson = json_encode([
             <i class="ti ti-download" aria-hidden="true"></i><span>Export</span>
           </button>
 
+          <button type="button" class="bs-toggle" id="alSelectBtn" aria-pressed="false" title="Select logs to delete">
+            <i class="ti ti-checkbox" aria-hidden="true"></i><span>Select</span>
+          </button>
+
           <button type="button" class="al-refresh" id="alRefresh" aria-label="Refresh">
             <i class="ti ti-refresh" aria-hidden="true"></i><span>Refresh</span>
           </button>
@@ -247,5 +252,7 @@ $filtersJson = json_encode([
   <script src="<?= asset('assets/js/admin/admin.js') ?>"></script>
   <script src="<?= url('assets/js/export-dialog.js') ?>?v=<?= (int) @filemtime(__DIR__ . '/../../../assets/js/export-dialog.js') ?>"></script>
   <script src="<?= url('assets/js/admin/activity-logs.js') ?>"></script>
+  <script src="<?= url('assets/js/bulk-select.js') ?>"></script>
+  <script src="<?= url('assets/js/admin/activity-logs-bulk.js') ?>"></script>
 </body>
 </html>

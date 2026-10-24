@@ -45,6 +45,7 @@ $lockFolderName = $folder['folder_name'];
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="./assets/css/move-folder.css">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
+    <link rel="stylesheet" href="./assets/css/bulk-select.css">
     <link rel="stylesheet" href="./assets/css/folders.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
@@ -101,6 +102,11 @@ $lockFolderName = $folder['folder_name'];
                 </div>
 
                 <div class="vault-toolbar-right">
+                    <button class="bs-toggle" type="button" id="vaultSelectBtn" aria-pressed="false" title="Select passwords to delete">
+                        <i class="ti ti-checkbox"></i>
+                        <span>Select</span>
+                    </button>
+
                     <button class="quick-add" type="button" id="openCreateModal">
                         <i class="ti ti-plus"></i>
                         <span>Add Password</span>
@@ -133,6 +139,8 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/pin-gate.js"></script>
 <script src="./assets/js/vault.js?v=3"></script>
+<script src="./assets/js/bulk-select.js"></script>
+<script src="./assets/js/vault-bulk.js"></script>
 <script src="./assets/js/move-folder.js"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
 </body>
