@@ -140,12 +140,34 @@ class User
 		$statement->execute(['id' => $userId]);
 	}
 
-	// Delete the user account
+	// Delete the user account and everything the user owns.
 	public function delete(int $userId): bool
 	{
-		$statement = $this->db->prepare('DELETE FROM users WHERE user_id = :id');
+		$ownsTransaction = !$this->db->inTransaction();
 
-		return $statement->execute(['id' => $userId]);
+		try {
+			if ($ownsTransaction) {
+				$this->db->beginTransaction();
+			}
+
+			$this->db->prepare('DELETE FROM vault WHERE user_id = :id')->execute(['id' => $userId]);
+			$this->db->prepare('DELETE FROM notes WHERE user_id = :id')->execute(['id' => $userId]);
+			$this->db->prepare('DELETE FROM users WHERE user_id = :id')->execute(['id' => $userId]);
+
+			if ($ownsTransaction) {
+				$this->db->commit();
+			}
+
+			return true;
+		} catch (PDOException $exception) {
+			if ($ownsTransaction && $this->db->inTransaction()) {
+				$this->db->rollBack();
+			}
+
+			error_log('[User::delete] ' . $exception->getMessage());
+
+			return false;
+		}
 	}
 
 

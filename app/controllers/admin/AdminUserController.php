@@ -186,7 +186,9 @@ class AdminUserController
 			return ['errors' => ['form' => 'That user could not be found.']];
 		}
 
-		$this->user->delete($userId);
+		if (!$this->user->delete($userId)) {
+			return ['errors' => ['form' => 'That user could not be deleted. Please try again.']];
+		}
 
 		return ['errors' => [], 'user' => $user];
 	}
