@@ -76,6 +76,6 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
-<script src="./assets/js/tasks.js?v=1"></script>
+<script src="./assets/js/tasks.js?v=2"></script>
 </body>
 </html>

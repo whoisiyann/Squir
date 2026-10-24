@@ -99,9 +99,10 @@ $pageData = [
 
         <main class="content-area">
             <!-- Add note action -->
-            <form id="dashNewNoteForm" method="post" action="./notes" hidden>
+            <form id="dashNewNoteForm" method="post" action="./notes" data-submit-once hidden>
                 <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                 <input type="hidden" name="action" value="create">
+                <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
                 <input type="hidden" name="folder" value="">
                 <input type="hidden" name="folder_id" value="">
                 <input type="hidden" name="q" value="">
@@ -271,7 +272,8 @@ $pageData = [
     window.SQUIR_DASH = <?= json_encode($pageData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
-<script src="./assets/js/vault.js?v=2"></script>
+<script src="./assets/js/vault.js?v=3"></script>
+<script src="./assets/js/submit-once.js?v=1"></script>
 <script src="./assets/js/dashboard-home.js?v=4"></script>
 </body>
 </html>

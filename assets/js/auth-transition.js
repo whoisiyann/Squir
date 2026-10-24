@@ -51,11 +51,14 @@
     });
 
     document.addEventListener('submit', function (event) {
-        if (leaving || !event.target.matches('form')) {
+        if (!event.target.matches('form')) {
             return;
         }
 
         event.preventDefault();
+        if (leaving) {
+            return;
+        }
         leaving = true;
         document.body.classList.add('auth-page-leaving');
         window.setTimeout(function () {

@@ -132,6 +132,6 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/pin-gate.js"></script>
-<script src="./assets/js/vault.js?v=2"></script>
+<script src="./assets/js/vault.js?v=3"></script>
 <script src="./assets/js/move-folder.js"></script>
 <script src="./assets/js/squir-dialogs.js"></script>

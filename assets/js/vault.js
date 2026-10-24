@@ -55,6 +55,46 @@
         if (name === 'create') resetCreateForm();
     }
 
+    // Prevent double submit of the create form
+    (function () {
+        var form = document.querySelector('#createModalBackdrop form');
+        var saveBtn = document.getElementById('createSaveBtn');
+        if (!form || !saveBtn) return;
+
+        var idleHtml = saveBtn.innerHTML;
+        var unlockTimer = null;
+
+        function unlock() {
+            clearTimeout(unlockTimer);
+            form.removeAttribute('data-submitting');
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = idleHtml;
+        }
+
+        form.addEventListener('submit', function (event) {
+            if (form.getAttribute('data-submitting') === '1') {
+                event.preventDefault();
+                return;
+            }
+            form.setAttribute('data-submitting', '1');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+            unlockTimer = setTimeout(unlock, 30000);
+        });
+
+        window.addEventListener('pageshow', function (event) {
+            unlock();
+            var tokenInput = form.querySelector('input[name="submit_token"]');
+            if (event.persisted && tokenInput && window.crypto) {
+                var bytes = new Uint8Array(16);
+                window.crypto.getRandomValues(bytes);
+                tokenInput.value = Array.prototype.map.call(bytes, function (b) {
+                    return ('0' + b.toString(16)).slice(-2);
+                }).join('');
+            }
+        });
+    })();
+
     var openBtn = document.getElementById('openCreateModal');
     if (openBtn) openBtn.addEventListener('click', function () { openModal('create'); });
 

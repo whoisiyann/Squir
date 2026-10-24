@@ -151,9 +151,10 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
             <button type="button" class="folder-modal-close" data-close-folder-modal aria-label="Close"><i class="ti ti-x"></i></button>
         </div>
 
-        <form method="post" action="./folders" id="createFolderForm">
+        <form method="post" action="./folders" id="createFolderForm" data-submit-once>
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="create">
+            <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
             <input type="hidden" name="color" id="createFolderColor" value="brown">
             <input type="hidden" name="folder_type" id="createFolderType" value="<?= $escape($data['activeType']) ?>">
 
@@ -210,5 +211,6 @@ $colorLabel = static fn (string $color): string => trim(preg_replace('/(?<!^)[A-
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/squir-dialogs.js"></script>
 <script src="./assets/js/folders.js?v=5"></script>
+<script src="./assets/js/submit-once.js?v=1"></script>
 </body>
 </html>

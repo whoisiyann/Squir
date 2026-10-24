@@ -131,6 +131,7 @@
 
     // Submit a folder name change
     function submitName() {
+        if (nameOk.disabled) return; // already saving (Enter pressed again)
         var name = nameInput.value.trim();
         if (name === '') {
             nameError.textContent = 'Folder name is required.';

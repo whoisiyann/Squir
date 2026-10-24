@@ -91,6 +91,6 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
 
     <script>window.SQUIR_CODE_LENGTH = <?= (int) $codeLength ?>;</script>
     <script src="./assets/js/verify-reset-code.js?v=1"></script>
-    <script src="./assets/js/auth-transition.js"></script>
+    <script src="./assets/js/auth-transition.js?v=2"></script>
 </body>
 </html>

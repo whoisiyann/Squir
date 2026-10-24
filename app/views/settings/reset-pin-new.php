@@ -73,6 +73,6 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
         });
     </script>
     <script src="./assets/js/login.js"></script>
-    <script src="./assets/js/auth-transition.js"></script>
+    <script src="./assets/js/auth-transition.js?v=2"></script>
 </body>
 </html>

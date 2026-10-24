@@ -148,9 +148,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
         $action = $_POST['action'] ?? '';
 
         if ($action === 'create') {
+            $submitToken = (string) ($_POST['submit_token'] ?? '');
+            $usedTokens = $_SESSION['folder_used_tokens'] ?? [];
+            $redirectType = ($_POST['folder_type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
+
+            if (!preg_match('/^[a-f0-9]{32}$/', $submitToken) || in_array($submitToken, $usedTokens, true)) {
+                // Old page or duplicate submit
+                header('Location: ./folders?type=' . $redirectType);
+                exit;
+            }
+
             $result = $controller->store($userId, $_POST);
             if ($result['errors'] === []) {
-                $redirectType = ($_POST['folder_type'] ?? 'passwords') === 'notes' ? 'notes' : 'passwords';
+                $_SESSION['folder_used_tokens'] = array_slice(array_merge($usedTokens, [$submitToken]), -20);
                 header('Location: ./folders?type=' . $redirectType);
                 exit;
             }

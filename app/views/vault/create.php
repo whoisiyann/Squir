@@ -19,6 +19,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
         <form method="post" action="./vault">
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="create">
+            <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
             <input type="hidden" name="is_favorite" id="createIsFavorite" value="0">
             <input type="hidden" name="return_to" value="<?= $escape($returnTo ?? './vault') ?>">
 
@@ -91,7 +92,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
 
             <div class="vault-modal-actions">
                 <button type="button" class="btn-outline-squir" data-close-modal="create">Cancel</button>
-                <button type="submit" class="btn-squir"><i class="ti ti-lock"></i> Save Credential</button>
+                <button type="submit" class="btn-squir" id="createSaveBtn"><i class="ti ti-lock"></i> Save Credential</button>
             </div>
         </form>
     </div>

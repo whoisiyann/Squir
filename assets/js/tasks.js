@@ -477,12 +477,17 @@
     }
 
     // Duplicate a task
+    var duplicating = {};
     function duplicateTask(id) {
+        if (duplicating[id]) return;
+        duplicating[id] = true;
         api('duplicate', { task_id: id }).then(function (result) {
             applyServer(result);
             render();
             toast('Task duplicated');
-        }).catch(function (error) { toast(error.message); });
+        }).catch(function (error) { toast(error.message); }).then(function () {
+            delete duplicating[id];
+        });
     }
 
     // Confirm task deletion

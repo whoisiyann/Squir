@@ -139,14 +139,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
 
         if ($action === 'create') {
-            $result = $controller->store($userId, $_POST);
-            if ($result['errors'] === []) {
-                $_SESSION['vault_flash_success'] = 'Password saved to your vault.';
+            $submitToken = (string) ($_POST['submit_token'] ?? '');
+            $usedTokens = $_SESSION['vault_used_tokens'] ?? [];
+
+            if (!preg_match('/^[a-f0-9]{32}$/', $submitToken)) {
+                $errors['form'] = 'Your session expired. Please refresh the page and try again.';
+                $openModal = 'create';
+            } elseif (in_array($submitToken, $usedTokens, true)) {
+                // Duplicate submit of an already saved form
                 header('Location: ' . $returnTo);
                 exit;
+            } else {
+                $result = $controller->store($userId, $_POST);
+                if ($result['errors'] === []) {
+                    $_SESSION['vault_used_tokens'] = array_slice(array_merge($usedTokens, [$submitToken]), -20);
+                    $_SESSION['vault_flash_success'] = 'Password saved to your vault.';
+                    header('Location: ' . $returnTo);
+                    exit;
+                }
+                $errors = $result['errors'];
+                $openModal = 'create';
             }
-            $errors = $result['errors'];
-            $openModal = 'create';
         } elseif ($action === 'update') {
             $vaultId = (int) ($_POST['vault_id'] ?? 0);
             $result = $controller->update($vaultId, $userId, $_POST);

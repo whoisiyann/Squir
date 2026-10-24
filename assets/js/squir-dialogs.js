@@ -75,7 +75,7 @@
         ui.confirm.disabled = false;
         ui.onConfirm = options.onConfirm || null;
         show(ui.backdrop);
-        ui.cancel.focus(); //
+        ui.cancel.focus();
     }
 
     var nm = null;
@@ -111,6 +111,7 @@
         };
 
         function submit() {
+            if (nm.ok.disabled) return; // already saving (Enter pressed again)
             var name = nm.input.value.trim();
             if (name === '') {
                 nm.error.textContent = 'Folder name is required.';

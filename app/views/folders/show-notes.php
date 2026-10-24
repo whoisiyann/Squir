@@ -72,9 +72,10 @@ $notesTotal = (int) $notesData['total'];
             <div class="folder-notes-toolbar">
                 <p class="folders-count"><?= $notesTotal ?> note<?= $notesTotal === 1 ? '' : 's' ?></p>
 
-                <form method="post" action="./notes">
+                <form method="post" action="./notes" data-submit-once>
                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                     <input type="hidden" name="action" value="create">
+                    <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
                     <input type="hidden" name="folder_id" value="<?= $folderId ?>">
                     <input type="hidden" name="folder" value="<?= $folderId ?>">
                     <button type="submit" class="quick-add"><i class="ti ti-plus"></i> <span>Add Note</span></button>
@@ -112,5 +113,6 @@ $notesTotal = (int) $notesData['total'];
 </div>
 
 <script src="./assets/js/dashboard.js?v=3"></script>
+<script src="./assets/js/submit-once.js?v=1"></script>
 </body>
 </html>

@@ -160,8 +160,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
         }
 
         if ($action === 'create') {
+            $submitToken = (string) ($_POST['submit_token'] ?? '');
+            $usedTokens = $_SESSION['note_used_tokens'] ?? [];
+
+            if (!preg_match('/^[a-f0-9]{32}$/', $submitToken)) {
+                // Old page without a token; reload it
+                header('Location: ./notes?' . http_build_query($redirectParams));
+                exit;
+            } elseif (isset($usedTokens[$submitToken])) {
+                // Duplicate submit; open the note already created
+                $redirectParams['note'] = (int) $usedTokens[$submitToken];
+                header('Location: ./notes?' . http_build_query($redirectParams));
+                exit;
+            }
+
             $result = $controller->store($userId, $_POST);
             if ($result['errors'] === []) {
+                $usedTokens[$submitToken] = (int) $result['note_id'];
+                $_SESSION['note_used_tokens'] = array_slice($usedTokens, -20, null, true);
                 $redirectParams['note'] = $result['note_id'];
                 $_SESSION['notes_flash_success'] = 'Note saved to your notes.';
                 header('Location: ./notes?' . http_build_query($redirectParams));
@@ -193,8 +209,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['ajax'])) {
         } elseif ($action === 'duplicate') {
 
             $noteId = (int) ($_POST['note_id'] ?? 0);
+            $submitToken = (string) ($_POST['submit_token'] ?? '');
+            $usedTokens = $_SESSION['note_used_tokens'] ?? [];
+
+            if (!preg_match('/^[a-f0-9]{32}$/', $submitToken)) {
+                header('Location: ./notes?' . http_build_query($redirectParams));
+                exit;
+            } elseif (isset($usedTokens[$submitToken])) {
+                $redirectParams['note'] = (int) $usedTokens[$submitToken];
+                header('Location: ./notes?' . http_build_query($redirectParams));
+                exit;
+            }
+
             $newNoteId = $controller->duplicate($noteId, $userId);
             if ($newNoteId !== null) {
+                $usedTokens[$submitToken] = (int) $newNoteId;
+                $_SESSION['note_used_tokens'] = array_slice($usedTokens, -20, null, true);
                 $redirectParams['note'] = $newNoteId;
                 header('Location: ./notes?' . http_build_query($redirectParams));
                 exit;

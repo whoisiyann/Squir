@@ -74,9 +74,10 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                         </form>
 
-                        <form method="post" action="./notes">
+                        <form method="post" action="./notes" data-submit-once>
                             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                             <input type="hidden" name="action" value="create">
+                            <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
                             <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                             <input type="hidden" name="folder_id" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                             <input type="hidden" name="q" value="<?= $escape($data['search']) ?>">
@@ -139,9 +140,10 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                 <button type="button" class="note-menu-favorite-item">
                                                     <i class="<?= $item['is_favorite'] ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i> <?= $item['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
                                                 </button>
-                                                <form method="post" action="./notes">
+                                                <form method="post" action="./notes" data-submit-once>
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="duplicate">
+                                                    <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
                                                     <input type="hidden" name="note_id" value="<?= (int) $item['note_id'] ?>">
                                                     <button type="submit"><i class="ti ti-copy"></i> Duplicate</button>
                                                 </form>
@@ -167,9 +169,10 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <div class="note-detail-empty-icon"><i class="ti ti-file-text"></i></div>
                             <p class="note-detail-empty-title">No note selected</p>
                             <small class="note-detail-empty-subtitle">Choose a note from the list or create a new one.</small>
-                            <form method="post" action="./notes">
+                            <form method="post" action="./notes" data-submit-once>
                                 <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                 <input type="hidden" name="action" value="create">
+                                <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
                                 <input type="hidden" name="folder" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                                 <input type="hidden" name="folder_id" value="<?= $data['activeFolder'] !== null ? (int) $data['activeFolder'] : '' ?>">
                                 <input type="hidden" name="q" value="<?= $escape($data['search']) ?>">
@@ -199,9 +202,10 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                                                 <button type="button" class="note-menu-favorite">
                                                     <i class="<?= $activeNote['is_favorite'] ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i> <?= $activeNote['is_favorite'] ? 'Unfavorite' : 'Favorite' ?>
                                                 </button>
-                                                <form method="post" action="./notes">
+                                                <form method="post" action="./notes" data-submit-once>
                                                     <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
                                                     <input type="hidden" name="action" value="duplicate">
+                                                    <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
                                                     <input type="hidden" name="note_id" value="<?= (int) $activeNote['note_id'] ?>">
                                                     <button type="submit"><i class="ti ti-copy"></i> Duplicate</button>
                                                 </form>
@@ -282,6 +286,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/notes.js"></script>
+<script src="./assets/js/submit-once.js?v=1"></script>
 <script src="./assets/js/move-folder.js"></script>
 <script src="./assets/js/notes-folders.js"></script>
 <script src="./assets/js/squir-dialogs.js"></script>

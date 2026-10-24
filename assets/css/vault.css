@@ -1154,3 +1154,8 @@
   color: var(--muted);
   font-size: .72rem;
 }
+
+.vault-modal .btn-squir:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
