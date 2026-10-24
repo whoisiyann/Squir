@@ -118,7 +118,7 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
         </section>
     </main>
 
-    <script src="./assets/js/register.js"></script>
+    <script src="./assets/js/register.js?v=3"></script>
     <script src="./assets/js/terms-view.js"></script>
     <script src="./assets/js/auth-transition.js"></script>
 </body>

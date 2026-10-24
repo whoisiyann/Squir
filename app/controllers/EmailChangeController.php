@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../helpers/EmailValidator.php';
 require_once __DIR__ . '/../models/EmailChange.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../../includes/mailer.php';
@@ -20,10 +21,9 @@ class EmailChangeController
         $newEmail = strtolower(trim((string) ($input['new_email'] ?? '')));
         $errors = [];
 
-        if ($newEmail === '' || !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-            $errors['new_email'] = 'Please enter a valid email address.';
-        } elseif (mb_strlen($newEmail) > 100) {
-            $errors['new_email'] = 'Email address must be 100 characters or fewer.';
+        $emailError = EmailValidator::check($newEmail);
+        if ($emailError !== null) {
+            $errors['new_email'] = $emailError;
         }
 
         if ($errors !== []) {
@@ -35,7 +35,6 @@ class EmailChangeController
             return ['errors' => ['new_email' => 'That is already your current email address.']];
         }
 
-        // Email availability
         if ($this->userModel->emailExists($newEmail, $userId)) {
             return ['errors' => ['new_email' => 'An account with this email already exists.']];
         }
@@ -77,7 +76,6 @@ class EmailChangeController
 
         $newEmail = $result['new_email'];
 
-        // Email availability
         if ($this->userModel->emailExists($newEmail, $userId)) {
             $this->emailChangeModel->clearForUser($userId);
             return ['errors' => ['code' => 'An account with this email already exists.']];
@@ -90,7 +88,7 @@ class EmailChangeController
         return ['errors' => [], 'email' => $newEmail];
     }
 
-    // Verification code.
+    // Create and send the verification code.
     private function issueAndSend(int $userId, string $newEmail, string $fullName): ?string
     {
         $change = $this->emailChangeModel->createForUser($userId, $newEmail);

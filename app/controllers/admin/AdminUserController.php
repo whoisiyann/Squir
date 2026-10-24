@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/ActivityLog.php';
+require_once __DIR__ . '/../../helpers/EmailValidator.php';
 
 class AdminUserController
 {
@@ -64,10 +65,9 @@ class AdminUserController
 			$errors['username'] = 'Username is already taken.';
 		}
 
-		if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			$errors['email'] = 'Please enter a valid email address.';
-		} elseif (mb_strlen($email) > 100) {
-			$errors['email'] = 'Email address must be 100 characters or fewer.';
+		$emailError = EmailValidator::check($email);
+		if ($emailError !== null) {
+			$errors['email'] = $emailError;
 		} elseif ($this->user->emailExists($email)) {
 			$errors['email'] = 'An account with this email already exists.';
 		}

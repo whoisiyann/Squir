@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../helpers/EmailValidator.php';
 
 class AuthController
 {
@@ -22,10 +23,9 @@ class AuthController
 			$errors['full_name'] = 'Full name must be 100 characters or fewer.';
 		}
 
-		if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			$errors['email'] = 'Please enter a valid email address.';
-		} elseif (mb_strlen($email) > 100) {
-			$errors['email'] = 'Email address must be 100 characters or fewer.';
+		$emailError = EmailValidator::check($email);
+		if ($emailError !== null) {
+			$errors['email'] = $emailError;
 		} elseif ($this->user->emailExists($email)) {
 			$errors['email'] = 'An account with this email already exists.';
 		}
@@ -54,7 +54,7 @@ class AuthController
 
 			$userId = $this->user->create(
 				$fullName,
-				null, // Username is asked after the PIN step
+				null, // Set after PIN verification
 				$email,
 				password_hash($password, PASSWORD_DEFAULT)
 			);
@@ -95,7 +95,7 @@ class AuthController
 			];
 		}
 
-		// Inactive (no login for a while): welcome back, reactivate the account
+		// Reactivate inactive accounts on login
 		if ($user['status'] === 'inactive') {
 			$this->user->updateStatus((int) $user['user_id'], 'active');
 			$user['status'] = 'active';
