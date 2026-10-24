@@ -1,4 +1,3 @@
-
 /* Toolbar */
 .vault-toolbar {
   display: flex;
@@ -265,8 +264,23 @@
   gap: 12px;
 }
 
-.vault-item-text {
+.vault-item-cell {
   min-width: 0;
+}
+
+/* Truncate long item labels */
+.vault-item-text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.vault-item-text strong,
+.vault-item-text small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 
@@ -399,7 +413,7 @@
 
 .vault-table-wrap.grid-view .vault-table tr {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto 1fr;
   grid-template-areas:
     "item     item"
@@ -443,6 +457,7 @@
 
 .vault-table-wrap.grid-view .vault-table td.col-item {
   grid-area: item;
+  min-width: 0;
 }
 
 
@@ -587,6 +602,21 @@
   display: block;
   color: var(--muted);
   font-size: .8rem;
+}
+
+/* Truncate long preview text */
+.vault-edit-preview > div {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.vault-edit-preview strong,
+.vault-edit-preview small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Form fields */
@@ -843,10 +873,12 @@
     gap: 8px;
   }
 
+  /* Keep toolbar controls on one row */
   .vault-toolbar-right {
-    flex-direction: row; 
+    flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
     margin-left: 0;
     width: 100%;
@@ -856,37 +888,66 @@
     align-self: flex-start;
   }
 
-  /* Search:  */
+  /* Let search fill the remaining space */
   .vault-search {
-    flex: 1 1 auto;
+    flex: 1 1 0;
+    order: 1;
     min-width: 0;
     max-width: none;
     width: auto;
   }
 
   .vault-search input {
-    padding: 8px 12px 8px 36px;
+    height: 38px;
+    padding: 8px 8px 8px 34px;
     font-size: .82rem;
+    text-overflow: ellipsis;
   }
 
   .vault-search i {
     left: 12px;
   }
 
-  /* All Tags:  */
+  /* Keep suggestions readable on mobile */
+  .vault-search-suggestions {
+    right: auto;
+    min-width: 240px;
+    max-width: calc(100vw - 32px);
+  }
+
+  /* Keep the tag filter compact on mobile */
   .vault-tags-filter {
-    flex: 0 0 auto;
+    flex: 0 0 104px;
+    order: 2;
+    width: 104px;
+    min-width: 0;
   }
 
   .vault-tags-filter select {
-    max-width: none;
-    width: auto;
+    width: 100%;
     min-width: 0;
-    padding: 8px 26px 8px 30px;
+    max-width: 100%;
+    height: 38px;
+    padding: 8px 22px 8px 32px;
     font-size: .78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
-  /* Add Vault: */
+  .vault-tags-filter i.ti-tag {
+    left: 11px;
+  }
+
+  .vault-tags-filter i.chevron {
+    right: 8px;
+  }
+
+  .vault-toolbar-right > .bs-toggle,
+  .vault-toolbar-right > .quick-add {
+    order: 3;
+  }
+
   .vault-toolbar .quick-add {
     flex: 0 0 auto;
     width: 38px;
@@ -900,7 +961,6 @@
     display: none;
   }
 
-  /* Table: */
   .vault-table-wrap:not(.grid-view) .vault-table thead {
     display: none;
   }
@@ -977,6 +1037,27 @@
 
   .vault-table-wrap:not(.grid-view) .vault-item-notes {
     display: -webkit-box;
+  }
+
+  /* Keep item text clear of tag chips on mobile */
+  .vault-table-wrap .vault-item-cell .vault-item-text {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .vault-table-wrap .vault-item-cell .vault-item-text strong,
+  .vault-table-wrap .vault-item-cell .vault-item-username {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vault-table-wrap .vault-item-cell .vault-tag-chips {
+    flex: 0 1 auto;
+    margin-left: 8px;
+    max-width: 45%;
   }
 
   /* Modal adjustments */

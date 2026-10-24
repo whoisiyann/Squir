@@ -1,4 +1,4 @@
-/* Squir bulk select: checkboxes, highlight, floating action bar */
+/* Bulk selection styles */
 
 /* Select button (toolbar) */
 .bs-toggle {
@@ -29,7 +29,7 @@
 .bs-toggle.is-active i { color: inherit; }
 .bs-toggle-icon { width: 40px; padding: 0; }
 
-/* Admin toolbar uses its own control height and radius */
+/* Admin toolbar sizing */
 .al-toolbar .bs-toggle { height: var(--al-control-h, 40px); border-radius: 8px; }
 
 /* Selectable items */
@@ -46,7 +46,19 @@ tr.bs-selected > td { background: var(--soft); }
   tr.bs-selected > td { background: color-mix(in srgb, var(--accent) 12%, var(--card)); }
 }
 .note-card.bs-selected { border-color: var(--accent); }
-.vault-table-wrap.grid-view .vault-table tr.bs-selected { outline: 2px solid var(--accent); outline-offset: -2px; }
+/* Highlight selected vault cards */
+.vault-table-wrap.grid-view .vault-table tr.bs-selected > td { background: transparent; }
+.vault-table-wrap.grid-view .vault-table tr.bs-selected,
+.vault-table-wrap.grid-view .vault-table tr.bs-selected:hover {
+  border-color: var(--accent);
+  background-color: var(--soft);
+}
+@supports (background: color-mix(in srgb, red 10%, white)) {
+  .vault-table-wrap.grid-view .vault-table tr.bs-selected,
+  .vault-table-wrap.grid-view .vault-table tr.bs-selected:hover {
+    background-color: color-mix(in srgb, var(--accent) 12%, var(--card));
+  }
+}
 
 /* Row actions are not usable while selecting */
 .bs-root-active .vault-actions,
@@ -148,20 +160,20 @@ tr.bs-selected > td { background: var(--soft); }
   .bs-bar { animation: none; }
 }
 
-/* Notes heading: Select + folder buttons side by side */
+/* Notes heading actions */
 .bs-heading-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
 
-/* Admin logs: row cells keep their layout when the checkbox is added */
+/* Preserve admin row layout in select mode */
 .al-user-cell { display: flex; align-items: center; }
 
 @media (max-width: 700px) {
-  /* Admin toolbar: icon-only like Export / Refresh */
+  /* Use an icon-only admin select button on mobile */
   .al-toolbar .bs-toggle { flex: 0 0 auto; width: var(--al-control-h, 40px); padding: 0; border-radius: 10px; }
   .al-toolbar .bs-toggle span { display: none; }
   .al-toolbar .bs-toggle i { font-size: 1.1rem; }
 }
 
-/* Marquee (drag selection box) */
+/* Marquee selection */
 .bs-marquee {
   position: fixed;
   z-index: 899;
@@ -185,4 +197,29 @@ html.bs-marqueeing * {
 @media (max-width: 900px) {
   .tasks-page .bs-heading-actions { flex: 1 1 auto; min-width: 0; }
   .tasks-page .bs-heading-actions .tasks-search { flex: 1 1 auto; min-width: 0; width: auto; }
+}
+
+/* Compact select controls on mobile */
+@media (max-width: 900px) {
+  /* Stack task heading actions */
+  .tasks-page .page-heading { flex-wrap: wrap; }
+  .tasks-page .bs-heading-actions { align-self: stretch; width: 100%; flex: 0 0 auto; }
+}
+@media (max-width: 700px) {
+  .vault-toolbar .bs-toggle,
+  .tasks-page .bs-heading-actions .bs-toggle {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 12px;
+  }
+  .vault-toolbar .bs-toggle span,
+  .tasks-page .bs-heading-actions .bs-toggle span { display: none; }
+  .vault-toolbar .bs-toggle i,
+  .tasks-page .bs-heading-actions .bs-toggle i { font-size: 1.15rem; }
+
+  /* Order task search and select controls */
+  .tasks-page .bs-heading-actions .tasks-search { order: 1; flex: 1 1 auto; min-width: 0; width: auto; }
+  .tasks-page .bs-heading-actions .bs-toggle { order: 2; }
 }

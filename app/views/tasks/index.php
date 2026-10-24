@@ -32,7 +32,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/dashboard.css">
     <link rel="stylesheet" href="./assets/css/tasks.css">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
-    <link rel="stylesheet" href="./assets/css/bulk-select.css">
+    <link rel="stylesheet" href="./assets/css/bulk-select.css?v=4">
 </head>
 <body>
 <div class="app-shell" id="appShell">
@@ -55,7 +55,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                 </div>
 
                 <div class="bs-heading-actions">
-                    <button type="button" class="bs-toggle" id="tasksSelectBtn" aria-pressed="false" title="Select tasks to delete">
+                    <button type="button" class="bs-toggle" id="tasksSelectBtn" aria-pressed="false" aria-label="Select tasks to delete" title="Select tasks to delete">
                         <i class="ti ti-checkbox"></i>
                         <span>Select</span>
                     </button>

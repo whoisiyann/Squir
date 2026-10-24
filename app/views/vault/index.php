@@ -34,11 +34,11 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
-    <link rel="stylesheet" href="./assets/css/vault.css">
+    <link rel="stylesheet" href="./assets/css/vault.css?v=8">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="./assets/css/move-folder.css">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
-    <link rel="stylesheet" href="./assets/css/bulk-select.css">
+    <link rel="stylesheet" href="./assets/css/bulk-select.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body data-open-modal="<?= $escape($openModal ?? '') ?>">
@@ -101,7 +101,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                         <i class="ti ti-chevron-down chevron"></i>
                     </form>
 
-                    <button class="bs-toggle" type="button" id="vaultSelectBtn" aria-pressed="false" title="Select passwords to delete">
+                    <button class="bs-toggle" type="button" id="vaultSelectBtn" aria-pressed="false" aria-label="Select passwords to delete" title="Select passwords to delete">
                         <i class="ti ti-checkbox"></i>
                         <span>Select</span>
                     </button>
@@ -138,7 +138,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/pin-gate.js"></script>
-<script src="./assets/js/vault.js?v=3"></script>
+<script src="./assets/js/vault.js?v=5"></script>
 <script src="./assets/js/bulk-select.js"></script>
 <script src="./assets/js/vault-bulk.js"></script>
 <script src="./assets/js/move-folder.js"></script>
