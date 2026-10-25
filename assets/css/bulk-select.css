@@ -220,6 +220,9 @@ html.bs-marqueeing * {
   white-space: nowrap;
 }
 .tasks-page .bs-heading-actions { align-items: center; }
+
+/* Tasks: Select button is mobile-only (desktop uses marquee / long-press) */
+.tasks-page .bs-heading-actions .bs-toggle { display: none; }
 @media (max-width: 900px) {
   .tasks-page .bs-heading-actions { flex: 1 1 auto; min-width: 0; }
   .tasks-page .bs-heading-actions .tasks-search { flex: 1 1 auto; min-width: 0; width: auto; }
@@ -234,6 +237,7 @@ html.bs-marqueeing * {
 @media (max-width: 700px) {
   .vault-toolbar .bs-toggle,
   .tasks-page .bs-heading-actions .bs-toggle {
+    display: inline-flex;
     flex: 0 0 auto;
     width: 38px;
     height: 38px;

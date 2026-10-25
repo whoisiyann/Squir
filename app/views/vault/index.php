@@ -101,11 +101,6 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                         <i class="ti ti-chevron-down chevron"></i>
                     </form>
 
-                    <button class="bs-toggle" type="button" id="vaultSelectBtn" aria-pressed="false" aria-label="Select passwords to delete" title="Select passwords to delete">
-                        <i class="ti ti-checkbox"></i>
-                        <span>Select</span>
-                    </button>
-
                     <button class="quick-add" type="button" id="openCreateModal">
                         <i class="ti ti-plus"></i>
                         <span>Add Vault</span>

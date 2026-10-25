@@ -66,7 +66,6 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
                             <p>Write it down. Keep it organized.</p>
                         </div>
                         <div class="bs-heading-actions">
-                            <button type="button" class="bs-toggle bs-toggle-icon" id="notesSelectBtn" data-tooltip="Select notes" aria-label="Select notes to delete" aria-pressed="false"><i class="ti ti-checkbox"></i></button>
                             <button type="button" class="icon-btn" id="openNotesFolderPanel" data-tooltip="Manage folders" aria-label="Manage folders" aria-haspopup="dialog"><i class="ti ti-folder"></i></button>
                         </div>
                     </div>

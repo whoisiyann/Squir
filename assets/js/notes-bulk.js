@@ -1,11 +1,7 @@
 /* Notes: select mode + delete selected notes */
 (function () {
     var list = document.getElementById('notesList');
-    var btn = document.getElementById('notesSelectBtn');
-    if (!list || !window.SquirBulkSelect) {
-        if (btn) btn.hidden = true;   // nothing to select
-        return;
-    }
+    if (!list || !window.SquirBulkSelect) return;
 
     function post(ids) {
         var body = new URLSearchParams();
@@ -39,7 +35,6 @@
         itemSelector: 'li.note-card[data-note-id]',
         getId: function (item) { return item.getAttribute('data-note-id'); },
         checkHost: function (item) { return item.querySelector('.note-card-link') || item; },
-        toggleButtons: [btn],
         noun: 'note',
         onDelete: function (ids, info) {
             var message = info.count === 1

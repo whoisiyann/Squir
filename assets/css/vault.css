@@ -943,7 +943,6 @@
     right: 8px;
   }
 
-  .vault-toolbar-right > .bs-toggle,
   .vault-toolbar-right > .quick-add {
     order: 3;
   }

@@ -1,11 +1,7 @@
 /* Vault: select mode + delete selected passwords */
 (function () {
     var wrap = document.getElementById('vaultTableWrap');
-    var btn = document.getElementById('vaultSelectBtn');
-    if (!wrap || !window.SquirBulkSelect) {
-        if (btn) btn.hidden = true;   // nothing to select
-        return;
-    }
+    if (!wrap || !window.SquirBulkSelect) return;
 
     var tbody = wrap.querySelector('tbody');
 
@@ -35,7 +31,6 @@
         itemSelector: 'tr[data-vault-id]',
         getId: function (item) { return item.getAttribute('data-vault-id'); },
         checkHost: function (item) { return item.querySelector('.vault-item-cell') || item.firstElementChild; },
-        toggleButtons: [btn],
         noun: 'password',
         ignoreLongPress: '.vault-actions',
         onDelete: function (ids, info) {

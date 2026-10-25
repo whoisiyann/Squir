@@ -178,10 +178,6 @@ $filtersJson = json_encode([
             <i class="ti ti-download" aria-hidden="true"></i><span>Export</span>
           </button>
 
-          <button type="button" class="bs-toggle" id="alSelectBtn" aria-pressed="false" title="Select logs to delete">
-            <i class="ti ti-checkbox" aria-hidden="true"></i><span>Select</span>
-          </button>
-
           <button type="button" class="al-refresh" id="alRefresh" aria-label="Refresh">
             <i class="ti ti-refresh" aria-hidden="true"></i><span>Refresh</span>
           </button>
