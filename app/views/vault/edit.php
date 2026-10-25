@@ -7,6 +7,9 @@
 /** @var array $editItem */
 $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 $favicon = Vault::faviconUrlFor($editItem['website_url']);
+// Raw tags the user typed (kept as typed when the form comes back with an error)
+$tagsValue = $editTagsRaw ?? Vault::tagsToString($editItem['tags'] ?? '');
+$editPasswordValue = $editPasswordRaw ?? '';
 ?>
 <div class="vault-modal-backdrop open" id="editModalBackdrop">
     <div class="vault-modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
@@ -66,7 +69,7 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
                     <label for="e_password">Password</label>
                     <div class="vault-password-field">
                         <input id="e_password" name="account_password" type="password" placeholder="**********"
-    autocomplete="new-password" data-lpignore="true" data-1p-ignore data-bwignore="true">
+    autocomplete="new-password" data-lpignore="true" data-1p-ignore data-bwignore="true" value="<?= $escape($editPasswordValue) ?>">
                         <div class="vault-password-actions">
                             <button type="button" class="toggle-password" data-target="e_password" data-vault-id="<?= (int) $editItem['vault_id'] ?>" aria-label="Show password"><i class="ti ti-eye"></i></button>
                             <button type="button" class="generate-password" data-target="e_password" aria-label="Generate password"><i class="ti ti-wand"></i></button>
@@ -103,10 +106,10 @@ $favicon = Vault::faviconUrlFor($editItem['website_url']);
 
             <div class="vault-field">
                 <label for="e_tags">Tags</label>
-                <input id="e_tags" name="tags" type="text" maxlength="150" value="<?= $escape(Vault::tagsToString($editItem['tags'] ?? '')) ?>" placeholder="dev, finance (max 5)">
-                <small class="vault-field-hint">Separate with commas. Up to <?= Vault::MAX_TAGS ?> tags.</small>
+                <input id="e_tags" name="tags" type="text" maxlength="150" value="<?= $escape($tagsValue) ?>" placeholder="dev, finance (max 5)" class="<?= isset($errors['tags']) ? 'is-invalid' : '' ?>" data-tags-error="editTagsError">
+                <small class="vault-field-hint">Separate with commas. Up to <?= Vault::MAX_TAGS ?> tags, <?= Vault::MAX_TAG_LENGTH ?> characters each.</small>
+                <p class="invalid-feedback-squir" id="editTagsError" role="alert"<?= isset($errors['tags']) ? '' : ' hidden' ?>><?= $escape($errors['tags'] ?? '') ?></p>
             </div>
-            <?php if (isset($errors['tags'])): ?><p class="invalid-feedback-squir"><?= $escape($errors['tags']) ?></p><?php endif; ?>
 
             <div class="vault-modal-actions vault-modal-actions-3">
                 <a class="btn-outline-squir" href="<?= $escape($closeUrl ?? './vault') ?>">Cancel</a>

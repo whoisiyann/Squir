@@ -81,7 +81,7 @@ $pageData = [
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css?v=2">
     <link rel="stylesheet" href="./assets/css/dashboard.css?v=11">
-    <link rel="stylesheet" href="./assets/css/vault.css">
+    <link rel="stylesheet" href="./assets/css/vault.css?v=9">
 </head>
 <body class="dashboard-page">
 <div class="app-shell" id="appShell">
@@ -272,7 +272,7 @@ $pageData = [
     window.SQUIR_DASH = <?= json_encode($pageData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>;
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
-<script src="./assets/js/vault.js?v=3"></script>
+<script src="./assets/js/vault.js?v=5"></script>
 <script src="./assets/js/submit-once.js?v=1"></script>
 <script src="./assets/js/dashboard-home.js?v=4"></script>
 </body>

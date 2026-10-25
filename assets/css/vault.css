@@ -1240,3 +1240,34 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* Form errors */
+.vault-modal .invalid-feedback-squir {
+    margin: 6px 0 0 2px;
+    color: #b3261e;
+    font-size: .8rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.vault-modal .invalid-feedback-squir[hidden] {
+    display: none;
+}
+
+.vault-modal .vault-field input.is-invalid {
+    border-color: #b3261e;
+}
+
+.vault-modal .vault-field input.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(179, 38, 30, .18);
+}
+
+body.dashboard-dark .vault-modal .invalid-feedback-squir,
+html.dashboard-dark-preload .vault-modal .invalid-feedback-squir {
+    color: #ff8a80;
+}
+
+body.dashboard-dark .vault-modal .vault-field input.is-invalid,
+html.dashboard-dark-preload .vault-modal .vault-field input.is-invalid {
+    border-color: #ff8a80;
+}

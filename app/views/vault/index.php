@@ -34,7 +34,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
-    <link rel="stylesheet" href="./assets/css/vault.css?v=8">
+    <link rel="stylesheet" href="./assets/css/vault.css?v=9">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="./assets/css/move-folder.css">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">
@@ -138,7 +138,7 @@ require __DIR__ . '/../partials/move-folder-modal.php';
 </script>
 <script src="./assets/js/dashboard.js?v=3"></script>
 <script src="./assets/js/pin-gate.js"></script>
-<script src="./assets/js/vault.js?v=5"></script>
+<script src="./assets/js/vault.js?v=7"></script>
 <script src="./assets/js/bulk-select.js"></script>
 <script src="./assets/js/vault-bulk.js"></script>
 <script src="./assets/js/move-folder.js"></script>

@@ -139,6 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'bulk_de
 }
 
 $errors = [];
+$oldInput = [];
+$editFailedId = 0;
 $flashSuccess = $_SESSION['vault_flash_success'] ?? null;
 unset($_SESSION['vault_flash_success']);
 $openModal = null;
@@ -186,6 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
                 $errors = $result['errors'];
+                $oldInput = $_POST;
                 $openModal = 'create';
             }
         } elseif ($action === 'update') {
@@ -197,6 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
             $errors = $result['errors'];
+            $oldInput = $_POST;
+            $editFailedId = $vaultId;
             $openModal = 'edit:' . $vaultId;
         } elseif ($action === 'move_folder') {
             $vaultId = (int) ($_POST['vault_id'] ?? 0);
@@ -223,8 +228,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $data = $controller->index($userId, $_GET);
 
 $editItem = null;
+$editTagsRaw = null;
+$editPasswordRaw = null;
 if (isset($_GET['edit'])) {
     $editItem = $controller->edit((int) $_GET['edit'], $userId);
+} elseif ($editFailedId > 0) {
+    // Show the edit form again with what the user typed and the error messages
+    $editItem = $controller->edit($editFailedId, $userId);
+    if ($editItem) {
+        foreach (['title', 'account_username', 'website_url', 'notes'] as $field) {
+            if (isset($oldInput[$field])) {
+                $editItem[$field] = (string) $oldInput[$field];
+            }
+        }
+        if (array_key_exists('folder_id', $oldInput)) {
+            $editItem['folder_id'] = $oldInput['folder_id'] === '' ? null : (int) $oldInput['folder_id'];
+        }
+        $editItem['is_favorite'] = ($oldInput['is_favorite'] ?? '0') === '1';
+        $editTagsRaw = (string) ($oldInput['tags'] ?? '');
+        $editPasswordRaw = (string) ($oldInput['account_password'] ?? '');
+    }
 }
 
 $pinLength = UserPin::length();

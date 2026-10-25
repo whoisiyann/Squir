@@ -31,10 +31,67 @@
         if (backdrop) backdrop.classList.add('open');
     }
 
+    // Swap the star between outline and solid
+    function setFavoriteStar(button, isActive) {
+        var star = button.querySelector('i');
+        if (star) star.className = isActive ? 'fa-solid fa-star' : 'ti ti-star';
+    }
+
+    // Tag rules (same as the server): up to 5 tags, 30 characters each
+    var MAX_TAGS = 5;
+    var MAX_TAG_LENGTH = 30;
+
+    function tagsErrorFor(value) {
+        var pieces = String(value || '').split(',').map(function (piece) { return piece.trim(); }).filter(Boolean);
+        if (pieces.length > MAX_TAGS) return 'You can add up to ' + MAX_TAGS + ' tags only.';
+        for (var i = 0; i < pieces.length; i++) {
+            if (Array.from(pieces[i]).length > MAX_TAG_LENGTH) return 'Each tag must be ' + MAX_TAG_LENGTH + ' characters or fewer.';
+        }
+        return '';
+    }
+
+    // Show or hide the red tag error without touching what the user typed
+    function showTagsError(input) {
+        var errorEl = document.getElementById(input.getAttribute('data-tags-error'));
+        var message = tagsErrorFor(input.value);
+        input.classList.toggle('is-invalid', message !== '');
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.hidden = message === '';
+        }
+        return message === '';
+    }
+
+    $all('input[data-tags-error]').forEach(function (input) {
+        input.addEventListener('input', function () { showTagsError(input); });
+    });
+
+    // Edit form: stop the submit when a tag is too long, keep every field as typed
+    (function () {
+        var editTags = document.getElementById('e_tags');
+        var editForm = editTags ? editTags.closest('form') : null;
+        if (!editForm) return;
+        editForm.addEventListener('submit', function (event) {
+            if (!showTagsError(editTags)) {
+                event.preventDefault();
+                editTags.focus();
+            }
+        });
+    })();
+
     // Reset the create form
     function resetCreateForm() {
         var form = document.querySelector('#createModalBackdrop form');
-        if (form) form.reset();
+        if (form) {
+            form.reset();
+            // The form may have been filled in by the server after an error, so clear it by hand
+            $all('input[type="text"], input[type="password"], textarea', form).forEach(function (field) {
+                field.value = '';
+                field.classList.remove('is-invalid');
+            });
+            $all('select', form).forEach(function (select) { select.selectedIndex = 0; });
+            $all('.invalid-feedback-squir', form).forEach(function (el) { el.hidden = true; el.textContent = ''; });
+        }
 
         var favBtn = document.getElementById('createFavoriteToggle');
         var favInput = document.getElementById('createIsFavorite');
@@ -42,6 +99,7 @@
             favBtn.classList.remove('active');
             favBtn.setAttribute('aria-pressed', 'false');
             favInput.value = '0';
+            setFavoriteStar(favBtn, false);
         }
 
         var faviconPreview = document.getElementById('createFaviconPreview');
@@ -74,6 +132,12 @@
         form.addEventListener('submit', function (event) {
             if (form.getAttribute('data-submitting') === '1') {
                 event.preventDefault();
+                return;
+            }
+            var createTags = document.getElementById('v_tags');
+            if (createTags && !showTagsError(createTags)) {
+                event.preventDefault();
+                createTags.focus();
                 return;
             }
             form.setAttribute('data-submitting', '1');
@@ -192,6 +256,7 @@
         createFavoriteBtn.addEventListener('click', function () {
             var isActive = createFavoriteBtn.classList.toggle('active');
             createFavoriteBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            setFavoriteStar(createFavoriteBtn, isActive);
             createFavoriteInput.value = isActive ? '1' : '0';
         });
     }
@@ -202,6 +267,7 @@
         editFavoriteBtn.addEventListener('click', function () {
             var isActive = editFavoriteBtn.classList.toggle('active');
             editFavoriteBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            setFavoriteStar(editFavoriteBtn, isActive);
             editFavoriteInput.value = isActive ? '1' : '0';
         });
     }

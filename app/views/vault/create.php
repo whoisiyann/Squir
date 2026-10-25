@@ -5,6 +5,9 @@
 /** @var array $errors */
 /** @var string $csrfToken */
 $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+// Keep what the user typed when the server sends the form back with errors
+$old = (isset($oldInput) && is_array($oldInput) && ($oldInput['action'] ?? '') === 'create') ? $oldInput : [];
+$oldFavorite = ($old['is_favorite'] ?? '0') === '1';
 ?>
 <div class="vault-modal-backdrop" id="createModalBackdrop">
     <div class="vault-modal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle">
@@ -20,24 +23,24 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
             <input type="hidden" name="csrf_token" value="<?= $escape($csrfToken) ?>">
             <input type="hidden" name="action" value="create">
             <input type="hidden" name="submit_token" value="<?= $escape(bin2hex(random_bytes(16))) ?>">
-            <input type="hidden" name="is_favorite" id="createIsFavorite" value="0">
+            <input type="hidden" name="is_favorite" id="createIsFavorite" value="<?= $oldFavorite ? '1' : '0' ?>">
             <input type="hidden" name="return_to" value="<?= $escape($returnTo ?? './vault') ?>">
 
             <div class="vault-field">
                 <label for="v_title">Name</label>
-                <input id="v_title" name="title" type="text" maxlength="100" placeholder="e.g. GitHub" required>
+                <input id="v_title" name="title" type="text" maxlength="100" placeholder="e.g. GitHub" value="<?= $escape($old['title'] ?? '') ?>" required>
             </div>
             <?php if (isset($errors['title'])): ?><p class="invalid-feedback-squir"><?= $escape($errors['title']) ?></p><?php endif; ?>
 
             <div class="vault-field">
                 <label for="v_username">Username / Email</label>
-                <input id="v_username" name="account_username" type="text" maxlength="100" placeholder="you@example.com">
+                <input id="v_username" name="account_username" type="text" maxlength="100" placeholder="you@example.com" value="<?= $escape($old['account_username'] ?? '') ?>">
             </div>
 
             <div class="vault-field">
                 <label for="v_password">Password</label>
                 <div class="vault-password-field">
-                    <input id="v_password" name="account_password" type="password" placeholder="password" utocomplete="new-password" data-lpignore="true" data-1p-ignore data-bwignore="true" required>
+                    <input id="v_password" name="account_password" type="password" placeholder="password" autocomplete="new-password" data-lpignore="true" data-1p-ignore data-bwignore="true" value="<?= $escape($old['account_password'] ?? '') ?>" required>
                     <div class="vault-password-actions">
                         <button type="button" class="toggle-password" data-target="v_password" aria-label="Show password"><i class="ti ti-eye"></i></button>
                         <button type="button" class="generate-password" data-target="v_password" aria-label="Generate password"><i class="ti ti-wand"></i></button>
@@ -49,7 +52,7 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
             <div class="vault-field">
                 <label for="v_url">Website</label>
                 <div class="vault-url-field">
-                    <input id="v_url" name="website_url" type="text" placeholder="example.com">
+                    <input id="v_url" name="website_url" type="text" placeholder="example.com" value="<?= $escape($old['website_url'] ?? '') ?>">
                     <span class="vault-favicon-badge" id="createFaviconPreview"><i class="ti ti-key"></i></span>
                 </div>
             </div>
@@ -65,30 +68,30 @@ $escape = $escape ?? static fn (?string $value): string => htmlspecialchars((str
                         <select id="v_folder" name="folder_id">
                             <option value="">No folder</option>
                             <?php foreach ($data['folders'] as $folder): ?>
-                                <option value="<?= (int) $folder['folder_id'] ?>"><?= $escape($folder['folder_name']) ?></option>
+                                <option value="<?= (int) $folder['folder_id'] ?>" <?= (string) ($old['folder_id'] ?? '') === (string) $folder['folder_id'] ? 'selected' : '' ?>><?= $escape($folder['folder_name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     <?php endif; ?>
                 </div>
                 <div class="vault-field">
                     <label>Favorite</label>
-                    <button type="button" class="vault-favorite-toggle" id="createFavoriteToggle" aria-pressed="false" aria-label="Mark as favorite">
-                        <i class="ti ti-star"></i>
+                    <button type="button" class="vault-favorite-toggle<?= $oldFavorite ? ' active' : '' ?>" id="createFavoriteToggle" aria-pressed="<?= $oldFavorite ? 'true' : 'false' ?>" aria-label="Mark as favorite">
+                        <i class="<?= $oldFavorite ? 'fa-solid fa-star' : 'ti ti-star' ?>"></i>
                     </button>
                 </div>
             </div>
 
             <div class="vault-field">
                 <label for="v_notes">Notes (optional)</label>
-                <textarea id="v_notes" name="notes" rows="3" placeholder="Add recovery hints, setup notes, or context."></textarea>
+                <textarea id="v_notes" name="notes" rows="3" placeholder="Add recovery hints, setup notes, or context."><?= $escape($old['notes'] ?? '') ?></textarea>
             </div>
 
             <div class="vault-field">
                 <label for="v_tags">Tags</label>
-                <input id="v_tags" name="tags" type="text" maxlength="150" placeholder="dev, finance (max 5)">
-                <small class="vault-field-hint">Separate with commas. Up to <?= Vault::MAX_TAGS ?> tags.</small>
+                <input id="v_tags" name="tags" type="text" maxlength="150" placeholder="dev, finance (max 5)" value="<?= $escape($old['tags'] ?? '') ?>" class="<?= isset($errors['tags']) ? 'is-invalid' : '' ?>" data-tags-error="createTagsError">
+                <small class="vault-field-hint">Separate with commas. Up to <?= Vault::MAX_TAGS ?> tags, <?= Vault::MAX_TAG_LENGTH ?> characters each.</small>
+                <p class="invalid-feedback-squir" id="createTagsError" role="alert"<?= isset($errors['tags']) ? '' : ' hidden' ?>><?= $escape($errors['tags'] ?? '') ?></p>
             </div>
-            <?php if (isset($errors['tags'])): ?><p class="invalid-feedback-squir"><?= $escape($errors['tags']) ?></p><?php endif; ?>
 
             <div class="vault-modal-actions">
                 <button type="button" class="btn-outline-squir" data-close-modal="create">Cancel</button>
