@@ -12,12 +12,15 @@
 
 Squir is a web-based system that helps individuals keep their passwords, notes, tasks, and personal information organized in one secure, easy-to-use platform. It combines an **encrypted password vault**, **notes**, **task management**, a **calendar**, and **folder organization** into a single dashboard, so users no longer need to juggle multiple apps to stay on top of their digital life. It also includes a separate **administrator side** for managing users and monitoring system activity.
 
+Squir was developed as the final project for **ITE083** (Education Technology industry) by **BSIT2-03, Group 03**, and is deployed on InfinityFree.
+
 ---
 
 ## 📋 Table of Contents
 
 - [Project Objectives](#-project-objectives)
 - [Target Users](#-target-users)
+- [Project Scope](#-project-scope)
 - [Features](#-features)
 - [Security](#-security)
 - [Tech Stack](#-tech-stack)
@@ -45,14 +48,35 @@ Squir is a web-based system that helps individuals keep their passwords, notes, 
 | **Secondary Users** | Working individuals who want to manage their notes, passwords, and tasks in one platform. |
 | **Administrators** | System administrators who manage user accounts and monitor activity. |
 
+## 📌 Project Scope
+
+**In scope**
+
+- User registration and login, with Terms of Service / Privacy Policy agreement
+- Password vault, notes, tasks (priority, due date, status), calendar, folders, favorites, tags
+- Dashboard with overview counts, calendar, and world clock widget
+- Search, vault PIN protection, and password / PIN recovery through emailed verification codes
+- User settings (profile, password, email, theme, data export, account deletion)
+- Administrator account for user management and activity monitoring
+- Activity log for user and admin actions
+- Report / data export in PDF, Word, Excel, and CSV
+
+**Out of scope**
+
+- Separate native Android or iOS application
+- Integration with third-party cloud storage platforms
+- Real-time collaboration and sharing of vault contents between users
+- Integration with external productivity apps and calendar services
+- Automatic synchronization with other devices through a dedicated mobile app
+
 ---
 
 ## ✨ Features
 
 ### 🔐 Account & Access
-- **User Registration & Login** — Create an account and log in securely (hashed passwords). New users pick a unique username right after their first login.
+- **User Registration & Login** — Create an account (must agree to the Terms of Service and Privacy Policy) and log in securely (hashed passwords). New users pick a unique username right after their first login.
 - **Forgot Password (OTP-based)** — Reset a forgotten account password using a 6-digit code emailed to the user, with expiry, resend cooldown, and attempt limits.
-- **Vault PIN Lock** — A separate 6-digit PIN gate protects access to the vault, independent of the account password.
+- **Vault PIN Lock** — A separate 6-digit PIN gate protects access to the vault, independent of the account password. After **5 wrong attempts** the PIN is locked for **5 minutes**.
 - **Forgot PIN (OTP-based)** — Users who forget their vault PIN can verify their account email and reset the PIN without needing the old one.
 - **Email Change Verification** — Changing the account email requires a verification code sent to the new address.
 
@@ -63,22 +87,26 @@ Squir is a web-based system that helps individuals keep their passwords, notes, 
 - **Clipboard auto-clear** — a copied password is automatically cleared from the clipboard after **30 seconds**.
 - Organize credentials with **folders** and **tags**, and filter by either.
 - Mark credentials as **favorites** for quick access.
+- **Select mode** — select multiple passwords and delete them at once.
 - Live search suggestions while typing in the vault search bar.
 
 ### 📝 Notes Management
 - Create, view, edit, and delete personal notes.
-- Organize notes into folders alongside vault items.
+- **Rich-text editor** — bold, italic, underline, strikethrough, headings, bulleted / numbered lists, indent, text alignment, links, and highlight colors.
+- Organize notes into folders alongside vault items, and select multiple notes to delete them at once.
 
 ### ✅ Task Management
-- Create tasks with due dates and priorities.
+- Create tasks with due dates and priorities (low / medium / high).
 - Drag-and-drop task board grouped by status: **To Do → In Progress → Done**.
 - Pending-task badge in the sidebar and due-date indicators.
+- Select multiple tasks to delete them at once.
 
 ### 📅 Calendar
 - Tasks that have a due date are shown on a calendar view.
+- A calendar of your tasks is also available on the dashboard.
 
 ### 📁 Folder Organization
-- Create custom, color-coded folders to group related passwords and notes together.
+- Create custom, color-coded folders (separate folder types for passwords and notes).
 - Move items between folders.
 
 ### ⭐ Favorites
@@ -87,16 +115,17 @@ Squir is a web-based system that helps individuals keep their passwords, notes, 
 ### 📊 Dashboard
 - At-a-glance counts of saved passwords, notes, tasks, and folders.
 - Recently updated items and task overview.
+- **Calendar** showing tasks by due date.
 - **World Clock widget** — track the current time across multiple countries/cities.
 
 ### 🔍 Search
 - Global search bar in the top bar to quickly find saved items, plus dedicated search inside the vault.
 
 ### ⚙️ Account Settings
-- Edit profile information and personalize the **theme** (light / dark / auto) and **accent color**.
+- Edit profile information and personalize the **theme** (light / dark / auto) and **accent color** (brown, blue, green, purple, orange, rose).
 - Change account password.
 - Reset vault PIN (with the "Forgot PIN" recovery flow above).
-- **Activity Log** — a timeline of account actions (logins, password/PIN changes, edits, exports, etc.), with the option to clear it from the user's view.
+- **Activity Log** — a timeline of account actions (logins, password/PIN changes, edits, exports, etc.) that also records the device and IP address used, with the option to clear it from the user's view.
 - **Export My Data** — export your data as **CSV, Excel (.xlsx), Word (.docx), or PDF**, gated behind PIN re-verification.
 - Delete account.
 
@@ -105,8 +134,8 @@ Administrators log in from the same login page and are redirected to their own p
 - **Dashboard** — system-wide statistics and overview.
 - **Users** — view, add, edit, activate / deactivate / suspend, force logout, and delete user accounts.
 - **User Details** — per-user profile and activity.
-- **Activity Logs** — system-wide audit trail with filtering and export (CSV, Excel, Word, PDF).
-- **Settings** — admin profile, password change, email change (with verification), and user summary / log exports.
+- **Activity Logs** — system-wide audit trail with filtering, bulk select, and export (CSV, Excel, Word, PDF).
+- **Settings** — admin profile, theme, password change, email change (with verification), and user summary / log exports.
 
 ---
 
@@ -114,10 +143,11 @@ Administrators log in from the same login page and are redirected to their own p
 
 - Passwords are hashed with PHP's `password_hash()` (bcrypt) — never stored in plain text.
 - Vault credentials are encrypted using **AES-256-CBC** before being saved to the database. The key lives in `.env`, never in source code.
-- The vault is gated by a separate numeric PIN, checked against weak/common PIN patterns on creation.
+- The vault is gated by a separate numeric PIN, checked against weak/common PIN patterns on creation. Repeated wrong PIN entries temporarily lock the PIN.
 - Password, PIN, and email-change verification all use **hashed, time-limited, single-use codes** with a maximum attempt count before a new code is required.
 - CSRF tokens are required on state-changing requests.
 - Sensitive actions (reveal/copy password, data export, account deletion) require re-authentication via PIN or password.
+- Suspended or force-logged-out accounts are signed out of their existing sessions.
 - Session cookies are `HttpOnly`, `SameSite=Lax`, and `Secure` over HTTPS.
 - `.htaccess` blocks direct access to `.env`, `.sql`, `.log`, source folders (`app`, `config`, `includes`, `vendor`, ...), and every `.php` file except `index.php`.
 - PHP/database errors are logged to `logs/php-error.log` and never shown to users.
@@ -134,14 +164,15 @@ Administrators log in from the same login page and are redirected to their own p
 | Frontend | HTML5, custom CSS, vanilla JavaScript, [Tabler Icons](https://tabler.io/icons) |
 | Mail | PHPMailer (SMTP, used for verification-code emails) |
 | Exports | Dompdf (PDF), PHPWord (Word), built-in CSV and XLSX builders |
-| Dependency Management | Composer |
+| Dependency Management | Composer (PHP). npm / Gulp / Tailwind are only needed if you want to rebuild the template CSS. |
 | Local Server | XAMPP (Apache + MySQL) |
+| Hosting | InfinityFree |
 
 ---
 
 ## 🗄️ Database
 
-Squir uses a normalized **MySQL** database (3NF). Users and administrators are modeled as **separate entities**, each with their own credentials and access scope.
+Squir uses a normalized **MySQL** database (3NF) named `squirdb`, made up of **19 tables** and 141 fields. Users and administrators are modeled as **separate entities**, each with their own credentials and access scope.
 
 | Group | Tables |
 |---|---|
@@ -156,7 +187,7 @@ SQL files in `database/`:
 | File | Purpose |
 |---|---|
 | `squirdb.sql` | **Main schema.** Creates the `squirdb` database, all tables, the World Clock city catalog, and the default administrator account. |
-| `seed_data.sql` | *(Optional)* Sample data: 30 users with vaults, notes, tasks, and logs. Every sample user has the login password `123456789` and the vault PIN `123456`. |
+| `seed_data.sql` | *(Optional)* Sample data: 30 users (25 active, 3 inactive, 2 suspended) with vaults, notes, tasks, and logs. Every sample user has the login password `123456789` and the vault PIN `123456`. |
 | `reset_database.sql` | Empties every table and resets auto-increment. **Deletes all data.** |
 | `myacc.sql` | Developer helper that inserts a personal test account with sample folders. |
 
@@ -171,6 +202,7 @@ Squir/
 ├── app/
 │   ├── controllers/      # Business logic (Auth, Vault, Notes, Tasks, Calendar, Settings, ...)
 │   │   └── admin/        # Admin controllers (Auth, Dashboard, Users, Activity Logs, Settings)
+│   ├── helpers/          # Small helpers (e.g. EmailValidator)
 │   ├── models/           # Database models (User, Vault, Note, Task, Folder, Favorite, WorldClock, ...)
 │   │   └── admin/        # Admin models (Admin, AdminEmailChange, AdminPasswordReset)
 │   ├── routes/           # Route handlers, mapped from index.php
@@ -194,7 +226,10 @@ Squir/
 ├── .env.example          # Template for your private .env
 ├── .htaccess             # URL rewriting + blocking of sensitive files
 ├── composer.json
+├── ERD_diagram.drawio    # Entity-relationship diagram (draw.io)
+├── squirdb.vuerd.json    # Entity-relationship diagram (ERD Editor)
 ├── index.php             # Front controller / router (?route=...)
+├── pages.php             # Page definitions
 └── structure.txt         # Full, detailed folder tree
 ```
 
@@ -234,7 +269,7 @@ These steps use **XAMPP on Windows**. Laragon or WAMP work the same way.
 
 4. **Create the database**
    - Open phpMyAdmin at `http://localhost/phpmyadmin`.
-   - Go to the **Import** tab, choose `database/squirdb.sql`, and click **Import**. This creates the `squirdb` database with all tables, the World Clock data, and the default admin account.
+   - Go to the **Import** tab, choose `database/squirdb.sql`, and click **Import**. This creates the `squirdb` database with all 19 tables, the World Clock data, and the default admin account.
    - *(Optional)* Import `database/seed_data.sql` afterward to load sample users and data.
 
    Or from the command line:
@@ -271,9 +306,9 @@ These steps use **XAMPP on Windows**. Laragon or WAMP work the same way.
    ```
    http://localhost/squir
    ```
-   - **Users:** click *Register*, create an account, then set up your PIN and username.
+   - **Users:** click *Register*, agree to the Terms of Service, create an account, then set up your PIN and username.
    - **Administrator:** log in from the same login page with the admin account defined in `database/squirdb.sql` (section 15, *Seed: Administrator Account*). Change that password right after your first login, especially on a live server.
-   - **Sample users:** if you imported `seed_data.sql`, log in with any sample user's email (e.g. `juandc@example.com`), password `123456789`, and PIN `123456`.
+   - **Sample users:** if you imported `seed_data.sql`, log in with any sample user's email (e.g. `juandc@gmail.com`), password `123456789`, and PIN `123456`.
 
 ### Deploying to a live server (e.g. InfinityFree)
 
@@ -281,6 +316,7 @@ These steps use **XAMPP on Windows**. Laragon or WAMP work the same way.
 2. Create a MySQL database on the host and import `database/squirdb.sql` (edit the `CREATE DATABASE` / `USE` lines to match your hosting database name).
 3. Create the `.env` on the server with `APP_ENV=production`, the host's database credentials, and your own `VAULT_ENCRYPTION_KEY`.
 4. Keep `MAIL_DEV_FALLBACK=false` and `MAIL_DEBUG=false`.
+5. Do not import `seed_data.sql` or `myacc.sql` on the live server, and change the default admin password.
 
 ---
 
@@ -293,6 +329,7 @@ These steps use **XAMPP on Windows**. Laragon or WAMP work the same way.
 | `vendor/autoload.php` not found | Run `composer install` in the project folder. |
 | Verification code email not arriving | Check `SMTP_USERNAME` / `SMTP_PASSWORD` (must be an App Password). For local testing set `APP_ENV=local` and `MAIL_DEV_FALLBACK=true`. |
 | Vault passwords show errors or cannot be decrypted | `VAULT_ENCRYPTION_KEY` is empty or was changed. Restore the original key. |
+| Vault PIN says "locked" | Too many wrong PIN attempts. Wait 5 minutes, or use *Forgot PIN* to reset it. |
 | Word / Excel / PDF export fails | Make sure the `zip`, `gd`, `mbstring`, and `xml` PHP extensions are enabled and Composer packages are installed. |
 
 ---
@@ -306,6 +343,8 @@ These steps use **XAMPP on Windows**. Laragon or WAMP work the same way.
 | Biacan, Tiffany Quenn D. | System Tester & Documentation |
 | Estrada, Nash Basti M. | UI/UX Designer |
 | Gozo, Ace B. | System Tester |
+
+Class: UP-FBS1 BSIT2-03
 
 ---
 
