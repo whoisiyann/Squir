@@ -68,9 +68,43 @@
     var deleteConfirmBtn = document.getElementById('deleteAccountConfirm');
     var deleteCancelBtn = document.getElementById('deleteAccountCancel');
     var deleteErrorEl = document.getElementById('deleteAccountError');
+    var deleteTextEl = document.getElementById('deleteAccountText');
+    var deletePinStep = document.getElementById('deleteAccountPinStep');
+    var deletePinBoxes = $all('#deleteAccountPinInputs .pin-modal-box');
+    var deletePinGroup = document.getElementById('deleteAccountPinInputs');
     var deleteInProgress = false;
+    var deleteAwaitingPin = false;
+    var deleteConfirmText = deleteTextEl ? deleteTextEl.textContent : '';
+
+    function getDeletePin() {
+        return deletePinBoxes.map(function (box) { return box.value; }).join('');
+    }
+
+    function clearDeletePin() {
+        deletePinBoxes.forEach(function (box) { box.value = ''; box.classList.remove('filled'); });
+    }
+
+    function shakeDeletePin() {
+        if (!deletePinGroup) return;
+        deletePinGroup.classList.remove('shake');
+        void deletePinGroup.offsetWidth;
+        deletePinGroup.classList.add('shake');
+    }
+
+    function showDeletePinStep() {
+        deleteAwaitingPin = true;
+        deleteErrorEl.textContent = '';
+        deleteTextEl.textContent = 'For your security, enter your PIN to permanently delete your account.';
+        deletePinStep.hidden = false;
+        clearDeletePin();
+        if (deletePinBoxes[0]) deletePinBoxes[0].focus();
+    }
 
     function openDeleteAccountModal() {
+        deleteAwaitingPin = false;
+        deleteTextEl.textContent = deleteConfirmText;
+        deletePinStep.hidden = true;
+        clearDeletePin();
         deleteErrorEl.textContent = '';
         deleteConfirmBtn.disabled = false;
         deleteCancelBtn.disabled = false;
@@ -92,8 +126,14 @@
                 openDeleteAccountModal();
             } else if (window.confirm('Are you sure you want to delete your account? This will permanently remove your vault, notes, tasks, and all related data. This cannot be undone.')) {
 
-                postAjax('delete_account', {}).then(function (result) {
-                    if (result.ok) window.location.href = './login';
+                var fallbackPin = window.prompt('Enter your PIN to confirm.');
+                if (!fallbackPin) return;
+                postAjax('delete_account', { pin: fallbackPin }).then(function (result) {
+                    if (result.ok) {
+                        window.location.href = './login';
+                    } else {
+                        window.alert((result.json && result.json.error) || 'Could not delete your account. Please try again.');
+                    }
                 });
             }
         });
@@ -101,7 +141,55 @@
 
     if (deleteBackdrop) {
         deleteCancelBtn.addEventListener('click', closeDeleteAccountModal);
-        deleteConfirmBtn.addEventListener('click', doDeleteAccount);
+        deleteConfirmBtn.addEventListener('click', function () {
+            if (!deleteAwaitingPin) {
+                showDeletePinStep();
+                return;
+            }
+            doDeleteAccount();
+        });
+
+        deletePinBoxes.forEach(function (box, index) {
+            box.addEventListener('input', function () {
+                var digit = box.value.replace(/\D/g, '').slice(-1);
+                box.value = digit;
+                box.classList.toggle('filled', digit !== '');
+                if (digit && deletePinBoxes[index + 1]) deletePinBoxes[index + 1].focus();
+            });
+
+            box.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    doDeleteAccount();
+                } else if (event.key === 'Backspace' && box.value === '' && deletePinBoxes[index - 1]) {
+                    deletePinBoxes[index - 1].value = '';
+                    deletePinBoxes[index - 1].classList.remove('filled');
+                    deletePinBoxes[index - 1].focus();
+                    event.preventDefault();
+                } else if (event.key === 'ArrowLeft' && deletePinBoxes[index - 1]) {
+                    deletePinBoxes[index - 1].focus();
+                } else if (event.key === 'ArrowRight' && deletePinBoxes[index + 1]) {
+                    deletePinBoxes[index + 1].focus();
+                }
+            });
+
+            box.addEventListener('focus', function () { box.select(); });
+
+            box.addEventListener('paste', function (event) {
+                var pasted = (event.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+                if (!pasted) return;
+                event.preventDefault();
+                deletePinBoxes.forEach(function (target, i) {
+                    var value = pasted.charAt(i - index);
+                    if (i >= index && value) {
+                        target.value = value;
+                        target.classList.add('filled');
+                    }
+                });
+                var next = Math.min(index + pasted.length, deletePinBoxes.length - 1);
+                deletePinBoxes[next].focus();
+            });
+        });
 
         deleteBackdrop.addEventListener('click', function (event) {
             if (event.target === deleteBackdrop) closeDeleteAccountModal();
@@ -114,6 +202,17 @@
 
     function doDeleteAccount() {
         if (deleteInProgress) return;
+
+        var pin = getDeletePin();
+        var pinLength = deletePinBoxes.length || 6;
+        if (pin.length !== pinLength) {
+            deleteErrorEl.textContent = 'Enter your ' + pinLength + '-digit PIN.';
+            shakeDeletePin();
+            var firstEmpty = deletePinBoxes.filter(function (box) { return box.value === ''; })[0];
+            if (firstEmpty) firstEmpty.focus();
+            return;
+        }
+
         deleteInProgress = true;
         deleteErrorEl.textContent = '';
         deleteConfirmBtn.disabled = true;
@@ -126,9 +225,12 @@
             deleteCancelBtn.disabled = false;
             deleteConfirmBtn.textContent = 'Delete';
             deleteErrorEl.textContent = message || 'Something went wrong. Please try again.';
+            clearDeletePin();
+            shakeDeletePin();
+            if (deletePinBoxes[0]) deletePinBoxes[0].focus();
         }
 
-        postAjax('delete_account', {}).then(function (result) {
+        postAjax('delete_account', { pin: pin }).then(function (result) {
             if (!result.ok) {
                 fail(result.json && result.json.error);
                 return;

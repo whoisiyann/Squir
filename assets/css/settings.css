@@ -949,6 +949,42 @@ html.dashboard-dark-preload .sq-da-modal {
   }
 }
 
+/* Delete account: PIN step */
+.sq-da-pin {
+  margin: 0 auto 14px;
+}
+
+.sq-da-pin[hidden] {
+  display: none;
+}
+
+.sq-da-pin-label {
+  margin: 0 0 10px;
+  color: var(--da-brown);
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.sq-da-pin .pin-modal-inputs {
+  margin-bottom: 0;
+}
+
+.sq-da-pin .pin-modal-box {
+  border-color: var(--da-brown);
+  background: transparent;
+  color: var(--da-brown);
+}
+
+.sq-da-pin .pin-modal-box:focus,
+.sq-da-pin .pin-modal-box.filled {
+  box-shadow: 0 0 0 3px rgba(107, 63, 42, .18);
+}
+
+body.dashboard-dark .sq-da-pin .pin-modal-box,
+html.dashboard-dark-preload .sq-da-pin .pin-modal-box {
+  color: var(--text);
+}
+
 @media (max-width: 520px) {
   .sq-da-modal {
     padding: 22px 22px 24px;

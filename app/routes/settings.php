@@ -195,6 +195,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'delete_
         settingsJson(['error' => 'Your session expired. Please refresh the page.'], 403);
     }
 
+    // Ask for the PIN before deleting
+    $pinResult = $pinController->verify($userId, (string) ($_POST['pin'] ?? ''));
+    if (empty($pinResult['ok'])) {
+        settingsJson(['error' => $pinResult['error'] ?? 'That PIN is incorrect.'], 401);
+    }
+
     $deleted = $controller->deleteAccount($userId);
     if (!$deleted) {
         settingsJson(['error' => 'Could not delete your account. Please try again.'], 500);
