@@ -5,7 +5,7 @@ USE squirdb;
 DELETE FROM users WHERE email = 'ianchristopherjunio19@gmail.com';
 
 INSERT INTO users (full_name, username, email, password_hash, status, last_login_at)
-VALUES ('Ian Christopher Junio', '_whoisiyann', 'ianchristopherjunio19@gmail.com', '$2y$10$Z5wkcMphYaDWHrsZ2CN5X.ltR.G7m0wE8nk5OOk4d1FzWhwZDhde.', 'active', '2026-10-18 09:00:00');
+VALUES ('Ian Christopher Junio', '_whoisiyann', 'ianchristopherjunio19@gmail.com', '$2y$10$Z5wkcMphYaDWHrsZ2CN5X.ltR.G7m0wE8nk5OOk4d1FzWhwZDhde.', 'active', '2026-10-24 19:30:00');
 SET @uid = LAST_INSERT_ID();
 
 INSERT INTO user_pins (user_id, pin_hash) VALUES (@uid, '$2y$10$ho1tTXf.p9KbqfcGpIYS/OTTDt7QvmIjNofytoWLztpfL5B7baa8G');
@@ -67,13 +67,16 @@ INSERT INTO notes (user_id, folder_id, title, content) VALUES
 (@uid, (SELECT folder_id FROM folders WHERE user_id = @uid AND folder_name = 'Personal' AND folder_type = 'notes'), 'Gaming Schedule', '<p>Ranked games on weekends only. Study first on weekdays.</p>'),
 (@uid, (SELECT folder_id FROM folders WHERE user_id = @uid AND folder_name = 'Personal' AND folder_type = 'notes'), 'Birthday Gift Ideas', '<p>Headphones, wallet, notebook set.</p>');
 
--- TASKS (5) - dates are relative to the day you import this file
+-- TASKS (8)
 INSERT INTO tasks (user_id, title, description, status, priority, due_date, position, completed_at) VALUES
-(@uid, 'Finish Squir database seed', 'Run reset and seed scripts, then test.', 'in_progress', 'high', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NULL),
-(@uid, 'Prepare Squir defense', 'Review checklist and practice the demo.', 'todo', 'high', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 0, NULL),
-(@uid, 'Review SQL joins', 'Practice INNER and LEFT JOIN queries.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 1, NULL),
-(@uid, 'Submit project documentation', 'Final documentation and ERD.', 'todo', 'medium', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 2, NULL),
-(@uid, 'Test login and CRUD flow', 'Checked login, add, edit and delete.', 'done', 'low', DATE_SUB(CURDATE(), INTERVAL 1 DAY), 0, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 1 DAY), '18:30:00'));
+(@uid, 'Final test of Squir', 'Test login, PIN, vault, notes, tasks, report and export from start to finish.', 'done', 'high', '2026-10-24', 0, '2026-10-24 20:15:00'),
+(@uid, 'Print documentation and ERD', 'Print and bind 2 copies of the final documentation with the ERD for the panel.', 'done', 'medium', '2026-10-26', 1, '2026-10-26 15:30:00'),
+(@uid, 'Set up Squir on the defense laptop', 'Import squirdb.sql, seed_data.sql and myacc.sql, then check the login.', 'done', 'high', '2026-10-27', 2, '2026-10-27 20:00:00'),
+(@uid, 'Review the database checklist', 'Go through the 11 checklist items: normalization, PK/FK, JOINs, prepared statements, CRUD, report and export.', 'done', 'high', '2026-10-28', 3, '2026-10-28 19:30:00'),
+(@uid, 'Rehearse Squir demo with the group', 'Practice the demo flow and who answers which panel questions.', 'in_progress', 'high', '2026-10-29', 0, NULL),
+(@uid, 'Charge laptop and bring HDMI adapter', 'Bring the laptop, charger, HDMI adapter and a flash drive with the database backup.', 'todo', 'medium', '2026-10-29', 0, NULL),
+(@uid, 'Present Squir to the panel', 'Defense day (Thursday). Run the demo, show the report and answer the panel questions.', 'todo', 'high', '2026-10-29', 1, NULL),
+(@uid, 'Submit final documentation', 'Upload the final documentation and ERD to the class portal after the defense.', 'todo', 'medium', '2026-10-30', 2, NULL);
 
 -- FAVORITES (4 credentials, 2 notes, 1 folder)
 INSERT INTO favorites (user_id, folder_id, vault_id, note_id) VALUES
@@ -87,6 +90,6 @@ INSERT INTO favorites (user_id, folder_id, vault_id, note_id) VALUES
 
 -- ACTIVITY LOGS
 INSERT INTO activity_logs (user_id, action, entity_type, description, ip_address, device, created_at) VALUES
-(@uid, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-18 09:00:00'),
-(@uid, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Windows (Chrome)', '2026-10-18 09:01:00'),
-(@uid, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Windows (Chrome)', '2026-10-17 18:30:00');
+(@uid, 'logged_in', NULL, 'Logged in', '127.0.0.1', 'Windows (Chrome)', '2026-10-24 19:30:00'),
+(@uid, 'vault_unlocked', NULL, 'Vault unlocked', '127.0.0.1', 'Windows (Chrome)', '2026-10-24 19:31:00'),
+(@uid, 'task_completed', 'task', 'Completed task', '127.0.0.1', 'Windows (Chrome)', '2026-10-24 20:15:00');

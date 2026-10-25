@@ -24,6 +24,13 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./assets/css/login.css?v=2">
     <link rel="stylesheet" href="./assets/css/pin.css?v=2">
     <link rel="stylesheet" href="./assets/css/forgot-password.css?v=1">
+    <script>
+        try {
+            ['squir-dashboard-theme', 'squir-accent', 'squir-admin-theme', 'squir-admin-accent'].forEach(function (key) {
+                window.localStorage.removeItem(key);
+            });
+        } catch (error) {}
+    </script>
 </head>
 <body class="pin-page">
     <main class="login-shell">

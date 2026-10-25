@@ -103,8 +103,8 @@ $firstName = trim(explode(' ', $adminName)[0] ?? $adminName) ?: 'Admin';
     (function () {
       try {
         var serverPrefs = <?= preferencesJson('admin') ?>;
-        if (serverPrefs.theme) window.localStorage.setItem('squir-admin-theme', serverPrefs.theme);
-        if (serverPrefs.accent) window.localStorage.setItem('squir-admin-accent', serverPrefs.accent);
+        if (serverPrefs.theme) window.localStorage.setItem('squir-admin-theme', serverPrefs.theme); else window.localStorage.removeItem('squir-admin-theme');
+        if (serverPrefs.accent) window.localStorage.setItem('squir-admin-accent', serverPrefs.accent); else window.localStorage.removeItem('squir-admin-accent');
         if (window.localStorage.getItem('squir-admin-theme') === 'dark') {
           document.documentElement.classList.add('dashboard-dark-preload');
         }

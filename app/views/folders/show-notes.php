@@ -24,8 +24,8 @@ $notesTotal = (int) $notesData['total'];
         (function () {
             try {
                 var serverPrefs = <?= preferencesJson() ?>;
-                if (serverPrefs.theme) window.localStorage.setItem('squir-dashboard-theme', serverPrefs.theme);
-                if (serverPrefs.accent) window.localStorage.setItem('squir-accent', serverPrefs.accent);
+                if (serverPrefs.theme) window.localStorage.setItem('squir-dashboard-theme', serverPrefs.theme); else window.localStorage.removeItem('squir-dashboard-theme');
+                if (serverPrefs.accent) window.localStorage.setItem('squir-accent', serverPrefs.accent); else window.localStorage.removeItem('squir-accent');
                 if (window.localStorage.getItem('squir-dashboard-theme') === 'dark') {
                     document.documentElement.classList.add('dashboard-dark-preload');
                 }

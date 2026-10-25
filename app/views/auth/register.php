@@ -18,6 +18,13 @@ $fieldError = $fieldError ?? static fn (string $field): string => isset($errors[
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/register.css">
     <link rel="stylesheet" href="./assets/css/terms-view.css">
+    <script>
+        try {
+            ['squir-dashboard-theme', 'squir-accent', 'squir-admin-theme', 'squir-admin-accent'].forEach(function (key) {
+                window.localStorage.removeItem(key);
+            });
+        } catch (error) {}
+    </script>
 </head>
 <body>
     <main class="registration-shell">
