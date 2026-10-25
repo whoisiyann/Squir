@@ -189,10 +189,36 @@ html.bs-marqueeing * {
   user-select: none !important;
 }
 
-/* Tasks */
-.bs-root-active .task-grip { opacity: .35; pointer-events: none; }
-.task-card > .bs-check { margin-right: 0; }
-.task-card.bs-selected { border-color: var(--accent); }
+/* Task selection */
+.task-card.bs-selected,
+.task-card.bs-selected:hover,
+.task-card.bs-selected.menu-open {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+@supports (background: color-mix(in srgb, red 10%, white)) {
+  .task-card.bs-selected,
+  .task-card.bs-selected:hover,
+  .task-card.bs-selected.menu-open {
+    background: color-mix(in srgb, var(--accent) 16%, var(--card));
+  }
+}
+/* Allow selected cards to be dragged */
+.task-card.bs-selectable { cursor: grab; }
+.task-card.bs-selectable:active { cursor: grabbing; }
+/* Multi-task drag badge */
+.task-drag-ghost {
+  position: fixed;
+  top: -200px;
+  left: -200px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--button-text, #fff);
+  font-size: .85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .tasks-page .bs-heading-actions { align-items: center; }
 @media (max-width: 900px) {
   .tasks-page .bs-heading-actions { flex: 1 1 auto; min-width: 0; }

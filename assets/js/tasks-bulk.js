@@ -34,13 +34,19 @@
         }
     }
 
-    SquirBulkSelect.init({
+    var bulk = SquirBulkSelect.init({
         root: board,
         itemSelector: '.task-card[data-id]',
         getId: function (item) { return item.getAttribute('data-id'); },
         checkHost: function (item) { return item; },
         toggleButtons: [btn],
         noun: 'task',
+        showCheck: false,          // Highlight selected tasks without checkboxes.
+        showBar: false,            // Hide the floating action bar.
+        allowDrag: true,           // Allow dragging selected cards.
+        exitOnEmptyClick: true,    // Clear selection on empty-space clicks.
+        ignoreClick: '.task-grip', // Keep the grip menu available.
+        ignoreLongPress: '.task-grip',
         marqueeArea: board.closest('main') || board,
         onDelete: function (ids, info) {
             var message = info.count === 1
@@ -63,4 +69,10 @@
             });
         }
     });
+
+    // Expose selection actions to tasks.js.
+    var boardApi = window.SquirTasksBoard = window.SquirTasksBoard || {};
+    boardApi.selectedIds = function () { return bulk ? bulk.selectedIds().map(Number) : []; };
+    boardApi.clearSelection = function () { if (bulk) bulk.exit(); };
+    boardApi.deleteSelected = function () { if (bulk) bulk.requestDelete(); };
 })();

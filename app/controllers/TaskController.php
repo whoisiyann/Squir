@@ -74,6 +74,46 @@ class TaskController
         return $reordered;
     }
 
+    // Move the selected tasks to a status
+    public function bulkMove(int $userId, string $status, string $idsCsv, string $orderCsv): int
+    {
+        $ids = $this->parseIds($idsCsv, 200);
+        $order = $this->parseIds($orderCsv, 1000);
+
+        $before = [];
+        foreach ($ids as $taskId) {
+            $existing = $this->taskModel->find($taskId, $userId);
+            if ($existing) {
+                $before[$taskId] = $existing['status'];
+            }
+        }
+
+        $moved = $this->taskModel->bulkMove($userId, $status, $ids, $order);
+
+        $changed = [];
+        foreach ($before as $taskId => $previous) {
+            $task = $this->taskModel->find($taskId, $userId);
+            if ($task && $previous !== $task['status']) {
+                $changed[] = ['task' => $task, 'before' => $previous];
+            }
+        }
+
+        if (count($changed) === 1) {
+            $task = $changed[0]['task'];
+            $action = $this->statusAction($changed[0]['before'], $task['status']);
+            $this->activityLog->log($userId, $action, $this->statusDescription($action, $task), 'task', (int) $task['task_id']);
+        } elseif (count($changed) > 1) {
+            $action = $this->statusAction($changed[0]['before'], $status);
+            $verb = $action === 'task_completed' ? 'Completed' : ($action === 'task_reopened' ? 'Reopened' : 'Moved');
+            $titles = array_map(fn (array $c): string => $this->activityTitle($c['task']['title']), $changed);
+            $preview = implode(', ', array_slice($titles, 0, 3)) . (count($titles) > 3 ? ', ...' : '');
+            $text = $verb . ' ' . count($changed) . ' tasks' . ($action === 'task_moved' ? ' to ' . $this->statusLabel($status) : '');
+            $this->activityLog->log($userId, $action, $text . ' (' . mb_substr($preview, 0, 150) . ')', 'task', null);
+        }
+
+        return $moved;
+    }
+
     // Duplicate a task
     public function duplicate(int $taskId, int $userId): ?array
     {
@@ -133,6 +173,16 @@ class TaskController
     public function clearAll(int $userId, string $status): int
     {
         return $this->taskModel->clearAll($userId, $status);
+    }
+
+    private function parseIds(string $csv, int $limit): array
+    {
+        $ids = array_values(array_unique(array_filter(
+            array_map('intval', explode(',', $csv)),
+            static fn (int $id): bool => $id > 0
+        )));
+
+        return array_slice($ids, 0, $limit);
     }
 
     private function statusAction(?string $before, string $after): string

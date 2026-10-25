@@ -16,6 +16,8 @@
         var itemSelector = options.itemSelector;
         var getId = options.getId;
         var checkHost = options.checkHost || function (item) { return item; };
+        var showCheck = options.showCheck !== false;     // Highlight only, without checkboxes.
+        var showBar = options.showBar !== false;         // Hide the floating action bar.
 
         var active = false;
         var selected = {};          // id -> true
@@ -74,6 +76,7 @@
 
         /* ---------- item state ---------- */
         function decorate(item) {
+            if (!showCheck) return;
             if (item.__bsCheck && item.__bsCheck.isConnected) return;
 
             var box = document.createElement('span');
@@ -125,7 +128,7 @@
 
             if (on) {
                 if (!bar) buildBar();
-                bar.hidden = false;
+                bar.hidden = !showBar;
                 syncItems();
             } else {
                 abortMarquee();
@@ -193,6 +196,8 @@
             var item = event.target.closest(itemSelector);
             if (!item || !root.contains(item)) return;
 
+            if (options.ignoreClick && event.target.closest(options.ignoreClick)) return;   // Keep task grip clicks available.
+
             event.preventDefault();
             event.stopPropagation();
 
@@ -202,9 +207,9 @@
             else toggleItem(item);
         }, true);
 
-        // While selecting, items are not draggable (e.g. task cards)
+        // Block dragging during selection unless allowed.
         root.addEventListener('dragstart', function (event) {
-            if (active && event.target.closest && event.target.closest(itemSelector)) {
+            if (active && !options.allowDrag && event.target.closest && event.target.closest(itemSelector)) {
                 event.preventDefault();
                 event.stopPropagation();   // the item's own drag code must not run (it would never get a dragend)
             }
@@ -455,7 +460,10 @@
                 if (raf) { cancelAnimationFrame(raf); raf = 0; }
                 if (box) box.hidden = true;
 
-                if (!state.started) return;   // it was only a click on empty space
+                if (!state.started) {   // No marquee was drawn.
+                    if (options.exitOnEmptyClick && active) setActive(false);
+                    return;
+                }
                 clickGuardUntil = Date.now() + CLICK_GUARD_MS;
 
                 if (restore && active) {
@@ -505,6 +513,7 @@
             exit: function () { setActive(false); },
             isActive: function () { return active; },
             selectedIds: selectedIds,
+            requestDelete: startDelete,
             refresh: syncItems
         };
     }

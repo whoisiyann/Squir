@@ -75,6 +75,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 tasksOk($controller, $userId);
 
+            // Move the selected tasks
+            case 'bulk_move':
+                $moved = $controller->bulkMove(
+                    $userId,
+                    (string) ($_POST['status'] ?? ''),
+                    (string) ($_POST['ids'] ?? ''),
+                    (string) ($_POST['order'] ?? '')
+                );
+                if ($moved === 0) {
+                    tasksRespond(['error' => 'Could not move the selected tasks.'], 422);
+                }
+                tasksOk($controller, $userId, ['moved' => $moved]);
+
             // Duplicate a task
             case 'duplicate':
                 $task = $controller->duplicate($taskId, $userId);

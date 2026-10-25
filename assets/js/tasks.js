@@ -20,6 +20,7 @@
 
     var searchTerm = '';
     var dragId = null;
+    var dragIds = [];          // IDs of the dragged task or selection.
     var indicatorEl = null;
 
 
@@ -44,6 +45,30 @@
             if (STATUSES[i].key === key) return STATUSES[i].label;
         }
         return key;
+    }
+
+    function statusIndex(key) {
+        for (var i = 0; i < STATUSES.length; i++) {
+            if (STATUSES[i].key === key) return i;
+        }
+        return STATUSES.length;
+    }
+
+    // Return tasks selected on the board.
+    function selectedIds() {
+        var hooks = window.SquirTasksBoard;
+        return hooks && hooks.selectedIds ? hooks.selectedIds() : [];
+    }
+
+    // Return the multi-selection when it includes this task.
+    function selectionFor(task) {
+        var ids = selectedIds();
+        return ids.length > 1 && ids.indexOf(task.task_id) !== -1 ? ids : null;
+    }
+
+    function clearSelection() {
+        var hooks = window.SquirTasksBoard;
+        if (hooks && hooks.clearSelection) hooks.clearSelection();
     }
 
     function findTask(id) {
@@ -309,15 +334,31 @@
         });
 
         card.addEventListener('dragstart', function (event) {
+            // Drag all selected tasks together.
+            var selection = selectionFor(task);
+            dragIds = selection || [task.task_id];
             dragId = task.task_id;
             closeMenu();
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('text/plain', String(task.task_id)); // Firefox requires this
-            card.classList.add('is-dragging');
+
+            dragIds.forEach(function (id) {
+                var el = board.querySelector('.task-card[data-id="' + id + '"]');
+                if (el) el.classList.add('is-dragging');
+            });
+
+            if (dragIds.length > 1 && event.dataTransfer.setDragImage) {
+                var ghost = h('div', 'task-drag-ghost', dragIds.length + ' tasks');
+                document.body.appendChild(ghost);
+                event.dataTransfer.setDragImage(ghost, 16, 16);
+                setTimeout(function () { ghost.remove(); }, 0);
+            }
         });
         card.addEventListener('dragend', function () {
             dragId = null;
-            card.classList.remove('is-dragging');
+            dragIds = [];
+            var dragging = board.querySelectorAll('.is-dragging');
+            for (var i = 0; i < dragging.length; i++) dragging[i].classList.remove('is-dragging');
             clearDropTargets();
         });
 
@@ -370,8 +411,10 @@
         var depth = 0;
 
         function isOtherColumn() {
-            var dragged = dragId !== null ? findTask(dragId) : null;
-            return !!dragged && dragged.status !== statusKey;
+            return dragIds.some(function (id) {
+                var dragged = findTask(id);
+                return !!dragged && dragged.status !== statusKey;
+            });
         }
 
         column.addEventListener('dragenter', function (event) {
@@ -401,11 +444,15 @@
             depth = 0;
 
             var spot = dropSpot(column, event.clientY);
-            var id = dragId;
+            var ids = dragIds.length ? dragIds.slice() : [dragId];
             dragId = null;
+            dragIds = [];
             clearDropTargets();
 
-            setTimeout(function () { dropTask(id, statusKey, spot); }, 0);
+            setTimeout(function () {
+                if (ids.length > 1) dropTasks(ids, statusKey, spot);
+                else dropTask(ids[0], statusKey, spot);
+            }, 0);
         });
     }
 
@@ -452,6 +499,73 @@
         });
     }
 
+
+    // Move selected tasks into a column.
+    function dropTasks(ids, statusKey, spot) {
+        var moving = tasks.filter(function (t) { return ids.indexOf(t.task_id) !== -1; });
+        if (moving.length === 0) return;
+
+        // Preserve board order.
+        moving.sort(function (a, b) {
+            return (statusIndex(a.status) - statusIndex(b.status)) || byPosition(a, b);
+        });
+        var movingIds = moving.map(function (t) { return t.task_id; });
+
+        var others = columnTasks(statusKey).filter(function (t) { return movingIds.indexOf(t.task_id) === -1; });
+        var index = others.length;
+
+        if (spot.refId !== null) {
+            for (var i = 0; i < others.length; i++) {
+                if (others[i].task_id === spot.refId) {
+                    index = spot.after ? i + 1 : i;
+                    break;
+                }
+            }
+        }
+
+        var order = others.map(function (t) { return t.task_id; });
+        Array.prototype.splice.apply(order, [index, 0].concat(movingIds));
+
+        var allHere = moving.every(function (t) { return t.status === statusKey; });
+        var current = columnTasks(statusKey).map(function (t) { return t.task_id; });
+        if (allHere && current.join(',') === order.join(',')) { clearSelection(); return; } // No change
+
+        var snapshot = tasks.map(function (t) { return Object.assign({}, t); });
+
+        moving.forEach(function (t) { t.status = statusKey; });
+        order.forEach(function (taskId, position) {
+            var t = findTask(taskId);
+            if (t) t.position = position;
+        });
+        clearSelection();
+        render();
+
+        api('bulk_move', { status: statusKey, ids: movingIds.join(','), order: order.join(',') }).then(function (result) {
+            applyServer(result);
+            render();
+            toast(movingIds.length + ' tasks moved to ' + statusLabel(statusKey));
+        }).catch(function (error) {
+            tasks = snapshot;
+            render();
+            toast(error.message);
+        });
+    }
+
+    // Apply a status to selected tasks.
+    function moveSelected(ids, status) {
+        var moving = ids.filter(function (id) {
+            var t = findTask(id);
+            return t && t.status !== status;
+        });
+        if (moving.length === 0) { clearSelection(); return; }
+
+        api('bulk_move', { status: status, ids: moving.join(',') }).then(function (result) {
+            clearSelection();
+            applyServer(result);
+            render();
+            toast(moving.length + (moving.length === 1 ? ' task' : ' tasks') + ' moved to ' + statusLabel(status));
+        }).catch(function (error) { toast(error.message); });
+    }
 
     // Move a task to another status
     function moveTask(id, status) {
@@ -525,6 +639,35 @@
     var menuCard = null;
 
     function cardMenuItems(task) {
+        // Apply menu actions to the entire selection.
+        var selection = selectionFor(task);
+        if (selection) {
+            return [
+                {
+                    icon: 'ti-clipboard-check',
+                    label: 'Mark ' + selection.length + ' tasks as',
+                    submenu: STATUSES.map(function (s) {
+                        return {
+                            key: s.key,
+                            label: s.label,
+                            current: false,
+                            onClick: function () { moveSelected(selection, s.key); }
+                        };
+                    })
+                },
+                {
+                    icon: 'ti-trash',
+                    label: 'Delete ' + selection.length + ' tasks',
+                    danger: true,
+                    onClick: function () {
+                        if (window.SquirTasksBoard && window.SquirTasksBoard.deleteSelected) {
+                            window.SquirTasksBoard.deleteSelected();
+                        }
+                    }
+                }
+            ];
+        }
+
         return [
             {
                 icon: 'ti-clipboard-check',
@@ -913,10 +1056,9 @@
     render();
 
     // Expose board updates for bulk deletion
-    window.SquirTasksBoard = {
-        update: function (result) { applyServer(result); render(); },
-        toast: toast
-    };
+    window.SquirTasksBoard = window.SquirTasksBoard || {};
+    window.SquirTasksBoard.update = function (result) { applyServer(result); render(); };
+    window.SquirTasksBoard.toast = toast;
 
     // Open task from URL
     (function () {

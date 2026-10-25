@@ -238,33 +238,49 @@ class Task
 
         $this->transactional(function () use ($taskId, $userId, $status, $ids): void {
             $this->applyStatus($taskId, $userId, $status);
-
-            $rows = $this->columnRows($userId, $status);
-            $inColumn = [];
-            foreach ($rows as $row) {
-                $inColumn[(int) $row['task_id']] = true;
-            }
-
-            $ordered = [];
-            foreach ($ids as $id) {
-                $id = (int) $id;
-                if (isset($inColumn[$id])) {
-                    $ordered[] = $id;
-                    unset($inColumn[$id]);
-                }
-            }
-
-            foreach ($rows as $row) {
-                $id = (int) $row['task_id'];
-                if (isset($inColumn[$id])) {
-                    $ordered[] = $id;
-                }
-            }
-
-            $this->writePositions($userId, $ordered);
+            $this->writeColumnOrder($userId, $status, $ids);
         });
 
         return true;
+    }
+
+    // Move selected tasks to a status.
+    public function bulkMove(int $userId, string $status, array $ids, array $order = []): int
+    {
+        if (!in_array($status, self::STATUSES, true) || $ids === []) {
+            return 0;
+        }
+
+        return $this->transactional(function () use ($userId, $status, $ids, $order): int {
+            $moved = [];
+            foreach ($ids as $id) {
+                $id = (int) $id;
+                $task = $this->find($id, $userId);
+                if (!$task) {
+                    continue;
+                }
+
+                $this->applyStatus($id, $userId, $status);
+                $moved[$id] = $task['status'] !== $status;
+            }
+
+            if ($moved === []) {
+                return 0;
+            }
+
+            if ($order !== []) {
+                // Preserve the requested drop order.
+                $this->writeColumnOrder($userId, $status, $order);
+            } else {
+                foreach ($moved as $id => $changed) {
+                    if ($changed) {
+                        $this->placeAuto($userId, $id);
+                    }
+                }
+            }
+
+            return count($moved);
+        });
     }
 
     // Duplicate a task
@@ -385,6 +401,35 @@ class Task
             'id' => $taskId,
             'uid' => $userId,
         ]);
+    }
+
+
+    // Save the requested order; append unlisted tasks.
+    private function writeColumnOrder(int $userId, string $status, array $ids): void
+    {
+        $rows = $this->columnRows($userId, $status);
+        $inColumn = [];
+        foreach ($rows as $row) {
+            $inColumn[(int) $row['task_id']] = true;
+        }
+
+        $ordered = [];
+        foreach ($ids as $id) {
+            $id = (int) $id;
+            if (isset($inColumn[$id])) {
+                $ordered[] = $id;
+                unset($inColumn[$id]);
+            }
+        }
+
+        foreach ($rows as $row) {
+            $id = (int) $row['task_id'];
+            if (isset($inColumn[$id])) {
+                $ordered[] = $id;
+            }
+        }
+
+        $this->writePositions($userId, $ordered);
     }
 
 
