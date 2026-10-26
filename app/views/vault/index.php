@@ -34,7 +34,7 @@ $escape = static fn (?string $value): string => htmlspecialchars((string) $value
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/dashboard.css">
-    <link rel="stylesheet" href="./assets/css/vault.css?v=9">
+    <link rel="stylesheet" href="./assets/css/vault.css?v=10">
     <link rel="stylesheet" href="./assets/css/pin-modal.css">
     <link rel="stylesheet" href="./assets/css/move-folder.css">
     <link rel="stylesheet" href="./assets/css/squir-dialogs.css">

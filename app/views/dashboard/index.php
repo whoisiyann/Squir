@@ -81,7 +81,7 @@ $pageData = [
     <link rel="stylesheet" href="./dist/assets/fonts/tabler-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css?v=2">
     <link rel="stylesheet" href="./assets/css/dashboard.css?v=11">
-    <link rel="stylesheet" href="./assets/css/vault.css?v=9">
+    <link rel="stylesheet" href="./assets/css/vault.css?v=10">
 </head>
 <body class="dashboard-page">
 <div class="app-shell" id="appShell">

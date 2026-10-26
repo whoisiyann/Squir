@@ -1,5 +1,6 @@
 /* Toolbar */
 .vault-toolbar {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -177,7 +178,11 @@
   border-radius: var(--radius);
   background: var(--card);
   box-shadow: var(--shadow);
-  max-height: 640px;
+  /* Fill the remaining page height instead of a fixed 640px,
+     so it adjusts when zooming in/out (same as Activity Log). */
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
   scrollbar-width: none;     
   -ms-overflow-style: none;  
@@ -387,7 +392,7 @@
   border: none;
   background: transparent;
   box-shadow: none;
-  max-height: 700px;
+  max-height: none;
 }
 
 .vault-table-wrap.grid-view .vault-table thead {
@@ -495,6 +500,14 @@
   color: var(--muted);
   font-size: .82rem;
   flex-wrap: wrap;
+  flex: 0 0 auto;
+}
+
+/* Very short viewports: let the page scroll instead of crushing the list */
+@media (max-height: 520px) {
+  .vault-table-wrap {
+    flex-shrink: 0;
+  }
 }
 
 .vault-pagination-count,
