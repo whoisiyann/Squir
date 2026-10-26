@@ -116,13 +116,13 @@ class ActivityLog
     }
 
     // Log admin activity
-    public function logAdmin(int $adminId, string $action, ?string $description = null): void
+    public function logAdmin(int $adminId, string $action, ?string $description = null, ?int $entityId = null): void
     {
         $meta = self::META[$action] ?? null;
 
         $statement = $this->db->prepare(
-            'INSERT INTO activity_logs (admin_id, action, entity_type, description, ip_address, device, user_agent)
-             VALUES (:admin_id, :action, :entity_type, :description, :ip_address, :device, :user_agent)'
+            'INSERT INTO activity_logs (admin_id, action, entity_type, entity_id, description, ip_address, device, user_agent)
+             VALUES (:admin_id, :action, :entity_type, :entity_id, :description, :ip_address, :device, :user_agent)'
         );
 
         $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? substr((string) $_SERVER['HTTP_USER_AGENT'], 0, 255) : null;
@@ -131,6 +131,7 @@ class ActivityLog
             'admin_id'    => $adminId,
             'action'      => $action,
             'entity_type' => $meta['entity'] ?? 'admin',
+            'entity_id'   => $entityId,
             'description' => $description ?? ($meta['detail'] ?? $meta['label'] ?? $action),
             'ip_address'  => self::clientIp(),
             'device'      => self::detectDevice($userAgent, self::modelHint()),

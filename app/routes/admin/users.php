@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             adminUsersJson(['error' => reset($result['errors']), 'errors' => $result['errors']], 422);
         }
 
-        $activityLog->logAdmin($adminId, 'user_updated', 'Updated ' . ($result['values']['fullName'] ?? 'a user account'));
+        $activityLog->logAdmin($adminId, 'user_updated', 'Updated ' . ($result['values']['fullName'] ?? 'a user account'), $userId);
         adminUsersJson(['success' => true]);
     }
 
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $actionCode = $status === 'suspended' ? 'user_suspended' : ($status === 'active' ? 'user_activated' : 'user_deactivated');
-        $activityLog->logAdmin($adminId, $actionCode, ucfirst($status) . ' ' . $result['user']['full_name']);
+        $activityLog->logAdmin($adminId, $actionCode, ucfirst($status) . ' ' . $result['user']['full_name'], $userId);
         adminUsersJson(['success' => true]);
     }
 
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             adminUsersJson(['error' => reset($result['errors'])], 422);
         }
 
-        $activityLog->logAdmin($adminId, 'user_force_logout', 'Forced logout for ' . $result['user']['full_name']);
+        $activityLog->logAdmin($adminId, 'user_force_logout', 'Forced logout for ' . $result['user']['full_name'], $userId);
         adminUsersJson(['success' => true]);
     }
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             adminUsersJson(['error' => reset($result['errors'])], 422);
         }
 
-        $activityLog->logAdmin($adminId, 'user_deleted', 'Deleted ' . $result['user']['full_name']);
+        $activityLog->logAdmin($adminId, 'user_deleted', 'Deleted ' . $result['user']['full_name'], $userId);
         adminUsersJson(['success' => true]);
     }
 
