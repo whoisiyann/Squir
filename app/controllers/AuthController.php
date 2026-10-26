@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../helpers/EmailValidator.php';
+require_once __DIR__ . '/../helpers/NameValidator.php';
 
 class AuthController
 {
@@ -17,10 +18,9 @@ class AuthController
 		$passwordConfirmation = (string) ($input['password_confirmation'] ?? '');
 		$errors = [];
 
-		if ($fullName === '') {
-			$errors['full_name'] = 'Full name is required.';
-		} elseif (mb_strlen($fullName) > 100) {
-			$errors['full_name'] = 'Full name must be 100 characters or fewer.';
+		$nameError = NameValidator::check($fullName);
+		if ($nameError !== null) {
+			$errors['full_name'] = $nameError;
 		}
 
 		$emailError = EmailValidator::check($email);

@@ -4,6 +4,7 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/UserPin.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
 require_once __DIR__ . '/../models/Vault.php';
+require_once __DIR__ . '/../helpers/NameValidator.php';
 require_once __DIR__ . '/../../includes/DocxBuilder.php';
 require_once __DIR__ . '/../../includes/XlsxBuilder.php';
 
@@ -24,10 +25,9 @@ class SettingsController
         $username = trim((string) ($post['username'] ?? ''));
         $errors = [];
 
-        if ($fullName === '') {
-            $errors['full_name'] = 'Full name is required.';
-        } elseif (mb_strlen($fullName) > 100) {
-            $errors['full_name'] = 'Full name must be 100 characters or fewer.';
+        $nameError = NameValidator::check($fullName);
+        if ($nameError !== null) {
+            $errors['full_name'] = $nameError;
         }
 
         if ($username === '') {

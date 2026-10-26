@@ -450,6 +450,64 @@
     }
 
     /* Edit account */
+    // Validate full name (needs first + last name)
+    function settingsFullNameProblem(name) {
+        var generic = 'Please enter your full name (first and last name), like "Juan Dela Cruz".';
+
+        if (name === '') {
+            return 'Full name is required.';
+        }
+
+        if (name.length > 100) {
+            return 'Full name must be 100 characters or fewer.';
+        }
+
+        if (!/^[\p{L}\p{M}][\p{L}\p{M}\s.'’-]*$/u.test(name)) {
+            return 'Full name can only contain letters, spaces, and . \' - (no numbers or symbols).';
+        }
+
+        var words = name.split(/\s+/).filter(Boolean);
+        if (words.length < 2) {
+            return generic;
+        }
+
+        var letterCount = function (word) {
+            return (word.match(/\p{L}/gu) || []).length;
+        };
+
+        if (letterCount(words[0]) < 2 || letterCount(words[words.length - 1]) < 2) {
+            return generic;
+        }
+
+        for (var i = 0; i < words.length; i++) {
+            if (letterCount(words[i]) === 0) {
+                return 'Please enter a valid full name.';
+            }
+        }
+
+        // Allow common initials and short forms without vowels.
+        var allowedNoVowel = ['ng', 'mj', 'jm', 'cj', 'rj', 'aj', 'jr', 'sr'];
+        for (var j = 0; j < words.length; j++) {
+            var onlyLetters = (words[j].match(/\p{L}/gu) || []).join('').toLowerCase();
+            if (onlyLetters.length >= 2 && allowedNoVowel.indexOf(onlyLetters) === -1 && !/[aeiouyàáâãäåèéêëìíîïòóôõöùúûüýÿ]/.test(onlyLetters)) {
+                return 'Please enter a valid full name.';
+            }
+        }
+
+        // First and last name should not be the same word ("Juan Juan").
+        var firstLetters = (words[0].match(/\p{L}/gu) || []).join('').toLowerCase();
+        var lastLetters = (words[words.length - 1].match(/\p{L}/gu) || []).join('').toLowerCase();
+        if (firstLetters === lastLetters) {
+            return 'Please enter a valid full name.';
+        }
+
+        if (/(\p{L})\1{3,}/iu.test(name)) {
+            return 'Please enter a valid full name.';
+        }
+
+        return '';
+    }
+
     if (editAccountFormEl) {
         editAccountFormEl.addEventListener('submit', function (event) {
             event.preventDefault();
@@ -457,6 +515,14 @@
             var submitBtn = document.getElementById('editAccountSubmit');
             errorEl.textContent = '';
             submitBtn.disabled = true;
+
+            var fullNameValue = document.getElementById('editFullName').value.trim();
+            var nameProblem = settingsFullNameProblem(fullNameValue);
+            if (nameProblem) {
+                errorEl.textContent = nameProblem;
+                submitBtn.disabled = false;
+                return;
+            }
 
             var newEmail = document.getElementById('editEmail').value.trim();
             var originalEmail = document.getElementById('editEmailOriginal').value.trim();
@@ -541,7 +607,7 @@
         var accountCard = document.querySelector('.settings-grid > .settings-card');
         var lockTimer = null;
 
-        // Keep the account card height steady while open
+        // Keep the account card height steady while open.
         function lockAccountHeight() {
             if (!accountCard || !window.matchMedia('(min-width: 1001px)').matches) return;
             accountCard.style.height = accountCard.offsetHeight + 'px';
