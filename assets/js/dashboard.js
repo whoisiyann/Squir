@@ -187,7 +187,7 @@
         setAccent: setAccentPreference,
         swalColor: function () {
             var name = getAccentPreference();
-            if (name === 'brown' && document.body.classList.contains('dashboard-dark')) return '#8b5e45';
+            if (name === 'brown' && document.body.classList.contains('dashboard-dark')) return '#c8895a';
             return accentSwal[name];
         }
     };

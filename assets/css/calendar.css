@@ -274,7 +274,7 @@ html.dashboard-dark-preload {
 .is-today > .cal-daynum,
 .is-today > .cal-day-col-head .cal-daynum {
   background: var(--accent);
-  color: var(--button-text);
+  color: #fff;
   font-weight: 600;
 }
 

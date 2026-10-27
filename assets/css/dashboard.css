@@ -876,7 +876,7 @@ a.mini-task:focus-visible {
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: 50%;
-  background: var(--peach);
+  background: var(--soft);
 }
 
 .recent-icon img {
@@ -1733,7 +1733,7 @@ body.dashboard-dark .dash-calendar {
 .mini-cal-day.is-today:hover .mini-cal-num,
 .mini-cal-day.is-weekend.is-today .mini-cal-num {
   background: var(--accent);
-  color: var(--button-text);
+  color: #fff;
 }
 
 /* Compact  */

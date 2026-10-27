@@ -163,7 +163,7 @@ $titles = [
                     </button>
                     <button type="button" class="settings-accent-btn" data-accent="orange" role="radio" aria-checked="false" style="--swatch: #c77700;">
                       <span class="settings-accent-swatch"></span>
-                      <span>Orange</span>
+                      <span>Yellow</span>
                       <i class="ti ti-check settings-accent-check"></i>
                     </button>
                     <button type="button" class="settings-accent-btn" data-accent="rose" role="radio" aria-checked="false" style="--swatch: #c2345f;">

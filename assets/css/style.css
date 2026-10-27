@@ -43,12 +43,12 @@ html.dashboard-dark-preload {
   --soft: #121212;
   --text: #f1f1f1;
   --muted: #7E8490;
-  --accent: #8B5E45;
-  --dark: #8B5E45;
-  --hover: #A47152;
+  --accent: #C8895A;
+  --dark: #C8895A;
+  --hover: #D99C6E;
   --topbar-bg: #121212;
   --input-bg: #181818;
-  --button-text: #08090B;
+  --button-text: #1A1108;
   --active-text: #fdf6ec;
   --active-icon: #E8C4A8;
   --backdrop: rgba(0,0,0,.58);
@@ -64,7 +64,7 @@ html.dashboard-dark-preload {
   --toggle: #ff9800;
   --wc-btn: #4f86a8;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, .5);
-  --task-drop-bg: color-mix(in srgb, #8B5E45 12%, transparent);
+  --task-drop-bg: color-mix(in srgb, #C8895A 12%, transparent);
 }
 
 /* Theme transition */
