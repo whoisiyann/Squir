@@ -148,7 +148,7 @@
     var accentStorageKey = 'squir-accent';
     var accentSwal = {
         brown: '#6b3f2a', blue: '#2b5c9e', green: '#2f7a5b',
-        purple: '#7a4bc0', orange: '#c77700', rose: '#c2345f'
+        purple: '#7a4bc0', yellow: '#c77700', rose: '#c2345f'
     };
 
     function getAccentPreference() {

@@ -113,7 +113,7 @@ if (!function_exists('asset')) {
 
 if (!defined('PREF_THEMES')) {
     define('PREF_THEMES', ['light', 'dark', 'auto']);
-    define('PREF_ACCENTS', ['brown', 'blue', 'green', 'purple', 'orange', 'rose']);
+    define('PREF_ACCENTS', ['brown', 'blue', 'green', 'purple', 'yellow', 'rose']);
 }
 
 // Saved appearance (theme + accent), cached in the session.

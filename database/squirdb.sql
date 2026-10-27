@@ -16,7 +16,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,   -- bcrypt (password_hash)
     status        ENUM('active','inactive','suspended') NOT NULL DEFAULT 'active',
     theme_pref    ENUM('light','dark','auto') NOT NULL DEFAULT 'light',
-    accent_color  ENUM('brown','blue','green','purple','orange','rose') NOT NULL DEFAULT 'brown',
+    accent_color  ENUM('brown','blue','green','purple','yellow','rose') NOT NULL DEFAULT 'brown',
     last_login_at DATETIME  NULL,
     force_logout_at DATETIME NULL,          -- admin "Force Logout": older sessions are signed out
     failed_attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,  -- wrong passwords in a row (login lockout)
@@ -43,7 +43,7 @@ CREATE TABLE admins (
     failed_attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,  -- wrong passwords in a row (login lockout)
     locked_until  DATETIME  NULL,           -- login blocked until this time
     theme_pref    ENUM('light','dark','auto') NOT NULL DEFAULT 'light',
-    accent_color  ENUM('brown','blue','green','purple','orange','rose') NOT NULL DEFAULT 'brown',
+    accent_color  ENUM('brown','blue','green','purple','yellow','rose') NOT NULL DEFAULT 'brown',
     last_login_at DATETIME  NULL,
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

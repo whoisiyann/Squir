@@ -122,7 +122,7 @@ Squir was developed as the final project for **ITE083** (Education Technology in
 - Global search bar in the top bar to quickly find saved items, plus dedicated search inside the vault.
 
 ### ⚙️ Account Settings
-- Edit profile information and personalize the **theme** (light / dark / auto) and **accent color** (brown, blue, green, purple, orange, rose).
+- Edit profile information and personalize the **theme** (light / dark / auto) and **accent color** (brown, blue, green, purple, yellow, rose).
 - Change account password.
 - Reset vault PIN (with the "Forgot PIN" recovery flow above).
 - **Activity Log** — a timeline of account actions (logins, password/PIN changes, edits, exports, etc.) that also records the device and IP address used, with the option to clear it from the user's view.
@@ -172,7 +172,7 @@ Administrators log in from the same login page and are redirected to their own p
 
 ## 🗄️ Database
 
-Squir uses a normalized **MySQL** database (3NF) named `squirdb`, made up of **19 tables** and 141 fields. Users and administrators are modeled as **separate entities**, each with their own credentials and access scope.
+Squir uses a normalized **MySQL** database (3NF) named `squirdb`, made up of **19 tables** and 145 fields. Users and administrators are modeled as **separate entities**, each with their own credentials and access scope.
 
 | Group | Tables |
 |---|---|

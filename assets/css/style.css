@@ -1031,8 +1031,8 @@ html[data-accent="purple"].dashboard-dark-preload {
   --active-icon: #08090B;
   --task-drop-bg: color-mix(in srgb, #b085f5 8%, transparent);
 }
-/* Orange */
-html[data-accent="orange"] {
+/* Yellow */
+html[data-accent="yellow"] {
   --accent: #c77700;
   --dark: #8f5400;
   --hover: #a86500;
@@ -1042,8 +1042,8 @@ html[data-accent="orange"] {
   --task-drop-bg: color-mix(in srgb, #c77700 7%, transparent);
 }
 
-html[data-accent="orange"] body.dashboard-dark,
-html[data-accent="orange"].dashboard-dark-preload {
+html[data-accent="yellow"] body.dashboard-dark,
+html[data-accent="yellow"].dashboard-dark-preload {
   --accent: #ffc233;
   --dark: #ffb300;
   --hover: #ffca4d;
