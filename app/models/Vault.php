@@ -240,9 +240,10 @@ class Vault
                 'INSERT INTO vault (user_id, folder_id, title, account_username, account_password, website_url, notes)
                  VALUES (:user_id, :folder_id, :title, :username, :password, :website_url, :notes)'
             );
+            $newFolderId = $this->resolveFolderId($data['folder_id'] ?? null, $userId);
             $stmt->execute([
                 'user_id'     => $userId,
-                'folder_id'   => $this->resolveFolderId($data['folder_id'] ?? null, $userId),
+                'folder_id'   => $newFolderId,
                 'title'       => $data['title'],
                 'username'    => $data['account_username'] !== '' ? $data['account_username'] : null,
                 'password'    => $this->encryptSecret($data['account_password']),
@@ -252,6 +253,7 @@ class Vault
 
             $vaultId = (int) $this->dbh->lastInsertId();
             $this->syncTags($vaultId, $userId, $tags);
+            $this->touchFolder($newFolderId, $userId);
 
             $this->dbh->commit();
         } catch (Throwable $exception) {
@@ -289,8 +291,9 @@ class Vault
                      account_password = :password, website_url = :website_url, notes = :notes
                  WHERE vault_id = :id AND user_id = :uid'
             );
+            $newFolderId = $this->resolveFolderId($data['folder_id'] ?? null, $userId);
             $stmt->execute([
-                'folder_id'   => $this->resolveFolderId($data['folder_id'] ?? null, $userId),
+                'folder_id'   => $newFolderId,
                 'title'       => $data['title'],
                 'username'    => $data['account_username'] !== '' ? $data['account_username'] : null,
                 'password'    => $passwordValue,
@@ -301,6 +304,8 @@ class Vault
             ]);
 
             $this->syncTags($vaultId, $userId, $tags);
+            $this->touchFolder($existing['folder_id'] ?? null, $userId);
+            $this->touchFolder($newFolderId, $userId);
 
             $this->dbh->commit();
         } catch (Throwable $exception) {
@@ -323,22 +328,34 @@ class Vault
             }
         }
 
+        $before = $this->find($vaultId, $userId);
+
         $stmt = $this->dbh->prepare(
             'UPDATE vault SET folder_id = :folder_id WHERE vault_id = :id AND user_id = :uid'
         );
-        return $stmt->execute([
+        $ok = $stmt->execute([
             'folder_id' => $resolved,
             'id'        => $vaultId,
             'uid'       => $userId,
         ]);
+        if ($ok) {
+            $this->touchFolder($before['folder_id'] ?? null, $userId);
+            $this->touchFolder($resolved, $userId);
+        }
+        return $ok;
     }
 
     // Delete a vault entry
     public function delete(int $vaultId, int $userId): bool
     {
+        $before = $this->find($vaultId, $userId);
+
         try {
             $stmt = $this->dbh->prepare('DELETE FROM vault WHERE vault_id = :id AND user_id = :uid');
             $ok = $stmt->execute(['id' => $vaultId, 'uid' => $userId]);
+            if ($ok) {
+                $this->touchFolder($before['folder_id'] ?? null, $userId);
+            }
             $this->deleteOrphanTags($userId);
             return $ok;
         } catch (Throwable $exception) {
@@ -348,6 +365,23 @@ class Vault
     }
 
 
+
+    // Refresh the Date modified of a folder when its contents change
+    private function touchFolder($folderId, int $userId): void
+    {
+        if ($folderId === null || (int) $folderId <= 0) {
+            return;
+        }
+
+        try {
+            $stmt = $this->dbh->prepare(
+                'UPDATE folders SET updated_at = CURRENT_TIMESTAMP WHERE folder_id = :id AND user_id = :uid'
+            );
+            $stmt->execute(['id' => (int) $folderId, 'uid' => $userId]);
+        } catch (PDOException $e) {
+            error_log('[touchFolder] ' . $e->getMessage());
+        }
+    }
 
     // Resolve a folder ID
     private function resolveFolderId($raw, int $userId): ?int

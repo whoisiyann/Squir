@@ -93,12 +93,14 @@ class Note
                 'INSERT INTO notes (user_id, folder_id, title, content)
                  VALUES (:user_id, :folder_id, :title, :content)'
             );
+            $newFolderId = $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId);
             $stmt->execute([
                 'user_id' => $userId,
-                'folder_id' => $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId),
+                'folder_id' => $newFolderId,
                 'title' => $data['title'],
                 'content' => $data['content'] !== '' ? $data['content'] : null,
             ]);
+            $this->touchFolder($newFolderId, $userId);
         } catch (PDOException $e) {
             error_log('[Note::create] ' . $e->getMessage());
             return ['errors' => ['form' => 'We could not save your changes right now. Please try again.']];
@@ -115,18 +117,23 @@ class Note
             return ['errors' => $errors];
         }
 
+        $before = $this->find($noteId, $userId);
+
         try {
             $stmt = $this->dbh->prepare(
                 'UPDATE notes SET folder_id = :folder_id, title = :title, content = :content
                  WHERE note_id = :id AND user_id = :uid'
             );
+            $newFolderId = $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId);
             $stmt->execute([
-                'folder_id' => $this->resolveNotesFolderId($data['folder_id'] ?? null, $userId),
+                'folder_id' => $newFolderId,
                 'title' => $data['title'],
                 'content' => $data['content'] !== '' ? $data['content'] : null,
                 'id' => $noteId,
                 'uid' => $userId,
             ]);
+            $this->touchFolder($before['folder_id'] ?? null, $userId);
+            $this->touchFolder($newFolderId, $userId);
         } catch (PDOException $e) {
             error_log('[Note::update] ' . $e->getMessage());
             return ['errors' => ['form' => 'We could not save your changes right now. Please try again.']];
@@ -138,9 +145,15 @@ class Note
     // Delete a note
     public function delete(int $noteId, int $userId): bool
     {
+        $before = $this->find($noteId, $userId);
+
         try {
             $stmt = $this->dbh->prepare('DELETE FROM notes WHERE note_id = :id AND user_id = :uid');
-            return $stmt->execute(['id' => $noteId, 'uid' => $userId]);
+            $ok = $stmt->execute(['id' => $noteId, 'uid' => $userId]);
+            if ($ok) {
+                $this->touchFolder($before['folder_id'] ?? null, $userId);
+            }
+            return $ok;
         } catch (PDOException $e) {
             error_log('[Note::delete] ' . $e->getMessage());
             return false;
@@ -161,15 +174,22 @@ class Note
             }
         }
 
+        $before = $this->find($noteId, $userId);
+
         try {
             $stmt = $this->dbh->prepare(
                 'UPDATE notes SET folder_id = :folder_id WHERE note_id = :id AND user_id = :uid'
             );
-            return $stmt->execute([
+            $ok = $stmt->execute([
                 'folder_id' => $folderId,
                 'id' => $noteId,
                 'uid' => $userId,
             ]);
+            if ($ok) {
+                $this->touchFolder($before['folder_id'] ?? null, $userId);
+                $this->touchFolder($folderId, $userId);
+            }
+            return $ok;
         } catch (PDOException $e) {
             error_log('[Note::moveToFolder] ' . $e->getMessage());
             return false;
@@ -197,6 +217,7 @@ class Note
                 'title' => $originalTitle !== '' ? mb_substr($originalTitle, 0, 93) . ' (Copy)' : '',
                 'content' => $original['content'],
             ]);
+            $this->touchFolder($original['folder_id'], $userId);
         } catch (PDOException $e) {
             error_log('[Note::duplicate] ' . $e->getMessage());
             return null;
@@ -205,6 +226,23 @@ class Note
         return (int) $this->dbh->lastInsertId();
     }
 
+
+    // Refresh the Date modified of a folder when its contents change
+    private function touchFolder($folderId, int $userId): void
+    {
+        if ($folderId === null || (int) $folderId <= 0) {
+            return;
+        }
+
+        try {
+            $stmt = $this->dbh->prepare(
+                'UPDATE folders SET updated_at = CURRENT_TIMESTAMP WHERE folder_id = :id AND user_id = :uid'
+            );
+            $stmt->execute(['id' => (int) $folderId, 'uid' => $userId]);
+        } catch (PDOException $e) {
+            error_log('[touchFolder] ' . $e->getMessage());
+        }
+    }
 
     // Make a plain-text excerpt
     public static function excerptOf(?string $htmlContent, int $length = 90): string

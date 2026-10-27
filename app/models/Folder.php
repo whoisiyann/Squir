@@ -132,7 +132,7 @@ class Folder
 
         try {
             $stmt = $this->dbh->prepare(
-                'UPDATE folders SET folder_name = :name WHERE folder_id = :id AND user_id = :uid'
+                'UPDATE folders SET folder_name = :name, updated_at = CURRENT_TIMESTAMP WHERE folder_id = :id AND user_id = :uid'
             );
             $stmt->execute(['name' => trim($name), 'id' => $folderId, 'uid' => $userId]);
         } catch (PDOException $e) {
@@ -151,12 +151,29 @@ class Folder
 
         try {
             $stmt = $this->dbh->prepare(
-                'UPDATE folders SET color = :color WHERE folder_id = :id AND user_id = :uid'
+                'UPDATE folders SET color = :color, updated_at = CURRENT_TIMESTAMP WHERE folder_id = :id AND user_id = :uid'
             );
             return $stmt->execute(['color' => $color, 'id' => $folderId, 'uid' => $userId]);
         } catch (PDOException $e) {
             error_log('[Folder::updateColor] ' . $e->getMessage());
             return false;
+        }
+    }
+
+    // Refresh a folder's Date modified
+    public function touch(?int $folderId, int $userId): void
+    {
+        if ($folderId === null || $folderId <= 0) {
+            return;
+        }
+
+        try {
+            $stmt = $this->dbh->prepare(
+                'UPDATE folders SET updated_at = CURRENT_TIMESTAMP WHERE folder_id = :id AND user_id = :uid'
+            );
+            $stmt->execute(['id' => $folderId, 'uid' => $userId]);
+        } catch (PDOException $e) {
+            error_log('[Folder::touch] ' . $e->getMessage());
         }
     }
 

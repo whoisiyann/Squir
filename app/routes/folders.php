@@ -77,7 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['ajax'] ?? '') === 'rename'
         echo json_encode(['error' => reset($result['errors'])]);
         exit;
     }
-    echo json_encode(['success' => true]);
+    $renamed = $folderModel->find((int) ($_POST['folder_id'] ?? 0), $userId);
+    $updatedTs = $renamed ? (int) strtotime($renamed['updated_at']) : time();
+    echo json_encode([
+        'success' => true,
+        'updated_at' => $updatedTs,
+        'updated_label' => date('F j, g:i A', $updatedTs),
+    ]);
     exit;
 }
 

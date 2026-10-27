@@ -400,6 +400,11 @@
                         return response.json().catch(function () { return {}; }).then(function (json) {
                             if (!response.ok) throw new Error(json.error || 'Could not rename folder.');
                             nameEl.textContent = newName;
+
+                            // Refresh the Date modified shown on the card
+                            var dateEl = card.querySelector('.folder-date');
+                            if (dateEl && json.updated_label) dateEl.textContent = json.updated_label;
+                            if (json.updated_at) card.setAttribute('data-updated-at', String(json.updated_at));
                         });
                     });
                 }
