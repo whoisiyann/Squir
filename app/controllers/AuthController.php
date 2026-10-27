@@ -1,10 +1,14 @@
 <?php
+require_once __DIR__ . '/../helpers/PasswordValidator.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../helpers/EmailValidator.php';
 require_once __DIR__ . '/../helpers/NameValidator.php';
 
 class AuthController
 {
+	private const MAX_ATTEMPTS = 5;
+	private const LOCK_MINUTES = 15;
+
 	public function __construct(private User $user)
 	{
 	}
@@ -32,8 +36,11 @@ class AuthController
 
 		if ($password === '') {
 			$errors['password'] = 'Password is required.';
-		} elseif (strlen($password) < 8) {
-			$errors['password'] = 'Password must be at least 8 characters.';
+		} else {
+			$passwordError = PasswordValidator::check($password, ['full_name' => $fullName, 'email' => $email]);
+			if ($passwordError !== null) {
+				$errors['password'] = $passwordError;
+			}
 		}
 
 		if ($passwordConfirmation === '') {
@@ -88,12 +95,31 @@ class AuthController
 		}
 
 		$user = $this->user->findByEmail($email);
+
+		// Check whether the account is locked.
+		if ($user) {
+			$secondsLeft = $this->user->lockSecondsRemaining((int) $user['user_id']);
+			if ($secondsLeft > 0) {
+				return [
+					'errors' => ['form' => 'Too many failed attempts. Please try again in ' . (int) ceil($secondsLeft / 60) . ' minute(s).'],
+					'values' => ['email' => $email],
+				];
+			}
+		}
+
 		if (!$user || !password_verify($password, $user['password_hash'])) {
+			if ($user) {
+				$this->user->recordFailedLogin((int) $user['user_id'], self::MAX_ATTEMPTS, self::LOCK_MINUTES);
+			}
+
 			return [
 				'errors' => ['form' => 'The email or password is incorrect.'],
 				'values' => ['email' => $email],
 			];
 		}
+
+		// Clear failed attempts after successful login.
+		$this->user->clearFailedLogins((int) $user['user_id']);
 
 		// Reactivate inactive accounts on login
 		if ($user['status'] === 'inactive') {

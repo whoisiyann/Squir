@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../helpers/PasswordValidator.php';
 require_once __DIR__ . '/../../models/admin/Admin.php';
 require_once __DIR__ . '/../../models/ActivityLog.php';
 require_once __DIR__ . '/../../models/User.php';
@@ -196,6 +197,11 @@ class AdminSettingsController
 			$errors['new_password'] = 'Password must be at least 8 characters and include a number and a special character.';
 		} elseif (isset($admin['password_hash']) && password_verify($new, (string) $admin['password_hash'])) {
 			$errors['new_password'] = 'Your new password must be different from your current password.';
+		} else {
+			$passwordError = PasswordValidator::check($new, ['full_name' => (string) ($admin['full_name'] ?? ''), 'username' => (string) ($admin['username'] ?? ''), 'email' => (string) ($admin['email'] ?? '')]);
+			if ($passwordError !== null) {
+				$errors['new_password'] = $passwordError;
+			}
 		}
 
 		if ($confirm === '' || $confirm !== $new) {
@@ -277,6 +283,11 @@ class AdminSettingsController
 			$errors['new_password'] = 'Password must be at least 8 characters and include a number and a special character.';
 		} elseif (password_verify($new, (string) $admin['password_hash'])) {
 			$errors['new_password'] = 'Your new password must be different from your current password.';
+		} else {
+			$passwordError = PasswordValidator::check($new, ['full_name' => (string) ($admin['full_name'] ?? ''), 'username' => (string) ($admin['username'] ?? ''), 'email' => (string) ($admin['email'] ?? '')]);
+			if ($passwordError !== null) {
+				$errors['new_password'] = $passwordError;
+			}
 		}
 
 		if ($confirm === '' || $confirm !== $new) {

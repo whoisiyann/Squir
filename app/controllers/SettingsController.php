@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../helpers/PasswordValidator.php';
 
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/UserPin.php';
@@ -72,6 +73,11 @@ class SettingsController
             $errors['new_password'] = 'Password must be at least 8 characters and include a number and a special character.';
         } elseif (isset($user['password_hash']) && password_verify($new, $user['password_hash'])) {
             $errors['new_password'] = 'Your new password must be different from your current password.';
+        } else {
+            $passwordError = PasswordValidator::check($new, ['full_name' => (string) ($user['full_name'] ?? ''), 'username' => (string) ($user['username'] ?? ''), 'email' => (string) ($user['email'] ?? '')]);
+            if ($passwordError !== null) {
+                $errors['new_password'] = $passwordError;
+            }
         }
 
         if ($confirm === '' || $confirm !== $new) {

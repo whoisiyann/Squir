@@ -26,6 +26,39 @@ class Admin
 		return $admin ?: null;
 	}
 
+	// Return the remaining lockout time in seconds.
+	public function lockSecondsRemaining(int $id): int
+	{
+		$statement = $this->db->prepare(
+			'SELECT GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), locked_until)) FROM admins WHERE admin_id = :id'
+		);
+		$statement->execute(['id' => $id]);
+
+		return (int) $statement->fetchColumn();
+	}
+
+	// Record a failed login and lock the account at the limit.
+	public function recordFailedLogin(int $id, int $maxAttempts, int $lockMinutes): void
+	{
+		$statement = $this->db->prepare(
+			'UPDATE admins
+			 SET locked_until = IF(failed_attempts + 1 >= ' . $maxAttempts . ', DATE_ADD(NOW(), INTERVAL ' . $lockMinutes . ' MINUTE), locked_until),
+			     failed_attempts = IF(failed_attempts + 1 >= ' . $maxAttempts . ', 0, failed_attempts + 1)
+			 WHERE admin_id = :id'
+		);
+		$statement->execute(['id' => $id]);
+	}
+
+	// Clear failed attempts and any active lockout.
+	public function clearFailedLogins(int $id): void
+	{
+		$statement = $this->db->prepare(
+			'UPDATE admins SET failed_attempts = 0, locked_until = NULL
+			 WHERE admin_id = :id AND (failed_attempts > 0 OR locked_until IS NOT NULL)'
+		);
+		$statement->execute(['id' => $id]);
+	}
+
 	// Username check
 	public function usernameExists(string $username, ?int $excludeAdminId = null): bool
 	{

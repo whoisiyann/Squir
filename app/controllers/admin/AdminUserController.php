@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../helpers/PasswordValidator.php';
 require_once __DIR__ . '/../../models/User.php';
 require_once __DIR__ . '/../../models/ActivityLog.php';
 require_once __DIR__ . '/../../helpers/EmailValidator.php';
@@ -74,8 +75,11 @@ class AdminUserController
 
 		if ($password === '') {
 			$errors['password'] = 'Password is required.';
-		} elseif (strlen($password) < 8) {
-			$errors['password'] = 'Password must be at least 8 characters.';
+		} else {
+			$passwordError = PasswordValidator::check($password, ['full_name' => $fullName, 'username' => $username, 'email' => $email]);
+			if ($passwordError !== null) {
+				$errors['password'] = $passwordError;
+			}
 		}
 
 		if ($passwordConfirmation === '' || $password !== $passwordConfirmation) {

@@ -3,6 +3,9 @@ require_once __DIR__ . '/../../models/admin/Admin.php';
 
 class AdminAuthController
 {
+	private const MAX_ATTEMPTS = 5;
+	private const LOCK_MINUTES = 15;
+
 	public function __construct(private Admin $admin)
 	{
 	}
@@ -28,13 +31,31 @@ class AdminAuthController
 
 		$admin = $this->admin->findByEmail($email);
 
+		// Check whether the account is locked.
+		if ($admin) {
+			$secondsLeft = $this->admin->lockSecondsRemaining((int) $admin['admin_id']);
+			if ($secondsLeft > 0) {
+				return [
+					'errors' => ['form' => 'Too many failed attempts. Please try again in ' . (int) ceil($secondsLeft / 60) . ' minute(s).'],
+					'values' => ['email' => $email],
+				];
+			}
+		}
+
 		// Keep login errors generic
 		if (!$admin || !password_verify($password, $admin['password_hash'])) {
+			if ($admin) {
+				$this->admin->recordFailedLogin((int) $admin['admin_id'], self::MAX_ATTEMPTS, self::LOCK_MINUTES);
+			}
+
 			return [
 				'errors' => ['form' => 'The email or password is incorrect.'],
 				'values' => ['email' => $email],
 			];
 		}
+
+		// Clear failed attempts after successful login.
+		$this->admin->clearFailedLogins((int) $admin['admin_id']);
 
 		if ($admin['status'] !== 'active') {
 			return [

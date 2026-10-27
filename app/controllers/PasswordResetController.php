@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../helpers/PasswordValidator.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/PasswordReset.php';
 require_once __DIR__ . '/../models/ActivityLog.php';
@@ -124,8 +125,13 @@ class PasswordResetController
             } elseif (password_verify($password, $account['hash'])) {
                 $errors['password'] = 'Your new password must be different from your current password.';
             }
-        } elseif (strlen($password) < 8) {
-            $errors['password'] = 'Password must be at least 8 characters.';
+        }
+
+        if (!isset($errors['password']) && $password !== '') {
+            $passwordError = PasswordValidator::check($password, ['full_name' => (string) ($account['name'] ?? ''), 'email' => $email]);
+            if ($passwordError !== null) {
+                $errors['password'] = $passwordError;
+            }
         }
 
         if ($confirmation === '') {

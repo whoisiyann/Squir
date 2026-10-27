@@ -133,6 +133,39 @@ class User
 		]);
 	}
 
+	// Return the remaining lockout time in seconds.
+	public function lockSecondsRemaining(int $id): int
+	{
+		$statement = $this->db->prepare(
+			'SELECT GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), locked_until)) FROM users WHERE user_id = :id'
+		);
+		$statement->execute(['id' => $id]);
+
+		return (int) $statement->fetchColumn();
+	}
+
+	// Record a failed login and lock the account at the limit.
+	public function recordFailedLogin(int $id, int $maxAttempts, int $lockMinutes): void
+	{
+		$statement = $this->db->prepare(
+			'UPDATE users
+			 SET locked_until = IF(failed_attempts + 1 >= ' . $maxAttempts . ', DATE_ADD(NOW(), INTERVAL ' . $lockMinutes . ' MINUTE), locked_until),
+			     failed_attempts = IF(failed_attempts + 1 >= ' . $maxAttempts . ', 0, failed_attempts + 1)
+			 WHERE user_id = :id'
+		);
+		$statement->execute(['id' => $id]);
+	}
+
+	// Clear failed attempts and any active lockout.
+	public function clearFailedLogins(int $id): void
+	{
+		$statement = $this->db->prepare(
+			'UPDATE users SET failed_attempts = 0, locked_until = NULL
+			 WHERE user_id = :id AND (failed_attempts > 0 OR locked_until IS NOT NULL)'
+		);
+		$statement->execute(['id' => $id]);
+	}
+
 	// Record last login
 	public function touchLastLogin(int $userId): void
 	{
