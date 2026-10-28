@@ -375,7 +375,7 @@
                 var iconWrap = document.createElement('span');
                 iconWrap.className = 'search-result-icon';
                 var icon = document.createElement('i');
-                icon.className = 'ti ' + (ICONS[result.type] || 'ti-search');
+                icon.className = 'ti ' + (result.icon || ICONS[result.type] || 'ti-search');
                 iconWrap.appendChild(icon);
 
                 var text = document.createElement('span');

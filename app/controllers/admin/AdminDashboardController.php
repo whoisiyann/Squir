@@ -62,6 +62,7 @@ class AdminDashboardController
 		foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $user) {
 			$results[] = [
 				'type'     => 'user',
+				'icon'     => 'ti-user',
 				'title'    => (string) $user['full_name'],
 				'subtitle' => (string) $user['email'],
 				'url'      => url('admin/user-details?id=' . (int) $user['user_id']),
@@ -70,11 +71,24 @@ class AdminDashboardController
 
 		// Activity types and groups. Each opens Activity Logs with that filter.
 		$needle = mb_strtolower($term);
+
+		// Icon per category (for the "All ..." results)
+		$categoryIcons = [
+			'auth'      => 'ti-login',
+			'vault'     => 'ti-lock',
+			'notes'     => 'ti-notes',
+			'tasks'     => 'ti-checkbox',
+			'folders'   => 'ti-folder',
+			'favorites' => 'ti-star',
+			'account'   => 'ti-user',
+		];
+
 		$activities = [];
 		foreach (ActivityLog::actionGroups() as $key => $group) {
 			if (mb_strpos(mb_strtolower((string) $group['label']), $needle) !== false) {
 				$activities[] = [
 					'type'     => 'activity',
+					'icon'     => $categoryIcons[$key] ?? 'ti-activity',
 					'title'    => 'All ' . $group['label'],
 					'subtitle' => 'Activity logs',
 					'url'      => url('admin/activity-logs?action=' . rawurlencode('cat:' . $key)),
@@ -85,6 +99,7 @@ class AdminDashboardController
 				if (mb_strpos(mb_strtolower((string) $label), $needle) !== false) {
 					$activities[] = [
 						'type'     => 'activity',
+						'icon'     => ActivityLog::actionIcon((string) $code),
 						'title'    => (string) $label,
 						'subtitle' => (string) $group['label'] . ' activity',
 						'url'      => url('admin/activity-logs?action=' . rawurlencode((string) $code)),
