@@ -259,6 +259,7 @@
         font-weight: 600;
         font-size: 0.95rem;
         width: 100%;
+        cursor: pointer;
         transition: background .15s ease;
     }
 

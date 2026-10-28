@@ -66,6 +66,7 @@ class AuthController
 				password_hash($password, PASSWORD_DEFAULT)
 			);
 		} catch (PDOException $exception) {
+			error_log('[register] ' . $exception->getMessage());
 			return [
 				'errors' => ['form' => 'We could not create your account right now. Please try again.'],
 				'values' => compact('fullName', 'email'),
